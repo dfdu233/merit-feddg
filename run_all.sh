@@ -23,7 +23,7 @@ prepares the public benchmark, extracts model evidence, and runs predicted-route
 oracle-router comparisons.
 
 Options:
-  --preset NAME            canary (8 rows/domain) or paper (all compatible images)
+  --preset NAME            canary (2 rows/domain) or paper (all compatible images)
   --model-profile NAME     medical-small (default) or research-2d
   --limit-per-domain N     Override the preset; 0 means no limit
   --questions-per-image N  Maximum QA rows per unique image; 0 means all (default: 1)
@@ -58,7 +58,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$PRESET" in
-  canary) DEFAULT_LIMIT=8 ;;
+  canary) DEFAULT_LIMIT=2 ;;
   paper) DEFAULT_LIMIT=0 ;;
   *) echo "Unknown preset: $PRESET" >&2; exit 2 ;;
 esac

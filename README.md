@@ -47,7 +47,7 @@ individual Hugging Face downloads automatically retry against the official endpo
 does not modify global pip or apt configuration. Use `--mirror auto` outside mainland
 China. If system packages are already installed, omit `--install-system`.
 
-The `canary` preset prepares eight examples per generated domain so the complete path can
+The `canary` preset prepares two examples per generated domain so the complete path can
 be checked before a long run. After it succeeds, run the complete compatible image set:
 
 ```bash
