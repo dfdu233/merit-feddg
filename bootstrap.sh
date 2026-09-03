@@ -8,6 +8,8 @@ SKIP_DOWNLOAD=0
 SKIP_TESTS=0
 IGNORE_DISK_CHECK=0
 TORCH_INDEX=""
+MIRROR_MODE="${MERIT_MIRROR:-auto}"
+CONCH_SOURCE="${MERIT_CONCH_SOURCE:-git+https://github.com/Mahmoodlab/CONCH.git}"
 MIN_FREE_GB=80
 
 usage() {
@@ -22,6 +24,8 @@ Options:
   --include-gated         Download gated models after access is approved
   --install-system        Install missing apt packages on Debian/Ubuntu
   --torch-index URL       Explicit PyTorch wheel index, e.g. .../whl/cu130
+  --mirror MODE           auto, cn, or global (default: auto)
+  --conch-source URL      Override the official CONCH package source
   --min-free-gb N         Required free disk for research-2d (default: 80)
   --ignore-disk-check     Continue below the disk-space threshold
   --skip-download         Install dependencies without downloading assets
@@ -44,6 +48,8 @@ while [[ $# -gt 0 ]]; do
     --include-gated) INCLUDE_GATED=1; shift ;;
     --install-system) INSTALL_SYSTEM=1; shift ;;
     --torch-index) TORCH_INDEX="${2:?missing torch index URL}"; shift 2 ;;
+    --mirror) MIRROR_MODE="${2:?missing mirror mode}"; shift 2 ;;
+    --conch-source) CONCH_SOURCE="${2:?missing CONCH source}"; shift 2 ;;
     --min-free-gb) MIN_FREE_GB="${2:?missing disk threshold}"; shift 2 ;;
     --ignore-disk-check) IGNORE_DISK_CHECK=1; shift ;;
     --skip-download) SKIP_DOWNLOAD=1; shift ;;
@@ -56,6 +62,10 @@ done
 case "$PROFILE" in
   smoke|open-small|research-2d) ;;
   *) echo "Unknown profile: $PROFILE" >&2; exit 2 ;;
+esac
+case "$MIRROR_MODE" in
+  auto|cn|global) ;;
+  *) echo "Unknown mirror mode: $MIRROR_MODE" >&2; exit 2 ;;
 esac
 if [[ ! "$MIN_FREE_GB" =~ ^[0-9]+$ ]]; then
   echo "--min-free-gb must be a non-negative integer." >&2
@@ -117,6 +127,42 @@ if sys.version_info < (3, 10):
     raise SystemExit(f"Python 3.10+ is required, found {sys.version.split()[0]}")
 PY
 
+RESOLVED_MIRROR="$MIRROR_MODE"
+if [[ "$RESOLVED_MIRROR" == "auto" ]]; then
+  if "$PYTHON_BIN" - <<'PY' >/dev/null 2>&1
+import urllib.request
+with urllib.request.urlopen("https://hf-mirror.com", timeout=4) as response:
+    raise SystemExit(0 if response.status < 500 else 1)
+PY
+  then
+    RESOLVED_MIRROR="cn"
+  else
+    RESOLVED_MIRROR="global"
+  fi
+fi
+
+if [[ "$RESOLVED_MIRROR" == "cn" ]]; then
+  PIP_INDEX="${MERIT_PIP_INDEX_URL:-https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple}"
+  export HF_ENDPOINT="${MERIT_HF_ENDPOINT:-https://hf-mirror.com}"
+  export MERIT_HF_FALLBACK_ENDPOINT="${MERIT_HF_FALLBACK_ENDPOINT:-https://huggingface.co}"
+else
+  PIP_INDEX="${MERIT_PIP_INDEX_URL:-https://pypi.org/simple}"
+  export HF_ENDPOINT="${MERIT_HF_ENDPOINT:-https://huggingface.co}"
+  unset MERIT_HF_FALLBACK_ENDPOINT || true
+fi
+
+pip_install() {
+  if "$PYTHON_EXE" -m pip install --index-url "$PIP_INDEX" "$@"; then
+    return 0
+  fi
+  if [[ "$RESOLVED_MIRROR" == "cn" ]]; then
+    echo "Domestic PyPI mirror failed; retrying with the official index." >&2
+    "$PYTHON_EXE" -m pip install --index-url https://pypi.org/simple "$@"
+    return $?
+  fi
+  return 1
+}
+
 if [[ "$PROFILE" == "research-2d" && $IGNORE_DISK_CHECK -ne 1 ]]; then
   free_kb="$(df -Pk "$REPO_ROOT" | awk 'NR==2 {print $4}')"
   required_kb=$((MIN_FREE_GB * 1024 * 1024))
@@ -132,17 +178,17 @@ if [[ ! -x "$PYTHON_EXE" ]]; then
   "$PYTHON_BIN" -m venv "$REPO_ROOT/.venv"
 fi
 
-"$PYTHON_EXE" -m pip install --upgrade pip setuptools wheel
+pip_install --upgrade pip setuptools wheel
 
 if [[ "$PROFILE" == "smoke" ]]; then
-  "$PYTHON_EXE" -m pip install -e "$REPO_ROOT[dev]"
+  pip_install -e "$REPO_ROOT[dev]"
 else
   if [[ -n "$TORCH_INDEX" ]]; then
     "$PYTHON_EXE" -m pip install torch torchvision --index-url "$TORCH_INDEX"
   else
-    "$PYTHON_EXE" -m pip install torch torchvision
+    pip_install torch torchvision
   fi
-  "$PYTHON_EXE" -m pip install -e "$REPO_ROOT[research,dev]"
+  pip_install -e "$REPO_ROOT[research,dev]"
 fi
 
 if [[ $INCLUDE_GATED -eq 1 ]]; then
@@ -151,11 +197,14 @@ if [[ $INCLUDE_GATED -eq 1 ]]; then
     echo "Export HF_TOKEN or run: $REPO_ROOT/.venv/bin/hf auth login" >&2
     exit 1
   fi
-  "$PYTHON_EXE" -m pip install "git+https://github.com/Mahmoodlab/CONCH.git"
+  pip_install "$CONCH_SOURCE"
 fi
 
-export HF_HUB_DOWNLOAD_TIMEOUT="${HF_HUB_DOWNLOAD_TIMEOUT:-60}"
+export HF_HUB_DOWNLOAD_TIMEOUT="${HF_HUB_DOWNLOAD_TIMEOUT:-120}"
+export HF_HUB_ETAG_TIMEOUT="${HF_HUB_ETAG_TIMEOUT:-30}"
 export TOKENIZERS_PARALLELISM="${TOKENIZERS_PARALLELISM:-false}"
+
+echo "Download route: mirror=$RESOLVED_MIRROR pip=$PIP_INDEX hub=$HF_ENDPOINT"
 
 "$PYTHON_EXE" -m merit_feddg.cli doctor --root "$REPO_ROOT/artifacts"
 

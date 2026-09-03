@@ -25,6 +25,38 @@ It does **not** claim that modality routing, specialist collaboration, or freque
 
 ## Linux server: full installation
 
+### One-command public benchmark (recommended)
+
+After accepting the gated CONCH terms and exporting a read token, the following command
+installs dependencies, downloads all seven models and four datasets, converts compatible
+public samples into a unified manifest, audits image-level leakage, extracts evidence once,
+and runs both predicted-router and oracle-router comparisons:
+
+```bash
+export HF_TOKEN='hf_your_read_token'
+./run_all.sh --mirror cn --preset canary --install-system
+```
+
+`--mirror cn` uses the Tsinghua PyPI mirror and `hf-mirror.com` for this process only;
+individual Hugging Face downloads automatically retry against the official endpoint. It
+does not modify global pip or apt configuration. Use `--mirror auto` outside mainland
+China. If system packages are already installed, omit `--install-system`.
+
+The `canary` preset prepares eight examples per generated domain so the complete path can
+be checked before a long run. After it succeeds, run the complete compatible image set:
+
+```bash
+./run_all.sh --mirror cn --preset paper
+```
+
+Evidence caches are reused when newer than the generated manifest. Pass `--force-extract`
+to recompute them. Outputs are written below `runs/public-canary/` or `runs/public-paper/`.
+
+The public runner partitions unique images deterministically into two source clients and
+one target partition, never splitting QA rows from the same image across domains. These
+are explicitly **proxy domains for mechanism testing**, not hospitals or scanners, and the
+generated report sets `strict_hospital_dg_claim_allowed: false`.
+
 `smoke` is only a CPU/CI code-path check and intentionally downloads no real assets. On a new Debian/Ubuntu GPU server, the full model-and-dataset installation is:
 
 ```bash

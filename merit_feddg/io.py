@@ -21,6 +21,13 @@ def save_json(path: str | Path, payload: object) -> None:
         json.dump(payload, handle, indent=2, ensure_ascii=False)
 
 
+def save_yaml(path: str | Path, payload: object) -> None:
+    output = Path(path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("w", encoding="utf-8") as handle:
+        yaml.safe_dump(payload, handle, sort_keys=False, allow_unicode=True)
+
+
 def save_records(path: str | Path, records: Iterable[EvidenceRecord]) -> None:
     output = Path(path)
     output.parent.mkdir(parents=True, exist_ok=True)

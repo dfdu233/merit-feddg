@@ -9,7 +9,8 @@ from .doctor import diagnostics
 from .extract import extract_manifest
 from .io import load_records, load_yaml, save_json
 from .manifest import audit_domain_split, build_folder_manifest
-from .runner import aggregate_repetitions, compare_records
+from .prepare import prepare_public_suite
+from .runner import aggregate_repetitions, compare_records, make_oracle_records
 from .simulation import simulate_records
 
 
@@ -65,6 +66,25 @@ def command_extract(args: argparse.Namespace) -> None:
         limit=args.limit,
         oracle_router=args.oracle_router,
     )
+    _print({"records": len(records), "output": str(Path(args.output).resolve())})
+
+
+def command_prepare_public(args: argparse.Namespace) -> None:
+    report = prepare_public_suite(
+        args.config,
+        args.artifacts,
+        args.output,
+        limit_per_domain=args.limit_per_domain,
+        questions_per_image=args.questions_per_image,
+    )
+    _print(report)
+
+
+def command_oracle_cache(args: argparse.Namespace) -> None:
+    records = make_oracle_records(load_records(args.input), peak=args.peak)
+    from .io import save_records
+
+    save_records(args.output, records)
     _print({"records": len(records), "output": str(Path(args.output).resolve())})
 
 
@@ -133,6 +153,25 @@ def build_parser() -> argparse.ArgumentParser:
     extract.add_argument("--limit", type=int, default=0)
     extract.add_argument("--oracle-router", action="store_true")
     extract.set_defaults(func=command_extract)
+
+    prepare = commands.add_parser(
+        "prepare-public",
+        help="convert downloaded public datasets into a leakage-audited proxy benchmark",
+    )
+    prepare.add_argument("--config", default="configs/public_benchmarks.yaml")
+    prepare.add_argument("--artifacts", default="artifacts")
+    prepare.add_argument("--output", default="data/public-benchmark")
+    prepare.add_argument("--limit-per-domain", type=int, default=8)
+    prepare.add_argument("--questions-per-image", type=int, default=1)
+    prepare.set_defaults(func=command_prepare_public)
+
+    oracle = commands.add_parser(
+        "oracle-cache", help="derive an oracle-routing cache without rerunning the models"
+    )
+    oracle.add_argument("--input", required=True)
+    oracle.add_argument("--output", required=True)
+    oracle.add_argument("--peak", type=float, default=0.98)
+    oracle.set_defaults(func=command_oracle_cache)
 
     manifest = commands.add_parser(
         "make-manifest", help="index a local image folder without copying data"

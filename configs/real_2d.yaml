@@ -4,7 +4,7 @@ generalist:
   adapter: qwen_layer_probe
   dtype: bfloat16
   device_map: auto
-  layers: [4, 8, 12, 16, 20, 24]
+  layers: [4, 8, 12, 16, 20, 24, -1]
 router:
   id: OpenMed/Qwen2.5-3B-MedVL
   adapter: qwen_medical_router

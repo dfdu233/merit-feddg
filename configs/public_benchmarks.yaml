@@ -1,0 +1,52 @@
+seed: 42
+datasets:
+  - name: vqa_rad
+    id: flaviagiammarino/vqa-rad
+    adapter: vqa_rad
+    modality: cxr
+    image_field: image
+    question_field: question
+    answer_field: answer
+  - name: path_vqa
+    id: flaviagiammarino/path-vqa
+    adapter: pathology_vqa
+    modality: pathology
+    image_field: image
+    question_field: question
+    answer_field: answer
+  - name: oct_summary
+    id: QIAIUNCC/OCT-summary-Dataset
+    adapter: oct
+    modality: oct
+    image_field: image
+    answer_field: label
+    prompt: Which retinal OCT diagnosis is supported by the image?
+  - name: slake_xray
+    id: BoKelvin/SLAKE
+    adapter: slake
+    modality: cxr
+
+oct_candidates:
+  - normal
+  - drusen
+  - diabetic macular edema
+  - choroidal neovascularization
+
+method:
+  correction_strength: 0.8
+  agreement_temperature: 0.15
+  erasure_floor: 0.05
+  max_correction_norm: 1.25
+  reliability_prior: 4.0
+  reliability_lcb_z: 1.0
+
+evaluation:
+  methods:
+    - generalist
+    - broad_specialist
+    - gsco_context
+    - routed_logit_fusion
+    - merit
+    - merit_feddg
+    - wrong_route
+    - shuffled_expert

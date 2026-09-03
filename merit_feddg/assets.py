@@ -47,10 +47,31 @@ def download_profile(
         raise RuntimeError("install the research extra before downloading assets") from exc
 
     token = os.getenv("HF_TOKEN")
+    preferred_endpoint = os.getenv("HF_ENDPOINT", "https://huggingface.co").rstrip("/")
+    fallback_endpoint = os.getenv("MERIT_HF_FALLBACK_ENDPOINT", "").rstrip("/")
+    endpoints = [preferred_endpoint]
+    if fallback_endpoint and fallback_endpoint not in endpoints:
+        endpoints.append(fallback_endpoint)
     model_root = root / "models"
     dataset_root = root / "datasets"
     model_root.mkdir(parents=True, exist_ok=True)
     dataset_root.mkdir(parents=True, exist_ok=True)
+
+    def download(entry: dict, destination: Path, repo_type: str | None = None) -> str:
+        failures = []
+        for endpoint in endpoints:
+            try:
+                snapshot_download(
+                    repo_id=entry["id"],
+                    repo_type=repo_type,
+                    local_dir=destination,
+                    token=token,
+                    endpoint=endpoint,
+                )
+                return endpoint
+            except Exception as exc:  # noqa: BLE001 - retry a configured independent endpoint
+                failures.append(f"{endpoint}: {exc}")
+        raise RuntimeError(" | ".join(failures))
 
     for entry in models:
         if entry.get("gated") and not include_gated:
@@ -60,25 +81,20 @@ def download_profile(
             continue
         destination = model_root / entry["id"].replace("/", "--")
         try:
-            snapshot_download(
-                repo_id=entry["id"],
-                local_dir=destination,
-                token=token,
+            endpoint = download(entry, destination)
+            plan["downloaded"].append(
+                {"id": entry["id"], "path": str(destination), "endpoint": endpoint}
             )
-            plan["downloaded"].append({"id": entry["id"], "path": str(destination)})
         except Exception as exc:  # noqa: BLE001 - isolate failures across independent assets
             plan["failed"].append({"id": entry["id"], "error": str(exc)})
 
     for entry in datasets:
         destination = dataset_root / entry["id"].replace("/", "--")
         try:
-            snapshot_download(
-                repo_id=entry["id"],
-                repo_type="dataset",
-                local_dir=destination,
-                token=token,
+            endpoint = download(entry, destination, repo_type="dataset")
+            plan["downloaded"].append(
+                {"id": entry["id"], "path": str(destination), "endpoint": endpoint}
             )
-            plan["downloaded"].append({"id": entry["id"], "path": str(destination)})
         except Exception as exc:  # noqa: BLE001 - isolate failures across independent assets
             plan["failed"].append({"id": entry["id"], "error": str(exc)})
 

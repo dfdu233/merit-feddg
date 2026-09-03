@@ -9,7 +9,7 @@ import numpy as np
 from .experts import BlipConceptExpert, CheXagentConceptExpert, ConchConceptExpert
 from .generalist import QwenLayerProbe
 from .io import save_json, save_records
-from .routing import MetadataRouter, route_with_medical_vlm
+from .routing import MetadataRouter, normalized_entropy, route_with_medical_vlm
 from .types import EvidenceRecord
 
 
@@ -113,6 +113,9 @@ def extract_manifest(
             route = route_with_medical_vlm(broad, row["image"], available)
         else:
             route = metadata_router.route(row["image"], row.get("metadata"))
+        abstain_entropy = float(config["router"].get("abstain_entropy", 1.0))
+        if normalized_entropy(route) >= abstain_entropy:
+            route = {name: 1.0 / len(available) for name in available}
         state[str(row["id"])]["router_probs"] = route
     _release(broad)
 

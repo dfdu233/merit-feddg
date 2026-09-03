@@ -12,6 +12,20 @@ from .methods import predict
 from .types import EvidenceRecord, Prediction
 
 
+def make_oracle_records(records: list[EvidenceRecord], peak: float = 0.98) -> list[EvidenceRecord]:
+    """Replace routing probabilities without rerunning any vision-language model."""
+
+    for record in records:
+        available = sorted(record.expert_scores)
+        if record.modality not in available:
+            raise ValueError(f"no oracle expert is available for modality {record.modality!r}")
+        tail = (1.0 - peak) / (len(available) - 1)
+        record.router_probs = {
+            name: peak if name == record.modality else tail for name in available
+        }
+    return records
+
+
 def route_metrics(records: list[EvidenceRecord]) -> dict:
     correct = []
     confidences = []
@@ -86,7 +100,10 @@ def compare_records(
         for method, items in predictions.items()
     }
     report = {
-        "protocol": "source-only leave-one-domain-out",
+        "protocol": config.get("evaluation_protocol", "source-only leave-one-domain-out"),
+        "strict_hospital_dg_claim_allowed": bool(
+            config.get("strict_hospital_dg_claim_allowed", True)
+        ),
         "target_labels_used_during_fit": False,
         "source_domains": sorted(source_domains),
         "target_domains": sorted(target_domains),
