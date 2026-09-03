@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, cite the repository and the upstream GSCo and FedDG papers."
+title: "MERIT-FedDG: Modality-Routed Specialist Evidence Lenses"
+version: 0.1.0
+date-released: 2026-09-03
+license: Apache-2.0
+authors:
+  - family-names: "MERIT-FedDG contributors"
+repository-code: "https://github.com/dfdu233/merit-feddg"

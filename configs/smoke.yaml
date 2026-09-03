@@ -1,0 +1,33 @@
+seed: 42
+samples_per_domain: 96
+source_domains: [hospital_a, hospital_b, hospital_c]
+target_domains: [hospital_unseen]
+modalities: [cxr, pathology, oct]
+layers: [4, 8, 12, 16, 20, 24]
+concepts:
+  cxr: [pneumothorax, pleural_effusion]
+  pathology: [adenocarcinoma, benign_tissue]
+  oct: [subretinal_fluid, drusen]
+router:
+  source_accuracy: 0.94
+  target_accuracy: 0.86
+  abstain_entropy: 0.95
+method:
+  name: merit_feddg
+  correction_strength: 0.8
+  agreement_temperature: 0.15
+  erasure_floor: 0.05
+  max_correction_norm: 1.25
+  reliability_prior: 4.0
+  reliability_lcb_z: 1.0
+evaluation:
+  repetitions: 3
+  methods:
+    - generalist
+    - broad_specialist
+    - gsco_context
+    - routed_logit_fusion
+    - merit
+    - merit_feddg
+    - wrong_route
+    - shuffled_expert

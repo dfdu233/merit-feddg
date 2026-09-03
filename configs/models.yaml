@@ -1,0 +1,63 @@
+profiles:
+  smoke:
+    models: []
+
+  open-small:
+    models:
+      - id: microsoft/rad-dino
+        role: cxr_region_validator
+        modality: cxr
+        interface: vision_encoder
+        gated: false
+        license: MIT
+      - id: QIAIUNCC/LO-VLM
+        role: oct_specialist
+        modality: oct
+        interface: generative_blip
+        gated: false
+        license: repository-specific
+
+  research-2d:
+    models:
+      - id: Qwen/Qwen2.5-VL-7B-Instruct
+        role: generalist
+        modality: general
+        interface: qwen_layer_probe
+        gated: false
+        license: Apache-2.0
+      - id: shiym2000/MedM-VL-2D-3B-en
+        role: router_fallback
+        modality: general_medical_2d
+        interface: qwen_medical
+        gated: false
+        license: Apache-2.0
+      - id: OpenMed/Qwen2.5-3B-MedVL
+        role: broad_specialist_control
+        modality: general_medical_2d
+        interface: qwen_layer_probe
+        gated: false
+        license: repository-specific
+      - id: StanfordAIMI/CheXagent-2-3b
+        role: cxr_specialist
+        modality: cxr
+        interface: generative_chexagent
+        gated: false
+        license: MIT
+      - id: microsoft/rad-dino
+        role: cxr_region_validator
+        modality: cxr
+        interface: vision_encoder
+        gated: false
+        license: MIT
+      - id: MahmoodLab/CONCH
+        role: pathology_specialist
+        modality: pathology
+        interface: contrastive_conch
+        gated: true
+        license: CC-BY-NC-ND-4.0
+      - id: QIAIUNCC/LO-VLM
+        role: oct_specialist
+        modality: oct
+        interface: generative_blip
+        gated: false
+        license: repository-specific

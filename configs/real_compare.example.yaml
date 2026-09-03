@@ -1,0 +1,20 @@
+seed: 42
+source_domains: [hospital_a, hospital_b, hospital_c]
+target_domains: [hospital_unseen]
+method:
+  correction_strength: 0.8
+  agreement_temperature: 0.15
+  erasure_floor: 0.05
+  max_correction_norm: 1.25
+  reliability_prior: 4.0
+  reliability_lcb_z: 1.0
+evaluation:
+  methods:
+    - generalist
+    - broad_specialist
+    - gsco_context
+    - routed_logit_fusion
+    - merit
+    - merit_feddg
+    - wrong_route
+    - shuffled_expert
