@@ -18,6 +18,16 @@ def _slug(value: str) -> str:
     return value.lower().replace("/", "_").replace("-", "_")
 
 
+def _write_text_if_changed(path: Path, content: str) -> bool:
+    """Write deterministic output only when content changed, preserving cache mtimes."""
+
+    if path.is_file() and path.read_text(encoding="utf-8") == content:
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    return True
+
+
 def _normal_text(value: object) -> str:
     return " ".join(str(value).strip().lower().split())
 
@@ -434,9 +444,11 @@ def prepare_public_suite(
     audit = _validate_proxy_suite(all_rows)
     output_dir.mkdir(parents=True, exist_ok=True)
     manifest = output_dir / "manifest.jsonl"
-    with manifest.open("w", encoding="utf-8") as handle:
-        for row in sorted(all_rows, key=lambda item: item["id"]):
-            handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+    manifest_content = "".join(
+        json.dumps(row, ensure_ascii=False) + "\n"
+        for row in sorted(all_rows, key=lambda item: item["id"])
+    )
+    manifest_updated = _write_text_if_changed(manifest, manifest_content)
 
     comparison = {
         "seed": int(config.get("seed", 42)),
@@ -455,6 +467,7 @@ def prepare_public_suite(
         "rows": len(all_rows),
         "limit_per_domain": limit_per_domain,
         "questions_per_image": questions_per_image,
+        "manifest_updated": manifest_updated,
         "protocol": comparison["evaluation_protocol"],
         "strict_hospital_dg_claim_allowed": False,
         "datasets": dataset_reports,

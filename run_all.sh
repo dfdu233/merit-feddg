@@ -9,6 +9,7 @@ RUN_NAME=""
 INSTALL_SYSTEM=0
 INCLUDE_GATED=1
 FORCE_EXTRACT=0
+FORCE_DOWNLOAD=0
 
 usage() {
   cat <<'USAGE'
@@ -28,6 +29,7 @@ Options:
   --run-name NAME          Output name below cache/ and runs/
   --install-system         Install Debian/Ubuntu system prerequisites
   --force-extract          Ignore a reusable evidence cache and rerun all models
+  --force-download         Redownload all model and dataset snapshots
   --without-gated          Skip gated assets; real pathology extraction will be unavailable
   -h, --help               Show this help
 
@@ -45,6 +47,7 @@ while [[ $# -gt 0 ]]; do
     --run-name) RUN_NAME="${2:?missing run name}"; shift 2 ;;
     --install-system) INSTALL_SYSTEM=1; shift ;;
     --force-extract) FORCE_EXTRACT=1; shift ;;
+    --force-download) FORCE_DOWNLOAD=1; shift ;;
     --without-gated) INCLUDE_GATED=0; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
@@ -92,6 +95,9 @@ if [[ $INCLUDE_GATED -eq 1 ]]; then
 fi
 if [[ $INSTALL_SYSTEM -eq 1 ]]; then
   bootstrap_args+=(--install-system)
+fi
+if [[ $FORCE_DOWNLOAD -eq 1 ]]; then
+  bootstrap_args+=(--force-download)
 fi
 "$REPO_ROOT/bootstrap.sh" "${bootstrap_args[@]}"
 

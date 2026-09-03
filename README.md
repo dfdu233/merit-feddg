@@ -49,8 +49,13 @@ be checked before a long run. After it succeeds, run the complete compatible ima
 ./run_all.sh --mirror cn --preset paper
 ```
 
-Evidence caches are reused when newer than the generated manifest. Pass `--force-extract`
-to recompute them. Outputs are written below `runs/public-canary/` or `runs/public-paper/`.
+Completed model and dataset snapshots are verified locally and skipped without contacting
+Hugging Face. Interrupted snapshots resume into the same directory. Pass `--force-download`
+only when an intentional refresh is required. Evidence caches are likewise reused when newer
+than the generated manifest; deterministic benchmark preparation preserves the manifest's
+timestamp when its contents have not changed, so rerunning the command does not accidentally
+invalidate the evidence cache. Pass `--force-extract` to recompute it. Outputs are written
+below `runs/public-canary/` or `runs/public-paper/`.
 
 The public runner partitions unique images deterministically into two source clients and
 one target partition, never splitting QA rows from the same image across domains. These
@@ -69,7 +74,7 @@ The command installs Linux libraries, creates `.venv`, installs PyTorch and the 
 
 The full profile checks for at least 80 GiB of free space. Change the guard with `--min-free-gb N` only after checking the actual filesystem. PyTorch is installed from PyPI by default; when your driver requires a specific wheel channel, copy the index URL from the [official PyTorch selector](https://pytorch.org/get-started/locally/) and pass `--torch-index URL`.
 
-Downloaded assets include Qwen2.5-VL-7B, MedM-VL-2D-3B, OpenMed MedVL, CheXagent, RAD-DINO, CONCH, LO-VLM, VQA-RAD, PathVQA, OCT-summary and SLAKE. Interrupted Hugging Face downloads can be resumed by running the same command again. Tokens, weights and medical data stay outside Git.
+Downloaded assets include Qwen2.5-VL-7B, MedM-VL-2D-3B, OpenMed MedVL, CheXagent, RAD-DINO, CONCH, LO-VLM, VQA-RAD, PathVQA, OCT-summary and SLAKE. Interrupted Hugging Face downloads can be resumed by running the same command again. A successful snapshot receives a local completion marker containing its file-count, byte-count and path/size fingerprint; unchanged snapshots are skipped on later runs. Tokens, weights and medical data stay outside Git.
 
 To install only public assets, omit `--include-gated`; pathology experiments still require approved CONCH access. Hugging Face documents the browser approval and server-token flow in its [gated model guide](https://huggingface.co/docs/hub/models-gated).
 

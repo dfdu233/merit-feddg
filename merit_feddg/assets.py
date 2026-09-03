@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 from pathlib import Path
 
 from .io import load_yaml, save_json
+
+_COMPLETE_MARKER = ".merit-download-complete.json"
+_COMPLETE_TEMP = f"{_COMPLETE_MARKER}.tmp"
+_MARKER_SCHEMA = 1
 
 
 def repository_root() -> Path:
@@ -23,6 +29,7 @@ def download_profile(
     root: str | Path,
     dry_run: bool = False,
     include_gated: bool = False,
+    force_download: bool = False,
 ) -> dict:
     root = Path(root)
     model_registry = repository_root() / "configs" / "models.yaml"
@@ -35,6 +42,8 @@ def download_profile(
         "models": models,
         "datasets": datasets,
         "downloaded": [],
+        "resumed": [],
+        "reused": [],
         "skipped": [],
         "failed": [],
     }
@@ -67,11 +76,33 @@ def download_profile(
                     local_dir=destination,
                     token=token,
                     endpoint=endpoint,
+                    revision=entry.get("revision"),
+                    force_download=force_download,
                 )
                 return endpoint
             except Exception as exc:  # noqa: BLE001 - retry a configured independent endpoint
                 failures.append(f"{endpoint}: {exc}")
         raise RuntimeError(" | ".join(failures))
+
+    def ensure(entry: dict, destination: Path, kind: str) -> None:
+        repo_type = "dataset" if kind == "dataset" else None
+        if not force_download and _completion_matches(destination, entry, kind):
+            plan["reused"].append({"id": entry["id"], "path": str(destination)})
+            return
+
+        existed = destination.exists()
+        try:
+            endpoint = download(entry, destination, repo_type=repo_type)
+            state = _asset_state(destination, kind)
+            if not state["payload_files"]:
+                raise RuntimeError("snapshot completed without a usable payload file")
+            _write_completion_marker(destination, entry, kind, state)
+            bucket = "resumed" if existed and not force_download else "downloaded"
+            plan[bucket].append(
+                {"id": entry["id"], "path": str(destination), "endpoint": endpoint}
+            )
+        except Exception as exc:  # noqa: BLE001 - isolate failures across independent assets
+            plan["failed"].append({"id": entry["id"], "error": str(exc)})
 
     for entry in models:
         if entry.get("gated") and not include_gated:
@@ -80,23 +111,11 @@ def download_profile(
             )
             continue
         destination = model_root / entry["id"].replace("/", "--")
-        try:
-            endpoint = download(entry, destination)
-            plan["downloaded"].append(
-                {"id": entry["id"], "path": str(destination), "endpoint": endpoint}
-            )
-        except Exception as exc:  # noqa: BLE001 - isolate failures across independent assets
-            plan["failed"].append({"id": entry["id"], "error": str(exc)})
+        ensure(entry, destination, "model")
 
     for entry in datasets:
         destination = dataset_root / entry["id"].replace("/", "--")
-        try:
-            endpoint = download(entry, destination, repo_type="dataset")
-            plan["downloaded"].append(
-                {"id": entry["id"], "path": str(destination), "endpoint": endpoint}
-            )
-        except Exception as exc:  # noqa: BLE001 - isolate failures across independent assets
-            plan["failed"].append({"id": entry["id"], "error": str(exc)})
+        ensure(entry, destination, "dataset")
 
     save_json(root / "download-report.json", plan)
     return plan
@@ -114,14 +133,28 @@ _MODEL_WEIGHT_SUFFIXES = {".bin", ".pt", ".pth", ".safetensors"}
 _DATASET_METADATA = {"readme.md", ".gitattributes", "license", "dataset_infos.json"}
 
 
+def _content_files(path: Path) -> list[Path]:
+    if not path.is_dir():
+        return []
+    return [
+        candidate
+        for candidate in path.rglob("*")
+        if candidate.is_file()
+        and candidate.name not in {_COMPLETE_MARKER, _COMPLETE_TEMP}
+        and ".cache" not in candidate.relative_to(path).parts
+    ]
+
+
+def _content_fingerprint(path: Path, files: list[Path]) -> str:
+    digest = hashlib.sha256()
+    for candidate in sorted(files, key=lambda item: item.relative_to(path).as_posix()):
+        relative = candidate.relative_to(path).as_posix()
+        digest.update(f"{relative}\0{candidate.stat().st_size}\n".encode())
+    return digest.hexdigest()
+
+
 def _asset_state(path: Path, kind: str) -> dict:
-    files = []
-    if path.is_dir():
-        files = [
-            candidate
-            for candidate in path.rglob("*")
-            if candidate.is_file() and ".cache" not in candidate.relative_to(path).parts
-        ]
+    files = _content_files(path)
     if kind == "model":
         payloads = [candidate for candidate in files if candidate.suffix in _MODEL_WEIGHT_SUFFIXES]
     else:
@@ -133,7 +166,49 @@ def _asset_state(path: Path, kind: str) -> dict:
         "files": len(files),
         "payload_files": len(payloads),
         "bytes": sum(candidate.stat().st_size for candidate in files),
+        "fingerprint": _content_fingerprint(path, files),
     }
+
+
+def _write_completion_marker(path: Path, entry: dict, kind: str, state: dict) -> None:
+    payload = {
+        "schema": _MARKER_SCHEMA,
+        "id": entry["id"],
+        "kind": kind,
+        "revision": entry.get("revision"),
+        "files": state["files"],
+        "payload_files": state["payload_files"],
+        "bytes": state["bytes"],
+        "fingerprint": state["fingerprint"],
+    }
+    marker = path / _COMPLETE_MARKER
+    temporary = path / _COMPLETE_TEMP
+    save_json(temporary, payload)
+    temporary.replace(marker)
+
+
+def _completion_matches(path: Path, entry: dict, kind: str) -> bool:
+    marker = path / _COMPLETE_MARKER
+    try:
+        with marker.open("r", encoding="utf-8") as handle:
+            recorded = json.load(handle)
+    except (OSError, ValueError, TypeError):
+        return False
+    if (
+        recorded.get("schema") != _MARKER_SCHEMA
+        or recorded.get("id") != entry["id"]
+        or recorded.get("kind") != kind
+        or recorded.get("revision") != entry.get("revision")
+    ):
+        return False
+    state = _asset_state(path, kind)
+    return bool(
+        state["payload_files"]
+        and recorded.get("files") == state["files"]
+        and recorded.get("payload_files") == state["payload_files"]
+        and recorded.get("bytes") == state["bytes"]
+        and recorded.get("fingerprint") == state["fingerprint"]
+    )
 
 
 def verify_assets(
@@ -166,9 +241,12 @@ def verify_assets(
             path = root / directory / entry["id"].replace("/", "--")
             item_kind = kind[:-1]
             state = {"kind": item_kind, "id": entry["id"], **_asset_state(path, item_kind)}
-            if state["payload_files"]:
+            if _completion_matches(path, entry, item_kind):
                 report["present"].append(state)
             else:
+                state["reason"] = (
+                    "payload is missing or the completed-download marker does not match"
+                )
                 report["missing"].append(state)
     report["ready"] = not report["missing"]
     return report

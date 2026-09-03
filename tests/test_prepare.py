@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 
 from merit_feddg.io import load_yaml
-from merit_feddg.prepare import image_bytes_are_valid, proxy_domain
+from merit_feddg.prepare import _write_text_if_changed, image_bytes_are_valid, proxy_domain
 from merit_feddg.runner import make_oracle_records
 from merit_feddg.simulation import simulate_records
 
@@ -18,6 +18,14 @@ def test_image_validation_rejects_arbitrary_bytes(tmp_path):
     Image.fromarray(np.zeros((8, 8, 3), dtype=np.uint8)).save(path)
     assert image_bytes_are_valid(path.read_bytes())
     assert not image_bytes_are_valid(b"not-an-image")
+
+
+def test_unchanged_prepared_manifest_keeps_cache_timestamp(tmp_path):
+    manifest = tmp_path / "manifest.jsonl"
+    assert _write_text_if_changed(manifest, '{"id":"a"}\n') is True
+    timestamp = manifest.stat().st_mtime_ns
+    assert _write_text_if_changed(manifest, '{"id":"a"}\n') is False
+    assert manifest.stat().st_mtime_ns == timestamp
 
 
 def test_oracle_cache_routes_to_ground_truth_modality():

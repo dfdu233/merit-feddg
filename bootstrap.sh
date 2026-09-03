@@ -6,6 +6,7 @@ INCLUDE_GATED=0
 INSTALL_SYSTEM=0
 SKIP_DOWNLOAD=0
 SKIP_TESTS=0
+FORCE_DOWNLOAD=0
 IGNORE_DISK_CHECK=0
 TORCH_INDEX=""
 MIRROR_MODE="${MERIT_MIRROR:-auto}"
@@ -29,6 +30,7 @@ Options:
   --min-free-gb N         Required free disk for research-2d (default: 80)
   --ignore-disk-check     Continue below the disk-space threshold
   --skip-download         Install dependencies without downloading assets
+  --force-download        Redownload assets that already have a valid completion marker
   --skip-tests            Skip unit tests and deterministic smoke comparison
   -h, --help              Show this help
 
@@ -53,6 +55,7 @@ while [[ $# -gt 0 ]]; do
     --min-free-gb) MIN_FREE_GB="${2:?missing disk threshold}"; shift 2 ;;
     --ignore-disk-check) IGNORE_DISK_CHECK=1; shift ;;
     --skip-download) SKIP_DOWNLOAD=1; shift ;;
+    --force-download) FORCE_DOWNLOAD=1; shift ;;
     --skip-tests) SKIP_TESTS=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
@@ -212,6 +215,9 @@ if [[ $SKIP_DOWNLOAD -ne 1 ]]; then
   download_args=(--profile "$PROFILE" --root "$REPO_ROOT/artifacts")
   if [[ $INCLUDE_GATED -eq 1 ]]; then
     download_args+=(--include-gated)
+  fi
+  if [[ $FORCE_DOWNLOAD -eq 1 ]]; then
+    download_args+=(--force-download)
   fi
   "$PYTHON_EXE" -m merit_feddg.cli download "${download_args[@]}"
   verify_args=(--profile "$PROFILE" --root "$REPO_ROOT/artifacts")

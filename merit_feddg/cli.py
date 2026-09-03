@@ -43,6 +43,7 @@ def command_download(args: argparse.Namespace) -> None:
         args.root,
         dry_run=args.dry_run,
         include_gated=args.include_gated,
+        force_download=args.force_download,
     )
     _print(report)
     if report["failed"]:
@@ -119,6 +120,11 @@ def build_parser() -> argparse.ArgumentParser:
     download.add_argument("--root", default="artifacts")
     download.add_argument("--dry-run", action="store_true")
     download.add_argument("--include-gated", action="store_true")
+    download.add_argument(
+        "--force-download",
+        action="store_true",
+        help="redownload even when a verified completed snapshot is already present",
+    )
     download.set_defaults(func=command_download)
 
     verify = commands.add_parser("verify-assets", help="verify downloaded snapshot payloads")
