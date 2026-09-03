@@ -1,5 +1,5 @@
 param(
-    [ValidateSet("smoke", "open-small", "research-2d")]
+    [ValidateSet("smoke", "open-small", "medical-small", "research-2d")]
     [string]$Profile = "smoke",
     [switch]$IncludeGated,
     [switch]$SkipDownload,

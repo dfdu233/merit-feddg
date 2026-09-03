@@ -94,8 +94,11 @@ def download_profile(
         try:
             endpoint = download(entry, destination, repo_type=repo_type)
             state = _asset_state(destination, kind)
-            if not state["payload_files"]:
-                raise RuntimeError("snapshot completed without a usable payload file")
+            if not _requirements_satisfied(destination, entry, state):
+                raise RuntimeError(
+                    "snapshot returned without satisfying required files/size: "
+                    f"requirements={_requirements(entry)}, state={state}"
+                )
             _write_completion_marker(destination, entry, kind, state)
             bucket = "resumed" if existed and not force_download else "downloaded"
             plan[bucket].append(
@@ -176,6 +179,7 @@ def _write_completion_marker(path: Path, entry: dict, kind: str, state: dict) ->
         "id": entry["id"],
         "kind": kind,
         "revision": entry.get("revision"),
+        "requirements": _requirements(entry),
         "files": state["files"],
         "payload_files": state["payload_files"],
         "bytes": state["bytes"],
@@ -199,15 +203,36 @@ def _completion_matches(path: Path, entry: dict, kind: str) -> bool:
         or recorded.get("id") != entry["id"]
         or recorded.get("kind") != kind
         or recorded.get("revision") != entry.get("revision")
+        or recorded.get("requirements") != _requirements(entry)
     ):
         return False
     state = _asset_state(path, kind)
     return bool(
-        state["payload_files"]
+        _requirements_satisfied(path, entry, state)
         and recorded.get("files") == state["files"]
         and recorded.get("payload_files") == state["payload_files"]
         and recorded.get("bytes") == state["bytes"]
         and recorded.get("fingerprint") == state["fingerprint"]
+    )
+
+
+def _requirements(entry: dict) -> dict:
+    return {
+        "required_files": sorted(str(value) for value in entry.get("required_files", [])),
+        "min_payload_files": int(entry.get("min_payload_files", 1)),
+        "min_bytes": int(entry.get("min_bytes", 1)),
+    }
+
+
+def _requirements_satisfied(path: Path, entry: dict, state: dict) -> bool:
+    requirements = _requirements(entry)
+    required_files_present = all(
+        (path / relative).is_file() for relative in requirements["required_files"]
+    )
+    return bool(
+        required_files_present
+        and state["payload_files"] >= requirements["min_payload_files"]
+        and state["bytes"] >= requirements["min_bytes"]
     )
 
 

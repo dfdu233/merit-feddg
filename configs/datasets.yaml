@@ -10,6 +10,23 @@ profiles:
         gated: false
         license_note: Review the dataset card before use.
 
+  medical-small:
+    datasets:
+      - id: flaviagiammarino/vqa-rad
+        modality: cxr
+        domain_field: dataset
+        gated: false
+        license_note: Research use; verify original VQA-RAD terms.
+      - id: flaviagiammarino/path-vqa
+        modality: pathology
+        domain_field: dataset
+        gated: false
+        license_note: Research use; verify original PathVQA terms.
+      - id: QIAIUNCC/OCT-summary-Dataset
+        modality: oct
+        domain_field: source
+        gated: false
+        license_note: Review the dataset card before use.
   research-2d:
     datasets:
       - id: flaviagiammarino/vqa-rad
@@ -31,4 +48,10 @@ profiles:
         modality: mixed_medical_2d
         domain_field: dataset
         gated: false
+        required_files:
+          - imgs.zip
+          - train.json
+          - validation.json
+          - test.json
+        min_bytes: 200000000
         license_note: Research use; verify original SLAKE terms.

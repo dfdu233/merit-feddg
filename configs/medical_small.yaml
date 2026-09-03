@@ -1,0 +1,36 @@
+seed: 42
+generalist:
+  id: OpenMed/Qwen2.5-3B-MedVL
+  adapter: qwen_layer_probe
+  dtype: bfloat16
+  device_map: auto
+  layers: [4, 8, 12, 16, 20, 24, -1]
+router:
+  id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+  adapter: biomedclip_router
+  abstain_entropy: 0.95
+broad_specialist:
+  id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+  adapter: contrastive_biomedclip
+experts:
+  cxr:
+    id: StanfordAIMI/CheXagent-2-3b
+    adapter: generative_chexagent
+  pathology:
+    id: MahmoodLab/CONCH
+    adapter: contrastive_conch
+  oct:
+    id: QIAIUNCC/LO-VLM
+    adapter: generative_blip
+method:
+  correction_strength: 0.8
+  agreement_temperature: 0.15
+  erasure_floor: 0.05
+  max_correction_norm: 1.25
+  reliability_prior: 4.0
+  reliability_lcb_z: 1.0
+protocol:
+  source_only: true
+  split: leave_one_domain_out
+  target_labels_visible_during_fit: false
+  cache_evidence: true

@@ -17,11 +17,12 @@ usage() {
   cat <<'USAGE'
 Usage:
   ./bootstrap.sh smoke
+  ./bootstrap.sh medical-small --include-gated --install-system
   ./bootstrap.sh research-2d --include-gated --install-system
   ./bootstrap.sh --profile research-2d --include-gated [options]
 
 Options:
-  --profile NAME          smoke, open-small, or research-2d
+  --profile NAME          smoke, open-small, medical-small, or research-2d
   --include-gated         Download gated models after access is approved
   --install-system        Install missing apt packages on Debian/Ubuntu
   --torch-index URL       Explicit PyTorch wheel index, e.g. .../whl/cu130
@@ -63,7 +64,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$PROFILE" in
-  smoke|open-small|research-2d) ;;
+  smoke|open-small|medical-small|research-2d) ;;
   *) echo "Unknown profile: $PROFILE" >&2; exit 2 ;;
 esac
 case "$MIRROR_MODE" in
@@ -181,26 +182,65 @@ if [[ ! -x "$PYTHON_EXE" ]]; then
   "$PYTHON_BIN" -m venv "$REPO_ROOT/.venv"
 fi
 
-pip_install --upgrade pip setuptools wheel
+export MERIT_BOOTSTRAP_PROFILE="$PROFILE"
+export MERIT_BOOTSTRAP_GATED="$INCLUDE_GATED"
+export MERIT_BOOTSTRAP_TORCH_INDEX="$TORCH_INDEX"
+export MERIT_BOOTSTRAP_CONCH_SOURCE="$CONCH_SOURCE"
+export MERIT_BOOTSTRAP_REPO_ROOT="$REPO_ROOT"
+ENV_KEY="$("$PYTHON_EXE" - <<'PY'
+import hashlib
+import os
+from pathlib import Path
 
-if [[ "$PROFILE" == "smoke" ]]; then
-  pip_install -e "$REPO_ROOT[dev]"
-else
-  if [[ -n "$TORCH_INDEX" ]]; then
-    "$PYTHON_EXE" -m pip install torch torchvision --index-url "$TORCH_INDEX"
+digest = hashlib.sha256((Path(os.environ["MERIT_BOOTSTRAP_REPO_ROOT"]) / "pyproject.toml").read_bytes())
+for name in (
+    "MERIT_BOOTSTRAP_PROFILE",
+    "MERIT_BOOTSTRAP_GATED",
+    "MERIT_BOOTSTRAP_TORCH_INDEX",
+    "MERIT_BOOTSTRAP_CONCH_SOURCE",
+):
+    digest.update(b"\0" + os.environ.get(name, "").encode())
+print(digest.hexdigest())
+PY
+)"
+ENV_STAMP="$REPO_ROOT/.venv/.merit-bootstrap-key"
+ENV_READY=0
+if [[ -f "$ENV_STAMP" && "$(<"$ENV_STAMP")" == "$ENV_KEY" ]]; then
+  if [[ "$PROFILE" == "smoke" ]]; then
+    "$PYTHON_EXE" -c "import merit_feddg, pytest" >/dev/null 2>&1 && ENV_READY=1
   else
-    pip_install torch torchvision
+    "$PYTHON_EXE" -c "import merit_feddg, torch, transformers, datasets, open_clip" \
+      >/dev/null 2>&1 && ENV_READY=1
   fi
-  pip_install -e "$REPO_ROOT[research,dev]"
+  if [[ $INCLUDE_GATED -eq 1 && $ENV_READY -eq 1 ]]; then
+    "$PYTHON_EXE" -c "import conch" >/dev/null 2>&1 || ENV_READY=0
+  fi
 fi
 
-if [[ $INCLUDE_GATED -eq 1 ]]; then
-  if ! "$PYTHON_EXE" -c "from huggingface_hub import get_token; raise SystemExit(0 if get_token() else 1)"; then
-    echo "Gated download requested, but Hugging Face authentication is missing." >&2
-    echo "Export HF_TOKEN or run: $REPO_ROOT/.venv/bin/hf auth login" >&2
-    exit 1
+if [[ $ENV_READY -eq 1 ]]; then
+  echo "Reusing verified Python environment: $REPO_ROOT/.venv"
+else
+  pip_install --upgrade pip setuptools wheel
+  if [[ "$PROFILE" == "smoke" ]]; then
+    pip_install -e "$REPO_ROOT[dev]"
+  else
+    if [[ -n "$TORCH_INDEX" ]]; then
+      "$PYTHON_EXE" -m pip install torch torchvision --index-url "$TORCH_INDEX"
+    else
+      pip_install torch torchvision
+    fi
+    pip_install -e "$REPO_ROOT[research,dev]"
   fi
-  pip_install "$CONCH_SOURCE"
+
+  if [[ $INCLUDE_GATED -eq 1 ]]; then
+    if ! "$PYTHON_EXE" -c "from huggingface_hub import get_token; raise SystemExit(0 if get_token() else 1)"; then
+      echo "Gated download requested, but Hugging Face authentication is missing." >&2
+      echo "Export HF_TOKEN or run: $REPO_ROOT/.venv/bin/hf auth login" >&2
+      exit 1
+    fi
+    pip_install "$CONCH_SOURCE"
+  fi
+  printf '%s\n' "$ENV_KEY" > "$ENV_STAMP"
 fi
 
 export HF_HUB_DOWNLOAD_TIMEOUT="${HF_HUB_DOWNLOAD_TIMEOUT:-120}"
@@ -235,6 +275,6 @@ if [[ $SKIP_TESTS -ne 1 ]]; then
 fi
 
 echo "MERIT-FedDG is ready on Linux. Profile: $PROFILE"
-if [[ "$PROFILE" == "research-2d" ]]; then
+if [[ "$PROFILE" == "research-2d" || "$PROFILE" == "medical-small" ]]; then
   echo "Next: edit configs/real_compare.example.yaml and run ./study.sh MANIFEST RUN_NAME"
 fi

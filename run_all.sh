@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 
 PRESET="canary"
+MODEL_PROFILE="medical-small"
 LIMIT_PER_DOMAIN=""
 QUESTIONS_PER_IMAGE=1
 MIRROR="cn"
@@ -23,6 +24,7 @@ oracle-router comparisons.
 
 Options:
   --preset NAME            canary (8 rows/domain) or paper (all compatible images)
+  --model-profile NAME     medical-small (default) or research-2d
   --limit-per-domain N     Override the preset; 0 means no limit
   --questions-per-image N  Maximum QA rows per unique image; 0 means all (default: 1)
   --mirror MODE            cn, auto, or global (default: cn)
@@ -41,6 +43,7 @@ USAGE
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --preset) PRESET="${2:?missing preset}"; shift 2 ;;
+    --model-profile) MODEL_PROFILE="${2:?missing model profile}"; shift 2 ;;
     --limit-per-domain) LIMIT_PER_DOMAIN="${2:?missing limit}"; shift 2 ;;
     --questions-per-image) QUESTIONS_PER_IMAGE="${2:?missing count}"; shift 2 ;;
     --mirror) MIRROR="${2:?missing mirror mode}"; shift 2 ;;
@@ -59,6 +62,19 @@ case "$PRESET" in
   paper) DEFAULT_LIMIT=0 ;;
   *) echo "Unknown preset: $PRESET" >&2; exit 2 ;;
 esac
+case "$MODEL_PROFILE" in
+  medical-small)
+    EVIDENCE_CONFIG="configs/medical_small.yaml"
+    BENCHMARK_CONFIG="configs/public_benchmarks_small.yaml"
+    HELD_OUT_DOMAINS=(vqa_rad-target path_vqa-target oct_summary-target)
+    ;;
+  research-2d)
+    EVIDENCE_CONFIG="configs/real_2d.yaml"
+    BENCHMARK_CONFIG="configs/public_benchmarks.yaml"
+    HELD_OUT_DOMAINS=(vqa_rad-target path_vqa-target oct_summary-target slake_xray-target)
+    ;;
+  *) echo "Unknown model profile: $MODEL_PROFILE" >&2; exit 2 ;;
+esac
 case "$MIRROR" in
   cn|auto|global) ;;
   *) echo "Unknown mirror mode: $MIRROR" >&2; exit 2 ;;
@@ -71,7 +87,7 @@ if [[ ! "$LIMIT_PER_DOMAIN" =~ ^[0-9]+$ || ! "$QUESTIONS_PER_IMAGE" =~ ^[0-9]+$ 
   exit 2
 fi
 if [[ -z "$RUN_NAME" ]]; then
-  RUN_NAME="public-$PRESET"
+  RUN_NAME="$MODEL_PROFILE-public-$PRESET"
 fi
 if [[ $INCLUDE_GATED -eq 1 && -z "${HF_TOKEN:-}" ]]; then
   echo "HF_TOKEN is required for the default gated CONCH pathology expert." >&2
@@ -88,8 +104,9 @@ COMPARE_CONFIG="$PREPARED/compare.yaml"
 EVIDENCE="$REPO_ROOT/cache/$RUN_NAME.predicted.jsonl"
 ORACLE_EVIDENCE="$REPO_ROOT/cache/$RUN_NAME.oracle.jsonl"
 RUN_ROOT="$REPO_ROOT/runs/$RUN_NAME"
+EVIDENCE_CONFIG_PATH="$REPO_ROOT/$EVIDENCE_CONFIG"
 
-bootstrap_args=(--profile research-2d --mirror "$MIRROR")
+bootstrap_args=(--profile "$MODEL_PROFILE" --mirror "$MIRROR")
 if [[ $INCLUDE_GATED -eq 1 ]]; then
   bootstrap_args+=(--include-gated)
 fi
@@ -108,23 +125,25 @@ if [[ $INCLUDE_GATED -ne 1 ]]; then
 fi
 
 "$PYTHON_EXE" -m merit_feddg.cli prepare-public \
-  --config "$REPO_ROOT/configs/public_benchmarks.yaml" \
+  --config "$REPO_ROOT/$BENCHMARK_CONFIG" \
   --artifacts "$ARTIFACTS" \
   --output "$PREPARED" \
   --limit-per-domain "$LIMIT_PER_DOMAIN" \
   --questions-per-image "$QUESTIONS_PER_IMAGE"
 
-"$PYTHON_EXE" -m merit_feddg.cli audit-split \
-  --manifest "$MANIFEST" \
-  --held-out vqa_rad-target \
-  --held-out path_vqa-target \
-  --held-out oct_summary-target \
-  --held-out slake_xray-target
+audit_args=(--manifest "$MANIFEST")
+for domain in "${HELD_OUT_DOMAINS[@]}"; do
+  audit_args+=(--held-out "$domain")
+done
+"$PYTHON_EXE" -m merit_feddg.cli audit-split "${audit_args[@]}"
 
-if [[ $FORCE_EXTRACT -eq 1 || ! -s "$EVIDENCE" || "$MANIFEST" -nt "$EVIDENCE" ]]; then
+if [[ $FORCE_EXTRACT -eq 1 \
+  || ! -s "$EVIDENCE" \
+  || "$MANIFEST" -nt "$EVIDENCE" \
+  || "$EVIDENCE_CONFIG_PATH" -nt "$EVIDENCE" ]]; then
   "$PYTHON_EXE" -m merit_feddg.cli extract \
     --manifest "$MANIFEST" \
-    --config "$REPO_ROOT/configs/real_2d.yaml" \
+    --config "$EVIDENCE_CONFIG_PATH" \
     --artifacts "$ARTIFACTS" \
     --output "$EVIDENCE"
 else

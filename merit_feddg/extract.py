@@ -6,7 +6,12 @@ from pathlib import Path
 
 import numpy as np
 
-from .experts import BlipConceptExpert, CheXagentConceptExpert, ConchConceptExpert
+from .experts import (
+    BiomedClipAdapter,
+    BlipConceptExpert,
+    CheXagentConceptExpert,
+    ConchConceptExpert,
+)
 from .generalist import QwenLayerProbe
 from .io import save_json, save_records
 from .routing import MetadataRouter, normalized_entropy, route_with_medical_vlm
@@ -60,6 +65,8 @@ def _expert_from_spec(spec: dict, artifact_root: str | Path | None):
         if not Path(model_id).exists() and not model_id.startswith("hf_hub:"):
             model_id = "hf_hub:" + model_id
         return ConchConceptExpert(model_id)
+    if adapter == "contrastive_biomedclip":
+        return BiomedClipAdapter(model_id)
     raise ValueError(f"unsupported expert adapter: {adapter}")
 
 
@@ -94,29 +101,54 @@ def extract_manifest(
     _release(generalist)
 
     broad_spec = config["broad_specialist"]
-    broad = QwenLayerProbe(
-        _local_or_remote(broad_spec["id"], artifact_root),
-        layers=broad_spec.get("layers", [-1]),
-        dtype=broad_spec.get("dtype", "bfloat16"),
-        device_map=broad_spec.get("device_map", "auto"),
-    )
     available = sorted(config["experts"])
     metadata_router = MetadataRouter(available)
-    for row in rows:
-        _, broad_visual = broad.probe(row["image"], row["prompt"], list(row["candidates"]))
-        state[str(row["id"])]["broad_specialist_scores"] = broad_visual[-1]
-        if oracle_router:
-            peak = 0.98
-            tail = (1.0 - peak) / (len(available) - 1)
-            route = {name: peak if name == row["modality"] else tail for name in available}
-        elif config["router"].get("adapter") == "qwen_medical_router":
-            route = route_with_medical_vlm(broad, row["image"], available)
-        else:
-            route = metadata_router.route(row["image"], row.get("metadata"))
-        abstain_entropy = float(config["router"].get("abstain_entropy", 1.0))
-        if normalized_entropy(route) >= abstain_entropy:
-            route = {name: 1.0 / len(available) for name in available}
-        state[str(row["id"])]["router_probs"] = route
+    if broad_spec.get("adapter") == "contrastive_biomedclip":
+        broad = _expert_from_spec(broad_spec, artifact_root)
+        for row in rows:
+            state[str(row["id"])]["broad_specialist_scores"] = broad.image_null_scores(
+                row["image"], row["prompt"], list(row["candidates"])
+            )
+            if oracle_router:
+                peak = 0.98
+                tail = (1.0 - peak) / (len(available) - 1)
+                route = {
+                    name: peak if name == row["modality"] else tail for name in available
+                }
+            elif config["router"].get("adapter") == "biomedclip_router":
+                route = broad.route(row["image"], available)
+            else:
+                route = metadata_router.route(row["image"], row.get("metadata"))
+            abstain_entropy = float(config["router"].get("abstain_entropy", 1.0))
+            if normalized_entropy(route) >= abstain_entropy:
+                route = {name: 1.0 / len(available) for name in available}
+            state[str(row["id"])]["router_probs"] = route
+    else:
+        broad = QwenLayerProbe(
+            _local_or_remote(broad_spec["id"], artifact_root),
+            layers=broad_spec.get("layers", [-1]),
+            dtype=broad_spec.get("dtype", "bfloat16"),
+            device_map=broad_spec.get("device_map", "auto"),
+        )
+        for row in rows:
+            _, broad_visual = broad.probe(
+                row["image"], row["prompt"], list(row["candidates"])
+            )
+            state[str(row["id"])]["broad_specialist_scores"] = broad_visual[-1]
+            if oracle_router:
+                peak = 0.98
+                tail = (1.0 - peak) / (len(available) - 1)
+                route = {
+                    name: peak if name == row["modality"] else tail for name in available
+                }
+            elif config["router"].get("adapter") == "qwen_medical_router":
+                route = route_with_medical_vlm(broad, row["image"], available)
+            else:
+                route = metadata_router.route(row["image"], row.get("metadata"))
+            abstain_entropy = float(config["router"].get("abstain_entropy", 1.0))
+            if normalized_entropy(route) >= abstain_entropy:
+                route = {name: 1.0 / len(available) for name in available}
+            state[str(row["id"])]["router_probs"] = route
     _release(broad)
 
     for modality, spec in sorted(config["experts"].items()):

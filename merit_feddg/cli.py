@@ -13,6 +13,8 @@ from .prepare import prepare_public_suite
 from .runner import aggregate_repetitions, compare_records, make_oracle_records
 from .simulation import simulate_records
 
+ASSET_PROFILES = ["smoke", "open-small", "medical-small", "research-2d"]
+
 
 def _print(payload: object) -> None:
     print(json.dumps(payload, indent=2, ensure_ascii=False))
@@ -115,7 +117,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     download = commands.add_parser("download", help="download registered models and datasets")
     download.add_argument(
-        "--profile", choices=["smoke", "open-small", "research-2d"], default="smoke"
+        "--profile", choices=ASSET_PROFILES, default="smoke"
     )
     download.add_argument("--root", default="artifacts")
     download.add_argument("--dry-run", action="store_true")
@@ -129,7 +131,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     verify = commands.add_parser("verify-assets", help="verify downloaded snapshot payloads")
     verify.add_argument(
-        "--profile", choices=["smoke", "open-small", "research-2d"], default="smoke"
+        "--profile", choices=ASSET_PROFILES, default="smoke"
     )
     verify.add_argument("--root", default="artifacts")
     verify.add_argument("--include-gated", action="store_true")
@@ -145,7 +147,7 @@ def build_parser() -> argparse.ArgumentParser:
         "asset-plan", help="show model, dataset, license and gate requirements"
     )
     plan.add_argument(
-        "--profile", choices=["smoke", "open-small", "research-2d"], default="research-2d"
+        "--profile", choices=ASSET_PROFILES, default="medical-small"
     )
     plan.set_defaults(func=lambda args: _print(asset_plan(args.profile)))
 

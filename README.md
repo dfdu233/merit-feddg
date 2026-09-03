@@ -2,7 +2,7 @@
 
 **Experts do not vote; they trace what the generalist forgot.**
 
-MERIT-FedDG is a reproducible research scaffold for medical VLM hallucination mitigation under unseen-hospital domain shift. A compact medical VLM routes each study to one modality specialist. The selected specialist never supplies its diagnosis or logit magnitude to the answer. Instead, its native-image versus null-image evidence identifies clinically aligned visual evidence already present in intermediate layers of a frozen generalist; MERIT restores only the generalist's own erased residual.
+MERIT-FedDG is a reproducible research scaffold for medical VLM hallucination mitigation under unseen-hospital domain shift. A compact biomedical encoder routes each study to one modality specialist, while a frozen medical VLM owns the final answer. The selected specialist never supplies its diagnosis or logit magnitude to the answer. Instead, its native-image versus null-image evidence identifies clinically aligned visual evidence already present in intermediate layers of the medical generalist; MERIT restores only the generalist's own erased residual.
 
 The repository combines two ideas while keeping their scientific roles separate:
 
@@ -28,14 +28,19 @@ It does **not** claim that modality routing, specialist collaboration, or freque
 ### One-command public benchmark (recommended)
 
 After accepting the gated CONCH terms and exporting a read token, the following command
-installs dependencies, downloads all seven models and four datasets, converts compatible
-public samples into a unified manifest, audits image-level leakage, extracts evidence once,
-and runs both predicted-router and oracle-router comparisons:
+installs dependencies, downloads the compact medical model pool and three datasets, converts
+compatible public samples into a unified manifest, audits image-level leakage, extracts
+evidence once, and runs both predicted-router and oracle-router comparisons:
 
 ```bash
 export HF_TOKEN='hf_your_read_token'
 ./run_all.sh --mirror cn --preset canary --install-system
 ```
+
+The default `medical-small` profile uses OpenMed Qwen2.5-3B-MedVL as the medical
+generalist and a roughly 750 MB BiomedCLIP model as an independent modality router. It
+does not download Qwen2.5-VL-7B or MedM-VL. To reproduce the larger generic-generalist
+baseline explicitly, pass `--model-profile research-2d`.
 
 `--mirror cn` uses the Tsinghua PyPI mirror and `hf-mirror.com` for this process only;
 individual Hugging Face downloads automatically retry against the official endpoint. It
@@ -55,26 +60,33 @@ only when an intentional refresh is required. Evidence caches are likewise reuse
 than the generated manifest; deterministic benchmark preparation preserves the manifest's
 timestamp when its contents have not changed, so rerunning the command does not accidentally
 invalidate the evidence cache. Pass `--force-extract` to recompute it. Outputs are written
-below `runs/public-canary/` or `runs/public-paper/`.
+below `runs/medical-small-public-canary/` or `runs/medical-small-public-paper/`.
 
 The public runner partitions unique images deterministically into two source clients and
 one target partition, never splitting QA rows from the same image across domains. These
 are explicitly **proxy domains for mechanism testing**, not hospitals or scanners, and the
 generated report sets `strict_hospital_dg_claim_allowed: false`.
 
-`smoke` is only a CPU/CI code-path check and intentionally downloads no real assets. On a new Debian/Ubuntu GPU server, the full model-and-dataset installation is:
+`smoke` is only a CPU/CI code-path check and intentionally downloads no real assets. On a new Debian/Ubuntu GPU server, the compact model-and-dataset installation is:
 
 ```bash
 git pull
 export HF_TOKEN='hf_your_read_token'
-./bootstrap.sh --profile research-2d --include-gated --install-system
+./bootstrap.sh --profile medical-small --include-gated --install-system
 ```
 
 The command installs Linux libraries, creates `.venv`, installs PyTorch and the research dependencies, installs the official CONCH runtime, downloads every registered model and dataset with resumable Hugging Face snapshots, verifies each local payload, and runs tests. Accept the CONCH repository terms in the browser before using `--include-gated`. If system packages are already present, omit `--install-system`.
 
-The full profile checks for at least 80 GiB of free space. Change the guard with `--min-free-gb N` only after checking the actual filesystem. PyTorch is installed from PyPI by default; when your driver requires a specific wheel channel, copy the index URL from the [official PyTorch selector](https://pytorch.org/get-started/locally/) and pass `--torch-index URL`.
+The optional `research-2d` profile checks for at least 80 GiB of free space. Change the guard with `--min-free-gb N` only after checking the actual filesystem. PyTorch is installed from PyPI by default; when your driver requires a specific wheel channel, copy the index URL from the [official PyTorch selector](https://pytorch.org/get-started/locally/) and pass `--torch-index URL`.
 
-Downloaded assets include Qwen2.5-VL-7B, MedM-VL-2D-3B, OpenMed MedVL, CheXagent, RAD-DINO, CONCH, LO-VLM, VQA-RAD, PathVQA, OCT-summary and SLAKE. Interrupted Hugging Face downloads can be resumed by running the same command again. A successful snapshot receives a local completion marker containing its file-count, byte-count and path/size fingerprint; unchanged snapshots are skipped on later runs. Tokens, weights and medical data stay outside Git.
+The default assets include OpenMed MedVL, BiomedCLIP, CheXagent, CONCH,
+LO-VLM, VQA-RAD, PathVQA and OCT-summary. The optional `research-2d` profile adds the
+generic Qwen-7B and SLAKE baseline. Interrupted Hugging Face downloads
+resume when the same command is run again. A successful snapshot receives a local
+completion marker containing its file-count, byte-count and path/size fingerprint;
+unchanged snapshots are skipped on later runs. Required files and minimum payload counts
+prevent partial sharded models or a SLAKE snapshot without `imgs.zip` from being accepted.
+Tokens, weights and medical data stay outside Git.
 
 To install only public assets, omit `--include-gated`; pathology experiments still require approved CONCH access. Hugging Face documents the browser approval and server-token flow in its [gated model guide](https://huggingface.co/docs/hub/models-gated).
 
@@ -96,20 +108,20 @@ Open small models and the OCT dataset:
 .\bootstrap.ps1 -Profile open-small
 ```
 
-Full 2D research assets:
+Compact medical 2D research assets:
 
 ```powershell
 $env:HF_TOKEN = "your_read_token"
-.\bootstrap.ps1 -Profile research-2d -IncludeGated
+.\bootstrap.ps1 -Profile medical-small -IncludeGated
 ```
 
 Linux users should use the full server command above, not the PowerShell script.
 
-The research profile is large. Run the asset audit first if storage is limited:
+Run the compact asset audit first if storage is limited:
 
 ```bash
-merit-feddg asset-plan --profile research-2d
-merit-feddg download --profile research-2d --root artifacts --dry-run
+merit-feddg asset-plan --profile medical-small
+merit-feddg download --profile medical-small --root artifacts --dry-run
 ```
 
 CONCH is gated and non-commercial. Accept its Hugging Face terms, use an institutional-email account, and add `--include-gated`. The downloader records skipped and failed assets without concealing partial success. No model weight or medical image is committed to Git.
@@ -118,14 +130,16 @@ CONCH is gated and non-commercial. Accept its Hugging Face terms, use an institu
 
 | Role | Default | Interface | Online use |
 |---|---|---|---|
-| Generalist | Qwen2.5-VL-7B-Instruct | layerwise phrase likelihood | produces the final evidence and answer |
-| Medical router/fallback | OpenMed Qwen2.5-3B-MedVL | strict modality JSON + phrase likelihood | route and broad-specialist control |
+| Medical generalist | OpenMed Qwen2.5-3B-MedVL | layerwise phrase likelihood | produces the final evidence and answer |
+| Independent router/control | BiomedCLIP ViT-B/16 | zero-shot modality similarity | route and broad-specialist control |
 | CXR specialist | CheXagent-2-3B | generative phrase likelihood | specialist lens |
 | Pathology specialist | CONCH | contrastive concept score | specialist lens |
 | OCT specialist | LO-VLM 247M | generative phrase likelihood | specialist lens |
 | CXR validator | RAD-DINO | patch features | offline occlusion validation only |
 
-MedM-VL-2D-3B-en is included in the downloadable registry as an alternative router/fallback. Its official LLaVA-derived runtime is not silently mixed into the Transformers adapter; integrate it through its upstream package if selected.
+Qwen2.5-VL-7B and MedM-VL-2D-3B-en remain in the optional `research-2d` registry for
+larger baseline studies. MedM's official LLaVA-derived runtime is not silently mixed into
+the Transformers adapter; integrate it through its upstream package if selected.
 
 ## Real experiment
 
@@ -162,7 +176,7 @@ Merge the audited manifest files, then run models sequentially:
 ```bash
 merit-feddg extract \
   --manifest data/manifests/all.jsonl \
-  --config configs/real_2d.yaml \
+  --config configs/medical_small.yaml \
   --artifacts artifacts \
   --output cache/real-evidence.jsonl
 ```

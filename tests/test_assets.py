@@ -1,7 +1,12 @@
 from pathlib import Path
 from types import ModuleType
 
-from merit_feddg.assets import download_profile, verify_assets
+from merit_feddg.assets import (
+    _asset_state,
+    _requirements_satisfied,
+    download_profile,
+    verify_assets,
+)
 from merit_feddg.doctor import diagnostics
 from merit_feddg.experts.conch import resolve_checkpoint_source
 
@@ -68,6 +73,15 @@ def test_force_download_refreshes_completed_assets(tmp_path: Path, monkeypatch):
     refreshed = download_profile("open-small", tmp_path, force_download=True)
     assert len(refreshed["downloaded"]) == 3
     assert len(calls) == 6
+
+
+def test_dataset_requirements_reject_partial_multifile_snapshot(tmp_path: Path):
+    (tmp_path / "train.json").write_text("[]", encoding="utf-8")
+    entry = {"id": "example/data", "required_files": ["train.json", "imgs.zip"]}
+    assert _requirements_satisfied(tmp_path, entry, _asset_state(tmp_path, "dataset")) is False
+
+    (tmp_path / "imgs.zip").write_bytes(b"zip-payload")
+    assert _requirements_satisfied(tmp_path, entry, _asset_state(tmp_path, "dataset")) is True
 
 
 def test_doctor_reports_local_runtime_without_secrets(tmp_path: Path):

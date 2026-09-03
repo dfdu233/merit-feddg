@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
-  echo "Usage: ./study.sh MANIFEST [RUN_NAME] [--include-gated] [--install-system]"
+  echo "Usage: ./study.sh MANIFEST [RUN_NAME] [--model-profile medical-small|research-2d] [--include-gated] [--install-system]"
   exit 2
 fi
 
@@ -16,18 +16,26 @@ fi
 
 INCLUDE_GATED="${INCLUDE_GATED:-0}"
 INSTALL_SYSTEM="${INSTALL_SYSTEM:-0}"
+MODEL_PROFILE="${MODEL_PROFILE:-medical-small}"
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --model-profile) MODEL_PROFILE="${2:?missing model profile}"; shift 2 ;;
     --include-gated) INCLUDE_GATED=1; shift ;;
     --install-system) INSTALL_SYSTEM=1; shift ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
   esac
 done
 
+case "$MODEL_PROFILE" in
+  medical-small) EVIDENCE_CONFIG="medical_small.yaml" ;;
+  research-2d) EVIDENCE_CONFIG="real_2d.yaml" ;;
+  *) echo "Unknown model profile: $MODEL_PROFILE" >&2; exit 2 ;;
+esac
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON_EXE="$REPO_ROOT/.venv/bin/python"
-bootstrap_args=(--profile research-2d)
-verify_args=(--profile research-2d --root "$REPO_ROOT/artifacts")
+bootstrap_args=(--profile "$MODEL_PROFILE")
+verify_args=(--profile "$MODEL_PROFILE" --root "$REPO_ROOT/artifacts")
 if [[ "$INCLUDE_GATED" == "1" ]]; then
   bootstrap_args+=(--include-gated)
   verify_args+=(--include-gated)
@@ -44,7 +52,7 @@ fi
 
 "$PYTHON_EXE" -m merit_feddg.cli extract \
   --manifest "$MANIFEST" \
-  --config "$REPO_ROOT/configs/real_2d.yaml" \
+  --config "$REPO_ROOT/configs/$EVIDENCE_CONFIG" \
   --artifacts "$REPO_ROOT/artifacts" \
   --output "$REPO_ROOT/cache/$RUN_NAME.jsonl"
 
