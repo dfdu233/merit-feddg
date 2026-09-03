@@ -92,3 +92,67 @@ def asset_plan(profile: str) -> dict:
         "models": _entries(profile, root / "configs" / "models.yaml", "models"),
         "datasets": _entries(profile, root / "configs" / "datasets.yaml", "datasets"),
     }
+
+
+_MODEL_WEIGHT_SUFFIXES = {".bin", ".pt", ".pth", ".safetensors"}
+_DATASET_METADATA = {"readme.md", ".gitattributes", "license", "dataset_infos.json"}
+
+
+def _asset_state(path: Path, kind: str) -> dict:
+    files = []
+    if path.is_dir():
+        files = [
+            candidate
+            for candidate in path.rglob("*")
+            if candidate.is_file() and ".cache" not in candidate.relative_to(path).parts
+        ]
+    if kind == "model":
+        payloads = [candidate for candidate in files if candidate.suffix in _MODEL_WEIGHT_SUFFIXES]
+    else:
+        payloads = [
+            candidate for candidate in files if candidate.name.lower() not in _DATASET_METADATA
+        ]
+    return {
+        "path": str(path.resolve()),
+        "files": len(files),
+        "payload_files": len(payloads),
+        "bytes": sum(candidate.stat().st_size for candidate in files),
+    }
+
+
+def verify_assets(
+    profile: str,
+    root: str | Path,
+    include_gated: bool = False,
+) -> dict:
+    """Verify that every selected snapshot contains at least one payload file."""
+    root = Path(root)
+    plan = asset_plan(profile)
+    report = {
+        "profile": profile,
+        "root": str(root.resolve()),
+        "ready": True,
+        "present": [],
+        "missing": [],
+        "skipped": [],
+    }
+    for kind, directory in (("models", "models"), ("datasets", "datasets")):
+        for entry in plan[kind]:
+            if entry.get("gated") and not include_gated:
+                report["skipped"].append(
+                    {
+                        "kind": kind[:-1],
+                        "id": entry["id"],
+                        "reason": "gated asset was not requested",
+                    }
+                )
+                continue
+            path = root / directory / entry["id"].replace("/", "--")
+            item_kind = kind[:-1]
+            state = {"kind": item_kind, "id": entry["id"], **_asset_state(path, item_kind)}
+            if state["payload_files"]:
+                report["present"].append(state)
+            else:
+                report["missing"].append(state)
+    report["ready"] = not report["missing"]
+    return report

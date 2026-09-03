@@ -4,7 +4,8 @@ import argparse
 import json
 from pathlib import Path
 
-from .assets import asset_plan, download_profile
+from .assets import asset_plan, download_profile, verify_assets
+from .doctor import diagnostics
 from .extract import extract_manifest
 from .io import load_records, load_yaml, save_json
 from .manifest import audit_domain_split, build_folder_manifest
@@ -47,6 +48,13 @@ def command_download(args: argparse.Namespace) -> None:
         raise SystemExit(1)
 
 
+def command_verify_assets(args: argparse.Namespace) -> None:
+    report = verify_assets(args.profile, args.root, include_gated=args.include_gated)
+    _print(report)
+    if not report["ready"]:
+        raise SystemExit(1)
+
+
 def command_extract(args: argparse.Namespace) -> None:
     config = load_yaml(args.config)
     records = extract_manifest(
@@ -85,17 +93,39 @@ def build_parser() -> argparse.ArgumentParser:
     compare.set_defaults(func=command_compare)
 
     download = commands.add_parser("download", help="download registered models and datasets")
-    download.add_argument("--profile", choices=["smoke", "open-small", "research-2d"], default="smoke")
+    download.add_argument(
+        "--profile", choices=["smoke", "open-small", "research-2d"], default="smoke"
+    )
     download.add_argument("--root", default="artifacts")
     download.add_argument("--dry-run", action="store_true")
     download.add_argument("--include-gated", action="store_true")
     download.set_defaults(func=command_download)
 
-    plan = commands.add_parser("asset-plan", help="show model, dataset, license and gate requirements")
-    plan.add_argument("--profile", choices=["smoke", "open-small", "research-2d"], default="research-2d")
+    verify = commands.add_parser("verify-assets", help="verify downloaded snapshot payloads")
+    verify.add_argument(
+        "--profile", choices=["smoke", "open-small", "research-2d"], default="smoke"
+    )
+    verify.add_argument("--root", default="artifacts")
+    verify.add_argument("--include-gated", action="store_true")
+    verify.set_defaults(func=command_verify_assets)
+
+    doctor = commands.add_parser(
+        "doctor", help="report server, GPU, disk and Hugging Face readiness"
+    )
+    doctor.add_argument("--root", default="artifacts")
+    doctor.set_defaults(func=lambda args: _print(diagnostics(args.root)))
+
+    plan = commands.add_parser(
+        "asset-plan", help="show model, dataset, license and gate requirements"
+    )
+    plan.add_argument(
+        "--profile", choices=["smoke", "open-small", "research-2d"], default="research-2d"
+    )
     plan.set_defaults(func=lambda args: _print(asset_plan(args.profile)))
 
-    extract = commands.add_parser("extract", help="extract real-model evidence into a reusable cache")
+    extract = commands.add_parser(
+        "extract", help="extract real-model evidence into a reusable cache"
+    )
     extract.add_argument("--manifest", required=True)
     extract.add_argument("--config", required=True)
     extract.add_argument("--output", required=True)
@@ -104,7 +134,9 @@ def build_parser() -> argparse.ArgumentParser:
     extract.add_argument("--oracle-router", action="store_true")
     extract.set_defaults(func=command_extract)
 
-    manifest = commands.add_parser("make-manifest", help="index a local image folder without copying data")
+    manifest = commands.add_parser(
+        "make-manifest", help="index a local image folder without copying data"
+    )
     manifest.add_argument("--root", required=True)
     manifest.add_argument("--output", required=True)
     manifest.add_argument("--modality", required=True)

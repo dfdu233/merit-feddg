@@ -23,7 +23,25 @@ It does **not** claim that modality routing, specialist collaboration, or freque
 - Deterministic CPU smoke study and real-model JSONL evidence caching.
 - Dataset/model registries, license gates, leakage audit and Windows/Linux bootstrap scripts.
 
-## One-command setup
+## Linux server: full installation
+
+`smoke` is only a CPU/CI code-path check and intentionally downloads no real assets. On a new Debian/Ubuntu GPU server, the full model-and-dataset installation is:
+
+```bash
+git pull
+export HF_TOKEN='hf_your_read_token'
+./bootstrap.sh --profile research-2d --include-gated --install-system
+```
+
+The command installs Linux libraries, creates `.venv`, installs PyTorch and the research dependencies, installs the official CONCH runtime, downloads every registered model and dataset with resumable Hugging Face snapshots, verifies each local payload, and runs tests. Accept the CONCH repository terms in the browser before using `--include-gated`. If system packages are already present, omit `--install-system`.
+
+The full profile checks for at least 80 GiB of free space. Change the guard with `--min-free-gb N` only after checking the actual filesystem. PyTorch is installed from PyPI by default; when your driver requires a specific wheel channel, copy the index URL from the [official PyTorch selector](https://pytorch.org/get-started/locally/) and pass `--torch-index URL`.
+
+Downloaded assets include Qwen2.5-VL-7B, MedM-VL-2D-3B, OpenMed MedVL, CheXagent, RAD-DINO, CONCH, LO-VLM, VQA-RAD, PathVQA, OCT-summary and SLAKE. Interrupted Hugging Face downloads can be resumed by running the same command again. Tokens, weights and medical data stay outside Git.
+
+To install only public assets, omit `--include-gated`; pathology experiments still require approved CONCH access. Hugging Face documents the browser approval and server-token flow in its [gated model guide](https://huggingface.co/docs/hub/models-gated).
+
+## Smoke and smaller profiles
 
 The smoke profile downloads no private data and validates the complete experiment path:
 
@@ -32,7 +50,6 @@ The smoke profile downloads no private data and validates the complete experimen
 ```
 
 ```bash
-chmod +x bootstrap.sh
 ./bootstrap.sh smoke
 ```
 
@@ -48,6 +65,8 @@ Full 2D research assets:
 $env:HF_TOKEN = "your_read_token"
 .\bootstrap.ps1 -Profile research-2d -IncludeGated
 ```
+
+Linux users should use the full server command above, not the PowerShell script.
 
 The research profile is large. Run the asset audit first if storage is limited:
 
@@ -118,6 +137,14 @@ After editing the source/target names in the comparison config, installation, mo
 ```powershell
 .\study.ps1 -Manifest C:\data\all.jsonl -RunName cxr-path-oct-lodo -IncludeGated
 ```
+
+On Linux:
+
+```bash
+./study.sh /data/manifests/all.jsonl cxr-path-oct-lodo --include-gated
+```
+
+If the environment or any registered asset is missing, `study.sh` invokes the full bootstrap first. Add `--install-system` on a new Debian/Ubuntu server.
 
 ### 3. Compare every method on exactly the same cache
 

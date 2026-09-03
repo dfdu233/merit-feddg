@@ -9,6 +9,23 @@ from PIL import Image
 from .base import ConceptExpert, load_rgb, null_image_like
 
 
+def resolve_checkpoint_source(model_id: str) -> str:
+    source = Path(model_id)
+    if not source.is_dir():
+        return model_id
+    preferred = source / "pytorch_model.bin"
+    if preferred.is_file():
+        return str(preferred)
+    candidates = sorted(
+        candidate
+        for candidate in source.rglob("*")
+        if candidate.is_file() and candidate.suffix in {".bin", ".pt", ".pth"}
+    )
+    if not candidates:
+        raise FileNotFoundError(f"CONCH checkpoint was not found below {source}")
+    return str(candidates[0])
+
+
 class ConchConceptExpert(ConceptExpert):
     """Contrastive pathology adapter using the official CONCH package."""
 
@@ -24,7 +41,7 @@ class ConchConceptExpert(ConceptExpert):
         self.tokenize = tokenize
         token = os.getenv("HF_TOKEN")
         self.model, self.preprocess = create_model_from_pretrained(
-            "conch_ViT-B-16", model_id, hf_auth_token=token
+            "conch_ViT-B-16", resolve_checkpoint_source(model_id), hf_auth_token=token
         )
         if device == "auto":
             device = "cuda" if torch.cuda.is_available() else "cpu"
