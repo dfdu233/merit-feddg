@@ -98,11 +98,30 @@ class BiomedClipAdapter(ConceptExpert):
         prompt: str,
         concepts: list[str],
     ) -> np.ndarray:
+        scores, _ = self.score_and_domain_embedding(image, prompt, concepts)
+        return scores
+
+    def score_and_domain_embedding(
+        self,
+        image: str | Path | Image.Image,
+        prompt: str,
+        concepts: list[str],
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Reuse one native forward for candidate evidence and pre-call OOD."""
+
         native = load_rgb(image)
         null = null_image_like(native)
         phrases = [f"a medical image showing {concept}" for concept in concepts]
         text_features = self._text_embeddings(phrases)
         scale = self.model.logit_scale.exp().detach().clamp(max=100.0)
-        native_scores = scale * self._image_embedding(native) @ text_features.T
+        native_feature = self._image_embedding(native)
+        native_scores = scale * native_feature @ text_features.T
         null_scores = scale * self._image_embedding(null) @ text_features.T
-        return (native_scores - null_scores).squeeze(0).float().cpu().numpy()
+        scores = (native_scores - null_scores).squeeze(0).float().cpu().numpy()
+        feature = native_feature.squeeze(0).float().cpu().numpy()
+        return scores, feature
+
+    def domain_embedding(self, image: str | Path | Image.Image) -> np.ndarray:
+        """Frozen low-cost feature for pre-call source-domain OOD assessment."""
+
+        return self._image_embedding(load_rgb(image)).squeeze(0).float().cpu().numpy()

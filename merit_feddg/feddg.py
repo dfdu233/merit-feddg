@@ -36,13 +36,13 @@ class FederatedReliabilityCalibrator:
     def client_summary(domain: str, records: Iterable[EvidenceRecord]) -> list[ClientStatistic]:
         buckets: dict[str, list[tuple[int, float]]] = {}
         for record in records:
-            expert = record.modality
-            scores = record.expert_scores[expert]
-            predicted = int(np.argmax(scores))
-            margin = float(np.max(scores) - np.min(scores))
-            confidence = 1.0 / (1.0 + np.exp(-margin))
-            correct = int(predicted == record.label)
-            buckets.setdefault(expert, []).append((correct, confidence))
+            for expert in record.compatible_experts(capability="classification"):
+                scores = record.expert_scores[expert]
+                predicted = int(np.argmax(scores))
+                margin = float(np.max(scores) - np.min(scores))
+                confidence = 1.0 / (1.0 + np.exp(-margin))
+                correct = int(predicted == record.label)
+                buckets.setdefault(expert, []).append((correct, confidence))
         return [
             ClientStatistic(
                 domain=domain,

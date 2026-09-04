@@ -1,130 +1,186 @@
-# Med-DEFER research design
+# Med-DEFER v0.5 research design
 
-## Why the old mechanism is now a baseline
+## Motivation from the failed experiment
 
-The first 16-per-domain public run produced 6/32 correct for the medical generalist,
-7/32 for GSCo-style context and routed score fusion, and 5/32 for MERIT, MERIT-FedDG,
-wrong-route and shuffled-expert controls. Every method scored 0/16 on OCT. These results
-do not validate expert-confirmed residual recovery: real, wrong and shuffled experts were
-indistinguishable, and the OCT expert/task interface was not qualified.
+The earlier 16-per-domain proxy run produced 6/32 correct for the medical
+generalist, 7/32 for direct specialist fusion and 5/32 for MERIT/MERIT-FedDG.
+MERIT tied wrong-route and shuffled-expert controls, every method scored 0/16
+on OCT, and the apparent cached Med-DEFER gain (6/32 to 8/32) did not transfer
+to two live pathology canaries. One live error was highly confident and occurred
+before CONCH was called.
 
-Med-DEFER therefore does not assume that a generic hidden-layer residual is expert-specific.
-It treats MERIT as an ablation and moves collaboration into the generation process.
+The redesign therefore makes four falsifiable changes:
 
-## Research question
+1. yes/no proxy VQA is replaced by a real six-class tissue task;
+2. hash partitions are replaced by named medical-center domains;
+3. a qualified expert is considered before the first answer even for a
+   high-confidence generalist;
+4. OOD is computed from frozen source features rather than `1-route_confidence`.
 
-Can a medical generalist VLM reduce unsupported clinical claims by conditionally borrowing a
-single capability from a qualified small model during decoding, while abstaining when that
-expert is unreliable under unseen-domain shift?
+No learned binary `P(generalist error)` estimator is used.
 
-This is narrower than a generic medical agent. The unit of routing is a clinical claim, the
-action space is `NONE` plus registered capabilities, and the output remains authored by the
-generalist VLM.
+## Research hypothesis
 
-## Inference flow
+A medical generalist can make a more domain-robust first clinical decision by
+allowing one task-qualified specialist to provide bounded semantic evidence
+before that decision is committed, while a two-stage source-only domain gate
+rejects specialists outside their validated operating region.
 
-1. The medical VLM begins autoregressive generation.
-2. At the beginning of generation or after a clinical-claim delimiter, the controller measures
-   normalized token uncertainty.
-3. If the generalist is confident, choose `NONE` and continue without loading an expert.
-4. Otherwise, filter expert cards by image modality and required capability.
-5. Rank compatible experts by expected correction utility minus latency cost.
-6. Load and call only the selected expert. Cache its result for that sample and claim.
-7. Preserve its native mask, box, retrieved item or generated text, and map only supported
-   concepts into a centered, norm-bounded evidence direction.
-8. Recompute domain trust with the expert's own OOD and quality signals.
-9. If trust remains sufficient, bias matching concept-phrase tokens until the claim ends.
-10. Record a trace containing selection, utility, trust, gate and exact logit delta.
+This is not a generic agent system: the action space is `NONE` plus registered
+expert capabilities, only one compatible expert is invoked, and the medical
+VLM candidate likelihood remains the base decision score.
 
-The current implementation is synchronous. The trace/cache boundary is intentionally compatible
-with a later asynchronous path that speculates with the generalist and rolls back only the current
-claim if expert evidence arrives before the claim is committed.
+## Stage 1: real multiclass clinical decision
 
-## Domain-generalization gate
+The initial mechanism study uses `bifold-pathomics/PathoROB-tolkach_esca` with a custom LOCO
+protocol (not the official APD leaderboard protocol):
 
-For expert `e` on target study `x`, the source-only trust is
+- 16,300 real 256×256 histopathology patches;
+- six biological tissue classes;
+- four explicit medical-center domains;
+- `slide_id` grouping for leakage checks;
+- four leave-one-medical-center-out evaluations.
 
-```text
-T(e, x) = LCB_source(e)
-          * CVaR_lower(source-domain performance)
-          * exp(-temperature * OOD(e, x))
-          * image_quality(x)
-```
+The pilot samples a fixed number per medical center by hashing center, slide and
+patch identity. It never reads target class labels. The six answer classes are
+the frozen official PathoROB task taxonomy, not a vocabulary inferred from a
+held-out fold.
 
-`LCB_source` is computed from federated aggregate correctness and calibration error. The lower
-tail prevents a high mean on easy hospitals from hiding one failed source domain. OOD and quality
-are label-free target-study signals. No target outcome is used to fit the gate.
-
-The pre-call controller utility is
+For candidate `c`, the generalist base score is its true teacher-forced,
+length-normalized sequence log-likelihood:
 
 ```text
-U(e) = uncertainty * route_confidence * capability_match
-       * T_pre(e, x) * expected_gain(e) - cost_weight * latency(e)
+g(c) = mean_t log p_generalist(c_t | image, question, c_<t)
 ```
 
-The controller selects `argmax({0, U(e)})`. After the call, the intervention gate also multiplies
-expert confidence and the recomputed trust. The centered evidence vector is normalized and capped,
-so multiplying raw expert logits cannot arbitrarily increase its influence.
+The specialist produces semantic class evidence `s(c)`. Its calibrated,
+centered direction is normalized and bounded:
 
-## Expert contract
+```text
+d = normalize(softmax(s / temperature_source) - uniform)
+g_guided = g / temperature_generalist_source + lambda * gate * d
+||lambda * gate * d||_2 <= max_delta_norm
+```
 
-`NativeEvidence` supports five initial capability types:
+Both temperatures use only real source-center labels. Target labels are not an
+input to the decision function and enter only after predictions are frozen.
 
-| Capability | Native result retained | Initial language bridge |
+## Source-only qualification and domain generalization
+
+Every expert has a versioned qualification artifact bound to exact
+model/adapter/task/modality/capability fingerprints. It contains:
+
+- per-source-center accuracy, balanced accuracy, macro-F1, NLL, multiclass
+  Brier score, ECE and predictive entropy;
+- a lower confidence bound over source-center performance;
+- worst-source-center lower-tail CVaR;
+- latency distribution;
+- shrinkage-diagonal class-conditional feature references.
+
+OOD calibration distances are source-only cross-fitted: leave one source center
+out when possible, otherwise leave one source sample out. The deployed mean and
+diagonal variance are subsequently refit on all source observations. This keeps
+calibration rows out of their own reference fit, especially in the `n << d`
+embedding regime. Missing artifacts, insufficient aggregate support for any
+frozen class, legacy self-included calibration, weak native-task results,
+fingerprint mismatch or invalid features all fail closed.
+
+Two OOD checks separate computational cost from specialist-specific safety:
+
+```text
+pre_ood  = empirical Mahalanobis percentile in frozen BiomedCLIP features
+post_ood = empirical Mahalanobis percentile in frozen expert-native features
+
+source_robustness = sqrt(LCB_source * CVaR_lower)
+trust = source_robustness
+        * exp(-temperature * max(pre_ood, post_ood))
+        * image_quality
+```
+
+LCB and lower-tail CVaR summarize overlapping source-validation evidence. The
+geometric mean avoids counting that evidence twice. Hard qualification
+thresholds and OOD rejection provide the conservative veto; this directly
+addresses the earlier FedDG result in which multiplicative attenuation greatly
+reduced the intervention but rescued no additional case.
+
+Before the expert is loaded, pre-call OOD uses the nearest source-class cheap
+reference (with global fallback) and never conditions a veto on the
+generalist's argmax. This is essential for high-confidence wrong answers: a
+wrong class prediction must not be mistaken for domain shift. After the sparse
+call, the expert-predicted class selects the native reference. Neither stage
+uses the target ground-truth class.
+
+## First-claim versus uncertainty policy
+
+The main `qualified_first_claim` policy checks one qualified expert before the
+first diagnostic output. It is designed specifically to make high-confidence
+generalist errors observable. `uncertainty_only` remains a required ablation.
+
+For later free-text claims, the original candidate set cannot be reused. A new
+`ClaimSpec` must describe the current question, generated prefix, capability and
+semantic propositions; otherwise the decision is `NONE`. This prevents a later
+sentence from being guided by stale yes/no evidence.
+
+## Heterogeneous expert contract
+
+`NativeEvidence` preserves classification scores, retrieved references,
+segmentation masks, detection boxes and specialist text. An `EvidenceBridge`
+converts only explicitly linked semantic evidence into bounded claim support:
+
+| Capability | Native payload | Required semantic link |
 |---|---|---|
-| Classification | class/concept scores | signed concept phrase bias |
-| Retrieval | retrieved cases or reports in provenance | grounded concept scores |
-| Segmentation | masks | region-derived concept scores |
-| Detection | boxes | object/finding concept scores |
-| Generation | specialist text | extracted supported/contradicted concepts |
+| Classification | class/claim scores | proposition score |
+| Retrieval | reports/cases | grounded proposition score + provenance |
+| Segmentation | masks | candidate/claim support + mask provenance |
+| Detection | boxes | candidate/claim support + box provenance |
+| Generation | specialist text | supported/contradicted claim score + text |
 
-The bridge is explicit rather than pretending that tensors from unrelated architectures share a
-logit space. New experts register an `ExpertCard` and one lazy provider; the controller itself has
-no hard-coded model name. A spatial-to-token projector can be learned later, but it must be trained
-and evaluated separately instead of being silently assumed.
+An unrecognized capability or spatial/text payload with no semantic link
+abstains. External adapters can be loaded through a `package.module:factory`
+configuration entry, so adding a model does not require editing the controller.
 
-## Training protocol
+## Required matched comparisons
 
-- Freeze the generalist and all experts for the first study.
-- On source clients, calibrate per-expert correctness, calibration error and per-domain lower-tail
-  performance. Share aggregate statistics only.
-- Fit controller thresholds and expected gain on source validation clients.
-- Construct synthetic/augmented pseudo-domains only from source data to stress the trust gate.
-- Freeze all parameters before revealing the held-out target labels.
-- Qualify each expert on its native task before allowing it into the pool. An expert such as the
-  current OCT adapter with zero source accuracy is quarantined, not merely assigned a small weight.
+1. Generalist.
+2. Specialist alone.
+3. Routed direct fusion.
+4. Uncertainty-only Med-DEFER.
+5. Med-DEFER without DG.
+6. Mean-source-domain trust.
+7. Full LCB + CVaR + two-stage native-OOD Med-DEFER.
+8. Equal-budget shuffled evidence.
+9. Wrong capability (must fail closed).
 
-## Required comparisons
+Every fold reports accuracy, fixed-taxonomy macro-F1 (including zero-support
+frozen classes), target class support and structural/sample absence, ECE,
+worst-center accuracy, call rate, rescue/harm and same-as-generalist rate. It
+also reports a direct full-vs-shuffled slide-cluster bootstrap interval and
+paired sign test as descriptive mechanism falsification. `1-accuracy` is not
+reported as an open-ended hallucination rate.
 
-1. Medical generalist alone.
-2. Post-hoc specialist verification of a completed draft.
-3. Dense all-expert precomputation.
-4. GSCo-style specialist context and direct routed fusion.
-5. Legacy MERIT and MERIT-FedDG.
-6. Med-DEFER without domain trust.
-7. Med-DEFER with mean-domain rather than lower-tail trust.
-8. Full Med-DEFER.
-9. Wrong-capability, wrong-route and shuffled-evidence controls.
-10. Oracle modality/capability routing, reported separately.
+## Post-hoc falsification diagnostics
 
-Report task accuracy plus claim-level factuality, ECE/selective risk, worst-domain performance,
-expert call rate, latency, memory, rescued/harmed claims and expert-specific counterfactual effects.
-The existing `hallucination_rate = 1 - accuracy` is only a closed-set error proxy and must not be
-presented as an open-ended hallucination metric.
+After predictions are frozen, flag the mechanism as unsupported when any of
+these holds:
 
-## Falsification criteria
+- full Med-DEFER does not outperform shuffled evidence;
+- rescued cases do not exceed harmed cases;
+- a called expert leaves at least 95% of predictions unchanged;
+- an expert lacks valid real-source qualification;
+- source/target slides overlap.
 
-Stop or redesign the mechanism if correct experts do not beat shuffled/wrong evidence, the benefit
-vanishes after controlling for output length, domain trust only copies the generalist without
-improving selective risk, or expert qualification fails on its native source task. Real hospital
-or scanner domains are required before making a cross-hospital FedDG claim.
+These checks are descriptive outcomes, not model-selection or sample-size
+rules. The pilot size is fixed before target labels are inspected. Any
+confirmatory study must pre-register its scale and hyperparameters and use a
+disjoint final cohort (or a genuinely external center); it cannot expand the
+same nested target sample after seeing these diagnostics.
 
-## Implemented versus next
+## Stage 2: open-report hallucination
 
-Implemented now: typed heterogeneous evidence, `NONE`-or-one controller, source-only lower-tail
-trust, lazy loading, per-claim cache, bounded concept guidance, Transformers generation hook,
-deterministic end-to-end study and legacy baselines.
-
-Next empirical work: repair/replace the OCT expert-task mapping; add native segmentation and
-detection adapters; define claim extraction and factuality annotations; run real MedVL generation;
-then add asynchronous execution and claim-local rollback only if synchronous latency is limiting.
+The real multiclass experiment validates only the first clinical claim. The
+next stage will generate several natural-language claim beams from the medical
+VLM, score those claims with the selected expert, commit one claim, and then
+continue decoding. It requires held-out claim-level factuality annotations,
+unsupported-claim rate and blinded review. The current semantic `ClaimSpec` and
+evidence bridges are foundations for that stage, not evidence that open-ended
+hallucination has already been reduced.

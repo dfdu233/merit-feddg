@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "merit-feddg"
-version = "0.4.0"
-description = "Domain-robust claim-level specialist deferral during medical VLM decoding"
+version = "0.5.0"
+description = "Domain-robust specialist guidance for medical VLM clinical claims"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }

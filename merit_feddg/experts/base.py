@@ -29,3 +29,17 @@ class ConceptExpert(ABC):
         concepts: list[str],
     ) -> np.ndarray:
         raise NotImplementedError
+
+    def score_claims(
+        self,
+        image: str | Path | Image.Image,
+        question: str,
+        generated_prefix: str,
+        claims: list[str],
+    ) -> np.ndarray:
+        """Score semantic claims while retaining compatibility with older adapters."""
+
+        prompt = question.strip()
+        if generated_prefix.strip():
+            prompt = f"{prompt}\nAnswer so far: {generated_prefix.strip()}"
+        return self.image_null_scores(image, prompt, claims)

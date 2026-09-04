@@ -106,10 +106,16 @@ class QwenLayerProbe:
                 raise IndexError(
                     f"layer {layer} unavailable; model exposes {len(hidden_states)} states"
                 )
-            hidden = hidden_states[layer][:, start:end, :]
-            if self.final_norm is not None:
-                hidden = self.final_norm(hidden)
-            logits = self.output_head(hidden).float().log_softmax(dim=-1)
+            if layer in {-1, len(hidden_states) - 1}:
+                # Use the model's real language-head output for the final
+                # decision.  Re-projecting the final hidden state can apply a
+                # model-specific norm twice on some Qwen-VL releases.
+                logits = output.logits[:, start:end, :].float().log_softmax(dim=-1)
+            else:
+                hidden = hidden_states[layer][:, start:end, :]
+                if self.final_norm is not None:
+                    hidden = self.final_norm(hidden)
+                logits = self.output_head(hidden).float().log_softmax(dim=-1)
             values = logits.gather(-1, answer_ids.unsqueeze(-1)).squeeze(-1)
             scores.append(float(values.mean().detach().cpu()))
         return np.asarray(scores, dtype=float)
@@ -129,6 +135,44 @@ class QwenLayerProbe:
             [self._layer_scores(null, prompt, concept) for concept in concepts], axis=1
         )
         return null_scores[-1], native_scores - null_scores
+
+    def candidate_log_likelihoods(
+        self,
+        image: str | Path | Image.Image,
+        prompt: str,
+        candidates: list[str] | tuple[str, ...],
+        *,
+        length_normalize: bool = True,
+    ) -> np.ndarray:
+        """Score real answer strings with the medical VLM itself.
+
+        These are teacher-forced sequence log-likelihoods, not zero placeholders,
+        classifier-head proxies, or target-label-derived values.  Length
+        normalization is enabled by default so that a six-way benchmark is not
+        biased toward the shortest tissue name.
+        """
+
+        if len(candidates) < 2:
+            raise ValueError("at least two candidate answers are required")
+        native = load_rgb(image)
+        prompt_inputs = self._inputs(native, prompt, None)
+        prompt_length = int(prompt_inputs["input_ids"].shape[1])
+        scores: list[float] = []
+        for candidate in candidates:
+            answer = " " + str(candidate).strip()
+            full_inputs = self._inputs(native, prompt, answer)
+            answer_ids = full_inputs["input_ids"][:, prompt_length:]
+            if answer_ids.numel() == 0:
+                raise RuntimeError(f"candidate {candidate!r} produced no answer tokens")
+            with self.torch.inference_mode():
+                output = self.model(**full_inputs, use_cache=False)
+            start = prompt_length - 1
+            end = int(full_inputs["input_ids"].shape[1]) - 1
+            token_logits = output.logits[:, start:end, :].float().log_softmax(dim=-1)
+            token_scores = token_logits.gather(-1, answer_ids.unsqueeze(-1)).squeeze(-1)
+            score = token_scores.mean() if length_normalize else token_scores.sum()
+            scores.append(float(score.detach().cpu()))
+        return np.asarray(scores, dtype=float)
 
     def generate(
         self,

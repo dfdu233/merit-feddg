@@ -20,6 +20,7 @@ profiles:
   medical-small:
     models:
       - id: OpenMed/Qwen2.5-3B-MedVL
+        revision: 6370f5828f259d64a850d7bad0b423770583a66c
         role: medical_generalist
         modality: general_medical_2d
         interface: qwen_layer_probe
@@ -27,6 +28,7 @@ profiles:
         min_payload_files: 2
         license: Apache-2.0
       - id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+        revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
         role: independent_modality_router_and_broad_control
         modality: general_biomedical_2d
         interface: contrastive_biomedclip
@@ -43,6 +45,7 @@ profiles:
         min_payload_files: 2
         license: MIT
       - id: MahmoodLab/CONCH
+        revision: f9ca9f877171a28ade80228fb195ac5d79003357
         role: pathology_specialist
         modality: pathology
         interface: contrastive_conch
@@ -54,6 +57,34 @@ profiles:
         interface: generative_blip
         gated: false
         license: Apache-2.0
+
+  pathorob-real:
+    models:
+      - id: OpenMed/Qwen2.5-3B-MedVL
+        revision: 6370f5828f259d64a850d7bad0b423770583a66c
+        role: medical_generalist
+        modality: general_medical_2d
+        interface: qwen_layer_probe
+        gated: false
+        min_payload_files: 2
+        license: Apache-2.0
+      - id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+        revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+        role: cheap_pre_call_domain_encoder_and_broad_control
+        modality: general_biomedical_2d
+        interface: contrastive_biomedclip
+        gated: false
+        required_files:
+          - open_clip_pytorch_model.bin
+          - open_clip_config.json
+        license: MIT
+      - id: MahmoodLab/CONCH
+        revision: f9ca9f877171a28ade80228fb195ac5d79003357
+        role: pathology_claim_specialist_and_native_domain_encoder
+        modality: pathology
+        interface: contrastive_conch
+        gated: true
+        license: CC-BY-NC-ND-4.0
 
   research-2d:
     models:

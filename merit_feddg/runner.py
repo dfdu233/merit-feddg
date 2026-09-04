@@ -8,7 +8,7 @@ import numpy as np
 from .evaluation import summarize
 from .feddg import FederatedReliabilityCalibrator
 from .io import save_json, save_predictions, save_records
-from .methods import predict
+from .methods import predict, selected_route
 from .types import EvidenceRecord, Prediction
 
 
@@ -17,11 +17,40 @@ def make_oracle_records(records: list[EvidenceRecord], peak: float = 0.98) -> li
 
     for record in records:
         available = sorted(record.expert_scores)
-        if record.modality not in available:
+        compatible = list(record.compatible_experts())
+        if not compatible:
             raise ValueError(f"no oracle expert is available for modality {record.modality!r}")
-        tail = (1.0 - peak) / (len(available) - 1)
+        modalities = sorted(
+            {
+                modality
+                for expert_id in available
+                for modality in record.modalities_for_expert(expert_id)
+            }
+        )
+        other_modalities = [name for name in modalities if name != record.modality]
+        if not other_modalities:
+            modality_probs = {record.modality: 1.0}
+        else:
+            modality_probs = {
+                name: peak if name == record.modality else (1.0 - peak) / len(other_modalities)
+                for name in modalities
+            }
+        experts_per_modality = {
+            modality: sum(
+                modality in record.modalities_for_expert(expert_id) for expert_id in available
+            )
+            for modality in modalities
+        }
         record.router_probs = {
-            name: peak if name == record.modality else tail for name in available
+            expert_id: sum(
+                modality_probs.get(modality, 0.0) / experts_per_modality[modality]
+                for modality in record.modalities_for_expert(expert_id)
+            )
+            for expert_id in available
+        }
+        record.metadata = {
+            **dict(record.metadata or {}),
+            "modality_router_probs": modality_probs,
         }
     return records
 
@@ -30,9 +59,10 @@ def route_metrics(records: list[EvidenceRecord]) -> dict:
     correct = []
     confidences = []
     for record in records:
-        route = max(record.router_probs, key=record.router_probs.get)
+        probabilities = record.modality_probabilities()
+        route = max(probabilities, key=probabilities.get)
         correct.append(route == record.modality)
-        confidences.append(float(record.router_probs[route]))
+        confidences.append(float(probabilities[route]))
     return {
         "accuracy": float(np.mean(correct)),
         "mean_confidence": float(np.mean(confidences)),
@@ -52,10 +82,14 @@ def _shuffled_scores(records: list[EvidenceRecord], seed: int) -> dict[str, np.n
             order = np.roll(order, 1)
         for record, shuffled_index in zip(items, order):
             donor = items[int(shuffled_index)]
-            route = max(record.router_probs, key=record.router_probs.get)
-            result[record.sample_id] = donor.expert_scores.get(
-                route, donor.expert_scores[donor.modality]
-            )
+            route, _ = selected_route(record)
+            donor_choices = donor.compatible_experts()
+            if route in donor.expert_scores:
+                result[record.sample_id] = donor.expert_scores[route]
+            elif donor_choices:
+                result[record.sample_id] = donor.expert_scores[donor_choices[0]]
+            else:
+                raise ValueError(f"donor {donor.sample_id} has no compatible expert")
     return result
 
 

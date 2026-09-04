@@ -27,6 +27,17 @@ profiles:
         domain_field: source
         gated: false
         license_note: Review the dataset card before use.
+  pathorob-real:
+    datasets:
+      - id: bifold-pathomics/PathoROB-tolkach_esca
+        revision: c42219a2c168c5995e44487f5747bdacaf4bc2da
+        modality: pathology
+        domain_field: medical_center
+        label_field: biological_class
+        group_field: slide_id
+        gated: false
+        min_bytes: 250000000
+        license_note: CC-BY-SA-4.0; also cite the Tolkach ESCA source publication.
   research-2d:
     datasets:
       - id: flaviagiammarino/vqa-rad

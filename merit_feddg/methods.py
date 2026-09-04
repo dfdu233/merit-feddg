@@ -8,17 +8,29 @@ from .types import EvidenceRecord, Prediction
 
 
 def selected_route(record: EvidenceRecord) -> tuple[str, float]:
-    route = max(record.router_probs, key=record.router_probs.get)
-    probabilities = np.asarray(list(record.router_probs.values()), dtype=float)
-    probabilities = probabilities / probabilities.sum()
-    uniform = 1.0 / len(probabilities)
-    certainty = (float(np.max(probabilities)) - uniform) / (1.0 - uniform)
+    modality_probs = record.modality_probabilities()
+    selected_modality = max(modality_probs, key=modality_probs.get)
+    compatible = record.compatible_experts(
+        modality=selected_modality,
+        capability="classification",
+    )
+    if compatible:
+        route = max(compatible, key=lambda name: record.router_probs.get(name, 0.0))
+    else:
+        route = max(record.router_probs, key=record.router_probs.get)
+    probabilities = np.asarray(list(modality_probs.values()), dtype=float)
+    if len(probabilities) == 1:
+        certainty = 1.0
+    else:
+        uniform = 1.0 / len(probabilities)
+        certainty = (float(np.max(probabilities)) - uniform) / (1.0 - uniform)
     return route, float(np.clip(certainty, 0.0, 1.0))
 
 
 def _wrong_route(record: EvidenceRecord) -> tuple[str, float]:
     choices = sorted(record.router_probs, key=record.router_probs.get, reverse=True)
-    wrong = next((name for name in choices if name != record.modality), choices[-1])
+    compatible = set(record.compatible_experts())
+    wrong = next((name for name in choices if name not in compatible), choices[-1])
     return wrong, float(record.router_probs.get(wrong, 0.0))
 
 

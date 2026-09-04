@@ -1,0 +1,52 @@
+seed: 42
+task:
+  id: pathorob-tolkach-esca-6class
+  modality: pathology
+  capability: classification
+  expert_id: pathology
+  # Official full-dataset taxonomy coverage, kept separate from classes that
+  # merely happen to be absent from the small label-blind pilot sample.
+  structurally_unavailable_classes_by_center:
+    VALSET3_TCGA:
+      - regressed tumor tissue
+qualification:
+  performance_metric: macro_f1
+  cvar_alpha: 0.25
+  lcb_z: 1.645
+  shrinkage: 0.1
+  minimum_variance: 1.0e-6
+  minimum_source_domains: 2
+  minimum_samples_per_domain: 2
+  # Aggregate across source centers. A fold is rejected rather than assigning
+  # fabricated trust when any frozen class has no source example.
+  minimum_samples_per_class: 1
+  minimum_performance_lcb: 0.05
+  minimum_performance_cvar: 0.05
+med_defer:
+  controller:
+    # Main method always considers one qualified expert before the first
+    # diagnostic claim. Entropy-only triggering remains an explicit ablation.
+    first_claim_policy: qualified_first_claim
+    uncertainty_threshold: 0.35
+  domain_trust:
+    source_statistic: multiclass_macro_f1_lcb
+    aggregation: lower_tail_cvar
+    maximum_pre_call_ood: 0.99
+    ood_temperature: 2.0
+  guidance:
+    representation: bounded_candidate_reranking
+    strength: 0.8
+    max_bias_norm: 1.25
+evaluation:
+  analysis_role: exploratory_mechanism_pilot
+  target_label_policy: evaluation_only_never_model_or_sample_size_selection
+  methods:
+    - generalist
+    - specialist
+    - routed_fusion
+    - uncertainty_only
+    - med_defer_no_dg
+    - mean_domain_trust
+    - med_defer_full
+    - shuffled_evidence
+    - wrong_capability

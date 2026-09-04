@@ -1,0 +1,25 @@
+seed: 42
+generalist:
+  id: OpenMed/Qwen2.5-3B-MedVL
+  revision: 6370f5828f259d64a850d7bad0b423770583a66c
+  adapter: qwen_layer_probe
+  dtype: bfloat16
+  device_map: auto
+  layers: [-1]
+  candidate_scores_only: true
+router:
+  mode: fixed_single_compatible_expert
+  abstain_entropy: 1.0
+broad_specialist:
+  id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+  revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+  adapter: contrastive_biomedclip
+experts:
+  pathology:
+    id: MahmoodLab/CONCH
+    revision: f9ca9f877171a28ade80228fb195ac5d79003357
+    adapter: contrastive_conch
+    modalities: [pathology]
+    capabilities: [classification, retrieval]
+    expected_gain: 1.0
+    latency_ms: 100.0

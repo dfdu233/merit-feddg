@@ -80,7 +80,10 @@ class MedDeferLogitsProcessor:
         )
 
     def _apply_phrase_bias(self, input_ids: Any, scores: Any, trace: ClaimTrace) -> Any:
+        import torch
+
         generated = input_ids[0, self.prompt_length :].tolist()
+        vocabulary_bias = torch.zeros_like(scores)
         for concept, weight in zip(self.active_concepts, trace.concept_delta):
             variants = self._tokens(concept)
             if not variants or weight == 0.0:
@@ -97,8 +100,14 @@ class MedDeferLogitsProcessor:
                         break
                 next_tokens.add(next_token)
             for next_token in next_tokens:
-                scores[:, next_token] += float(weight)
-        return scores
+                vocabulary_bias[:, next_token] += float(weight)
+        # Several medical candidates can share a first sub-token. Cap the
+        # resulting vocabulary-space vector after collisions are aggregated;
+        # capping only the concept vector does not bound the actual intervention.
+        norms = torch.linalg.vector_norm(vocabulary_bias.float(), dim=-1, keepdim=True)
+        cap = max(float(self.engine.max_bias_norm), 0.0)
+        scales = torch.clamp(cap / norms.clamp_min(1e-12), max=1.0)
+        return scores + vocabulary_bias * scales.to(vocabulary_bias.dtype)
 
     def __call__(self, input_ids: Any, scores: Any) -> Any:
         if self.prompt_length is None:

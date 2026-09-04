@@ -31,7 +31,7 @@ def _domain_scores(records, source_domains: set[str]) -> dict[str, tuple[float, 
         if record.domain not in source_domains:
             continue
         for expert, scores in record.expert_scores.items():
-            if expert == record.modality:
+            if expert in record.compatible_experts(capability="classification"):
                 counts[expert][record.domain].append(int(np.argmax(scores) == record.label))
     return {
         expert: tuple(float(np.mean(values)) for _, values in sorted(domains.items()))
@@ -71,18 +71,36 @@ def run_med_defer_records(records: list[EvidenceRecord], config: dict) -> dict:
         minimum_post_call_trust=float(trust_settings.get("minimum_post_call_trust", 0.05)),
     )
 
-    modalities = sorted({expert for record in records for expert in record.expert_scores})
+    expert_ids = sorted({expert for record in records for expert in record.expert_scores})
     cards = {
-        modality: ExpertCard(
-            expert_id=modality,
-            modalities=(modality,),
-            capabilities=("classification",),
-            source_reliability_lcb=calibrator.score(modality),
-            validation_domain_scores=domain_scores.get(modality, ()),
+        expert_id: ExpertCard(
+            expert_id=expert_id,
+            modalities=tuple(
+                sorted(
+                    {
+                        modality
+                        for record in records
+                        if expert_id in record.expert_scores
+                        for modality in record.modalities_for_expert(expert_id)
+                    }
+                )
+            ),
+            capabilities=tuple(
+                sorted(
+                    {
+                        capability
+                        for record in records
+                        if expert_id in record.expert_scores
+                        for capability in record.capabilities_for_expert(expert_id)
+                    }
+                )
+            ),
+            source_reliability_lcb=calibrator.score(expert_id),
+            validation_domain_scores=domain_scores.get(expert_id, ()),
             expected_gain=1.0,
             latency_ms=100.0,
         )
-        for modality in modalities
+        for expert_id in expert_ids
     }
     correct_base = 0
     correct_guided = 0
@@ -111,16 +129,18 @@ def run_med_defer_records(records: list[EvidenceRecord], config: dict) -> dict:
         probabilities /= probabilities.sum()
         entropy = -float(np.sum(probabilities * np.log(probabilities + 1e-12)))
         uncertainty = entropy / np.log(len(probabilities))
-        route_peak = max(record.router_probs.values())
+        modality_probs = record.modality_probabilities()
+        predicted_modality = max(modality_probs, key=modality_probs.get)
+        route_peak = max(modality_probs.values())
         request = ClaimRequest(
             sample_id=record.sample_id,
             claim_id="diagnostic-claim-0",
-            modality=max(record.router_probs, key=record.router_probs.get),
+            modality=predicted_modality,
             required_capabilities=("classification",),
             concepts=tuple(record.candidates),
             base_logits=tuple(base),
             uncertainty=float(np.clip(uncertainty, 0.0, 1.0)),
-            router_probs=record.router_probs,
+            router_probs=modality_probs,
             domain_signals={
                 expert_id: DomainSignal(ood_score=1.0 - route_peak, image_quality=1.0)
                 for expert_id in cards

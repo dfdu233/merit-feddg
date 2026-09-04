@@ -6,16 +6,18 @@ from pathlib import Path
 
 from .assets import asset_plan, download_profile, verify_assets
 from .doctor import diagnostics
-from .extract import extract_manifest
+from .extract import extract_manifest, verify_extraction_cache
 from .guided_generate import guided_generate_case
 from .io import load_records, load_yaml, save_json
 from .manifest import audit_domain_split, build_folder_manifest
 from .med_defer_study import run_med_defer_records, run_med_defer_study
+from .pathorob import prepare_pathorob_loco
 from .prepare import prepare_public_suite
+from .real_multiclass import run_real_multiclass_loco
 from .runner import aggregate_repetitions, compare_records, make_oracle_records
 from .simulation import simulate_records
 
-ASSET_PROFILES = ["smoke", "open-small", "medical-small", "research-2d"]
+ASSET_PROFILES = ["smoke", "open-small", "medical-small", "pathorob-real", "research-2d"]
 
 
 def _print(payload: object) -> None:
@@ -104,6 +106,20 @@ def command_extract(args: argparse.Namespace) -> None:
     _print({"records": len(records), "output": str(Path(args.output).resolve())})
 
 
+def command_verify_extract_cache(args: argparse.Namespace) -> None:
+    report = verify_extraction_cache(
+        args.cache,
+        args.manifest,
+        load_yaml(args.config),
+        args.artifacts,
+        limit=args.limit,
+        oracle_router=args.oracle_router,
+    )
+    _print(report)
+    if not report["ready"]:
+        raise SystemExit(1)
+
+
 def command_prepare_public(args: argparse.Namespace) -> None:
     report = prepare_public_suite(
         args.config,
@@ -113,6 +129,40 @@ def command_prepare_public(args: argparse.Namespace) -> None:
         questions_per_image=args.questions_per_image,
     )
     _print(report)
+
+
+def command_prepare_pathorob(args: argparse.Namespace) -> None:
+    snapshot = args.snapshot or (
+        Path(args.artifacts) / "datasets" / "bifold-pathomics--PathoROB-tolkach_esca"
+    )
+    report = prepare_pathorob_loco(
+        snapshot,
+        args.output,
+        limit_per_center=args.limit_per_center,
+        seed=args.seed,
+    )
+    _print(
+        {
+            "dataset": report["dataset"],
+            "medical_centers": report["medical_centers"],
+            "classes": report["classes"],
+            "sampled_rows": report["sampled_rows"],
+            "canonical_manifest": report["canonical_manifest"],
+            "manifests": report["manifests"],
+        }
+    )
+
+
+def command_real_multiclass(args: argparse.Namespace) -> None:
+    report = run_real_multiclass_loco(
+        load_records(args.input),
+        load_yaml(args.model_config),
+        load_yaml(args.study_config),
+        args.output,
+        artifact_root=args.artifacts,
+        held_out_center=args.held_out_center,
+    )
+    _print({"centers": report["centers"], "aggregate": report["aggregate"]})
 
 
 def command_oracle_cache(args: argparse.Namespace) -> None:
@@ -167,7 +217,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     guided = commands.add_parser(
         "guided-generate",
-        help="generate one answer with live lazy specialist calls inside decoding",
+        help="lock one closed-set answer with a live lazy pre-commit specialist call",
     )
     guided.add_argument("--case", required=True)
     guided.add_argument("--source-cache", required=True)
@@ -219,6 +269,18 @@ def build_parser() -> argparse.ArgumentParser:
     extract.add_argument("--oracle-router", action="store_true")
     extract.set_defaults(func=command_extract)
 
+    verify_cache = commands.add_parser(
+        "verify-extract-cache",
+        help="verify that a frozen evidence cache matches data, config, code contract and models",
+    )
+    verify_cache.add_argument("--cache", required=True)
+    verify_cache.add_argument("--manifest", required=True)
+    verify_cache.add_argument("--config", required=True)
+    verify_cache.add_argument("--artifacts")
+    verify_cache.add_argument("--limit", type=int, default=0)
+    verify_cache.add_argument("--oracle-router", action="store_true")
+    verify_cache.set_defaults(func=command_verify_extract_cache)
+
     prepare = commands.add_parser(
         "prepare-public",
         help="convert downloaded public datasets into a leakage-audited proxy benchmark",
@@ -229,6 +291,34 @@ def build_parser() -> argparse.ArgumentParser:
     prepare.add_argument("--limit-per-domain", type=int, default=8)
     prepare.add_argument("--questions-per-image", type=int, default=1)
     prepare.set_defaults(func=command_prepare_public)
+
+    pathorob = commands.add_parser(
+        "prepare-pathorob",
+        help="prepare real six-class leave-one-medical-center-out PathoROB manifests",
+    )
+    pathorob.add_argument("--snapshot")
+    pathorob.add_argument("--artifacts", default="artifacts")
+    pathorob.add_argument("--output", default="data/pathorob-real")
+    pathorob.add_argument(
+        "--limit-per-center",
+        type=int,
+        default=12,
+        help="label-blind deterministic patches per medical center (0 uses all)",
+    )
+    pathorob.add_argument("--seed", type=int, default=42)
+    pathorob.set_defaults(func=command_prepare_pathorob)
+
+    real_multiclass = commands.add_parser(
+        "real-multiclass",
+        help="run real multi-center multi-class Med-DEFER and its required ablations",
+    )
+    real_multiclass.add_argument("--input", required=True)
+    real_multiclass.add_argument("--model-config", default="configs/pathorob_real.yaml")
+    real_multiclass.add_argument("--study-config", default="configs/pathorob_study.yaml")
+    real_multiclass.add_argument("--artifacts", default="artifacts")
+    real_multiclass.add_argument("--held-out-center")
+    real_multiclass.add_argument("--output", required=True)
+    real_multiclass.set_defaults(func=command_real_multiclass)
 
     oracle = commands.add_parser(
         "oracle-cache", help="derive an oracle-routing cache without rerunning the models"

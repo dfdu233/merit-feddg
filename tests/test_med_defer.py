@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from merit_feddg.expert_bridge import LazyConceptExpertProvider
 from merit_feddg.io import load_yaml
@@ -80,11 +81,34 @@ def test_confident_generalist_abstains_without_calling_expert():
     assert calls == []
 
 
+def test_qualified_first_claim_checks_a_high_confidence_answer():
+    calls = []
+    request = _request(uncertainty=0.01)
+    request = ClaimRequest(**{**request.__dict__, "deferral_policy": "qualified_first_claim"})
+    trace = _engine().guide(request, _pool(calls))
+    assert trace.selected_expert == "cxr-expert"
+    assert calls == ["claim-0"]
+    assert trace.gate > 0
+
+
 def test_ood_signal_suppresses_guidance():
     in_domain = _engine().guide(_request(ood=0.0), _pool([]))
     shifted = _engine().guide(_request(ood=1.0), _pool([]))
     assert shifted.trust < in_domain.trust
     assert shifted.gate < in_domain.gate
+
+
+def test_source_lcb_and_lower_tail_use_geometric_not_repeated_product_attenuation():
+    card = ExpertCard(
+        expert_id="qualified",
+        modalities=("cxr",),
+        capabilities=("classification",),
+        source_reliability_lcb=0.25,
+        validation_domain_scores=(0.25, 0.25),
+    )
+    trust = DomainTrustCalibrator(cvar_alpha=1.0, ood_temperature=1.0).score(card, DomainSignal())
+    assert trust.score == 0.25
+    assert trust.score > card.source_reliability_lcb * trust.lower_tail_stability
 
 
 def test_expert_without_source_domain_qualification_is_not_selected():
@@ -110,6 +134,34 @@ def test_expert_without_source_domain_qualification_is_not_selected():
     assert trace.selected_expert is None
     assert trace.reason == "no-compatible-expert"
     assert pool.call_counts["unqualified-cxr-expert"] == 0
+
+
+def test_missing_domain_signal_fails_closed_before_expert_loading():
+    calls = []
+    request = ClaimRequest(**{**_request().__dict__, "domain_signals": {}})
+    trace = _engine().guide(request, _pool(calls))
+    assert trace.selected_expert is None
+    assert trace.reason == "missing-domain-signal"
+    assert calls == []
+
+
+def test_semantic_request_rejects_third_party_evidence_without_validated_bridge():
+    calls = []
+    request = ClaimRequest(
+        **{
+            **_request().__dict__,
+            "expert_queries": (
+                "The image is normal.",
+                "The image shows pneumothorax.",
+            ),
+            "deferral_policy": "qualified_first_claim",
+        }
+    )
+    trace = _engine().guide(request, _pool(calls))
+    assert calls == ["claim-0"]
+    assert trace.reason == "semantic-bridge-not-validated"
+    assert trace.gate == 0.0
+    assert trace.guided_logits == trace.base_logits
 
 
 def test_end_to_end_study_is_sparse_and_source_only():
@@ -138,7 +190,47 @@ def test_existing_expert_is_not_loaded_until_deferred():
     evidence = provider(_request())
     assert provider.loaded
     assert calls == ["loaded"]
-    assert evidence.concept_scores["pneumothorax"] == 2.0
+    assert evidence.concept_scores["pneumothorax"] == pytest.approx(0.9051482536)
+    assert evidence.provenance["semantic_bridge_validated"] is True
+
+
+def test_provider_passes_current_question_prefix_and_semantic_queries():
+    observed = {}
+
+    class StubExpert:
+        def score_claims(self, image, question, generated_prefix, claims):
+            observed.update(
+                question=question,
+                generated_prefix=generated_prefix,
+                claims=claims,
+            )
+            return np.asarray([-1.0, 2.0])
+
+    provider = LazyConceptExpertProvider(
+        "cxr-expert",
+        "classification",
+        StubExpert,
+        "unused-by-stub.png",
+        "legacy prompt",
+    )
+    request = _request()
+    request = ClaimRequest(
+        **{
+            **request.__dict__,
+            "question": "What is the current diagnosis?",
+            "generated_prefix": "There is a focal opacity.",
+            "expert_queries": (
+                "The image is normal.",
+                "The image shows pneumothorax.",
+            ),
+        }
+    )
+    evidence = provider(request)
+    assert observed["question"] == "What is the current diagnosis?"
+    assert observed["generated_prefix"] == "There is a focal opacity."
+    assert observed["claims"] == list(request.expert_queries)
+    assert set(evidence.concept_scores) == set(request.concepts)
+    assert evidence.provenance["semantic_bridge_validated"] is True
 
 
 def test_transformers_processor_defers_again_at_next_claim_boundary():
@@ -214,3 +306,32 @@ def test_transformers_processor_records_none_at_confident_claim_start():
     assert len(processor.traces) == 1
     assert processor.traces[0].selected_expert is None
     assert processor.traces[0].reason == "generalist-confident"
+
+
+def test_phrase_token_collisions_are_capped_in_vocabulary_space():
+    torch = __import__("pytest").importorskip("torch")
+    from merit_feddg.decoding import MedDeferLogitsProcessor
+
+    class Tokenizer:
+        def __call__(self, text, add_special_tokens=False):
+            return {"input_ids": [3]}
+
+        def decode(self, tokens, skip_special_tokens=True):
+            return ""
+
+    request = _request()
+
+    def request_factory(prefix, uncertainty, claim_index):
+        return ClaimRequest(
+            **{
+                **request.__dict__,
+                "claim_id": f"claim-{claim_index}",
+                "deferral_policy": "qualified_first_claim",
+            }
+        )
+
+    engine = _engine()
+    processor = MedDeferLogitsProcessor(Tokenizer(), engine, _pool([]), request_factory)
+    scores = torch.zeros((1, 8))
+    changed = processor(torch.tensor([[1, 2]]), scores)
+    assert torch.linalg.vector_norm(changed - scores).item() <= engine.max_bias_norm + 1e-6

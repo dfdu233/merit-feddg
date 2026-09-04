@@ -64,12 +64,48 @@ class ConchConceptExpert(ConceptExpert):
         prompt: str,
         concepts: list[str],
     ) -> np.ndarray:
+        scores, _ = self.score_and_domain_embedding(image, prompt, concepts)
+        return scores
+
+    def score_and_domain_embedding(
+        self,
+        image: str | Path | Image.Image,
+        prompt: str,
+        concepts: list[str],
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Reuse the native image forward for evidence and post-call OOD."""
+
         native = load_rgb(image)
         null = null_image_like(native)
-        phrases = [f"Histopathology shows {concept}." for concept in concepts]
+        phrases = [self._claim_phrase(concept) for concept in concepts]
         text = self.tokenize(self.tokenizer, phrases).to(self.device)
         with self.torch.inference_mode():
             text_features = self.model.encode_text(text, normalize=True)
-            native_scores = self._image_embedding(native) @ text_features.T
+            native_feature = self._image_embedding(native)
+            native_scores = native_feature @ text_features.T
             null_scores = self._image_embedding(null) @ text_features.T
-        return (native_scores - null_scores).squeeze(0).float().cpu().numpy()
+        scores = (native_scores - null_scores).squeeze(0).float().cpu().numpy()
+        feature = native_feature.squeeze(0).float().cpu().numpy()
+        return scores, feature
+
+    @staticmethod
+    def _claim_phrase(concept: str) -> str:
+        """Avoid wrapping an already semantic claim in a second sentence."""
+
+        clean = " ".join(str(concept).strip().split())
+        lowered = clean.casefold()
+        semantic_starts = (
+            "the image ",
+            "the tissue ",
+            "histopathology ",
+            "for the clinical question ",
+        )
+        if lowered.startswith(semantic_starts):
+            return clean if clean.endswith(".") else f"{clean}."
+        return f"Histopathology shows {clean.rstrip('.')}."
+
+    def domain_embedding(self, image: str | Path | Image.Image) -> np.ndarray:
+        """Return the frozen native CONCH feature used for source-only OOD fitting."""
+
+        feature = self._image_embedding(load_rgb(image))
+        return feature.squeeze(0).float().cpu().numpy()

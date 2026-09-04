@@ -10,6 +10,9 @@ import numpy as np
 SUPPORTED_CAPABILITIES = frozenset(
     {"classification", "detection", "segmentation", "retrieval", "generation"}
 )
+SUPPORTED_DEFERRAL_POLICIES = frozenset(
+    {"uncertainty", "qualified_first_claim", "always_consider", "never"}
+)
 
 
 def _clip01(value: float) -> float:
@@ -60,8 +63,9 @@ class ExpertCard:
 class NativeEvidence:
     """Common envelope that preserves heterogeneous expert-native evidence.
 
-    ``concept_scores`` is the only field translated into language-token guidance.
-    Spatial and free-text outputs remain available for provenance and later adapters.
+    ``concept_scores`` can directly support semantic claims. Spatial and free-text
+    adapters may instead attach an explicit ``candidate_support`` mapping in
+    provenance; payloads without such a semantic link are preserved but fail closed.
     """
 
     expert_id: str
@@ -78,8 +82,17 @@ class NativeEvidence:
     def __post_init__(self) -> None:
         if self.capability not in SUPPORTED_CAPABILITIES:
             raise ValueError(f"unsupported capability: {self.capability}")
-        if not self.concept_scores:
-            raise ValueError("concept_scores cannot be empty")
+        has_native_payload = bool(
+            self.concept_scores
+            or self.masks
+            or self.boxes
+            or (self.generated_text and self.generated_text.strip())
+            or self.provenance.get("references")
+        )
+        if not has_native_payload:
+            raise ValueError(
+                "native evidence must contain scores, spatial output, text, or references"
+            )
         if not all(math.isfinite(float(value)) for value in self.concept_scores.values()):
             raise ValueError("concept scores must be finite")
         if not 0.0 <= self.confidence <= 1.0:
@@ -101,6 +114,11 @@ class ClaimRequest:
     uncertainty: float
     router_probs: Mapping[str, float]
     domain_signals: Mapping[str, DomainSignal] = field(default_factory=dict)
+    question: str = ""
+    generated_prefix: str = ""
+    task_type: str = "closed_set"
+    deferral_policy: str = "uncertainty"
+    expert_queries: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if len(self.concepts) < 2 or len(self.base_logits) != len(self.concepts):
@@ -109,6 +127,10 @@ class ClaimRequest:
             raise ValueError("uncertainty must be in [0, 1]")
         if not set(self.required_capabilities) <= SUPPORTED_CAPABILITIES:
             raise ValueError("request contains an unsupported capability")
+        if self.deferral_policy not in SUPPORTED_DEFERRAL_POLICIES:
+            raise ValueError(f"unsupported deferral policy: {self.deferral_policy}")
+        if self.expert_queries and len(self.expert_queries) != len(self.concepts):
+            raise ValueError("expert_queries must be empty or aligned with concepts")
 
 
 @dataclass(frozen=True)
@@ -150,7 +172,7 @@ class ClaimTrace:
 
 
 class DomainTrustCalibrator:
-    """Conservative source-only trust: LCB x lower-tail stability x OOD x quality."""
+    """Source-only trust with qualification plus non-duplicative robust evidence."""
 
     def __init__(self, cvar_alpha: float = 0.25, ood_temperature: float = 2.0) -> None:
         if not 0.0 < cvar_alpha <= 1.0:
@@ -177,7 +199,12 @@ class DomainTrustCalibrator:
         quality = min(signal.image_quality, evidence.image_quality if evidence else 1.0)
         lower_tail = self.lower_tail(card.validation_domain_scores)
         ood_discount = math.exp(-self.ood_temperature * ood)
-        score = card.source_reliability_lcb * lower_tail * ood_discount * quality
+        # LCB and lower-tail performance are correlated summaries of the same
+        # source validation evidence. Their geometric mean remains conservative
+        # without the repeated attenuation that made the earlier FedDG gate
+        # operationally inert after it had already qualified an expert.
+        source_robustness = math.sqrt(card.source_reliability_lcb * lower_tail)
+        score = source_robustness * ood_discount * quality
         return DomainTrust(
             source_lcb=card.source_reliability_lcb,
             lower_tail_stability=lower_tail,
@@ -203,10 +230,16 @@ class ClaimDeferralController:
         self.cost_weight = float(cost_weight)
 
     def select(self, request: ClaimRequest, cards: Sequence[ExpertCard]) -> DeferralDecision:
-        if request.uncertainty < self.uncertainty_threshold:
+        if request.deferral_policy == "never":
+            return DeferralDecision(None, 0.0, 0.0, 0.0, "policy-does-not-defer")
+        if (
+            request.deferral_policy == "uncertainty"
+            and request.uncertainty < self.uncertainty_threshold
+        ):
             return DeferralDecision(None, 0.0, 0.0, 0.0, "generalist-confident")
 
         ranked: list[tuple[float, str, float, float]] = []
+        compatible_missing_domain_signal = False
         required = set(request.required_capabilities)
         for card in cards:
             if request.modality not in card.modalities and "*" not in card.modalities:
@@ -219,21 +252,25 @@ class ClaimDeferralController:
             # as perfect lower-tail stability would be unsafe under domain shift.
             if not card.validation_domain_scores:
                 continue
+            if card.expert_id not in request.domain_signals:
+                compatible_missing_domain_signal = True
+                continue
             capability_match = len(overlap) / max(len(required), 1)
             route_confidence = _clip01(request.router_probs.get(request.modality, 0.0))
-            signal = request.domain_signals.get(card.expert_id, DomainSignal())
+            signal = request.domain_signals[card.expert_id]
             trust = self.trust_calibrator.score(card, signal).score
+            trigger_strength = (
+                request.uncertainty if request.deferral_policy == "uncertainty" else 1.0
+            )
             benefit = (
-                request.uncertainty
-                * route_confidence
-                * capability_match
-                * trust
-                * card.expected_gain
+                trigger_strength * route_confidence * capability_match * trust * card.expected_gain
             )
             utility = benefit - self.cost_weight * card.latency_ms / 1000.0
             ranked.append((utility, card.expert_id, route_confidence, trust))
 
         if not ranked:
+            if compatible_missing_domain_signal:
+                return DeferralDecision(None, 0.0, 0.0, 0.0, "missing-domain-signal")
             return DeferralDecision(None, 0.0, 0.0, 0.0, "no-compatible-expert")
         utility, expert_id, route_confidence, trust = max(ranked)
         if utility < self.minimum_utility:
@@ -322,20 +359,22 @@ class MedDeferEngine:
 
         card = pool.cards[decision.expert_id]
         evidence, cache_hit = pool.get(decision.expert_id, request)
-        signal = request.domain_signals.get(decision.expert_id, DomainSignal())
+        signal = request.domain_signals[decision.expert_id]
         trust = self.controller.trust_calibrator.score(card, signal, evidence).score
         if evidence.capability not in request.required_capabilities:
             trust = 0.0
             reason = "capability-mismatch"
+        elif request.expert_queries and evidence.provenance.get("semantic_bridge_validated") is not True:
+            trust = 0.0
+            reason = "semantic-bridge-not-validated"
         elif trust < self.minimum_post_call_trust:
             reason = "post-call-trust-too-low"
         else:
             reason = "bounded-expert-guidance"
 
         direction = self._normalized_concept_delta(request, evidence)
-        gate = _clip01(
-            request.uncertainty * decision.route_confidence * trust * evidence.confidence
-        )
+        trigger_strength = request.uncertainty if request.deferral_policy == "uncertainty" else 1.0
+        gate = _clip01(trigger_strength * decision.route_confidence * trust * evidence.confidence)
         if reason != "bounded-expert-guidance":
             gate = 0.0
         delta = self.guidance_strength * gate * direction

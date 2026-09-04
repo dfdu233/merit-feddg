@@ -10,7 +10,7 @@ FORCE_DOWNLOAD=0
 IGNORE_DISK_CHECK=0
 TORCH_INDEX=""
 MIRROR_MODE="${MERIT_MIRROR:-auto}"
-CONCH_SOURCE="${MERIT_CONCH_SOURCE:-git+https://github.com/Mahmoodlab/CONCH.git}"
+CONCH_SOURCE="${MERIT_CONCH_SOURCE:-git+https://github.com/Mahmoodlab/CONCH.git@141cc09c7d4ff33d8eda562bd75169b457f71a62}"
 MIN_FREE_GB=80
 
 usage() {
@@ -18,11 +18,12 @@ usage() {
 Usage:
   ./bootstrap.sh smoke
   ./bootstrap.sh medical-small --include-gated --install-system
+  ./bootstrap.sh pathorob-real --include-gated --install-system
   ./bootstrap.sh research-2d --include-gated --install-system
   ./bootstrap.sh --profile research-2d --include-gated [options]
 
 Options:
-  --profile NAME          smoke, open-small, medical-small, or research-2d
+  --profile NAME          smoke, open-small, medical-small, pathorob-real, or research-2d
   --include-gated         Download gated models after access is approved
   --install-system        Install missing apt packages on Debian/Ubuntu
   --torch-index URL       Explicit PyTorch wheel index, e.g. .../whl/cu130
@@ -64,7 +65,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$PROFILE" in
-  smoke|open-small|medical-small|research-2d) ;;
+  smoke|open-small|medical-small|pathorob-real|research-2d) ;;
   *) echo "Unknown profile: $PROFILE" >&2; exit 2 ;;
 esac
 case "$MIRROR_MODE" in
@@ -275,6 +276,8 @@ if [[ $SKIP_TESTS -ne 1 ]]; then
 fi
 
 echo "MERIT-FedDG is ready on Linux. Profile: $PROFILE"
-if [[ "$PROFILE" == "research-2d" || "$PROFILE" == "medical-small" ]]; then
+if [[ "$PROFILE" == "pathorob-real" ]]; then
+  echo "Next: run ./run_pathorob.sh --limit-per-center 12"
+elif [[ "$PROFILE" == "research-2d" || "$PROFILE" == "medical-small" ]]; then
   echo "Next: edit configs/real_compare.example.yaml and run ./study.sh MANIFEST RUN_NAME"
 fi

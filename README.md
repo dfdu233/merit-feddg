@@ -1,36 +1,51 @@
 # Med-DEFER / MERIT-FedDG
 
-**A medical generalist keeps authorship; qualified specialists are conditionally called inside decoding.**
+**A medical generalist keeps authorship; qualified specialists can intervene before it commits a clinical decision.**
 
 This repository now implements **Med-DEFER**, a research prototype for claim-level conditional
 computation in a medical VLM under unseen-domain shift. At the start of a clinical claim, a
-controller can choose `NONE` or one compatible specialist. The specialist is loaded and called
-only when the generalist is uncertain and the expected correction benefit exceeds latency and
-domain-risk costs. Its evidence guides the current claim through bounded phrase-token bias; it
-does not replace the medical VLM or compose a final answer independently.
+controller can choose `NONE` or one compatible specialist. In the implemented closed-set path,
+this is pre-commit candidate-space deferral: the medical VLM scores the answer candidates, the
+controller optionally calls a source-qualified specialist, and the bounded guided argmax is
+locked before any explanation is generated. The main method considers the specialist even when
+the generalist is confident;
+the old uncertainty-only trigger is retained as an ablation because it missed a real
+high-confidence error. Specialist evidence performs bounded candidate or phrase guidance and
+does not independently compose the final response.
 
 The original MERIT layer-residual method remains intact as a baseline because the first public
 experiment did not show expert-specific residual recovery: MERIT tied wrong-route and shuffled
 controls, while the OCT adapter scored zero. The new method therefore makes three changes:
 
-- **Decode-time deferral:** expert use occurs at punctuation-delimited clinical claim boundaries,
-  not after a complete draft and not by densely running every expert.
+- **Pre-commit deferral:** the first closed-set clinical decision is made before any answer is
+  emitted. True token-by-token open-claim deferral remains a separate experimental stage; it
+  requires a fresh semantic `ClaimSpec` and must never silently reuse the original candidates.
 - **Capability-aware evidence:** classification, retrieval, segmentation, detection and generation
   experts share an envelope that preserves scores, masks, boxes, text and provenance.
-- **Domain-robust trust:** source-client reliability LCB, lower-tail cross-domain performance,
-  label-free OOD distance and image quality multiply into a conservative intervention gate.
+- **Domain-robust trust:** the geometric mean of source reliability LCB and lower-tail
+  cross-domain performance is discounted by label-free OOD distance and image quality. Hard
+  qualification thresholds reject unsafe experts without repeatedly shrinking valid evidence.
 
 The academic hypothesis is **domain-robust claim-level specialist deferral**, rather than generic
 medical-agent orchestration. Target labels are never used for routing or trust fitting.
 
 ## What is implemented
 
-- A Transformers-compatible `MedDeferLogitsProcessor` that invokes an expert while the medical
-  VLM is generating and guides only the current clinical claim.
-- A `NONE`-or-one claim controller with uncertainty, capability, route, latency and trust terms.
+- A real closed-set path that uses medical-VLM sequence likelihoods, invokes at most one lazy
+  specialist before committing the answer, and isolates later explanatory text from that answer.
+- A Transformers-compatible `MedDeferLogitsProcessor` retained as a token-level research
+  prototype; it has not yet demonstrated an open-generation benefit.
+- A `NONE`-or-one claim controller with first-claim, uncertainty-ablation, capability, route,
+  latency and trust policies.
 - Lazy expert construction, one-call-per-claim caching and an auditable per-claim trace.
 - A native evidence contract for concept scores plus masks, boxes, generated text and provenance.
-- Conservative source-only trust using federated LCB, lower-tail/CVaR stability, OOD and quality.
+- Real source-task multiclass qualification using macro-F1, calibration, LCB and lower-tail CVaR.
+- Two-stage source-only OOD in the qualified PathoROB evaluator: frozen BiomedCLIP features
+  before a selected call and expert-native frozen features afterward. Empirical distances are
+  cross-fitted by leaving out an entire source center (or one sample when center folds are
+  impossible), then deployment references are refit on all source observations.
+- Semantic evidence bridges for classification, retrieval, segmentation, detection and
+  generation; unsupported native evidence fails closed.
 - Qwen2.5-VL layerwise image-minus-null concept likelihoods.
 - CheXagent-2-3B, CONCH and LO-VLM concept-evidence adapters.
 - A compact medical-VLM modality router with metadata and oracle controls.
@@ -40,6 +55,65 @@ medical-agent orchestration. Target labels are never used for routing or trust f
 - GSCo-context, broad-specialist, direct-logit-fusion, wrong-route and shuffled-expert comparisons.
 - Deterministic CPU smoke study and real-model JSONL evidence caching.
 - Dataset/model registries, license gates, leakage audit and Windows/Linux bootstrap scripts.
+
+## Recommended real-domain experiment
+
+The primary validation now uses the public PathoROB Tolkach ESCA dataset rather than binary
+yes/no VQA. It contains six histopathology tissue classes and four explicit medical-center
+domains. This repository runs a custom four-fold leave-one-medical-center-out (LOCO) protocol;
+it is not the official PathoROB APD leaderboard protocol. No target label is given to
+qualification, OOD estimation, routing or inference.
+
+After accepting the CONCH terms and exporting a read token, run a small but real 48-patch pilot.
+Its 12 patches per center are selected by stable ID hash without consulting class labels:
+
+```bash
+git pull
+export HF_TOKEN='hf_your_read_token'
+./run_pathorob.sh --mirror cn --limit-per-center 12 --install-system \
+  --conch-source 'git+https://ghfast.top/https://github.com/Mahmoodlab/CONCH.git@141cc09c7d4ff33d8eda562bd75169b457f71a62'
+```
+
+`--mirror cn` covers Hugging Face and PyPI, not arbitrary GitHub repositories. The optional
+`--conch-source` value above follows the proxy form suggested by `ghfast.top`; replace it with a
+currently reachable proxy, internal mirror or local package path when needed.
+
+The command reuses completed model downloads, fetches the roughly 317 MB dataset, materializes
+label-blind per-center samples, audits slide leakage, extracts model evidence once and runs:
+
+- Generalist, Specialist and routed-fusion controls;
+- uncertainty-only Med-DEFER;
+- Med-DEFER without domain generalization and with mean-domain trust;
+- full multiclass-LCB + worst-domain-CVaR + native-OOD Med-DEFER;
+- equal-budget shuffled-evidence and wrong-capability falsification controls.
+
+Results are written to `runs/pathorob-real-per-center12/result.json` and `result.md`. The default
+48-patch run is an engineering pilot whose size is fixed before its labels are inspected. Its
+post-hoc mechanism flags are descriptive only: they must not be used to tune thresholds, select
+a method, or decide a larger run on the same target centers. A confirmatory sample size and seed
+must be registered before evaluation; an inspected pilot needs a disjoint final cohort. Existing
+evidence is reused only after its manifest, configuration, extraction contract and model snapshot
+fingerprints all match. A stale or incomplete cache is re-extracted automatically; use
+`--force-extract` for an explicit rerun.
+
+Because this pilot sampling is label-blind, a 12-patch center need not contain all six classes.
+Every fold therefore reports target support for all frozen classes, separates classes absent from
+the sample from classes structurally unavailable at that center, and computes fixed-taxonomy
+macro-F1 without dropping zero-support classes. Qualification also requires a configurable minimum
+aggregate source support for every frozen class; a missing class makes the main expert fail closed
+instead of assigning it fabricated trust.
+
+The matched comparison deliberately uses one frozen real-model evidence cache. Accuracy and
+causal shuffled-evidence comparisons are real; reported selected-call rates are counterfactual
+until the same fold is run through the live lazy loader. They must not be reported as measured
+latency savings.
+
+This stage measures multiclass accuracy, fixed-taxonomy macro-F1, ECE, worst-center accuracy,
+rescue/harm, expert-call rate, and a direct full-vs-shuffled slide-cluster bootstrap interval and
+paired sign test. The latter is descriptive mechanism falsification, never a target-tuning signal. It
+deliberately does not rename classification error as an open-ended hallucination rate.
+Open-report hallucination is a separate second phase requiring dynamic claim beams and
+claim-level factuality annotations.
 
 ## Fast validation of the new path
 
@@ -57,14 +131,14 @@ calls, abstentions, and every claim trace. It is a mechanism test, not a medical
 
 `run_all.sh` also runs `med-defer-compare` on the frozen real-model evidence cache and writes
 `runs/<name>/med-defer/result.json`. That comparison estimates which cached expert calls would
-have been selected, so its call count is counterfactual; only `MedDeferLogitsProcessor` performs
-genuinely lazy calls inside live generation.
+have been selected, so its call count is counterfactual.
 
-For a real Qwen/MedVL integration, construct `MedDeferLogitsProcessor` with a request factory and
-pass it to `QwenLayerProbe.generate(..., logits_processor=processor)`. Existing `ConceptExpert`
-implementations plug in through `LazyConceptExpertProvider`; a segmentation or detection adapter
-can return `NativeEvidence` directly while retaining its masks or boxes. Concept phrases provide
-the initial vocabulary bridge. A learned spatial-to-token projector is deliberately not assumed.
+`guided-generate` is the real lazy closed-set integration: it computes Qwen/MedVL candidate
+likelihoods, calls the controller before output, locks the guided candidate, then optionally asks
+the generalist for a separate explanation. Existing `ConceptExpert` implementations plug in
+through `LazyConceptExpertProvider`. The `MedDeferLogitsProcessor` remains available for research
+on dynamic open claims, but its phrase bias is not the validated v0.5 method and must not be used
+to claim that open-text hallucination has been reduced.
 
 The same path is exposed as a command. Edit `examples/guided_case.json`; it intentionally has no
 label. The source cache supplies only frozen source-domain reliability statistics:
@@ -80,14 +154,18 @@ merit-feddg guided-generate \
 ```
 
 During this command, the generalist and router load normally, but a specialist is instantiated
-only after the decoding controller selects it. The output lists `loaded_experts`, call counts and
-claim traces so the sparse-execution claim is directly auditable.
+only after the pre-commit controller selects it. The returned `answer` is exactly the guided
+candidate argmax; any free-text `explanation` is a separate field and cannot overwrite it. The
+output lists loaded experts, call counts and the decision trace. This generic command still uses
+the legacy source-cache trust card; strict fingerprinted two-stage OOD is currently validated in
+the PathoROB evaluator, not yet across every live heterogeneous adapter.
 
 ## Linux server: full installation
 
-### One-command public benchmark (recommended)
+### Legacy proxy-domain regression runner
 
-After accepting the gated CONCH terms and exporting a read token, the following command
+This older path is retained for regression and compatibility checks; it is not the primary
+medical-center DG result. After accepting the gated CONCH terms and exporting a read token, it
 installs dependencies, downloads the compact medical model pool and three datasets, converts
 compatible public samples into a unified manifest, audits image-level leakage, extracts
 evidence once, and runs both predicted-router and oracle-router comparisons:
@@ -272,15 +350,27 @@ The output contains resolved configuration, per-sample predictions, route metric
 
 ## Med-DEFER method
 
-At each clinical-claim boundary the controller compares `NONE` with compatible experts using
-generalist uncertainty, modality confidence, capability match, source-only domain trust, expected
-benefit and latency. Only the winner is called. Its concept evidence is centered, normalized and
-norm-capped before it becomes phrase-token bias in the medical VLM's active decoding loop.
+For the first clinical decision, the medical VLM assigns every real task candidate a
+length-normalized sequence log-likelihood. The controller considers one compatible specialist
+before emitting an answer. In the qualified PathoROB path, its exact model/adapter/task
+fingerprint must have a valid source qualification artifact. The expert direction is centered,
+normalized and norm-capped;
+the medical VLM score remains the base score. Entropy-only selection is an ablation, not the main
+trigger.
 
-The domain trust is the product of federated source reliability LCB, lower-tail source-domain
-stability, an exponential label-free OOD discount and image quality. A second check after the
-expert call can still suppress its evidence. The complete algorithm, experiment matrix and
-falsification criteria are in [the research design](docs/MED_DEFER_DESIGN.md).
+Qualification is fit on real source-center multiclass probabilities. Trust combines a
+cross-center performance LCB, the worst source-center CVaR, image quality and an exponential OOD
+discount. OOD uses a cheap frozen feature before loading the expert and the selected expert's
+native frozen feature afterward. The expert-predicted class—not the target label—selects any
+post-call class-conditional OOD reference. The pre-call check instead uses the nearest known
+source class, so a high-confidence wrong generalist class cannot itself block expert deferral.
+A second check after the call can suppress the evidence.
+
+The bridge contract can pass semantic candidate propositions with a current question and
+generated prefix. Dynamic open-text claim generation is not yet the validated path: when no new
+`ClaimSpec` exists, the system must choose `NONE` rather than reuse an initial yes/no question.
+The complete algorithm, experiment matrix and falsification criteria are in
+[the research design](docs/MED_DEFER_DESIGN.md).
 
 ## Legacy MERIT method
 
@@ -306,28 +396,37 @@ to the generalist output. Route confidence, expert reliability and erasure magni
 
 ## FedDG protocol
 
-Each hospital is a separate client. Source clients calculate expert correctness counts and squared confidence error. The server aggregates these statistics with a beta prior and a lower-confidence-bound penalty. Raw images, embeddings and per-sample logits stay local. The resulting scalar reliability can suppress unsafe interventions but cannot vote for an answer.
+Each real medical center is a domain. Source centers qualify the frozen expert on its native
+multiclass task and fit feature references; the target center is held out in full. In a federated
+deployment, centers can transmit per-domain metric summaries plus fitted reference statistics,
+while retaining images and labels locally. The original count-only beta-LCB implementation
+remains a legacy baseline.
 
-Evaluation uses leave-one-domain-out source/target separation. Target labels are available only after every model, threshold and calibration parameter is frozen. Report average accuracy, hallucination rate, ECE, worst-domain accuracy, rescue/harm, route calibration and output equality with the base model.
+Evaluation uses leave-one-medical-center-out separation. Target labels are joined only after every
+prediction has been frozen. The real multiclass runner reports accuracy, fixed-taxonomy macro-F1
+(including every frozen class), per-center class support, ECE, worst-center accuracy, rescue/harm,
+call rate and direct full-vs-shuffled paired uncertainty tests. Open-ended
+hallucination metrics are intentionally deferred until claim-level reference annotations exist.
 
 ## Required comparison matrix
 
 | Method | Purpose |
 |---|---|
-| Generalist | untouched decoder |
-| Broad specialist | tests whether routing is necessary |
-| GSCo context | specialist-answer/context collaboration reference |
-| Routed logit fusion | tests direct specialist injection |
-| MERIT | expert selects the generalist's own residual |
-| MERIT-FedDG | source-client reliability-gated MERIT |
-| Med-DEFER without DG | claim-level conditional decoding without domain trust |
-| Med-DEFER | sparse claim-level decoding with lower-tail domain trust |
-| Post-hoc verification | tests whether decode-time intervention is necessary |
-| Dense all-expert | computation/latency counterfactual |
-| Wrong route | modality specificity control |
-| Shuffled expert | causal correspondence control |
+| Generalist | untouched medical-VLM candidate decision |
+| Specialist | frozen specialist alone |
+| Routed fusion | direct specialist-injection control |
+| Uncertainty-only | reproduces the trigger that missed a high-confidence error |
+| Med-DEFER without DG | pre-commit deferral without domain trust |
+| Mean-domain trust | tests whether lower-tail robustness is necessary |
+| Full Med-DEFER | bounded pre-commit guidance with geometric LCB/CVaR trust and two-stage OOD |
+| Equal-budget shuffled evidence | causal sample–expert correspondence control |
+| Wrong capability | must fail closed |
 
-Also report oracle routing separately. Stop the research direction if oracle routing does not beat a broad specialist, genuine experts do not outperform shuffled/wrong experts, or gains are merely shorter outputs or parser artifacts.
+Legacy GSCo, MERIT/MERIT-FedDG, wrong-route and oracle-routing comparisons remain available for
+the earlier proxy benchmark. The token-level logits processor is a Stage-2 prototype, not a
+PathoROB comparison method. A final, pre-registered experiment falsifies the mechanism if genuine
+evidence does not outperform equal-budget shuffled evidence or if rescues do not exceed harms;
+pilot target labels must not be used to tune the method first.
 
 ## Relation to the previous experiment
 
@@ -339,6 +438,7 @@ This is research software, not a medical device. It must not be used for clinica
 
 ## References
 
+- Kömen et al., [Towards robust foundation models for digital pathology](https://www.nature.com/articles/s41467-026-73923-2), Nature Communications, 2026; [PathoROB dataset](https://huggingface.co/datasets/bifold-pathomics/PathoROB-tolkach_esca).
 - He et al., [Towards generalizable AI in medicine via Generalist–Specialist Collaboration](https://www.nature.com/articles/s41551-026-01653-3), Nature Biomedical Engineering, 2026.
 - Liu et al., [FedDG: Federated Domain Generalization on Medical Image Segmentation via Episodic Learning in Continuous Frequency Space](https://openaccess.thecvf.com/content/CVPR2021/html/Liu_FedDG_Federated_Domain_Generalization_on_Medical_Image_Segmentation_via_Episodic_CVPR_2021_paper.html), CVPR 2021.
 - Chen et al., [CheXagent](https://arxiv.org/abs/2401.12208), 2024.
