@@ -41,7 +41,7 @@ class MedDeferLogitsProcessor:
         self.active_trace: ClaimTrace | None = None
         self.active_concepts: tuple[str, ...] = ()
         self.traces: list[ClaimTrace] = []
-        self._concept_tokens: dict[str, tuple[int, ...]] = {}
+        self._concept_tokens: dict[str, tuple[tuple[int, ...], ...]] = {}
 
     def _uncertainty(self, scores: Any) -> float:
         import torch
@@ -58,12 +58,19 @@ class MedDeferLogitsProcessor:
         text = self.tokenizer.decode(generated[0, -1:], skip_special_tokens=True)
         return any(marker in text for marker in self.boundary_text)
 
-    def _tokens(self, concept: str) -> tuple[int, ...]:
+    def _tokens(self, concept: str) -> tuple[tuple[int, ...], ...]:
         if concept not in self._concept_tokens:
-            encoded = self.tokenizer(" " + concept, add_special_tokens=False)["input_ids"]
-            if encoded and isinstance(encoded[0], list):
-                encoded = encoded[0]
-            self._concept_tokens[concept] = tuple(int(token) for token in encoded)
+            sentence_case = concept[:1].upper() + concept[1:]
+            variants = (concept, " " + concept, sentence_case, " " + sentence_case)
+            encoded_variants = []
+            for variant in variants:
+                encoded = self.tokenizer(variant, add_special_tokens=False)["input_ids"]
+                if encoded and isinstance(encoded[0], list):
+                    encoded = encoded[0]
+                tokens = tuple(int(token) for token in encoded)
+                if tokens and tokens not in encoded_variants:
+                    encoded_variants.append(tokens)
+            self._concept_tokens[concept] = tuple(encoded_variants)
         return self._concept_tokens[concept]
 
     @staticmethod
@@ -75,16 +82,22 @@ class MedDeferLogitsProcessor:
     def _apply_phrase_bias(self, input_ids: Any, scores: Any, trace: ClaimTrace) -> Any:
         generated = input_ids[0, self.prompt_length :].tolist()
         for concept, weight in zip(self.active_concepts, trace.concept_delta):
-            tokens = self._tokens(concept)
-            if not tokens or weight == 0.0:
+            variants = self._tokens(concept)
+            if not variants or weight == 0.0:
                 continue
-            # Continue an in-progress concept phrase; otherwise bias its first token.
-            next_token = tokens[0]
-            for prefix_length in range(len(tokens) - 1, 0, -1):
-                if self._suffix_matches(generated, tokens[:prefix_length]):
-                    next_token = tokens[prefix_length]
-                    break
-            scores[:, next_token] += float(weight)
+            # Cover sentence-initial/non-initial casing and continue any
+            # in-progress multi-token concept phrase. Token alternatives are
+            # de-duplicated so equivalent tokenizer forms are not overweighted.
+            next_tokens: set[int] = set()
+            for tokens in variants:
+                next_token = tokens[0]
+                for prefix_length in range(len(tokens) - 1, 0, -1):
+                    if self._suffix_matches(generated, tokens[:prefix_length]):
+                        next_token = tokens[prefix_length]
+                        break
+                next_tokens.add(next_token)
+            for next_token in next_tokens:
+                scores[:, next_token] += float(weight)
         return scores
 
     def __call__(self, input_ids: Any, scores: Any) -> Any:
@@ -98,7 +111,7 @@ class MedDeferLogitsProcessor:
             self.active_trace = None
 
         uncertainty = self._uncertainty(scores)
-        if at_boundary and not self.claim_started and uncertainty >= self.uncertainty_threshold:
+        if at_boundary and not self.claim_started:
             prefix = self.tokenizer.decode(generated[0], skip_special_tokens=True)
             request = self.request_factory(prefix, uncertainty, self.claim_index)
             self.active_trace = self.engine.guide(request, self.pool)

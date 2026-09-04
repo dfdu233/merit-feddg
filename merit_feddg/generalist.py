@@ -37,11 +37,15 @@ class QwenLayerProbe:
         self.torch = torch
         self.process_vision_info = process_vision_info
         self.layers = [int(layer) for layer in layers]
-        self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
+        self.processor = AutoProcessor.from_pretrained(
+            model_id,
+            trust_remote_code=True,
+            fix_mistral_regex=True,
+        )
         torch_dtype = getattr(torch, dtype)
         self.model = ModelClass.from_pretrained(
             model_id,
-            torch_dtype=torch_dtype,
+            dtype=torch_dtype,
             device_map=device_map,
             trust_remote_code=True,
         ).eval()

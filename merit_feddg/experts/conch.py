@@ -32,13 +32,18 @@ class ConchConceptExpert(ConceptExpert):
     def __init__(self, model_id: str = "hf_hub:MahmoodLab/CONCH", device: str = "auto") -> None:
         try:
             import torch
-            from conch.open_clip_custom import create_model_from_pretrained, tokenize
+            from conch.open_clip_custom import (
+                create_model_from_pretrained,
+                get_tokenizer,
+                tokenize,
+            )
         except ImportError as exc:
             raise RuntimeError(
                 "install CONCH with: pip install git+https://github.com/Mahmoodlab/CONCH.git"
             ) from exc
         self.torch = torch
         self.tokenize = tokenize
+        self.tokenizer = get_tokenizer()
         token = os.getenv("HF_TOKEN")
         self.model, self.preprocess = create_model_from_pretrained(
             "conch_ViT-B-16", resolve_checkpoint_source(model_id), hf_auth_token=token
@@ -62,7 +67,7 @@ class ConchConceptExpert(ConceptExpert):
         native = load_rgb(image)
         null = null_image_like(native)
         phrases = [f"Histopathology shows {concept}." for concept in concepts]
-        text = self.tokenize(texts=phrases, tokenizer=self.model.tokenizer).to(self.device)
+        text = self.tokenize(self.tokenizer, phrases).to(self.device)
         with self.torch.inference_mode():
             text_features = self.model.encode_text(text, normalize=True)
             native_scores = self._image_embedding(native) @ text_features.T

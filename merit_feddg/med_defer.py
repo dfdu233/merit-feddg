@@ -214,6 +214,11 @@ class ClaimDeferralController:
             overlap = required.intersection(card.capabilities)
             if not overlap:
                 continue
+            # Fail closed: a newly registered expert must first be qualified on
+            # at least one source validation domain.  Treating missing evidence
+            # as perfect lower-tail stability would be unsafe under domain shift.
+            if not card.validation_domain_scores:
+                continue
             capability_match = len(overlap) / max(len(required), 1)
             route_confidence = _clip01(request.router_probs.get(request.modality, 0.0))
             signal = request.domain_signals.get(card.expert_id, DomainSignal())

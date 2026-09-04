@@ -1,12 +1,45 @@
 from __future__ import annotations
 
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
+from types import MethodType
 
 import numpy as np
 from PIL import Image
 
 from .base import ConceptExpert, load_rgb, null_image_like
+
+
+@contextmanager
+def _chexagent_transformers_compatibility():
+    """Scope CheXagent's exact-version import guard to its dynamic import."""
+
+    import transformers
+
+    original = transformers.__version__
+    transformers.__version__ = "4.40.0"
+    try:
+        yield
+    finally:
+        transformers.__version__ = original
+
+
+def _patch_visual_hidden_state_fallback(model) -> None:
+    """Keep CheXagent working when newer SigLIP omits ``hidden_states``."""
+
+    visual = getattr(getattr(model, "model", None), "visual", None)
+    if visual is None or getattr(visual, "_merit_hidden_state_fallback", False):
+        return
+
+    def forward(instance, pixels):
+        output = instance.model(pixels, output_hidden_states=True)
+        hidden_states = getattr(output, "hidden_states", None)
+        features = hidden_states[-1] if hidden_states else output.last_hidden_state
+        return instance.forward_resampler(features)
+
+    visual.forward = MethodType(forward, visual)
+    visual._merit_hidden_state_fallback = True
 
 
 class CheXagentConceptExpert(ConceptExpert):
@@ -20,11 +53,13 @@ class CheXagentConceptExpert(ConceptExpert):
             raise RuntimeError("install merit-feddg[research] to load CheXagent") from exc
         self.torch = torch
         self.tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
-        self.model = AutoModelForCausalLM.from_pretrained(
-            model_id,
-            trust_remote_code=True,
-            device_map=device_map,
-        ).eval()
+        with _chexagent_transformers_compatibility():
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_id,
+                trust_remote_code=True,
+                device_map=device_map,
+            ).eval()
+        _patch_visual_hidden_state_fallback(self.model)
 
     def _prompt_ids(self, image_path: str, prompt: str):
         query = self.tokenizer.from_list_format([{"image": image_path}, {"text": prompt}])

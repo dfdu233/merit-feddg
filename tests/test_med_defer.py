@@ -87,6 +87,31 @@ def test_ood_signal_suppresses_guidance():
     assert shifted.gate < in_domain.gate
 
 
+def test_expert_without_source_domain_qualification_is_not_selected():
+    pool = LazyExpertPool()
+    pool.register(
+        ExpertCard(
+            expert_id="unqualified-cxr-expert",
+            modalities=("cxr",),
+            capabilities=("classification",),
+            source_reliability_lcb=0.9,
+            validation_domain_scores=(),
+        ),
+        lambda request: NativeEvidence(
+            expert_id="unqualified-cxr-expert",
+            capability="classification",
+            concept_scores={"normal": -2.0, "pneumothorax": 4.0},
+            confidence=0.95,
+        ),
+    )
+
+    trace = _engine().guide(_request(), pool)
+
+    assert trace.selected_expert is None
+    assert trace.reason == "no-compatible-expert"
+    assert pool.call_counts["unqualified-cxr-expert"] == 0
+
+
 def test_end_to_end_study_is_sparse_and_source_only():
     report = run_med_defer_study(load_yaml("configs/smoke.yaml"))
     assert report["sparse_calls"] <= report["target_samples"]
@@ -122,7 +147,16 @@ def test_transformers_processor_defers_again_at_next_claim_boundary():
 
     class Tokenizer:
         def __init__(self):
-            self.mapping = {" normal": [3], " pneumothorax": [4]}
+            self.mapping = {
+                "normal": [3],
+                " normal": [5],
+                "Normal": [6],
+                " Normal": [7],
+                "pneumothorax": [4],
+                " pneumothorax": [8],
+                "Pneumothorax": [10],
+                " Pneumothorax": [11],
+            }
 
         def __call__(self, text, add_special_tokens=False):
             return {"input_ids": self.mapping[text]}
@@ -142,8 +176,41 @@ def test_transformers_processor_defers_again_at_next_claim_boundary():
         Tokenizer(), _engine(), pool, request_factory, top_k_entropy=8
     )
     initial = torch.tensor([[10, 11]])
-    processor(initial, torch.zeros((1, 12)))
+    initial_scores = processor(initial, torch.zeros((1, 12)))
     processor(torch.tensor([[10, 11, 5]]), torch.zeros((1, 12)))
     processor(torch.tensor([[10, 11, 5, 9]]), torch.zeros((1, 12)))
     assert calls == ["claim-0", "claim-1"]
     assert len(processor.traces) == 2
+    assert initial_scores[0, 10] > 0  # sentence-initial ``Pneumothorax``
+    assert initial_scores[0, 6] < 0  # sentence-initial ``Normal``
+
+
+def test_transformers_processor_records_none_at_confident_claim_start():
+    torch = __import__("pytest").importorskip("torch")
+    from merit_feddg.decoding import MedDeferLogitsProcessor
+
+    class Tokenizer:
+        def __call__(self, text, add_special_tokens=False):
+            return {"input_ids": [3]}
+
+        def decode(self, tokens, skip_special_tokens=True):
+            return "finding"
+
+    calls = []
+
+    def request_factory(prefix, uncertainty, claim_index):
+        request = _request(uncertainty=uncertainty)
+        return ClaimRequest(**{**request.__dict__, "claim_id": f"claim-{claim_index}"})
+
+    processor = MedDeferLogitsProcessor(
+        Tokenizer(), _engine(), _pool(calls), request_factory, top_k_entropy=8
+    )
+    confident_scores = torch.tensor([[20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
+
+    processor(torch.tensor([[10, 11]]), confident_scores)
+
+    assert calls == []
+    assert processor.claim_started
+    assert len(processor.traces) == 1
+    assert processor.traces[0].selected_expert is None
+    assert processor.traces[0].reason == "generalist-confident"

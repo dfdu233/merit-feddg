@@ -8,6 +8,17 @@ from PIL import Image
 from .base import ConceptExpert, load_rgb, null_image_like
 
 
+def _continuation_labels(prompt_ids, continuation_ids):
+    """Return a full decoder sequence while scoring only the continuation."""
+
+    import torch
+
+    full_ids = torch.cat([prompt_ids, continuation_ids], dim=1)
+    labels = full_ids.clone()
+    labels[:, : prompt_ids.shape[1]] = -100
+    return full_ids, labels
+
+
 class BlipConceptExpert(ConceptExpert):
     """Phrase-likelihood adapter for the compact 247M LO-VLM checkpoint."""
 
@@ -27,14 +38,17 @@ class BlipConceptExpert(ConceptExpert):
 
     def _score(self, image: Image.Image, prompt: str, concept: str) -> float:
         inputs = self.processor(images=image, text=prompt, return_tensors="pt").to(self.device)
-        labels = self.processor.tokenizer(
-            concept,
+        continuation_ids = self.processor.tokenizer(
+            " " + concept,
             return_tensors="pt",
-            add_special_tokens=True,
+            add_special_tokens=False,
         ).input_ids.to(self.device)
+        full_ids, labels = _continuation_labels(inputs["input_ids"], continuation_ids)
+        inputs["input_ids"] = full_ids
+        inputs["attention_mask"] = self.torch.ones_like(full_ids)
         with self.torch.inference_mode():
             output = self.model(**inputs, labels=labels)
-        token_count = max(int(labels.numel()), 1)
+        token_count = max(int(continuation_ids.numel()), 1)
         return -float(output.loss.detach().cpu()) * token_count
 
     def image_null_scores(
