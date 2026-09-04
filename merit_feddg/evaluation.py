@@ -41,7 +41,9 @@ def summarize(predictions: list[Prediction], base: list[Prediction] | None = Non
         "ece": expected_calibration_error(predictions),
         "mean_intervention_gate": float(np.mean([item.intervention_gate for item in predictions])),
         "mean_erasure": float(np.mean([item.erasure for item in predictions])),
-        "domain_accuracy": {key: float(np.mean(values)) for key, values in sorted(by_domain.items())},
+        "domain_accuracy": {
+            key: float(np.mean(values)) for key, values in sorted(by_domain.items())
+        },
         "modality_accuracy": {
             key: float(np.mean(values)) for key, values in sorted(by_modality.items())
         },

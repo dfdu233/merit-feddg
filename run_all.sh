@@ -155,6 +155,13 @@ fi
   --config "$COMPARE_CONFIG" \
   --output "$RUN_ROOT/predicted-router"
 
+# This reports counterfactual sparse calls on the frozen cache. Live decode-time
+# execution uses the MedDeferLogitsProcessor interface.
+"$PYTHON_EXE" -m merit_feddg.cli med-defer-compare \
+  --input "$EVIDENCE" \
+  --config "$COMPARE_CONFIG" \
+  --output "$RUN_ROOT/med-defer/result.json"
+
 "$PYTHON_EXE" -m merit_feddg.cli oracle-cache \
   --input "$EVIDENCE" \
   --output "$ORACLE_EVIDENCE"
@@ -167,5 +174,6 @@ fi
 echo "All configured public experiments completed."
 echo "Prepared data: $PREPARED"
 echo "Predicted routing: $RUN_ROOT/predicted-router/comparison.md"
+echo "Med-DEFER claim traces: $RUN_ROOT/med-defer/result.json"
 echo "Oracle routing: $RUN_ROOT/oracle-router/comparison.md"
 echo "Protocol warning: proxy image partitions are not cross-hospital FedDG evidence."

@@ -48,9 +48,7 @@ class BiomedClipAdapter(ConceptExpert):
             import torch
             from open_clip import create_model_from_pretrained, get_tokenizer
         except ImportError as exc:
-            raise RuntimeError(
-                "install merit-feddg[research] for the BiomedCLIP router"
-            ) from exc
+            raise RuntimeError("install merit-feddg[research] for the BiomedCLIP router") from exc
 
         source = Path(model_id)
         model_source = f"local-dir:{source.resolve()}" if source.is_dir() else f"hf-hub:{model_id}"

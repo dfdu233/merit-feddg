@@ -26,6 +26,7 @@ class QwenLayerProbe:
             import torch
             from qwen_vl_utils import process_vision_info
             from transformers import AutoProcessor
+
             try:
                 from transformers import Qwen2_5_VLForConditionalGeneration as ModelClass
             except ImportError:
@@ -50,7 +51,9 @@ class QwenLayerProbe:
     def _find_final_norm(self):
         candidates = [
             getattr(getattr(self.model, "model", None), "norm", None),
-            getattr(getattr(getattr(self.model, "model", None), "language_model", None), "norm", None),
+            getattr(
+                getattr(getattr(self.model, "model", None), "language_model", None), "norm", None
+            ),
         ]
         return next((item for item in candidates if item is not None), None)
 
@@ -96,7 +99,9 @@ class QwenLayerProbe:
         scores = []
         for layer in self.layers:
             if layer >= len(hidden_states):
-                raise IndexError(f"layer {layer} unavailable; model exposes {len(hidden_states)} states")
+                raise IndexError(
+                    f"layer {layer} unavailable; model exposes {len(hidden_states)} states"
+                )
             hidden = hidden_states[layer][:, start:end, :]
             if self.final_norm is not None:
                 hidden = self.final_norm(hidden)
@@ -121,11 +126,23 @@ class QwenLayerProbe:
         )
         return null_scores[-1], native_scores - null_scores
 
-    def generate(self, image: str | Path | Image.Image, prompt: str, max_new_tokens: int = 64) -> str:
+    def generate(
+        self,
+        image: str | Path | Image.Image,
+        prompt: str,
+        max_new_tokens: int = 64,
+        logits_processor=None,
+    ) -> str:
         native = load_rgb(image)
         inputs = self._inputs(native, prompt, None)
+        generation_options = {
+            "max_new_tokens": max_new_tokens,
+            "do_sample": False,
+        }
+        if logits_processor is not None:
+            generation_options["logits_processor"] = [logits_processor]
         with self.torch.inference_mode():
-            generated = self.model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
+            generated = self.model.generate(**inputs, **generation_options)
         trimmed = [output[len(source) :] for source, output in zip(inputs.input_ids, generated)]
         return self.processor.batch_decode(
             trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False

@@ -61,4 +61,9 @@ fi
   --config "$REPO_ROOT/configs/real_compare.example.yaml" \
   --output "$REPO_ROOT/runs/$RUN_NAME"
 
+"$PYTHON_EXE" -m merit_feddg.cli med-defer-compare \
+  --input "$REPO_ROOT/cache/$RUN_NAME.jsonl" \
+  --config "$REPO_ROOT/configs/real_compare.example.yaml" \
+  --output "$REPO_ROOT/runs/$RUN_NAME/med-defer/result.json"
+
 echo "Completed real-model study: $REPO_ROOT/runs/$RUN_NAME"

@@ -40,7 +40,9 @@ class CheXagentConceptExpert(ConceptExpert):
 
     def _score(self, image_path: str, prompt: str, concept: str) -> float:
         prompt_ids = self._prompt_ids(image_path, prompt)
-        answer_ids = self.tokenizer.encode(" " + concept, add_special_tokens=False, return_tensors="pt")
+        answer_ids = self.tokenizer.encode(
+            " " + concept, add_special_tokens=False, return_tensors="pt"
+        )
         device = next(self.model.parameters()).device
         prompt_ids = prompt_ids.to(device)
         answer_ids = answer_ids.to(device)

@@ -51,7 +51,9 @@ class MetadataRouter:
 def normalized_entropy(probabilities: dict[str, float]) -> float:
     values = [max(float(value), 1e-12) for value in probabilities.values()]
     total = sum(values)
-    return -sum((value / total) * math.log(value / total) for value in values) / math.log(len(values))
+    return -sum((value / total) * math.log(value / total) for value in values) / math.log(
+        len(values)
+    )
 
 
 def route_with_medical_vlm(model, image_path: str | Path, available: list[str]) -> dict[str, float]:

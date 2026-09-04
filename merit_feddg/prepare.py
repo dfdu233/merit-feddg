@@ -99,9 +99,7 @@ def _parquet_rows(snapshot: Path, batch_size: int = 16) -> Iterator[tuple[str, i
     except ImportError as exc:
         raise RuntimeError("prepare-public requires the research dependencies (pyarrow)") from exc
 
-    files = sorted(
-        path for path in snapshot.rglob("*.parquet") if ".cache" not in path.parts
-    )
+    files = sorted(path for path in snapshot.rglob("*.parquet") if ".cache" not in path.parts)
     if not files:
         raise FileNotFoundError(f"no parquet payload found below {snapshot}")
     counters: dict[str, int] = defaultdict(int)
@@ -176,7 +174,9 @@ class _SlakeArchive:
         normalized = reference.replace("\\", "/").lstrip("./").lower()
         member = self.members.get(normalized)
         if member is None:
-            matches = [value for key, value in self.members.items() if key.endswith("/" + normalized)]
+            matches = [
+                value for key, value in self.members.items() if key.endswith("/" + normalized)
+            ]
             if len(matches) != 1:
                 raise FileNotFoundError(f"cannot resolve SLAKE image {reference!r} in imgs.zip")
             member = matches[0]
@@ -395,7 +395,9 @@ def _validate_proxy_suite(rows: list[dict]) -> dict:
     if leaks:
         raise RuntimeError("image leakage detected across generated proxy domains")
     if len(source) < 2 or not target:
-        raise RuntimeError("prepared suite requires at least two source domains and one target domain")
+        raise RuntimeError(
+            "prepared suite requires at least two source domains and one target domain"
+        )
     return {"source_domains": source, "target_domains": target, "image_leaks": leaks}
 
 
@@ -439,7 +441,9 @@ def prepare_public_suite(
         if not rows:
             raise RuntimeError(f"dataset {spec['id']} produced no compatible benchmark rows")
         all_rows.extend(rows)
-        dataset_reports.append({"name": spec["name"], "id": spec["id"], "rows": len(rows), "domains": counts})
+        dataset_reports.append(
+            {"name": spec["name"], "id": spec["id"], "rows": len(rows), "domains": counts}
+        )
 
     audit = _validate_proxy_suite(all_rows)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -457,6 +461,7 @@ def prepare_public_suite(
         "source_domains": audit["source_domains"],
         "target_domains": audit["target_domains"],
         "method": config["method"],
+        "med_defer": config.get("med_defer", {}),
         "evaluation": config["evaluation"],
     }
     comparison_path = output_dir / "compare.yaml"

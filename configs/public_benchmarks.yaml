@@ -40,6 +40,21 @@ method:
   reliability_prior: 4.0
   reliability_lcb_z: 1.0
 
+med_defer:
+  granularity: clinical_claim
+  execution: sparse
+  controller:
+    uncertainty_threshold: 0.35
+    minimum_utility: 0.08
+    cost_weight: 0.05
+  domain_trust:
+    cvar_alpha: 0.25
+    ood_temperature: 2.0
+    minimum_post_call_trust: 0.05
+  guidance:
+    strength: 0.8
+    max_bias_norm: 1.25
+
 evaluation:
   methods:
     - generalist

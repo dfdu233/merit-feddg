@@ -1,27 +1,87 @@
-# MERIT-FedDG
+# Med-DEFER / MERIT-FedDG
 
-**Experts do not vote; they trace what the generalist forgot.**
+**A medical generalist keeps authorship; qualified specialists are conditionally called inside decoding.**
 
-MERIT-FedDG is a reproducible research scaffold for medical VLM hallucination mitigation under unseen-hospital domain shift. A compact biomedical encoder routes each study to one modality specialist, while a frozen medical VLM owns the final answer. The selected specialist never supplies its diagnosis or logit magnitude to the answer. Instead, its native-image versus null-image evidence identifies clinically aligned visual evidence already present in intermediate layers of the medical generalist; MERIT restores only the generalist's own erased residual.
+This repository now implements **Med-DEFER**, a research prototype for claim-level conditional
+computation in a medical VLM under unseen-domain shift. At the start of a clinical claim, a
+controller can choose `NONE` or one compatible specialist. The specialist is loaded and called
+only when the generalist is uncertain and the expected correction benefit exceeds latency and
+domain-risk costs. Its evidence guides the current claim through bounded phrase-token bias; it
+does not replace the medical VLM or compose a final answer independently.
 
-The repository combines two ideas while keeping their scientific roles separate:
+The original MERIT layer-residual method remains intact as a baseline because the first public
+experiment did not show expert-specific residual recovery: MERIT tied wrong-route and shuffled
+controls, while the OCT adapter scored zero. The new method therefore makes three changes:
 
-- **GSCo-style generalist–specialist collaboration:** multiple lightweight specialists provide domain expertise.
-- **FedDG-style source-only generalization:** institutions remain separate, target domains are held out, and only aggregate reliability statistics leave a source client.
+- **Decode-time deferral:** expert use occurs at punctuation-delimited clinical claim boundaries,
+  not after a complete draft and not by densely running every expert.
+- **Capability-aware evidence:** classification, retrieval, segmentation, detection and generation
+  experts share an envelope that preserves scores, masks, boxes, text and provenance.
+- **Domain-robust trust:** source-client reliability LCB, lower-tail cross-domain performance,
+  label-free OOD distance and image quality multiply into a conservative intervention gate.
 
-It does **not** claim that modality routing, specialist collaboration, or frequency augmentation alone is novel. The testable contribution is *modality-specific expert-confirmed evidence erasure* across decoder layers.
+The academic hypothesis is **domain-robust claim-level specialist deferral**, rather than generic
+medical-agent orchestration. Target labels are never used for routing or trust fitting.
 
 ## What is implemented
 
+- A Transformers-compatible `MedDeferLogitsProcessor` that invokes an expert while the medical
+  VLM is generating and guides only the current clinical claim.
+- A `NONE`-or-one claim controller with uncertainty, capability, route, latency and trust terms.
+- Lazy expert construction, one-call-per-claim caching and an auditable per-claim trace.
+- A native evidence contract for concept scores plus masks, boxes, generated text and provenance.
+- Conservative source-only trust using federated LCB, lower-tail/CVaR stability, OOD and quality.
 - Qwen2.5-VL layerwise image-minus-null concept likelihoods.
 - CheXagent-2-3B, CONCH and LO-VLM concept-evidence adapters.
 - A compact medical-VLM modality router with metadata and oracle controls.
-- Top-1 specialist routing; no expert voting in the proposed method.
+- Top-1 specialist routing; no expert voting in either proposed method.
 - MERIT bounded residual restoration in the generalist's own evidence span.
 - Federated source-client reliability calibration using aggregate sufficient statistics only.
 - GSCo-context, broad-specialist, direct-logit-fusion, wrong-route and shuffled-expert comparisons.
 - Deterministic CPU smoke study and real-model JSONL evidence caching.
 - Dataset/model registries, license gates, leakage audit and Windows/Linux bootstrap scripts.
+
+## Fast validation of the new path
+
+No model download is needed to verify conditional execution, caching and domain gating:
+
+```bash
+pip install -e .
+merit-feddg med-defer-simulate \
+  --config configs/smoke.yaml \
+  --output runs/med-defer-smoke/result.json
+```
+
+The result records generalist and guided accuracy, the dense-call counterfactual, actual sparse
+calls, abstentions, and every claim trace. It is a mechanism test, not a medical result.
+
+`run_all.sh` also runs `med-defer-compare` on the frozen real-model evidence cache and writes
+`runs/<name>/med-defer/result.json`. That comparison estimates which cached expert calls would
+have been selected, so its call count is counterfactual; only `MedDeferLogitsProcessor` performs
+genuinely lazy calls inside live generation.
+
+For a real Qwen/MedVL integration, construct `MedDeferLogitsProcessor` with a request factory and
+pass it to `QwenLayerProbe.generate(..., logits_processor=processor)`. Existing `ConceptExpert`
+implementations plug in through `LazyConceptExpertProvider`; a segmentation or detection adapter
+can return `NativeEvidence` directly while retaining its masks or boxes. Concept phrases provide
+the initial vocabulary bridge. A learned spatial-to-token projector is deliberately not assumed.
+
+The same path is exposed as a command. Edit `examples/guided_case.json`; it intentionally has no
+label. The source cache supplies only frozen source-domain reliability statistics:
+
+```bash
+merit-feddg guided-generate \
+  --case examples/guided_case.json \
+  --source-cache cache/medical-small-public-paper.predicted.jsonl \
+  --model-config configs/medical_small.yaml \
+  --compare-config data/medical-small-public-paper/compare.yaml \
+  --artifacts artifacts \
+  --output runs/live-case-001.json
+```
+
+During this command, the generalist and router load normally, but a specialist is instantiated
+only after the decoding controller selects it. The output lists `loaded_experts`, call counts and
+claim traces so the sparse-execution claim is directly auditable.
 
 ## Linux server: full installation
 
@@ -210,7 +270,19 @@ merit-feddg compare \
 
 The output contains resolved configuration, per-sample predictions, route metrics, client summaries, result JSON and a Markdown comparison table.
 
-## Method
+## Med-DEFER method
+
+At each clinical-claim boundary the controller compares `NONE` with compatible experts using
+generalist uncertainty, modality confidence, capability match, source-only domain trust, expected
+benefit and latency. Only the winner is called. Its concept evidence is centered, normalized and
+norm-capped before it becomes phrase-token bias in the medical VLM's active decoding loop.
+
+The domain trust is the product of federated source reliability LCB, lower-tail source-domain
+stability, an exponential label-free OOD discount and image quality. A second check after the
+expert call can still suppress its evidence. The complete algorithm, experiment matrix and
+falsification criteria are in [the research design](docs/MED_DEFER_DESIGN.md).
+
+## Legacy MERIT method
 
 For clinical concept (c), the specialist exposes only causal visual evidence
 
@@ -248,6 +320,10 @@ Evaluation uses leave-one-domain-out source/target separation. Target labels are
 | Routed logit fusion | tests direct specialist injection |
 | MERIT | expert selects the generalist's own residual |
 | MERIT-FedDG | source-client reliability-gated MERIT |
+| Med-DEFER without DG | claim-level conditional decoding without domain trust |
+| Med-DEFER | sparse claim-level decoding with lower-tail domain trust |
+| Post-hoc verification | tests whether decode-time intervention is necessary |
+| Dense all-expert | computation/latency counterfactual |
 | Wrong route | modality specificity control |
 | Shuffled expert | causal correspondence control |
 

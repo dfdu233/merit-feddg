@@ -101,9 +101,7 @@ def download_profile(
                 )
             _write_completion_marker(destination, entry, kind, state)
             bucket = "resumed" if existed and not force_download else "downloaded"
-            plan[bucket].append(
-                {"id": entry["id"], "path": str(destination), "endpoint": endpoint}
-            )
+            plan[bucket].append({"id": entry["id"], "path": str(destination), "endpoint": endpoint})
         except Exception as exc:  # noqa: BLE001 - isolate failures across independent assets
             plan["failed"].append({"id": entry["id"], "error": str(exc)})
 

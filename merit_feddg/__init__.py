@@ -1,3 +1,3 @@
-"""MERIT-FedDG: modality-routed specialist evidence lenses."""
+"""Med-DEFER: domain-robust specialist deferral for medical VLM decoding."""
 
-__version__ = "0.1.0"
+__version__ = "0.4.0"

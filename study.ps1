@@ -32,5 +32,6 @@ if ($OracleRouter) {
 }
 & $PythonExe @ExtractArgs
 & $PythonExe -m merit_feddg.cli compare --input $Evidence --config (Join-Path $RepoRoot $ComparisonConfig) --output $RunDirectory
+& $PythonExe -m merit_feddg.cli med-defer-compare --input $Evidence --config (Join-Path $RepoRoot $ComparisonConfig) --output (Join-Path $RunDirectory "med-defer\result.json")
 
 Write-Host "Completed real-model study: $RunDirectory"

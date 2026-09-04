@@ -42,7 +42,9 @@ def specialist_lens(
     residual = clip_norm(residual, float(settings["max_correction_norm"]))
     erasure_gate = sigmoid((erasure - float(settings["erasure_floor"])) / 0.10)
     gate = float(np.clip(route_confidence * reliability * erasure_gate, 0.0, 1.0))
-    corrected = record.general_final_logits + float(settings["correction_strength"]) * gate * residual
+    corrected = (
+        record.general_final_logits + float(settings["correction_strength"]) * gate * residual
+    )
     return corrected, gate, erasure
 
 

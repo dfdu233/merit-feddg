@@ -46,6 +46,9 @@ class BlipConceptExpert(ConceptExpert):
         native = load_rgb(image)
         null = null_image_like(native)
         return np.asarray(
-            [self._score(native, prompt, item) - self._score(null, prompt, item) for item in concepts],
+            [
+                self._score(native, prompt, item) - self._score(null, prompt, item)
+                for item in concepts
+            ],
             dtype=float,
         )

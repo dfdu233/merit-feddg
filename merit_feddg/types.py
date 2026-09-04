@@ -62,15 +62,12 @@ class EvidenceRecord:
     def from_json(cls, payload: dict[str, Any]) -> EvidenceRecord:
         copied = dict(payload)
         copied["general_null_logits"] = np.asarray(copied["general_null_logits"], dtype=float)
-        copied["general_visual_layers"] = np.asarray(
-            copied["general_visual_layers"], dtype=float
-        )
+        copied["general_visual_layers"] = np.asarray(copied["general_visual_layers"], dtype=float)
         copied["broad_specialist_scores"] = np.asarray(
             copied["broad_specialist_scores"], dtype=float
         )
         copied["expert_scores"] = {
-            name: np.asarray(value, dtype=float)
-            for name, value in copied["expert_scores"].items()
+            name: np.asarray(value, dtype=float) for name, value in copied["expert_scores"].items()
         }
         return cls(**copied)
 

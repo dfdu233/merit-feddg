@@ -1,0 +1,14 @@
+{
+  "id": "unlabeled-target-case-001",
+  "image": "/data/target/case-001.png",
+  "prompt": "Describe the clinically relevant findings and avoid unsupported claims.",
+  "candidates": [
+    "normal",
+    "pneumothorax",
+    "pleural effusion",
+    "pulmonary edema"
+  ],
+  "metadata": {
+    "image_quality": 1.0
+  }
+}

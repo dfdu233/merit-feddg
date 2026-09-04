@@ -27,7 +27,15 @@ def _read_manifest(path: str | Path, limit: int = 0) -> list[dict]:
                 if limit and len(rows) >= limit:
                     break
     for row in rows:
-        missing = {"id", "image", "domain", "modality", "prompt", "candidates", "label"} - row.keys()
+        missing = {
+            "id",
+            "image",
+            "domain",
+            "modality",
+            "prompt",
+            "candidates",
+            "label",
+        } - row.keys()
         if missing:
             raise ValueError(f"manifest row is missing: {sorted(missing)}")
         if not row["candidates"] or row["label"] is None:
@@ -112,9 +120,7 @@ def extract_manifest(
             if oracle_router:
                 peak = 0.98
                 tail = (1.0 - peak) / (len(available) - 1)
-                route = {
-                    name: peak if name == row["modality"] else tail for name in available
-                }
+                route = {name: peak if name == row["modality"] else tail for name in available}
             elif config["router"].get("adapter") == "biomedclip_router":
                 route = broad.route(row["image"], available)
             else:
@@ -131,16 +137,12 @@ def extract_manifest(
             device_map=broad_spec.get("device_map", "auto"),
         )
         for row in rows:
-            _, broad_visual = broad.probe(
-                row["image"], row["prompt"], list(row["candidates"])
-            )
+            _, broad_visual = broad.probe(row["image"], row["prompt"], list(row["candidates"]))
             state[str(row["id"])]["broad_specialist_scores"] = broad_visual[-1]
             if oracle_router:
                 peak = 0.98
                 tail = (1.0 - peak) / (len(available) - 1)
-                route = {
-                    name: peak if name == row["modality"] else tail for name in available
-                }
+                route = {name: peak if name == row["modality"] else tail for name in available}
             elif config["router"].get("adapter") == "qwen_medical_router":
                 route = route_with_medical_vlm(broad, row["image"], available)
             else:
@@ -154,9 +156,7 @@ def extract_manifest(
     for modality, spec in sorted(config["experts"].items()):
         expert = _expert_from_spec(spec, artifact_root)
         for row in rows:
-            scores = expert.image_null_scores(
-                row["image"], row["prompt"], list(row["candidates"])
-            )
+            scores = expert.image_null_scores(row["image"], row["prompt"], list(row["candidates"]))
             state[str(row["id"])]["expert_scores"][modality] = np.asarray(scores, dtype=float)
         _release(expert)
 
