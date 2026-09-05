@@ -58,6 +58,23 @@ profiles:
         gated: false
         license: Apache-2.0
 
+  open-generation:
+    models:
+      - id: OpenMed/Qwen2.5-3B-MedVL
+        revision: 6370f5828f259d64a850d7bad0b423770583a66c
+        role: medical_generalist
+        gated: false
+        min_payload_files: 2
+      - id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+        revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+        role: broad_evidence_control
+        gated: false
+        required_files: [open_clip_pytorch_model.bin, open_clip_config.json]
+      - id: MahmoodLab/CONCH
+        revision: f9ca9f877171a28ade80228fb195ac5d79003357
+        role: pathology_evidence_specialist
+        gated: true
+
   pathorob-real:
     models:
       - id: OpenMed/Qwen2.5-3B-MedVL

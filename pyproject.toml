@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "merit-feddg"
-version = "0.5.0"
+version = "0.6.0"
 description = "Domain-robust specialist guidance for medical VLM clinical claims"
 readme = "README.md"
 requires-python = ">=3.10"

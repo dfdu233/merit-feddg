@@ -1,5 +1,32 @@
 # Med-DEFER / MERIT-FedDG
 
+## v0.6：真实开放生成实验入口
+
+新版主线是**生成期间的短段专家介入**，不再把闭集候选分数变化当作开放生成结果：
+医学 VLM 提出动态续写 → 源域合格专家提供证据 → 有界选择 → 提交原始 token → 继续生成。
+没有二值错误预测器，也不再要求双阶段 OOD。资格判断依据**源域上组合后实际回答的连续增益**。
+
+```bash
+git pull --ff-only
+./run_open.sh --mirror cn --source-per-group 16 --target-limit 16
+```
+
+沿用已有 HF_TOKEN；CONCH 需要已获访问权限。新服务器可加 `--install-system`。
+只下载/复用 OpenMed 3B、CONCH、BiomedCLIP 与真实 PathVQA 数据；不下载 CheXagent。
+断点复用已完成资产和与配置/代码/模型/输入身份匹配的病例生成结果。
+
+完整说明见 [论文调研、算法、实验协议与边界](docs/OPEN_DECODING_RESEARCH.md)，
+配置见 [open_generation.yaml](configs/open_generation.yaml)。
+输出位置由 `runs/open-generation/latest.json` 指定。
+
+**当前边界**：默认两个实际专家都是对比视觉语言模型；分割、检测、检索、生成已进入
+统一 native-evidence 插件接口和测试，但不代表这些真实专家已经全部完成医学验证。
+PathVQA 是真实开放问答，train 哈希分组不是医院域；EM/F1 不是医学幻觉率。
+短段 beam reranking 不是逐 token 引导，没有跨段 KV 复用，不能预先宣称更快。
+还需要服务器上的实际医学模型结果、独立域评估及强论文基线，才能判断 ICLR 研究价值。
+
+## v0.5 及更早版本：保留的闭集与机制对照
+
 **A medical generalist keeps authorship; qualified specialists can intervene before it commits a clinical decision.**
 
 This repository now implements **Med-DEFER**, a research prototype for claim-level conditional
@@ -58,7 +85,7 @@ medical-agent orchestration. Target labels are never used for routing or trust f
 
 ## Recommended real-domain experiment
 
-The primary validation now uses the public PathoROB Tolkach ESCA dataset rather than binary
+The retained v0.5 real-domain validation uses the public PathoROB Tolkach ESCA dataset rather than binary
 yes/no VQA. It contains six histopathology tissue classes and four explicit medical-center
 domains. This repository runs a custom four-fold leave-one-medical-center-out (LOCO) protocol;
 it is not the official PathoROB APD leaderboard protocol. No target label is given to

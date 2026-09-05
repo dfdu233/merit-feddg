@@ -17,7 +17,32 @@ from .real_multiclass import run_real_multiclass_loco
 from .runner import aggregate_repetitions, compare_records, make_oracle_records
 from .simulation import simulate_records
 
-ASSET_PROFILES = ["smoke", "open-small", "medical-small", "pathorob-real", "research-2d"]
+ASSET_PROFILES = [
+    "smoke",
+    "open-small",
+    "medical-small",
+    "pathorob-real",
+    "open-generation",
+    "research-2d",
+]
+
+
+def command_prepare_open(args):
+    from .open_data import prepare_open_pathvqa
+
+    _print(
+        prepare_open_pathvqa(args.artifacts, args.output, args.source_per_group, args.target_limit)
+    )
+
+
+def command_open_study(args):
+    from .open_study import run_open_study
+
+    _print(
+        run_open_study(
+            args.source, args.target, args.references, args.config, args.artifacts, args.output
+        )
+    )
 
 
 def _print(payload: object) -> None:
@@ -342,6 +367,21 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("--manifest", action="append", required=True)
     audit.add_argument("--held-out", action="append", required=True)
     audit.set_defaults(func=command_audit)
+    prepare_open = commands.add_parser("prepare-open-vqa", help="prepare real free-text PathVQA")
+    prepare_open.add_argument("--artifacts", default="artifacts")
+    prepare_open.add_argument("--output", default="data/open-vqa")
+    prepare_open.add_argument("--source-per-group", type=int, default=16)
+    prepare_open.add_argument("--target-limit", type=int, default=16)
+    prepare_open.set_defaults(func=command_prepare_open)
+
+    open_study = commands.add_parser("open-study", help="actual source-qualified block generation")
+    open_study.add_argument("--source", required=True)
+    open_study.add_argument("--target", required=True)
+    open_study.add_argument("--references", required=True)
+    open_study.add_argument("--config", default="configs/open_generation.yaml")
+    open_study.add_argument("--artifacts", default="artifacts")
+    open_study.add_argument("--output", default="runs/open-generation")
+    open_study.set_defaults(func=command_open_study)
     return parser
 
 

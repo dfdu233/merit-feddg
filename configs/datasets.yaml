@@ -27,6 +27,13 @@ profiles:
         domain_field: source
         gated: false
         license_note: Review the dataset card before use.
+  open-generation:
+    datasets:
+      - id: flaviagiammarino/path-vqa
+        revision: 1685832883334b5bb5beaf4e4b333fdeecaa4ad9
+        modality: pathology
+        gated: false
+        license_note: Review PathVQA original terms and dataset card; non-yes/no subset.
   pathorob-real:
     datasets:
       - id: bifold-pathomics/PathoROB-tolkach_esca

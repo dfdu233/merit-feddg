@@ -23,7 +23,7 @@ Usage:
   ./bootstrap.sh --profile research-2d --include-gated [options]
 
 Options:
-  --profile NAME          smoke, open-small, medical-small, pathorob-real, or research-2d
+  --profile NAME          smoke, open-small, medical-small, pathorob-real, open-generation, research-2d
   --include-gated         Download gated models after access is approved
   --install-system        Install missing apt packages on Debian/Ubuntu
   --torch-index URL       Explicit PyTorch wheel index, e.g. .../whl/cu130
@@ -65,7 +65,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$PROFILE" in
-  smoke|open-small|medical-small|pathorob-real|research-2d) ;;
+  smoke|open-small|medical-small|pathorob-real|open-generation|research-2d) ;;
   *) echo "Unknown profile: $PROFILE" >&2; exit 2 ;;
 esac
 case "$MIRROR_MODE" in

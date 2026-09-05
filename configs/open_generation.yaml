@@ -1,0 +1,36 @@
+# Real free-text generation pilot. These source hash groups are NOT hospitals.
+generalist:
+  id: OpenMed/Qwen2.5-3B-MedVL
+  revision: 6370f5828f259d64a850d7bad0b423770583a66c
+  adapter: qwen_layer_probe
+  dtype: bfloat16
+  device_map: auto
+prompt_suffix: Answer the question concisely using only findings supported by this image. Do not add an explanation unless requested.
+decoding:
+  candidates: 3
+  block_tokens: 12
+  max_new_tokens: 60
+  max_calls: 3
+  strength: 0.5
+  plausibility_gap: 2.0
+qualification:
+  min_per_domain: 8
+  min_domains: 2
+  penalty: 1.645
+experts:
+  conch:
+    id: MahmoodLab/CONCH
+    revision: f9ca9f877171a28ade80228fb195ac5d79003357
+    adapter: contrastive_conch
+    modalities: [pathology]
+    capabilities: [classification]
+    tasks: [open_vqa]
+    temperature: 0.07
+  biomedclip:
+    id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+    adapter: contrastive_biomedclip
+    modalities: [pathology, cxr, oct]
+    capabilities: [classification]
+    tasks: [open_vqa]
+    temperature: 0.07

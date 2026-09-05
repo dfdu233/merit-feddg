@@ -1,5 +1,28 @@
 # Current status
 
+## v0.6 open-generation upgrade (2026-09-05)
+
+- Actual short-block beam proposals, native expert evidence, bounded reranking and exact-token
+  commitment now form a separate open-generation path (`run_open.sh`). This is not the old
+  frozen-score comparison and not a token-level logit processor.
+- The first block can receive expert evidence despite high generalist confidence. Every block
+  constructs new prefix-dependent propositions. No original yes/no candidates are reused.
+- A single source-only qualification rule uses paired *complete generated answers* and continuous
+  token-F1 gain. Worst-source mean-minus-SE is a heuristic margin, not an OOD safety guarantee.
+- Default actual models: medical OpenMed 3B generalist, CONCH and BiomedCLIP evidence providers.
+  Heterogeneous masks/boxes/retrieval/text are supported by the native plugin contract, not claimed
+  to be clinically validated new model integrations.
+- Real PathVQA non-yes/no train/test preparation, separate references, pixel/group leakage audit,
+  per-case resumability, beam-only and ungated controls, corrupted-support control, blind annotation
+  templates, latency and memory reporting.
+- PathVQA train partitions are explicitly proxy domains. Retain the v0.5 PathoROB experiment for
+  independent-center closed-set checks. No new medical GPU performance result is claimed here.
+- Research overlap and limitations are documented in `docs/OPEN_DECODING_RESEARCH.md`:
+  especially CCD, GSCo, FUDGE, GeDi, VGS and FedDG. No first-expert-decoding novelty claim.
+- Local verification: 121 tests passed with PyTorch 2.6.0 CPU, Transformers 4.57.1 and
+  PyArrow 23.0.1; Ruff and Bash syntax checks passed. Tests include real tiny GPT-2 and
+  image-bearing Qwen2.5-VL generation, not downloaded medical checkpoint inference.
+
 ## What changed in v0.5
 
 The primary validation path no longer treats yes/no VQA or a learned binary
