@@ -1,0 +1,54 @@
+# New primary pilot: native capabilities, not answer-candidate scoring.
+# Source PathVQA hash groups are engineering proxies, NOT independent hospitals.
+generalist:
+  id: OpenMed/Qwen2.5-3B-MedVL
+  revision: 6370f5828f259d64a850d7bad0b423770583a66c
+  dtype: bfloat16
+  device_map: auto
+prompt_suffix: Answer the question concisely using only findings supported by the image. Do not add an explanation unless requested.
+capability_generation:
+  max_new_tokens: 96
+  block_tokens: 24
+  max_calls: 3
+  max_controller_calls: 8
+  controller_tokens: 160
+  max_evidence_chars: 10000
+qualification:
+  min_per_domain: 8
+  min_domains: 2
+  penalty: 1.645
+experts:
+  conch_tissue:
+    id: MahmoodLab/CONCH
+    revision: f9ca9f877171a28ade80228fb195ac5d79003357
+    adapter: conch
+    modalities: [pathology]
+    tasks: [open_vqa]
+    capabilities: [classification]
+    scope: tissue_appearance
+    prefix_invariant: true
+    description: Whole-image relative matches to a fixed, non-exhaustive tissue appearance catalog. Not arbitrary VQA, not a regional classifier, and not calibrated diagnosis probabilities.
+    # A priori tool vocabulary. NEVER replace with target answers or target labels.
+    catalog:
+      - {name: glandular epithelium, prompt: "A histopathology image of glandular epithelial tissue."}
+      - {name: squamous epithelium, prompt: "A histopathology image of squamous epithelial tissue."}
+      - {name: connective tissue, prompt: "A histopathology image of connective tissue."}
+      - {name: adipose tissue, prompt: "A histopathology image of adipose tissue."}
+      - {name: smooth muscle, prompt: "A histopathology image of smooth muscle tissue."}
+      - {name: skeletal muscle, prompt: "A histopathology image of skeletal muscle tissue."}
+      - {name: lymphoid tissue, prompt: "A histopathology image of lymphoid tissue."}
+      - {name: neural tissue, prompt: "A histopathology image of neural tissue."}
+      - {name: blood vessels, prompt: "A histopathology image of blood vessels."}
+      - {name: necrotic tissue, prompt: "A histopathology image of necrotic tissue."}
+  source_cases:
+    id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+    adapter: source_retrieval
+    encoder_adapter: contrastive_biomedclip
+    modalities: [pathology]
+    tasks: [open_vqa]
+    capabilities: [retrieval]
+    scope: source_visual_cases
+    prefix_invariant: true
+    top_k: 3
+    description: Retrieve visually similar whole-image source cases with their own questions and reference answers. Image-only retrieval, not a query-specific diagnosis. Excludes this case, patient group, pixels and domain.

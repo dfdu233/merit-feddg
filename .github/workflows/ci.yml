@@ -25,5 +25,6 @@ jobs:
           python-version: "3.11"
       - run: python -m pip install -e ".[dev]" "transformers==4.57.1" "pyarrow>=15,<24"
       - run: python -m pip install "torch==2.6.0" --index-url https://download.pytorch.org/whl/cpu
-      - run: python -m pytest tests/test_open_generation.py tests/test_open_data.py
-      - run: bash -n run_open.sh bootstrap.sh
+      - run: python -m pytest tests/test_open_generation.py tests/test_open_data.py tests/test_capability_generation.py tests/test_capability_experts.py tests/test_capability_study.py
+      - run: python -m ruff check .
+      - run: bash -n run_open.sh run_capabilities.sh bootstrap.sh

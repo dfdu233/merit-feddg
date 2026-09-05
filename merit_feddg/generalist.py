@@ -181,6 +181,16 @@ class QwenLayerProbe:
         max_new_tokens: int = 64,
         logits_processor=None,
     ) -> str:
+        return self.generate_with_usage(image, prompt, max_new_tokens, logits_processor)["text"]
+
+    def generate_with_usage(
+        self,
+        image: str | Path | Image.Image,
+        prompt: str,
+        max_new_tokens: int = 64,
+        logits_processor=None,
+    ) -> dict:
+        """One real greedy call, with actual token counts (including generated EOS)."""
         native = load_rgb(image)
         inputs = self._inputs(native, prompt, None)
         generation_options = {
@@ -192,6 +202,11 @@ class QwenLayerProbe:
         with self.torch.inference_mode():
             generated = self.model.generate(**inputs, **generation_options)
         trimmed = [output[len(source) :] for source, output in zip(inputs.input_ids, generated)]
-        return self.processor.batch_decode(
+        text = self.processor.batch_decode(
             trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )[0].strip()
+        return {
+            "text": text,
+            "input_tokens": int(inputs.input_ids.shape[1]),
+            "output_tokens": int(trimmed[0].numel()),
+        }

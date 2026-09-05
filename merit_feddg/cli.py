@@ -45,6 +45,16 @@ def command_open_study(args):
     )
 
 
+def command_capability_study(args):
+    from .capability_study import run_capability_study
+
+    _print(
+        run_capability_study(
+            args.source, args.target, args.references, args.config, args.artifacts, args.output
+        )
+    )
+
+
 def _print(payload: object) -> None:
     print(json.dumps(payload, indent=2, ensure_ascii=False))
 
@@ -382,6 +392,17 @@ def build_parser() -> argparse.ArgumentParser:
     open_study.add_argument("--artifacts", default="artifacts")
     open_study.add_argument("--output", default="runs/open-generation")
     open_study.set_defaults(func=command_open_study)
+    capability_study = commands.add_parser(
+        "capability-study",
+        help="interleave native tool requests, evidence memory and real generation",
+    )
+    capability_study.add_argument("--source", required=True)
+    capability_study.add_argument("--target", required=True)
+    capability_study.add_argument("--references", required=True)
+    capability_study.add_argument("--config", default="configs/capability_generation.yaml")
+    capability_study.add_argument("--artifacts", default="artifacts")
+    capability_study.add_argument("--output", default="runs/capability-generation")
+    capability_study.set_defaults(func=command_capability_study)
     return parser
 
 

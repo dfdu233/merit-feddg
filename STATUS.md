@@ -1,5 +1,28 @@
 # Current status
 
+## v0.7 native capability collaboration (2026-09-05)
+
+- Primary entry: `run_capabilities.sh`. The frozen medical VLM requests registered
+  capabilities before and between answer blocks, incorporates native evidence into
+  memory, and continues with exact committed token IDs. No candidate score fusion.
+- Default actual adapters: CONCH fixed tissue appearance catalog and BiomedCLIP
+  source-image retrieval. Optional MedSAM prompted segmentation and Qwen-compatible
+  generative specialist adapter; other native factories can supply detection etc.
+- Source qualification is task/capability/scope-specific; missing source support is
+  distinct from observed negative gain. No new binary risk or two-stage OOD model.
+- Four real-generation comparisons, source-only retrieval with leave-domain/group/
+  pixel exclusion, cache/provenance binding, complete native traces and clinical
+  annotation templates. Default PathVQA remains a proxy-domain mechanism pilot.
+- Controller generation cost is measured, including invalid JSON; no-tools paths
+  skip the controller. This is evidence-conditioned re-prefill, not KV reuse or
+  token-logit guidance. Single-scope qualification does not certify composition.
+- No new medical-checkpoint GPU results are reported in this release. See
+  `docs/CAPABILITY_COLLABORATION.md` for exact algorithm, integration boundaries,
+  experimental comparisons and outstanding academic requirements.
+- Local verification: 191 tests passed, Ruff passed, Bash syntax/entry-point
+  checks passed. Includes real tiny image-bearing Qwen controller/memory/continuation
+  and tiny SAM forward checks on CPU; no downloaded medical-weight performance claim.
+
 ## v0.6 open-generation upgrade (2026-09-05)
 
 - Actual short-block beam proposals, native expert evidence, bounded reranking and exact-token
