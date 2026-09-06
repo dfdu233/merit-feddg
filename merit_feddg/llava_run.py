@@ -27,6 +27,7 @@ def parser():
     result.add_argument("--seed", type=int, default=17)
     result.add_argument("--mirror", choices=["global", "cn"], default="global")
     result.add_argument("--retrieval-answers", choices=["on", "off"], default=None)
+    result.add_argument("--chexagent", choices=["auto", "on", "off"], default="auto")
     result.add_argument("--skip-download", action="store_true")
     result.add_argument("--install-deps", action="store_true")
     result.add_argument("--check-only", action="store_true")
@@ -58,6 +59,15 @@ def experiment_config(args):
             )
         if args.retrieval_answers is not None and spec.get("adapter") == "source_retrieval":
             spec["include_source_answers"] = args.retrieval_answers == "on"
+    chexagent = config["experts"].get("chexagent_description")
+    if args.chexagent == "off":
+        config["experts"].pop("chexagent_description", None)
+    elif args.chexagent == "on":
+        if chexagent is None:
+            raise ValueError("--chexagent on requires chexagent_description in the config")
+        # Explicit opt-in turns a missing local checkpoint into an error instead
+        # of silently excluding the optional expert.
+        chexagent["optional"] = False
     config["generalist"] = resolve_generalist_spec(config["generalist"])
     return config
 

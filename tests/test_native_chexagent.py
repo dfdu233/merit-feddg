@@ -35,7 +35,7 @@ def test_chexagent_generates_only_continuation_with_real_token_counts(tmp_path, 
 
     class Expert:
         def __init__(self, *args, **kwargs):
-            loads.append(args)
+            loads.append((args, kwargs))
             self.torch, self.model = torch, Model()
             self.tokenizer = SimpleNamespace(decode=self.decode)
 
@@ -60,6 +60,7 @@ def test_chexagent_generates_only_continuation_with_real_token_counts(tmp_path, 
     assert item.confidence is None
     expert.infer(request(tmp_path))
     assert len(loads) == 1
+    assert loads[0][1]["dtype"] == "bfloat16"
 
 
 @pytest.mark.parametrize("changes,reason", [

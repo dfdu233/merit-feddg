@@ -45,7 +45,9 @@ def _patch_visual_hidden_state_fallback(model) -> None:
 class CheXagentConceptExpert(ConceptExpert):
     """Image-minus-null phrase likelihood for CheXagent-2-3B."""
 
-    def __init__(self, model_id: str, device_map: str = "auto") -> None:
+    def __init__(
+        self, model_id: str, device_map: str = "auto", dtype: str | None = None
+    ) -> None:
         try:
             import torch
             from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -53,11 +55,16 @@ class CheXagentConceptExpert(ConceptExpert):
             raise RuntimeError("install merit-feddg[research] to load CheXagent") from exc
         self.torch = torch
         self.tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+        load_kwargs = {"trust_remote_code": True, "device_map": device_map}
+        if dtype is not None:
+            if dtype not in {"float32", "float16", "bfloat16"}:
+                raise ValueError("invalid CheXagent dtype")
+            # Loading directly in the requested dtype avoids a transient FP32 copy
+            # beside LLaVA-Med on shared GPUs.
+            load_kwargs["torch_dtype"] = getattr(torch, dtype)
         with _chexagent_transformers_compatibility():
             self.model = AutoModelForCausalLM.from_pretrained(
-                model_id,
-                trust_remote_code=True,
-                device_map=device_map,
+                model_id, **load_kwargs,
             ).eval()
         _patch_visual_hidden_state_fallback(self.model)
 

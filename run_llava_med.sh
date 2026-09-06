@@ -17,6 +17,7 @@ while (($#)); do
       echo '         --mirror global|cn --dataset both|pathvqa|vqarad'
       echo '         --source-per-group N --target-limit N --artifacts PATH --output PATH'
       echo '         --generalist llava|openmed --config PATH --retrieval-answers on|off'
+      echo '         --chexagent auto|on|off'
       echo 'No torch/transformers upgrades and no default 3B/7B model downloads.'
       exit 0 ;;
     *) ARGS+=("$1"); shift ;;

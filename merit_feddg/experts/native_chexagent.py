@@ -66,8 +66,9 @@ class CheXagentCapabilityExpert:
             + json.dumps(request_data, ensure_ascii=False)
         )
         if self.expert is None:
-            self.expert = CheXagentConceptExpert(self.model_id, device_map=self.device_map)
-            self.expert.model.to(dtype=getattr(self.expert.torch, self.dtype))
+            self.expert = CheXagentConceptExpert(
+                self.model_id, device_map=self.device_map, dtype=self.dtype
+            )
         ids = self.expert._prompt_ids(str(Path(request.image).resolve()), prompt)
         ids = ids.to(next(self.expert.model.parameters()).device)
         with self.expert.torch.inference_mode():

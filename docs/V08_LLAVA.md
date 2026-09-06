@@ -8,6 +8,21 @@ git pull --ff-only
 bash run_llava_med.sh --install-deps --mirror global
 ```
 
+For the complete method matrix on host GPU 0, after all assets have already been
+prepared, use the offline resumable launcher:
+
+```bash
+cd /home/dbw/merit-feddg
+bash run_llava_med_full_gpu0.sh
+```
+
+It defaults to 16 source cases per group, 16 target cases per dataset and explicitly
+enables the local CheXagent. It requires at least 28 GiB free GPU memory before starting.
+With 20--28 GiB free, run the same core suite without the optional 3B generator via
+`MERIT_CHEXAGENT=off bash run_llava_med_full_gpu0.sh`. Use `MERIT_CHECK_ONLY=1` for
+an offline preflight, and set `MERIT_OUTPUT` to choose a persistent resumable run root.
+The memory check is a launch guard, not a guarantee against another process growing.
+
 The configured paths are **remote server paths**, not paths available to this development workstation:
 
 - Python: `/opt/miniconda3/envs/huatuo/bin/python`

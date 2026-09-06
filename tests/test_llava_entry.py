@@ -37,6 +37,17 @@ def test_same_tools_for_openmed_comparison_and_retrieval_ablation(tmp_path):
     assert Path(changed["experts"]["cxr_findings"]["checkpoint_path"]).is_relative_to(tmp_path)
 
 
+def test_chexagent_explicit_on_and_off(tmp_path):
+    disabled = experiment_config(parser().parse_args([
+        "--artifacts", str(tmp_path), "--chexagent", "off"
+    ]))
+    assert "chexagent_description" not in disabled["experts"]
+    enabled = experiment_config(parser().parse_args([
+        "--artifacts", str(tmp_path), "--chexagent", "on"
+    ]))
+    assert enabled["experts"]["chexagent_description"]["optional"] is False
+
+
 def test_small_profile_has_no_generalist_or_large_generation_download():
     plan = asset_plan("capability-small")
     assert {entry["id"] for entry in plan["models"]} == {
