@@ -32,6 +32,54 @@
 
 ## GPU validation after v0.8 (2026-09-06)
 
+### Full 48 GiB run with CheXagent
+
+- The completed full run is
+  `runs/native-v08-full-gpu0/llava/faa0513e4fd6b8ba` (exit code 0). It used
+  the local LLaVA-Med v1.5 Mistral 7B generalist plus CONCH, BiomedCLIP,
+  TorchXRayVision classification/segmentation, source retrieval and the local
+  CheXagent-2-3b generation specialist. The run evaluated 64 source and 32
+  target questions (16 PathVQA and 16 image-disjoint VQA-RAD targets) and wrote
+  457 code-fingerprinted case-cache records. No model download was required.
+- Generalist token-F1 was 0.07338. Forced bounded all-evidence reached 0.06342,
+  paired gain -0.00995 with bootstrap interval [-0.03930, 0.02197] (5 improved,
+  9 harmed). Ungated adaptive control reached 0.07075, gain -0.00262 with
+  interval [-0.02624, 0.02151] (4 improved, 3 harmed). Neither establishes an
+  improvement over the generalist on this 32-question target sample.
+- All 11 source qualification cards failed: two sufficiently supported cards
+  had observed negative robust gain (retrieval/pathology -0.03152 and
+  CONCH/pathology -0.03805), while the remaining nine had insufficient
+  per-domain support. Consequently adaptive DG made no target tool call, exactly
+  matched the generalist token-F1, and logged 44 insufficient-support, 12
+  observed-negative-gain and one missing-source-scope veto. This validates the
+  intended fail-closed gate, not the efficacy of specialist assistance.
+- Among routed single-tool target arms, CheXagent was the strongest numerical
+  result: token-F1 0.07924, paired gain +0.00587, interval
+  [-0.00593, 0.01957], with 10/32 calls and zero runtime errors. CONCH reached
+  0.07437 (+0.00099; interval [0.00000, 0.00269]); CXR anatomy reached 0.07329
+  (-0.00009); XRV findings reached 0.05946 (-0.01391; interval
+  [-0.03497, -0.00062]); and source retrieval reached 0.05964 (-0.01373;
+  interval [-0.05124, 0.02298]). These are routed whole-set means and the
+  intervals remain sample-limited.
+- Forced all-evidence made 57 target specialist calls (32 retrieval, 13
+  classification, 10 generation and 2 segmentation) and adopted 1.281 pieces
+  of evidence per question on average. Ungated adaptive control made 14 target
+  calls on 14/32 questions, restricted itself to 11 retrieval and 3 CONCH calls,
+  and produced no invalid compact action. It did not dynamically compose two
+  experts on a target case in this run.
+- Across the complete fixed-cache trace there were zero tool runtime errors.
+  CheXagent's BF16 visual-input fix was exercised in both source qualification
+  and target evaluation; the full trace contains 41 CheXagent calls and 31
+  adopted results across all cached experimental arms. Peak method-level
+  PyTorch allocation was 23.91 GiB; observed total device use peaked near
+  46.3/48.5 GiB because an unrelated baseline allocation remained on the GPU.
+- Automatic EM/token-F1 are lexical answer-overlap measures, not medical
+  hallucination or clinical factuality metrics. The modality labels are
+  image-inferred routing predictions, PathVQA source groups are hash proxies,
+  and the 32-question target set is too small for an efficacy claim. The result
+  supports execution correctness and conservative DG rejection; it does not yet
+  support the claim that the framework reduces medical-VLM hallucination.
+
 - The final offline run is `runs/native-v08-scale8-final/llava/8fffb22c963d85dd`.
   It reused `/opt/miniconda3/envs/huatuo/bin/python`, the existing 15 GiB local
   LLaVA-Med v1.5 Mistral 7B checkpoint, the clean Med-LVLMs source tree and a
