@@ -16,8 +16,10 @@ def parser():
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("--config", default="configs/llava_med_capabilities.yaml")
     result.add_argument("--generalist", choices=["llava", "openmed"], default="llava")
-    result.add_argument("--study", choices=["capabilities", "value"], default="capabilities")
+    result.add_argument("--study", choices=["capabilities", "value", "diagnose"], default="capabilities")
     result.add_argument("--value-stage", choices=["all", "source", "evaluate"], default="all")
+    result.add_argument("--evidence-profile", choices=["legacy", "scoped"], default=None,
+                        help="opt-in presentation/subrequest ablation, not a proven better method")
     result.add_argument("--source-manifest")
     result.add_argument("--target-manifest")
     result.add_argument("--references")
@@ -74,7 +76,7 @@ def experiment_config(args):
         # of silently excluding the optional expert.
         chexagent["optional"] = False
     config["generalist"] = resolve_generalist_spec(config["generalist"])
-    if args.study == "value":
+    if args.study in {"value", "diagnose"}:
         if config["generalist"].get("backend") == "llava_med":
             config["generalist"].setdefault("deterministic_image_padding", True)
         # Additive profile: the saved v0.8 configuration/entry point stays intact.
@@ -91,6 +93,26 @@ def experiment_config(args):
                     "residual_quantile": 0.9, "cost_weight": 0.0},
             "quality": {"name": "token_f1"}, "single_tools": True,
         })
+        if args.evidence_profile is not None:
+            config["capability_value"].setdefault("generation", {}).update(
+                evidence_style="scoped" if args.evidence_profile == "scoped" else "native",
+                request_style="need" if args.evidence_profile == "scoped" else "question",
+                visual_views=0 if args.evidence_profile == "scoped" else 1,
+                evidence_top_k=2, retrieval_answer_context=False,
+            )
+        if args.study == "diagnose":
+            default_pairs = [["cxr_anatomy", "chexagent_description"],
+                             ["conch_tissue", "source_cases"]]
+            config.setdefault("capability_diagnostics", {
+                "pairs": [pair for pair in default_pairs if all(name in config["experts"] for name in pair)],
+                "continuations": True,
+            })
+            # CLI --chexagent off intentionally removes the optional pair.
+            if args.chexagent == "off":
+                config["capability_diagnostics"]["pairs"] = [
+                    pair for pair in config["capability_diagnostics"]["pairs"]
+                    if "chexagent_description" not in pair
+                ]
     return config
 
 
@@ -180,6 +202,8 @@ def main(argv=None):
         raise ValueError("custom data requires --source-manifest, --target-manifest and --references")
     if args.study != "value" and args.value_stage != "all":
         raise ValueError("--value-stage requires --study value")
+    if args.study == "capabilities" and args.evidence_profile is not None:
+        raise ValueError("--evidence-profile requires --study value or diagnose")
     # Set endpoints before importing huggingface_hub. No credential is logged.
     os.environ["HF_ENDPOINT"] = (
         "https://hf-mirror.com" if args.mirror == "cn" else "https://huggingface.co"
@@ -247,11 +271,11 @@ def main(argv=None):
     if args.prepare_only:
         return
     # Common inference files are label-free; references enter only evaluation/source calibration.
-    if args.study == "value":
+    if args.study in {"value", "diagnose"}:
         from .capability_value_study import run_value_study
 
         result = run_value_study(*manifest_paths, settings, args.artifacts, root / args.generalist,
-                                 stage=args.value_stage)
+                                 stage="diagnose" if args.study == "diagnose" else args.value_stage)
     else:
         result = run_capability_study(*manifest_paths, settings, args.artifacts, root / args.generalist)
     print(json.dumps(result, indent=2), flush=True)

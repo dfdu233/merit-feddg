@@ -171,8 +171,8 @@ def run_value_study(source_path, target_path, references_path, config_path, arti
         resolve_generalist_spec,
     )
 
-    if stage not in {"all", "source", "evaluate"}:
-        raise ValueError("stage must be all, source or evaluate")
+    if stage not in {"all", "source", "evaluate", "diagnose"}:
+        raise ValueError("stage must be all, source, evaluate or diagnose")
     source, target = read_manifest(source_path, "source"), read_manifest(target_path, "target")
     audit_open_split(source, target)
     config = load_yaml(config_path)
@@ -182,7 +182,7 @@ def run_value_study(source_path, target_path, references_path, config_path, arti
     specs, excluded = _filter_optional_experts(config["experts"], artifacts)
     encoder_options = dict(value.get("encoder", {}))
     encoder_tool = encoder_options.pop("expert", "source_cases")
-    if encoder_tool not in specs:
+    if stage != "diagnose" and encoder_tool not in specs:
         raise ValueError("value encoder requires a configured local contrastive expert")
     refs = json.loads(Path(references_path).read_text(encoding="utf-8"))
     source_refs = {row["id"]: refs[row["id"]] for row in source}
@@ -205,7 +205,8 @@ def run_value_study(source_path, target_path, references_path, config_path, arti
         source, config.get("routing", {}), ensure_probe, runtime_identity, output
     )
     provenance = {
-        "schema": "native-capability-value-v09", "config": config, **runtime_identity,
+        "schema": ("native-capability-diagnostics-v010" if stage == "diagnose"
+                   else "native-capability-value-v09"), "config": config, **runtime_identity,
         "experts": {name: model_provenance(spec, artifacts) for name, spec in specs.items()},
         "excluded_tools": excluded,
         "source": [inference_identity(row) for row in source], "source_references": source_refs,
@@ -217,8 +218,10 @@ def run_value_study(source_path, target_path, references_path, config_path, arti
     root.mkdir(parents=True, exist_ok=True)
     atomic_json(root / "provenance.json", provenance)
     pool = CapabilityPool(specs, artifacts, source_records=source, source_references=source_refs)
-    encoder = ValueStateEncoder(pool, specs[encoder_tool], max_tokens=decoder.max_new_tokens,
-                                max_calls=decoder.max_expert_calls, **encoder_options)
+    encoder = None if stage == "diagnose" else ValueStateEncoder(
+        pool, specs[encoder_tool], max_tokens=decoder.max_new_tokens,
+        max_calls=decoder.max_expert_calls, evidence_config=decoder, **encoder_options
+    )
 
     def make_runtime(row):
         pool.reset_case()
@@ -255,6 +258,23 @@ def run_value_study(source_path, target_path, references_path, config_path, arti
 
     policy_path = root / "value-policy.json"
     try:
+        if stage == "diagnose":
+            from .capability_diagnostics import collect_diagnostic_case, write_diagnostics
+
+            options = dict(config.get("capability_diagnostics", {}))
+            requested_pairs = options.get("pairs", [])
+            # Missing explicitly optional checkpoints are reported, never downloaded.
+            options["pairs"] = [pair for pair in requested_pairs if not any(
+                name in excluded for name in pair
+            )]
+            cases = [cached_case(row, "source-diagnostics", lambda engine, row=row:
+                     collect_diagnostic_case(engine, source_refs[row["id"]], scorer, **options))
+                     for row in source]
+            report = write_diagnostics(root / "diagnostics", cases, source, source_routes)
+            report["excluded_tools"] = excluded
+            report["requested_pairs"] = requested_pairs
+            atomic_json(Path(output) / "latest-diagnostics.json", report)
+            return report
         if stage != "evaluate":
             records = []
             for row in source:

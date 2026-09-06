@@ -1,5 +1,28 @@
 # Med-DEFER / MERIT-FedDG
 
+## v0.10：先优化能力请求与证据传递，再校准域鲁棒选择
+
+v0.9 的完整真实实验仍是负面/不确定结果；本更新**不宣称效果已经提升**。
+新增能力子请求、按问题压缩的原生证据呈现，以及 source-only 同前缀诊断入口。
+不新增大模型、不修改已完成的回答、不放宽 DG 门槛、不退回二值风险预测或候选答案融合。
+
+```bash
+git pull --ff-only  # 有本地修改先保留，切勿强制覆盖
+bash run_diagnostics.sh --chexagent on --check-only
+bash run_diagnostics.sh --chexagent on
+```
+
+默认只用真实 source 小样本诊断（每 proxy group 2 例），不拟合策略、不生成 target，
+复用已有模型与环境且禁止本入口自动下载。自定义数据/解释器参数沿用下方说明。
+比较同一专家输出的原生文本、按问题压缩的文本、预测叠加图；加入原图复制对照；
+明确测量预声明两工具的联合收益，而不是把两次调用算成有效协作。
+
+**交给服务器 Codex：阅读并执行 [服务器执行交接](docs/SERVER_CODEX_V010.md)。**
+算法与边界见 [v0.10 设计](docs/V010_CAPABILITY_COMMUNICATION.md)。
+索引：`runs/native-v010-diagnostics/llava/latest-diagnostics.json`。
+诊断确认有用证据之后，可显式使用 `run_value.sh --evidence-profile scoped --value-stage source`
+进行同一套源域价值学习；这只是待验证配置，旧的默认 `run_value.sh` 行为保留。
+
 ## v0.9：同前缀、原生证据、源域条件价值（新研究入口）
 
 不是把专科模型全部变成诊断打分器，也不是答案生成后再验证。

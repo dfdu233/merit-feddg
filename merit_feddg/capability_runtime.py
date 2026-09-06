@@ -10,7 +10,8 @@ from .block_decode import QwenBlockSession
 from .capabilities import CapabilityRequest, EvidenceItem, tool_descriptors, validate_result
 from .capability_features import action_key, state_kind
 from .capability_value import score_value_policy
-from .native_evidence import compile_evidence, make_visual_evidence
+from .evidence_need import evidence_memory, evidence_need, presentation_items
+from .native_evidence import make_visual_evidence
 from .open_data import INFERENCE_FIELDS
 from .open_study import fingerprint
 
@@ -32,6 +33,10 @@ class ValueGenerationConfig:
     controller_tokens: int = 48
     max_evidence_chars: int = 1200
     visual_views: int = 1
+    evidence_style: str = "native"
+    request_style: str = "question"
+    evidence_top_k: int = 2
+    retrieval_answer_context: bool = False
 
     def __post_init__(self):
         if any(type(value) is not int or value < 1 for value in (
@@ -39,6 +44,11 @@ class ValueGenerationConfig:
             self.max_decisions, self.controller_tokens, self.max_evidence_chars,
         )) or self.visual_views not in (0, 1) or self.max_evidence_chars < 2:
             raise ValueError("positive integer budgets and visual_views=0/1 are required")
+        if (self.evidence_style not in {"native", "scoped"}
+                or self.request_style not in {"question", "need"}
+                or type(self.evidence_top_k) is not int or self.evidence_top_k < 1
+                or type(self.retrieval_answer_context) is not bool):
+            raise ValueError("invalid evidence presentation or request configuration")
 
 
 class NativeSession:
@@ -54,9 +64,10 @@ class NativeSession:
         return self.probe.processor.tokenizer.decode(tokens, skip_special_tokens=True)
 
     def context(self, state):
-        memory = compile_evidence(state.items, self.question, self.config.max_evidence_chars)
+        memory = evidence_memory(state.items, self.question, self.config)
+        presented_items = presentation_items(state.items, self.question, self.config)
         views, metadata = make_visual_evidence(
-            self.image, state.items, self.question, max_views=self.config.visual_views
+            self.image, presented_items, self.question, max_views=self.config.visual_views
         ) if state.items and self.config.visual_views else ([], [])
         prompt = self.prompt
         if memory or views:
@@ -137,11 +148,13 @@ class CapabilityRuntime:
         if descriptor not in self.descriptors(state):
             raise ValueError("incompatible, repeated, over-budget or unprompted tool request")
         key = action_key(self.row, descriptor)
+        need = evidence_need(self.row["question"], descriptor)
         request = CapabilityRequest(
             sample_id=self.row["id"], image=self.row["image"], question=self.row["question"],
             modality=self.row["modality"], task=self.row["task"], domain=self.row["domain"],
             group_id=self.row["group_id"], capability=descriptor["capability"],
-            scope=descriptor["scope"], query=self.row["question"],
+            scope=descriptor["scope"],
+            query=need.query if self.config.request_style == "need" else self.row["question"],
             generated_prefix=self.session.decode(state.prefix),
         )
         started = perf_counter()
@@ -150,6 +163,8 @@ class CapabilityRuntime:
             "action_key": key, "token_start": len(state.prefix), "executed": False,
             "adopted": False, "state_kind": state_kind(state),
             "history_actions": list(state.history),
+            "evidence_need": asdict(need), "request_style": self.config.request_style,
+            "evidence_style": self.config.evidence_style,
         }
         items = ()
         try:
@@ -160,11 +175,12 @@ class CapabilityRuntime:
             # Native payload is immutable. Only evidence visible to the VLM is
             # counted as adopted; empty generated_text is not an intervention.
             proposed = tuple(result.items) + state.items
-            presented = compile_evidence(proposed, self.row["question"], self.config.max_evidence_chars)
+            presented = evidence_memory(proposed, self.row["question"], self.config)
             visible = {(v["expert_id"], v["evidence_id"]) for v in presented}
             if self.config.visual_views:
                 _, view_meta = make_visual_evidence(
-                    self.row["image"], proposed, self.row["question"],
+                    self.row["image"], presentation_items(proposed, self.row["question"], self.config),
+                    self.row["question"],
                     max_views=self.config.visual_views,
                 )
                 visible.update((v["expert_id"], v["evidence_id"])

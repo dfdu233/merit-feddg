@@ -8,6 +8,7 @@ import numpy as np
 
 from .capabilities import scoped_key
 from .capability_routing import question_type
+from .evidence_need import evidence_memory
 from .native_evidence import compile_evidence
 from .open_data import INFERENCE_FIELDS
 
@@ -33,12 +34,14 @@ class ValueStateEncoder:
     This shared encoder is NOT advertised as expert-native OOD measurement.
     """
 
-    def __init__(self, pool, spec, *, dimensions=16, seed=17, max_tokens=96, max_calls=2):
+    def __init__(self, pool, spec, *, dimensions=16, seed=17, max_tokens=96, max_calls=2,
+                 evidence_config=None):
         if dimensions < 1 or max_tokens < 1 or max_calls < 1:
             raise ValueError("feature dimensions and budgets must be positive")
         self.pool, self.spec = pool, spec
         self.dimensions, self.seed = dimensions, seed
         self.max_tokens, self.max_calls = max_tokens, max_calls
+        self.evidence_config = evidence_config
         self.projections = {}
 
     def _project(self, vector):
@@ -59,7 +62,9 @@ class ValueStateEncoder:
         if not descriptors:
             return []
         image = self._project(self.pool._image_feature(self.spec, row["image"]))
-        memory = compile_evidence(state.items, row["question"], max_chars=900)
+        memory = (compile_evidence(state.items, row["question"], max_chars=900)
+                  if self.evidence_config is None or self.evidence_config.evidence_style == "native"
+                  else evidence_memory(state.items, row["question"], self.evidence_config))
         texts = [
             ("question", row["question"]),
             ("state", f"{prefix_text[-600:]} Observed: {json.dumps(memory, ensure_ascii=False)}"),

@@ -295,3 +295,32 @@ def test_source_stage_freezes_before_target_and_target_reference_changes_only_ev
     assert second["results"]["generalist"]["token_f1"] == 0
     assert first["result"] != second["result"]
     assert next(tmp_path.rglob("value-policy.json")).read_text(encoding="utf-8") == policy_before
+
+    # Diagnosis is a separate source-only lifecycle: no target routing, fitting,
+    # encoder features or policy requirement. Repeated commands reuse case caches.
+    from merit_feddg import capability_diagnostics as diagnostics
+
+    collected = []
+    def diagnose(engine, actual_references, scorer, **kwargs):
+        assert engine.row["role"] == "source" and actual_references == ["A"]
+        collected.append(engine.row["id"])
+        return {"role": "source", "sample_id": engine.row["id"],
+                "group_id": engine.row["group_id"], "domain": engine.row["domain"],
+                "domain_kind": "proxy", "modality": "pathology", "branches": [],
+                "compositions": [], "baseline": {"text": "A"}}
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("diagnosis must not fit a policy or construct its encoder")
+
+    monkeypatch.setattr(diagnostics, "collect_diagnostic_case", diagnose)
+    monkeypatch.setattr(study, "ValueStateEncoder", forbidden)
+    monkeypatch.setattr(study, "fit_value_policy", forbidden)
+    # A diagnostic-only tool menu need not contain the policy's feature encoder.
+    config["experts"] = {"native_tool": {}}
+    previous_routed, previous_generated = len(routed), len(generated)
+    diagnosed = study.run_value_study(*args, stage="diagnose")
+    assert diagnosed["target_generations"] == 0 and not diagnosed["policy_fitted"]
+    assert len(collected) == 4 and set(routed[previous_routed:]) == {"source"}
+    assert len(generated) == previous_generated
+    study.run_value_study(*args, stage="diagnose")
+    assert len(collected) == 4

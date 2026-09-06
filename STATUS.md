@@ -1,5 +1,32 @@
 # Current status
 
+## v0.10 source communication diagnostics and scoped evidence (2026-09-07)
+
+- Synced the complete negative v0.9 report at `c99d488` before these changes.
+  No historical result was overwritten or reinterpreted as clinical improvement.
+- Added deterministic capability-specific EvidenceNeed subrequests and opt-in
+  scoped native presentation. Raw observations are preserved, scores stay native,
+  no ROI/negative diagnosis is fabricated, and retrieval-answer context is an
+  explicit ablation. The deployed generator remains LLaVA-Med / the chosen VLM.
+- `run_diagnostics.sh` uses existing real models/data, defaults to an offline
+  source-only canary, and never fits a policy or generates targets. It compares
+  identical-prefix text/scoped/overlay/duplicate-original views, plus genuine
+  generative-expert query variants and predeclared joint evidence pairs.
+- Presentations reuse one native tool result. Joint gain, conditional second-tool
+  gain and interaction are measured separately; this is NOT ROI handoff or a
+  trained macro-action policy. Runtime errors and block-NONE mismatch stop diagnosis.
+- Added per-source-domain/state independent-group summaries, raw branch evidence,
+  separate routing audit and correctness/relevance/factuality annotation templates.
+- `run_value.sh --evidence-profile scoped --value-stage source` can fit the existing
+  continuous value/LODO policy with the new communication configuration. Legacy
+  defaults remain available. No DG threshold was weakened to force calls.
+- Local verification: 449 tests passed; Ruff, Bash syntax and diff checks passed.
+  These include offline model doubles, NOT new real-model medical evidence.
+- Remote source diagnosis and any new clinical/target performance result are still
+  pending. Frozen native features, retrieval bank LODO isolation, real hospital
+  coverage, learned evidence alignment and ROI/sequence-policy extensions are not
+  newly solved by this patch. Read `docs/SERVER_CODEX_V010.md` before server execution.
+
 ## v0.9 source-conditioned native capability value (2026-09-06)
 
 - Additive `run_value.sh` / `llava_run --study value`; legacy v0.8 remains available.
