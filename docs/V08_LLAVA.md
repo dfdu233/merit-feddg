@@ -25,7 +25,8 @@ The memory check is a launch guard, not a guarantee against another process grow
 
 The configured paths are **remote server paths**, not paths available to this development workstation:
 
-- Python: `/opt/miniconda3/envs/huatuo/bin/python`
+- Host Python: `/home/dbw/.runtime/miniconda3/envs/huatuo/bin/python`
+- Container-compatible fallback: `/opt/miniconda3/envs/huatuo/bin/python`
 - Model: `/home/dbw/ANCHOR/hf_cache/llava-med-v1.5-mistral-7b`
 - Official source: `/home/dbw/ANCHOR/data/medheval/code/baselines/Med-LVLMs/llava-med-1.5`
 - Vision tower: `/home/dbw/ANCHOR/hf_cache/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1`
@@ -33,6 +34,10 @@ The configured paths are **remote server paths**, not paths available to this de
 The similarly named `baselines/Mitigation/llava-med-1.5` tree is patched for
 ANCHOR's `corrected_sgta` experiments and is therefore not used as the clean
 LLaVA-Med runtime source for this benchmark.
+
+The launcher discovers the host environment first, then the container fallback.
+Explicit `MERIT_LLAVA_PYTHON` or `--python` always takes precedence. Conda activation
+is optional because the launcher invokes the selected interpreter by absolute path.
 
 No full `bootstrap.sh --profile research-2d` is run. Existing torch, torchvision,
 transformers and LLaVA code are preserved. `--install-deps` installs only missing

@@ -2,7 +2,20 @@
 # Reuse the user's REMOTE LLaVA-Med environment; never run research bootstrap here.
 set -euo pipefail
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-PYTHON_BIN="${MERIT_LLAVA_PYTHON:-/opt/miniconda3/envs/huatuo/bin/python}"
+if [[ -n "${MERIT_LLAVA_PYTHON:-}" ]]; then
+  PYTHON_BIN="$MERIT_LLAVA_PYTHON"
+else
+  PYTHON_BIN=""
+  for candidate in \
+    /home/dbw/.runtime/miniconda3/envs/huatuo/bin/python \
+    /opt/miniconda3/envs/huatuo/bin/python \
+    /home/dbw/.venvs/llava15-official-431/bin/python; do
+    if [[ -x "$candidate" ]]; then
+      PYTHON_BIN="$candidate"
+      break
+    fi
+  done
+fi
 ARGS=()
 while (($#)); do
   case "$1" in
@@ -23,7 +36,10 @@ while (($#)); do
     *) ARGS+=("$1"); shift ;;
   esac
 done
-[[ -x "$PYTHON_BIN" ]] || { echo "Python not found: $PYTHON_BIN; supply --python" >&2; exit 2; }
+[[ -n "$PYTHON_BIN" && -x "$PYTHON_BIN" ]] || {
+  echo "Compatible LLaVA-Med Python not found; supply --python or MERIT_LLAVA_PYTHON" >&2
+  exit 2
+}
 cd -- "$ROOT_DIR"
 export PYTHONPATH="$ROOT_DIR${PYTHONPATH:+:$PYTHONPATH}"
 exec "$PYTHON_BIN" -m merit_feddg.llava_run "${ARGS[@]}"

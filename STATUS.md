@@ -27,6 +27,8 @@
 - `run_llava_med_full_gpu0.sh` is the host handoff for the complete offline method
   matrix. It checks actual free memory, defaults to the local CheXagent with a
   28 GiB free-memory floor, and resumes from the same per-case cache/output root.
+  The host environment is `/home/dbw/.runtime/miniconda3/envs/huatuo`; launchers
+  auto-detect it before the older `/opt/miniconda3` container path.
 
 ## GPU validation after v0.8 (2026-09-06)
 

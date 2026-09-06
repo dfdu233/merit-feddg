@@ -3,7 +3,20 @@
 set -Eeuo pipefail
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-PYTHON_BIN="${MERIT_LLAVA_PYTHON:-/opt/miniconda3/envs/huatuo/bin/python}"
+if [[ -n "${MERIT_LLAVA_PYTHON:-}" ]]; then
+  PYTHON_BIN="$MERIT_LLAVA_PYTHON"
+else
+  PYTHON_BIN=""
+  for candidate in \
+    /home/dbw/.runtime/miniconda3/envs/huatuo/bin/python \
+    /opt/miniconda3/envs/huatuo/bin/python \
+    /home/dbw/.venvs/llava15-official-431/bin/python; do
+    if [[ -x "$candidate" ]]; then
+      PYTHON_BIN="$candidate"
+      break
+    fi
+  done
+fi
 GPU_INDEX="${MERIT_GPU_INDEX:-0}"
 ARTIFACTS="${MERIT_ARTIFACTS:-$ROOT_DIR/artifacts}"
 OUTPUT="${MERIT_OUTPUT:-$ROOT_DIR/runs/native-v08-full-gpu0}"
@@ -14,7 +27,10 @@ CHEXAGENT="${MERIT_CHEXAGENT:-on}"
 CHECK_ONLY="${MERIT_CHECK_ONLY:-0}"
 CONFIG="${MERIT_CONFIG:-$ROOT_DIR/configs/llava_med_capabilities.yaml}"
 
-[[ -x "$PYTHON_BIN" ]] || { echo "Python not found: $PYTHON_BIN" >&2; exit 2; }
+[[ -n "$PYTHON_BIN" && -x "$PYTHON_BIN" ]] || {
+  echo "Compatible LLaVA-Med Python not found; set MERIT_LLAVA_PYTHON" >&2
+  exit 2
+}
 [[ "$GPU_INDEX" =~ ^[0-9]+$ ]] || { echo "MERIT_GPU_INDEX must be an integer" >&2; exit 2; }
 [[ "$SOURCE_PER_GROUP" =~ ^[1-9][0-9]*$ ]] || { echo "MERIT_SOURCE_PER_GROUP must be positive" >&2; exit 2; }
 [[ "$TARGET_LIMIT" =~ ^[1-9][0-9]*$ ]] || { echo "MERIT_TARGET_LIMIT must be positive" >&2; exit 2; }
