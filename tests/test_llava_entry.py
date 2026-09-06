@@ -15,7 +15,7 @@ def test_existing_remote_defaults_and_native_coverage():
     assert config["generalist"]["backend"] == "llava_med"
     assert config["generalist"]["checkpoint_path"].startswith("/home/dbw/ANCHOR/")
     assert config["capability_generation"]["control_protocol"] == "action_id"
-    assert config["capability_generation"]["max_evidence_chars"] == 3000
+    assert config["capability_generation"]["max_evidence_chars"] == 1600
     caps = {cap for spec in config["experts"].values() for cap in spec["capabilities"]}
     assert caps == {"classification", "segmentation", "retrieval", "generation"}
     assert config["experts"]["cxr_anatomy"]["requires_region"] is False

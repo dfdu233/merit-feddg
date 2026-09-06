@@ -129,7 +129,7 @@ def test_legacy_controller_remains_supported_without_numeric_constraint():
 
 
 def test_image_routing_never_receives_question_reference_or_domain():
-    probe = Probe(["3"])
+    probe = Probe(["chest X-ray"])
     row = {"image": "case.png", "question": "SECRET QUESTION", "reference": "SECRET ANSWER",
            "domain": "SECRET HOSPITAL", "modality": "SECRET LABEL"}
     result = infer_image_type(probe, row)
@@ -137,6 +137,7 @@ def test_image_routing_never_receives_question_reference_or_domain():
     image, prompt, options = probe.calls[0]
     assert image == "case.png" and "SECRET" not in prompt
     assert options["allowed_texts"] == list(IMAGE_TYPES)
+    assert "13" not in options["allowed_texts"]
     assert result["input_tokens"] == 20 and result["output_tokens"] == 2
 
 

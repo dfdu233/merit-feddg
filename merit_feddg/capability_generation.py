@@ -76,6 +76,28 @@ def _observation(item):
     if isinstance(result["payload"].get("catalog"), list):
         result["payload"]["catalog"] = result["payload"]["catalog"][:3]
         result["payload"]["prompt_catalog_is_top_k_only"] = True
+    if isinstance(result["payload"].get("findings"), list):
+        findings = result["payload"]["findings"]
+        result["payload"]["findings"] = findings[:5]
+        result["payload"]["prompt_findings_are_top_k_only"] = True
+        result["payload"]["omitted_finding_count"] = max(0, len(findings) - 5)
+    if isinstance(result["payload"].get("structures"), list):
+        # Preserve full masks in the trace artifact, but the language bridge only
+        # needs interpretable geometry. Per-mask hashes and repeated semantics
+        # otherwise crowd all segmentation evidence out of a 2k-token context.
+        fields = (
+            "anatomical_structure",
+            "foreground_fraction_of_crop",
+            "bbox_xyxy_normalized_original_image",
+        )
+        result["payload"]["structures"] = [
+            {key: structure.get(key) for key in fields}
+            for structure in result["payload"]["structures"]
+        ]
+        result["payload"]["structure_mask_pixels_omitted_from_prompt"] = True
+        result["payload"]["structure_coordinate_system"] = (
+            "normalized_original_image_after_crop_aware_mapping"
+        )
     # The same source answers/catalog must not appear twice in the prompt.
     result.pop("summary", None)
     # Keep model identity in traces without exposing local checkpoint paths.

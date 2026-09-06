@@ -18,11 +18,43 @@
 - Real non-yes/no PathVQA + image-disjoint re-split VQA-RAD; proxy groups remain
   explicitly non-hospital. New single-tool baselines, shorter evidence prompts,
   routing cost accounting and external LLaVA/CLIP provenance.
-- No remote pretrained medical GPU run was performed by this local revision.
-  No improvement in medical hallucination, DG performance or ICLR novelty is claimed.
-  Local verification: 299 tests passed; Ruff and Linux entry syntax checks passed.
-  Includes actual tiny random-weight Mistral and XRV CPU checks, not medical accuracy.
+- The remote pretrained medical GPU validation recorded below completed. It validates
+  execution and fail-closed DG gating, but does not establish medical hallucination
+  reduction, DG improvement or ICLR novelty. Local verification: 300 tests collected,
+  298 passed and 2 environment-specific tests skipped in both supported environments;
+  Ruff and Linux entry syntax checks passed.
 - Read `docs/V08_LLAVA.md` for exact paths, dependencies, coverage and limitations.
+
+## GPU validation after v0.8 (2026-09-06)
+
+- The final offline run is `runs/native-v08-scale8-final/llava/8fffb22c963d85dd`.
+  It reused `/opt/miniconda3/envs/huatuo/bin/python`, the existing 15 GiB local
+  LLaVA-Med v1.5 Mistral 7B checkpoint, the clean Med-LVLMs source tree and a
+  complete local CLIP ViT-L/14-336 vision tower. No generalist download occurred.
+- The real-data pilot used 32 source questions and 8 target questions: four
+  PathVQA targets plus four targets from a custom RGB-image-disjoint VQA-RAD
+  resplit. Image-only routing predicted three pathology, one CT and four CXR
+  target images. These predictions are routing labels, not clinical metadata.
+- Generalist token-F1 was 0.1290. Forced all-evidence fell to 0.0804, a paired
+  gain of -0.0486 with bootstrap interval [-0.1319, 0.0139] (one improved, two
+  harmed). Ungated adaptive control reached 0.1151, gain -0.0139 with interval
+  [-0.0417, 0.0000] (zero improved, one harmed). The sample is too small for an
+  efficacy claim and lexical token-F1 is not a hallucination metric.
+- Every final target tool result that fit the applicable single-tool arm was
+  adopted by the language bridge: CONCH 2/2, XRV anatomy 2/2, XRV findings 2/2,
+  and retrieval 8/8. CONCH and XRV anatomy matched baseline token-F1; XRV findings
+  fell by 0.0399 and retrieval fell by 0.0486. Thus the earlier zero-adoption XRV
+  result was an evidence-prompt budgeting bug, now fixed, while specialist utility
+  remains unproven and can be harmful.
+- All source qualification cards remained `insufficient_support` under the fixed
+  minimum of eight interventions per domain and two-domain rule. The DG-gated arm
+  therefore made zero target tool calls and preserved baseline F1 exactly. This is
+  the intended fail-closed behavior, not evidence that DG assistance improves answers.
+- No tool runtime error, invalid controller action, data split audit failure or
+  2,048-token context overflow occurred. Peak PyTorch allocation was 17.85 GiB.
+  Optional CheXagent was excluded from this run because another process occupied
+  roughly 23 GiB of the 48 GiB GPU; CONCH, BiomedCLIP, XRV and source retrieval
+  were the active native capability pool.
 
 ## v0.7 native capability collaboration (2026-09-05)
 

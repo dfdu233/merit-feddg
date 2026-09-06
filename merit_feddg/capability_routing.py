@@ -10,35 +10,37 @@ import re
 from time import perf_counter
 
 IMAGE_TYPES = {
-    "0": ("unknown", "Unknown, ambiguous or outside this list"),
-    "1": ("pathology", "Microscopic histopathology tissue section"),
-    "2": ("gross_pathology", "Macroscopic gross specimen or dissected organ"),
-    "3": ("cxr", "Chest X-ray radiograph"),
-    "4": ("xray", "Non-chest X-ray radiograph, for example a bone radiograph"),
-    "5": ("ct", "Computed tomography (CT)"),
-    "6": ("mri", "Magnetic resonance imaging (MRI)"),
-    "7": ("ultrasound", "Ultrasound sonography"),
-    "8": ("oct", "Optical coherence tomography (OCT)"),
-    "9": ("fundus", "Retinal fundus photograph"),
-    "10": ("dermatology", "Clinical close-up skin or dermoscopy image"),
-    "11": ("endoscopy", "Endoscopic image"),
-    "12": ("clinical_photo", "Other clinical photograph of a person or body part"),
-    "13": ("diagram", "Teaching illustration, schematic or chart"),
+    # Natural labels are deliberate. A real LLaVA-Med can name these modalities,
+    # while the old arbitrary 0..13 codebook collapsed to the final option even
+    # for an unmistakable chest radiograph. Decoding remains a finite whitelist.
+    "unknown": ("unknown", "Unknown, ambiguous or outside this list"),
+    "histopathology": ("pathology", "Microscopic histopathology tissue section"),
+    "gross specimen": ("gross_pathology", "Macroscopic gross specimen or dissected organ"),
+    "chest X-ray": ("cxr", "Chest X-ray radiograph"),
+    "non-chest X-ray": ("xray", "Non-chest X-ray radiograph, for example a bone radiograph"),
+    "CT": ("ct", "Computed tomography (CT)"),
+    "MRI": ("mri", "Magnetic resonance imaging (MRI)"),
+    "ultrasound": ("ultrasound", "Ultrasound sonography"),
+    "OCT": ("oct", "Optical coherence tomography (OCT)"),
+    "fundus photograph": ("fundus", "Retinal fundus photograph"),
+    "skin photograph": ("dermatology", "Clinical close-up skin or dermoscopy image"),
+    "endoscopy": ("endoscopy", "Endoscopic image"),
+    "clinical photograph": ("clinical_photo", "Other clinical photograph of a person or body part"),
+    "diagram": ("diagram", "Teaching illustration, schematic or chart"),
 }
 
 
 def infer_image_type(probe, row):
     prompt = (
-        "Identify only the visual image type. Do not diagnose. Select exactly one numeric ID; "
-        "choose 0 if unsure. A gross specimen is not a microscopic tissue section.\n"
-        + "\n".join(f"{key}: {value[1]}" for key, value in IMAGE_TYPES.items())
+        "Identify only the visual medical image type. Do not diagnose. Select exactly one "
+        "matching image-type phrase."
     )
     started = perf_counter()
     output = probe.generate_with_usage(
         row["image"], prompt, max_new_tokens=8, allowed_texts=list(IMAGE_TYPES)
     )
     selected = output["text"].strip()
-    modality = IMAGE_TYPES.get(selected, IMAGE_TYPES["0"])[0]
+    modality = IMAGE_TYPES.get(selected, IMAGE_TYPES["unknown"])[0]
     return {
         "modality": modality, "selected_type": modality, "raw_action": selected,
         "method": "model_inferred", "seconds": perf_counter() - started,

@@ -423,6 +423,8 @@ def test_tiny_qwen_vl_image_beams_and_committed_prefix_cpu():
     transformers = pytest.importorskip("transformers")
     if not transformers.utils.is_torch_available():
         pytest.skip("installed torch is below the Transformers minimum version")
+    if not hasattr(transformers, "Qwen2_5_VLConfig"):
+        pytest.skip("the reused LLaVA environment intentionally has pre-Qwen2.5-VL Transformers")
     torch.manual_seed(11)
     config = transformers.Qwen2_5_VLConfig(
         text_config={

@@ -4,7 +4,8 @@ generalist:
   backend: llava_med
   id: microsoft/llava-med-v1.5-mistral-7b
   checkpoint_path: /home/dbw/ANCHOR/hf_cache/llava-med-v1.5-mistral-7b
-  source_path: /home/dbw/ANCHOR/data/medheval/code/baselines/Mitigation/llava-med-1.5
+  source_path: /home/dbw/ANCHOR/data/medheval/code/baselines/Med-LVLMs/llava-med-1.5
+  vision_tower_path: /home/dbw/ANCHOR/hf_cache/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1
   dtype: float16
   device_map: auto
 prompt_suffix: Answer the original question briefly using only image-supported information. Give the requested name or finding, not a report, unless an explanation is explicitly requested.
@@ -18,7 +19,7 @@ capability_generation:
   max_calls: 3
   max_controller_calls: 4
   controller_tokens: 8
-  max_evidence_chars: 3000
+  max_evidence_chars: 1600
 qualification:
   min_per_domain: 8
   min_domains: 2

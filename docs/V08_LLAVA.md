@@ -12,7 +12,12 @@ The configured paths are **remote server paths**, not paths available to this de
 
 - Python: `/opt/miniconda3/envs/huatuo/bin/python`
 - Model: `/home/dbw/ANCHOR/hf_cache/llava-med-v1.5-mistral-7b`
-- Official source: `/home/dbw/ANCHOR/data/medheval/code/baselines/Mitigation/llava-med-1.5`
+- Official source: `/home/dbw/ANCHOR/data/medheval/code/baselines/Med-LVLMs/llava-med-1.5`
+- Vision tower: `/home/dbw/ANCHOR/hf_cache/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1`
+
+The similarly named `baselines/Mitigation/llava-med-1.5` tree is patched for
+ANCHOR's `corrected_sgta` experiments and is therefore not used as the clean
+LLaVA-Med runtime source for this benchmark.
 
 No full `bootstrap.sh --profile research-2d` is run. Existing torch, torchvision,
 transformers and LLaVA code are preserved. `--install-deps` installs only missing
@@ -83,7 +88,9 @@ Inspect actual modalities and calls; a tiny random pilot may lack usable CXR cas
 Image + question → image-type applicability → finite tool selection → native
 evidence → medical VLM continuation. Repeat only within the call/answer budget.
 
-1. Infer image type using the image alone; never mark every PathVQA picture as a
+1. Infer image type using the image alone with finite natural modality labels;
+   arbitrary numeric labels are avoided because the real LLaVA-Med showed severe
+   option-position bias in canary testing. Never mark every PathVQA picture as a
    tissue slide. A transparent question-type cue filters manifestly mismatched
    capabilities. These are applicability heuristics, not clinical truth or OOD scores.
 2. The controller chooses `0` (continue) or one prebound tool ID. It no longer
@@ -110,7 +117,8 @@ algorithm. A singleton qualification card cannot certify adaptive selection or
 multi-tool composition; that remains an experiment, not an assumption.
 
 The controller now generates at most eight action tokens rather than up to 160
-JSON tokens; context is limited to 3,000 evidence characters. Its VLM prefill still
+JSON tokens; LLaVA-Med context is limited to 1,600 evidence characters after a
+3,000-character canary exceeded its 2,048-token expanded image context. Its VLM prefill still
 costs time. This implementation rebuilds context after evidence changes, with no
 cross-block KV reuse guarantee. Measure latency; do not infer speedup from budget.
 One ROI decision includes a second VLM forward; `controller_calls` counts decisions,

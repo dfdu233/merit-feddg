@@ -185,6 +185,35 @@ def test_native_payload_changes_continuation_without_candidate_scores(capability
         ]["payload"]["mask"]["omitted_from_prompt"]
 
 
+def test_xrv_prompt_views_fit_compact_context_without_losing_trace_payload():
+    findings = [{"finding": f"finding-{i}", "score": 1 / (i + 1)} for i in range(18)]
+    structures = [
+        {
+            "anatomical_structure": name,
+            "mask": {"encoding": "rle", "counts": list(range(100))},
+            "mask_coordinate_system": "model_grid_of_center_crop",
+            "foreground_fraction_of_crop": 0.25,
+            "bbox_xyxy_normalized_original_image": [0.1, 0.2, 0.8, 0.9],
+            "empty_mask_means": "no_predicted_foreground_not_anatomical_absence",
+        }
+        for name in ("Left Lung", "Right Lung", "Heart")
+    ]
+    finding_item = EvidenceItem(
+        "f", "xrv", "classification", "cxr_findings", {"findings": findings}
+    )
+    anatomy_item = EvidenceItem(
+        "s", "xrv", "segmentation", "thoracic_anatomy", {"structures": structures}
+    )
+    finding_memory = render_memory([finding_item], 1600)
+    anatomy_memory = render_memory([anatomy_item], 1600)
+    assert len(finding_memory[0]["payload"]["findings"]) == 5
+    assert finding_memory[0]["payload"]["omitted_finding_count"] == 13
+    assert anatomy_memory[0]["payload"]["structure_mask_pixels_omitted_from_prompt"] is True
+    assert "mask" not in anatomy_memory[0]["payload"]["structures"][0]
+    assert len(finding_item.payload["findings"]) == 18
+    assert "mask" in anatomy_item.payload["structures"][0]
+
+
 @pytest.mark.parametrize("field", ["answer", "references", "label", "metadata"])
 def test_inference_api_rejects_reference_fields_before_controller_or_model(field):
     pool, session = NativePool(), ScriptedSession()
@@ -580,6 +609,8 @@ def test_tiny_real_qwen_vl_controller_and_changed_memory_preserve_committed_toke
     transformers = pytest.importorskip("transformers")
     if not transformers.utils.is_torch_available():
         pytest.skip("installed torch is below the Transformers minimum version")
+    if not hasattr(transformers, "Qwen2_5_VLConfig"):
+        pytest.skip("the reused LLaVA environment intentionally has pre-Qwen2.5-VL Transformers")
     from PIL import Image
     from transformers.feature_extraction_utils import BatchFeature
 
