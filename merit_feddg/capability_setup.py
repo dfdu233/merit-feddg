@@ -77,6 +77,8 @@ _DEPENDENCIES = (
      "git+https://github.com/Mahmoodlab/CONCH.git@141cc09c7d4ff33d8eda562bd75169b457f71a62",
      "official_conch_source"),
     ("open_clip", "open-clip-torch", "open_clip_torch==3.2.0", "biomedclip_local_directory"),
+    ("albumentations", "albumentations", "albumentations==1.3.1", "chexagent"),
+    ("qudida", "qudida", "qudida==0.0.4", "chexagent"),
 )
 
 

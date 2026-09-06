@@ -34,3 +34,26 @@ def test_visual_forward_falls_back_to_last_hidden_state():
 
     assert visual.forward(3) == 8
     assert visual._merit_hidden_state_fallback
+
+
+def test_visual_forward_casts_pixels_to_patch_weight_dtype():
+    torch = pytest.importorskip("torch")
+
+    class Encoder:
+        def __init__(self):
+            self.embeddings = SimpleNamespace(
+                patch_embedding=SimpleNamespace(
+                    weight=torch.ones(1, dtype=torch.bfloat16)
+                )
+            )
+
+        def __call__(self, pixels, output_hidden_states):
+            assert output_hidden_states is True
+            assert pixels.dtype == torch.bfloat16
+            return SimpleNamespace(hidden_states=(pixels,), last_hidden_state=None)
+
+    visual = SimpleNamespace(model=Encoder(), forward_resampler=lambda features: features)
+    model = SimpleNamespace(model=SimpleNamespace(visual=visual))
+    _patch_visual_hidden_state_fallback(model)
+    result = visual.forward(torch.ones(1, dtype=torch.float32))
+    assert result.dtype == torch.bfloat16

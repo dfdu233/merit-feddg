@@ -33,6 +33,13 @@ def _patch_visual_hidden_state_fallback(model) -> None:
         return
 
     def forward(instance, pixels):
+        # The upstream preprocessing tensor is FP32. ``next(instance.parameters())``
+        # may also be an FP32 positional embedding even when the SigLIP convolution
+        # was loaded directly as BF16, so its encode-level cast is not sufficient.
+        patch = getattr(getattr(instance.model, "embeddings", None), "patch_embedding", None)
+        weight = getattr(patch, "weight", None)
+        if weight is not None and hasattr(pixels, "to"):
+            pixels = pixels.to(device=weight.device, dtype=weight.dtype)
         output = instance.model(pixels, output_hidden_states=True)
         hidden_states = getattr(output, "hidden_states", None)
         features = hidden_states[-1] if hidden_states else output.last_hidden_state
@@ -66,6 +73,11 @@ class CheXagentConceptExpert(ConceptExpert):
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_id, **load_kwargs,
             ).eval()
+        if dtype is not None:
+            # Remote-code modules create a few fixed FP32 positional parameters
+            # after checkpoint loading. Normalize those leftovers after the bulk
+            # weights were already loaded directly in the requested dtype.
+            self.model.to(dtype=getattr(torch, dtype))
         _patch_visual_hidden_state_fallback(self.model)
 
     def _prompt_ids(self, image_path: str, prompt: str):

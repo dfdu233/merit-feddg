@@ -93,6 +93,10 @@ fingerprint under `.cache`, with its SHA explicitly bound to the run configurati
 The last tool is enabled only if `artifacts/models/StanfordAIMI--CheXagent-2-3b`
 exists (or `checkpoint_path` is changed). Missing optional tools are listed in
 `excluded_tools`, not described as tested. Required tools do not silently disappear.
+Its remote visual code additionally needs the pinned `albumentations==1.3.1` and
+`qudida==0.0.4` preprocessing packages. The explicit preflight rejects a CheXagent
+run when either is absent. BF16 loading normalizes custom FP32 positional parameters
+and casts image inputs to the SigLIP convolution dtype before inference.
 Existing MedSAM remains an optional explicit-ROI adapter. No pretrained lesion
 detector is included in this default suite. Interface extensibility is not evidence
 that every modality/task, 3D volume or every small model has been validated.

@@ -121,6 +121,17 @@ def preflight(config, artifacts):
             "CONCH Python package missing in this interpreter. Reuse its installed source via "
             "PYTHONPATH or install the official CONCH package with --no-deps; see docs/V08_LLAVA.md."
         )
+    if "chexagent_description" in config.get("experts", {}):
+        missing = [
+            name for name in ("albumentations", "qudida")
+            if importlib.util.find_spec(name) is None
+        ]
+        if missing:
+            raise RuntimeError(
+                "CheXagent requires missing local preprocessing packages: "
+                + ", ".join(missing)
+                + ". Install the pinned optional dependencies before an offline run."
+            )
     if config["generalist"].get("backend") == "llava_med":
         from .llava_generalist import _llava_runtime
 
