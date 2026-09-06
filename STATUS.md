@@ -22,11 +22,68 @@
 - Source/evaluate stages, fingerprint-bound branch caches, target-label isolation,
   native visual provenance, source support diagnostics and blind factuality templates.
   Default quality is explicitly lexical F1; custom continuous scorers need version identity.
-- No new v0.9 remote medical-GPU result has been run locally. Previous negative
-  results below are retained; engineering tests cannot establish clinical benefit.
+- The first full v0.9 medical-GPU result is recorded below. Previous negative
+  results remain retained; engineering execution cannot establish clinical benefit.
 - Local verification for this revision: 422 tests passed (including deterministic
   padding, two-image protocol, source/target cache separation and paired-history
   collection); Ruff, both modified Bash entry syntax checks and git diff checks passed.
+
+## GPU validation after v0.9 (2026-09-06)
+
+- The completed source-conditioned value run is
+  `runs/native-v09-value-full-gpu1/llava/b8013cc570604684`; its frozen target
+  evaluation is `evaluations/b0a71687490f275a`. Both source and evaluate stages
+  exited with code 0, using the existing LLaVA-Med v1.5 Mistral 7B, CONCH,
+  BiomedCLIP, XRV and local CheXagent weights. It evaluated 64 source and 32
+  target questions and wrote 448 fingerprint-bound case caches.
+- Source collection produced 293 real same-prefix state/action interventions:
+  105 initial, 127 continuation and 61 after-tool records. All 293 tool
+  executions completed, five produced legal empty/unusable evidence, and no
+  duplicate or runtime-failure record was fitted. The 133-dimensional frozen
+  state/action encoder and four policy-level LODO heads contained no target
+  labels or reference fields.
+- Six of 35 exact action/state/history conditions met both independent-group
+  support and held-source residual requirements. They covered pathology CONCH
+  and source retrieval at initial, continuation and selected ordered-history
+  states. CheXagent had 37 source interventions with mean lexical gain +0.0210,
+  but its CXR conditions lacked eight independent groups in every represented
+  source domain and therefore remained unsupported under the predeclared rule.
+- The v0.9 generalist token-F1 was 0.07358. Deterministic padding and the new
+  protocol mean this is a newly measured baseline, not a value that should be
+  silently copied from v0.8. Block-NONE exactly matched every baseline token.
+  Bounded all-evidence fell to 0.04248 (paired gain -0.03111, bootstrap interval
+  [-0.07016, 0.00872]; 4 improved, 12 harmed). The finite-action agent reached
+  0.06573 (-0.00785, [-0.02581, 0.00353]; 3 improved, 3 harmed).
+- The source mean-value policy reached token-F1 0.06954, paired gain -0.00404
+  with interval [-0.01100, 0.00000]. It called CONCH three times and retrieval
+  three times across four target cases, including two multi-capability cases;
+  there were no lexical improvements and two harms. Thus the implementation
+  demonstrates state-dependent and history-conditioned selection, but the
+  learned mean utility did not transfer beneficially to this target sample.
+- The robust-value policy subtracted source-LODO overestimation penalties from
+  the same supported mean predictions. It made zero target tool calls and
+  exactly matched the generalist (token-F1 0.07358). For example, predicted
+  positive CONCH initial utilities of +0.0105 to +0.0963 were below its 0.1239
+  penalty, while source-retrieval predictions up to +0.1579 were below penalties
+  of 0.2725--0.3206. This is evidence of conservative rejection, not evidence
+  that robust specialist collaboration improves answers.
+- Single-tool CheXagent was again the strongest numerical arm: token-F1 0.08044,
+  gain +0.00686 with interval [-0.00448, 0.02022] (4 improved, 2 harmed; 9
+  routed calls). CONCH reached 0.07198 (-0.00160); source retrieval 0.05865
+  (-0.01494); XRV findings 0.06095 (-0.01263, interval entirely below zero);
+  and XRV anatomy 0.05870 (-0.01488). One CheXagent call followed an image-only
+  CXR routing error on a gross specimen, showing that modality routing remains
+  a material failure mode.
+- No target method logged a tool runtime error or invalid controller action.
+  Original images were always preserved, predicted segmentation was supplied
+  only as a second labelled overlay, and deterministic padding was enabled.
+  Peak method-level PyTorch allocation was 23.90 GiB for CheXagent; observed
+  total device use stayed within the shared 48 GiB GPU.
+- These results validate the new paired-intervention collection, continuous
+  value head, exact-history support, multi-capability execution and pessimistic
+  fallback. They do not show target lexical improvement for either learned
+  value policy, and token-F1 is not medical factuality or hallucination. All
+  recorded domains are still proxy groups rather than hospitals.
 
 ## v0.8 LLaVA-Med native-tool revision (2026-09-06)
 
