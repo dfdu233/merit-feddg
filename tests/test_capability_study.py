@@ -8,6 +8,7 @@ import pytest
 from PIL import Image
 
 from merit_feddg.capability_study import (
+    _route_records,
     capability_summary,
     run_capability_study,
     scope_qualification,
@@ -41,6 +42,64 @@ def test_scope_qualification_distinguishes_missing_support_from_negative_gain():
         scope_qualification([{**harmful[0], "role": "target"}])
 
 
+def test_qualification_keeps_empty_results_in_utility_but_requires_native_support():
+    rows = gains([0.5, 0.0])
+    attempts = [
+        {
+            **row,
+            "intervention_status": "native_evidence_adopted"
+            if row["guided_f1"] > 0
+            else "empty_or_unusable_evidence",
+        }
+        for row in rows
+    ]
+    card = scope_qualification(rows, attempts=attempts, min_per_domain=2, penalty=0)
+    assert card["domains"]["a"]["mean_gain"] == 0.25
+    assert card["native_evidence_support_by_domain"] == {"a": 1, "b": 1}
+    assert card["status"] == "insufficient_support"
+    assert not card["policy_calibrated"]
+    errors = scope_qualification(
+        [], attempts=[{"domain": "a", "intervention_status": "runtime_error"}],
+        expected_domains=["a", "b"],
+    )
+    assert errors["status"] == "runtime_error"
+
+
+def test_image_routing_cache_ignores_reference_and_question_and_preserves_manifest(tmp_path, monkeypatch):
+    from merit_feddg import capability_routing
+
+    row = make_case(tmp_path, "r", "source", 40)
+    calls = []
+
+    def infer(probe, record):
+        assert set(record) == INFERENCE_FIELDS
+        calls.append(record["id"])
+        return {
+            "modality": "cxr", "selected_type": "radiograph", "method": "model_inferred",
+            "seconds": 0.3, "input_tokens": 120, "output_tokens": 1,
+        }
+
+    monkeypatch.setattr(capability_routing, "infer_image_type", infer)
+    routing = {"enabled": True, "override_dataset_modality": True}
+    changed, metadata = _route_records([row], routing, lambda: object(), {"model": "A"}, tmp_path)
+    assert changed[0]["modality"] == "cxr"
+    assert set(changed[0]) == INFERENCE_FIELDS
+    assert metadata["r"]["dataset_modality"] == "pathology"
+    same_image = {**row, "id": "other-id", "question": "An unrelated question"}
+    reused, second = _route_records(
+        [same_image], routing, lambda: object(), {"model": "A"}, tmp_path
+    )
+    assert len(calls) == 1
+    assert reused[0]["modality"] == "cxr"
+    assert second["other-id"]["seconds"] == 0.3
+    _route_records([row], routing, lambda: object(), {"model": "B"}, tmp_path)
+    assert len(calls) == 2
+    untouched, no_metadata = _route_records(
+        [row], {"enabled": True}, lambda: object(), {}, tmp_path
+    )
+    assert untouched == [row] and no_metadata == {}
+
+
 def test_summary_reports_actual_generation_calls_and_lexical_limits():
     rows = [{"id": "a", "domain": "target-a"}, {"id": "b", "domain": "target-b"}]
     base = {key: {"text": "wrong", "expert_calls": 0, "seconds": 0.1} for key in ("a", "b")}
@@ -51,6 +110,7 @@ def test_summary_reports_actual_generation_calls_and_lexical_limits():
     result = capability_summary(outputs, base, {"a": ["tumor"], "b": ["normal"]}, rows)
     assert result["token_f1"] == 0.5
     assert result["f1_improved"] == 1 and result["f1_harmed"] == 0
+    assert result["lexical_improved"] == 1 and result["lexical_decreased"] == 0
     assert result["mean_expert_calls"] == 1.0
     assert result["expert_call_fraction"] == 0.5
     assert result["worst_domain_f1"] == 0
@@ -77,10 +137,16 @@ def make_case(tmp_path, sample_id, role, value):
 
 
 @pytest.mark.parametrize("real_engine", [False, True])
+@pytest.mark.parametrize("routing_enabled", [False, True])
 def test_real_runner_keeps_target_labels_out_of_tools_and_binds_source_index(
-    tmp_path, monkeypatch, real_engine
+    tmp_path, monkeypatch, real_engine, routing_enabled
 ):
-    from merit_feddg import capability_experts, capability_generation, generalist
+    from merit_feddg import (
+        capability_experts,
+        capability_generation,
+        capability_routing,
+        generalist_factory,
+    )
     from merit_feddg import capability_study as study
 
     source = [make_case(tmp_path, f"s{i}", "source", i) for i in range(4)]
@@ -93,6 +159,7 @@ def test_real_runner_keeps_target_labels_out_of_tools_and_binds_source_index(
     config_path = tmp_path / "config.yaml"
     config = {
         "generalist": {"id": "tiny-generalist"},
+        "routing": {"enabled": routing_enabled, "override_dataset_modality": True},
         "qualification": {"min_per_domain": 2},
         "experts": {
             "tissue": {
@@ -116,13 +183,21 @@ def test_real_runner_keeps_target_labels_out_of_tools_and_binds_source_index(
     monkeypatch.setattr(study, "_extraction_runtime_provenance", lambda: {"test": "mock"})
     monkeypatch.setattr(study, "hardware_provenance", lambda: {"test": "mock"})
     monkeypatch.setattr(
-        generalist,
-        "QwenLayerProbe",
+        generalist_factory,
+        "load_generalist",
         lambda *a, **k: SimpleNamespace(
             torch=SimpleNamespace(cuda=SimpleNamespace(is_available=lambda: False))
         ),
     )
     counters, pools = [], []
+    routing_calls = []
+
+    def route(probe, row):
+        assert set(row) == INFERENCE_FIELDS
+        routing_calls.append(row["id"])
+        return {"modality": "pathology", "method": "model_inferred", "seconds": 0.4}
+
+    monkeypatch.setattr(capability_routing, "infer_image_type", route)
 
     class Session:
         def __init__(self, probe, image, prompt):
@@ -156,9 +231,11 @@ def test_real_runner_keeps_target_labels_out_of_tools_and_binds_source_index(
             return Block((token,), self.decode((token,)), -0.1, True)
 
     monkeypatch.setattr(
-        capability_generation,
-        "QwenCapabilitySession",
-        Session if real_engine else lambda *_: object(),
+        generalist_factory,
+        "make_capability_session",
+        (lambda probe, image, prompt, **kw: Session(probe, image, prompt))
+        if real_engine
+        else lambda *a, **kw: object(),
     )
 
     class Pool:
@@ -193,9 +270,9 @@ def test_real_runner_keeps_target_labels_out_of_tools_and_binds_source_index(
         if mode == "generalist":
             calls = 0
         elif allowed_pairs is not None:
-            # Even a legacy classification row can request retrieval. The test
-            # gives that scope no calls, which must not qualify the whole tool.
-            calls = int(next(iter(allowed_pairs))[1] == "classification")
+            # Forced source qualification executes retrieval independently of
+            # the online controller (which skips source retrieval above).
+            calls = 1
         elif mode == "adaptive_dg":
             calls = sum(bool(card["qualified"]) for card in cards.values())
         else:
@@ -221,11 +298,22 @@ def test_real_runner_keeps_target_labels_out_of_tools_and_binds_source_index(
     )
     first = run_capability_study(*args)
     assert first["results"]["adaptive_dg"]["token_f1"] == 1.0
-    assert set(first["results"]) == {"generalist", "all_evidence", "adaptive_no_dg", "adaptive_dg"}
+    assert set(first["results"]) == {
+        "generalist", "all_evidence", "adaptive_no_dg", "adaptive_dg",
+        "single_tool::tissue::classification::tissue", "single_tool::cases::retrieval::cases",
+    }
     cards = first["qualification"]["cards"]
     assert cards["tissue|pathology|open_vqa|classification|tissue"]["qualified"]
-    assert not cards["cases|pathology|open_vqa|retrieval|cases"]["qualified"]
+    assert cards["cases|pathology|open_vqa|retrieval|cases"]["qualified"]
+    assert not first["qualification"]["online_policy_calibrated"]
+    assert first["qualification"]["calibration_policy"].startswith("forced_all_evidence")
+    assert first["qualification"]["source_adaptive_audit"] == {}
     assert first["results"]["adaptive_no_dg"]["mean_expert_calls"] == 2
+    assert first["results"]["generalist"]["mean_routing_seconds"] == 0
+    assert first["results"]["adaptive_no_dg"]["mean_routing_seconds"] == (
+        0.4 if routing_enabled else 0
+    )
+    assert len(routing_calls) == (5 if routing_enabled else 0)
     if real_engine:
         assert first["results"]["adaptive_no_dg"]["tool_calls_by_capability"] == {
             "classification": 1,
@@ -243,6 +331,7 @@ def test_real_runner_keeps_target_labels_out_of_tools_and_binds_source_index(
     refs_path.write_text(json.dumps(references))
     second = run_capability_study(*args)
     assert len(counters) == count
+    assert len(routing_calls) == (5 if routing_enabled else 0)
     assert first["qualification"] == second["qualification"]
     assert first["run_dir"] != second["run_dir"]
     assert second["results"]["adaptive_dg"]["token_f1"] == 0.0
@@ -251,6 +340,7 @@ def test_real_runner_keeps_target_labels_out_of_tools_and_binds_source_index(
     refs_path.write_text(json.dumps(references))
     third = run_capability_study(*args)
     assert len(counters) > count
+    assert len(routing_calls) == (5 if routing_enabled else 0)
     assert third["qualification"]["source_data_key"] != first["qualification"]["source_data_key"]
     assert pools[-1]["s0"] == references["s0"]
     count = len(counters)

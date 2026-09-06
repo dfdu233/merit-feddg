@@ -93,11 +93,18 @@ def validate_result(result, expert_id, request):
 
 
 def tool_descriptors(specs, row, allowed_pairs=None):
+    from .capability_routing import question_type
+
     descriptors = []
+    intent = question_type(row["question"])
     for name, spec in specs.items():
         if spec.get("modalities") and row["modality"] not in spec["modalities"]:
             continue
         if spec.get("tasks") and row["task"] not in spec["tasks"]:
+            continue
+        if intent in spec.get("excluded_question_types", []):
+            continue
+        if spec.get("question_types") and intent not in spec["question_types"]:
             continue
         for capability in spec.get("capabilities", []):
             if capability not in CAPABILITIES:
@@ -115,6 +122,7 @@ def tool_descriptors(specs, row, allowed_pairs=None):
                     "requires_region": bool(
                         spec.get("requires_region", capability == "segmentation")
                     ),
+                    "question_type": intent,
                 }
             )
     return descriptors

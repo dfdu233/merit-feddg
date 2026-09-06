@@ -44,7 +44,8 @@ class Encoder:
 
     def _text_embeddings(self, prompts):
         self.text_prompts.append(prompts)
-        return np.asarray([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])[: len(prompts)]
+        return np.asarray([[1.0, 0.0, 0.0] if i % 2 == 0 else [0.0, 1.0, 0.0]
+                           for i in range(len(prompts))])
 
 
 @pytest.fixture
@@ -154,7 +155,8 @@ def test_retrieval_excludes_domain_group_and_identical_pixels(tmp_path, fake_enc
     result = pool.infer("retrieval", request(query, "retrieval", domain="source-a"))
     evidence = result.items[0]
     assert [x["source_id"] for x in evidence.payload["references"]] == ["allowed"]
-    assert evidence.payload["references"][0]["source_reference"] == ["Source record allowed"]
+    assert "source_reference" not in evidence.payload["references"][0]
+    assert evidence.payload["source_answers_included"] is False
     assert evidence.payload["query_diagnosis"] == "not_inferred"
     assert evidence.provenance["excluded_domain"] == "source-a"
     assert evidence.confidence is None
@@ -392,3 +394,118 @@ def test_real_tiny_sam_processor_and_forward_without_download(tmp_path):
     assert mask.shape == (5, 8)
     assert np.isin(mask, (0, 1)).all()
     assert np.isfinite(predicted_iou)
+
+
+def test_retrieval_question_conditioning_changes_order_without_answer_access(tmp_path, monkeypatch):
+    class QuestionEncoder(Encoder):
+        def _text_embeddings(self, prompts):
+            self.text_prompts.append(prompts)
+            return np.asarray([[1., 0., 0.] if "organ" in text else [0., 1., 0.]
+                               for text in prompts])
+
+    model = QuestionEncoder()
+    monkeypatch.setattr(module, "_expert_from_spec", lambda *_: model)
+    rows = [
+        source(picture(tmp_path, "source-a", (230, 100, 41)), "a", question="What diagnosis?"),
+        source(picture(tmp_path, "source-b", (1, 50, 200)), "b", question="What organ?"),
+    ]
+    spec = {"id": "test", "adapter": "source_retrieval", "question_weight": .95, "top_k": 1}
+    pool = CapabilityPool({"r": spec}, None, rows, {"a": ["SECRET A"], "b": ["SECRET B"]})
+    result = pool.infer("r", request(picture(tmp_path), "retrieval", query="Identify the organ"))
+    item = result.items[0]
+    assert item.payload["references"][0]["source_id"] == "b"
+    assert item.provenance["query_used"] is True
+    assert item.provenance["source_answers_used_for_ranking"] is False
+    assert item.provenance["generated_prefix_used"] is False
+    assert "SECRET" not in str(item)
+    assert all("SECRET" not in text for batch in model.text_prompts for text in batch)
+
+
+def test_source_answers_are_explicit_opt_in_and_not_duplicated_in_summary(tmp_path, fake_encoder):
+    rows = [source(picture(tmp_path, "source", (4, 5, 6)), "source")]
+    spec = {"id": "test", "adapter": "source_retrieval", "include_source_answers": True}
+    pool = CapabilityPool({"r": spec}, None, rows, {"source": ["SOURCE ONLY ANSWER"]})
+    item = pool.infer("r", request(picture(tmp_path), "retrieval")).items[0]
+    assert item.payload["references"][0]["source_reference"] == ["SOURCE ONLY ANSWER"]
+    assert item.payload["references"][0]["reference_applies_to"] == "source_image_only"
+    assert "SOURCE ONLY ANSWER" not in item.summary
+
+
+def test_retrieval_query_changes_evidence_identity(tmp_path, fake_encoder):
+    rows = [source(picture(tmp_path, "source", (4, 5, 6)), "source")]
+    pool = CapabilityPool({"r": {"id": "test", "adapter": "source_retrieval"}}, None, rows)
+    image = picture(tmp_path)
+    a = pool.infer("r", request(image, "retrieval", query="organ")).items[0]
+    b = pool.infer("r", request(image, "retrieval", query="finding")).items[0]
+    assert a.evidence_id != b.evidence_id
+
+
+@pytest.mark.parametrize("value", [-1, 1.1, float("nan")])
+def test_retrieval_invalid_question_weight_rejected(tmp_path, fake_encoder, value):
+    pool = CapabilityPool(
+        {"r": {"id": "test", "adapter": "source_retrieval", "question_weight": value}}, None
+    )
+    with pytest.raises(ValueError, match="question_weight"):
+        pool.infer("r", request(picture(tmp_path), "retrieval"))
+
+
+def test_xrv_missing_checkpoint_fails_without_network_or_dependency_import(tmp_path):
+    from merit_feddg.experts.native_xrv import XrvCapabilityAdapter
+
+    with pytest.raises(FileNotFoundError, match="does not download"):
+        XrvCapabilityAdapter(tmp_path / "missing.pt", "classification")
+
+
+def test_xrv_checksum_checked_before_loading_pickle(tmp_path):
+    from merit_feddg.experts.native_xrv import XrvCapabilityAdapter
+
+    path = tmp_path / "weights.pt"
+    path.write_bytes(b"not a checkpoint")
+    with pytest.raises(ValueError, match="SHA-256"):
+        XrvCapabilityAdapter(path, "classification", sha256="0" * 64)
+
+
+def test_xrv_classification_preserves_independent_scores_not_diagnosis(tmp_path, monkeypatch):
+    class Classifier:
+        def classify(self, image):
+            return ["Effusion", "", "Cardiomegaly"], [.8, .99, .7], {"outside_crop": "unknown"}
+
+    pool = CapabilityPool({"x": {"id": "test", "adapter": "xrv_classification"}}, None)
+    monkeypatch.setattr(pool, "_model", lambda *_: Classifier())
+    item = pool.infer("x", request(picture(tmp_path), modality="cxr")).items[0]
+    assert len(item.payload["findings"]) == 2  # unused/untrained XRV targets are omitted
+    assert sum(x["score"] for x in item.payload["findings"]) == 1.5
+    assert item.payload["score_semantics"] == "uncalibrated_independent_sigmoid"
+    assert item.payload["query_diagnosis"] == "not_established"
+    assert item.confidence is None
+
+
+def test_xrv_anatomy_preserves_crop_coordinates_and_unknown_margins(tmp_path, monkeypatch):
+    class Segmenter:
+        def segment(self, image):
+            probabilities = np.array([[[.1, .9], [.1, .1]], [[.1, .1], [.1, .1]]])
+            return ["Left Lung", "Heart"], probabilities, {
+                "crop_box_xyxy_normalized": [.25, 0., .75, 1.], "outside_crop": "unknown"
+            }
+
+    spec = {"id": "test", "adapter": "xrv_anatomy", "structures": ["Left Lung", "Heart"]}
+    pool = CapabilityPool({"x": spec}, None)
+    monkeypatch.setattr(pool, "_model", lambda *_: Segmenter())
+    item = pool.infer("x", request(picture(tmp_path), "segmentation", modality="cxr")).items[0]
+    structures = item.payload["structures"]
+    assert structures[0]["foreground_fraction_of_crop"] == .25
+    assert structures[0]["bbox_xyxy_normalized_original_image"] == [.5, 0., .75, .5]
+    assert structures[1]["bbox_xyxy_normalized_original_image"] is None
+    assert "not_anatomical_absence" in structures[1]["empty_mask_means"]
+    assert item.payload["disease_or_lesion_segmentation"] is False
+    assert item.payload["image_transform"]["outside_crop"] == "unknown"
+
+
+@pytest.mark.parametrize("adapter,capability", [
+    ("xrv_classification", "classification"), ("xrv_anatomy", "segmentation")
+])
+def test_xrv_whole_cxr_tools_reject_roi_before_loading(tmp_path, fake_encoder, adapter, capability):
+    pool = CapabilityPool({"x": {"id": "test", "adapter": adapter}}, None)
+    result = pool.infer("x", request(picture(tmp_path), capability, region=(0, 0, .5, .5)))
+    assert result.reason == "unsupported_region"
+    assert not pool.models

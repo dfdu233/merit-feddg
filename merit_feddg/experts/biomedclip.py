@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import numpy as np
@@ -36,6 +37,32 @@ def route_probabilities(scores: np.ndarray, available: list[str]) -> dict[str, f
     return {name: float(value) for name, value in zip(available, probabilities)}
 
 
+def _local_text_config_kwargs(source: Path) -> dict:
+    """Redirect only the HF text architecture to a prepared local dependency.
+
+    OpenCLIP 3.2's create_model_from_pretrained passes model kwargs through to
+    create_model; its final model_cfg update makes this complete text_cfg override
+    authoritative. HFTextEncoder then uses AutoConfig on this local directory and
+    AutoModel.from_config, while the full BiomedCLIP checkpoint supplies weights.
+    Older prepared snapshots without this sidecar keep their previous behavior.
+    """
+    dependency = source / ".cache" / "merit-text-config"
+    if not source.is_dir() or not (dependency / "config.json").is_file():
+        return {}
+    original = json.loads((source / "open_clip_config.json").read_text(encoding="utf-8"))
+    model_config = original.get("model_cfg", {}) if isinstance(original, dict) else {}
+    text_config = model_config.get("text_cfg") if isinstance(model_config, dict) else None
+    if not isinstance(text_config, dict) or not text_config.get("hf_model_name"):
+        raise ValueError("local BiomedCLIP configuration needs a complete HF text_cfg")
+    return {
+        "text_cfg": {
+            **text_config,
+            "hf_model_name": str(dependency.resolve()),
+            "hf_model_pretrained": False,
+        }
+    }
+
+
 class BiomedClipAdapter(ConceptExpert):
     """Small biomedical contrastive model used for routing and a broad control.
 
@@ -53,7 +80,9 @@ class BiomedClipAdapter(ConceptExpert):
         source = Path(model_id)
         model_source = f"local-dir:{source.resolve()}" if source.is_dir() else f"hf-hub:{model_id}"
         self.torch = torch
-        self.model, self.preprocess = create_model_from_pretrained(model_source)
+        self.model, self.preprocess = create_model_from_pretrained(
+            model_source, **_local_text_config_kwargs(source)
+        )
         self.tokenizer = get_tokenizer(model_source)
         if device == "auto":
             device = "cuda" if torch.cuda.is_available() else "cpu"

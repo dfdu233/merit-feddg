@@ -18,6 +18,7 @@ from .runner import aggregate_repetitions, compare_records, make_oracle_records
 from .simulation import simulate_records
 
 ASSET_PROFILES = [
+    "capability-small",
     "smoke",
     "open-small",
     "medical-small",

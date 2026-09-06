@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "merit-feddg"
-version = "0.7.0"
+version = "0.8.0"
 description = "Native specialist capabilities for evidence-conditioned medical VLM generation"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -17,6 +17,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+native-tools = ["torchxrayvision==1.5.4", "scikit-image>=0.21,<1", "imageio>=2,<3"]
 research = [
   "accelerate>=0.30,<2",
   "albumentations>=1.4,<3",

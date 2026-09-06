@@ -1,4 +1,16 @@
 profiles:
+  capability-small:
+    datasets:
+      - id: flaviagiammarino/path-vqa
+        revision: 1685832883334b5bb5beaf4e4b333fdeecaa4ad9
+        modality: mixed
+        gated: false
+        license_note: Non-yes/no real PathVQA; official split with pixel-leakage audit.
+      - id: flaviagiammarino/vqa-rad
+        revision: bcf91e7654fb9d51c8ab6a5b82cacf3fafd2fae9
+        modality: mixed
+        gated: false
+        license_note: Non-yes/no real VQA-RAD; custom image-disjoint resplit, NOT official benchmark scores.
   smoke:
     datasets: []
 

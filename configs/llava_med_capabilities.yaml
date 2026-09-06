@@ -1,0 +1,120 @@
+# v0.8: real native tools, open answers, offline existing LLaVA-Med.
+# These are REMOTE server paths. run_llava_med.sh accepts explicit overrides.
+generalist:
+  backend: llava_med
+  id: microsoft/llava-med-v1.5-mistral-7b
+  checkpoint_path: /home/dbw/ANCHOR/hf_cache/llava-med-v1.5-mistral-7b
+  source_path: /home/dbw/ANCHOR/data/medheval/code/baselines/Mitigation/llava-med-1.5
+  dtype: float16
+  device_map: auto
+prompt_suffix: Answer the original question briefly using only image-supported information. Give the requested name or finding, not a report, unless an explanation is explicitly requested.
+routing:
+  enabled: true
+  override_dataset_modality: true
+capability_generation:
+  control_protocol: action_id
+  max_new_tokens: 96
+  block_tokens: 16
+  max_calls: 3
+  max_controller_calls: 4
+  controller_tokens: 8
+  max_evidence_chars: 3000
+qualification:
+  min_per_domain: 8
+  min_domains: 2
+  penalty: 1.645
+evaluation:
+  single_tools: true
+  source_adaptive_audit: false
+experts:
+  conch_tissue:
+    id: MahmoodLab/CONCH
+    revision: f9ca9f877171a28ade80228fb195ac5d79003357
+    adapter: conch
+    modalities: [pathology]
+    tasks: [open_vqa]
+    capabilities: [classification]
+    scope: tissue_appearance
+    prefix_invariant: true
+    excluded_question_types: [count, measurement, location]
+    description: Compare microscopic histology against a fixed tissue-appearance catalog. No gross photographs, arbitrary diagnoses, cell counts or measurements.
+    catalog:
+      - {name: glandular epithelium, prompt: "A histopathology image of glandular epithelial tissue."}
+      - {name: squamous epithelium, prompt: "A histopathology image of squamous epithelial tissue."}
+      - {name: connective tissue, prompt: "A histopathology image of connective tissue."}
+      - {name: adipose tissue, prompt: "A histopathology image of adipose tissue."}
+      - {name: smooth muscle, prompt: "A histopathology image of smooth muscle tissue."}
+      - {name: skeletal muscle, prompt: "A histopathology image of skeletal muscle tissue."}
+      - {name: lymphoid tissue, prompt: "A histopathology image of lymphoid tissue."}
+      - {name: neural tissue, prompt: "A histopathology image of neural tissue."}
+      - {name: blood vessels, prompt: "A histopathology image of blood vessels."}
+      - {name: necrotic tissue, prompt: "A histopathology image of necrotic tissue."}
+  biomed_anatomy:
+    id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+    adapter: contrastive_biomedclip
+    modalities: [cxr, xray, ct, mri, gross_pathology]
+    tasks: [open_vqa]
+    capabilities: [classification]
+    scope: major_anatomy
+    prefix_invariant: true
+    question_types: [anatomy]
+    description: Compare this image against a non-exhaustive major-organ catalog. Only for organ identification, not disease diagnosis, location, counts or segmentation.
+    catalog: [brain, lung, heart, liver, kidney, spleen, pancreas, stomach, intestine, thyroid, skin, bone, breast, uterus, testis]
+  source_cases:
+    id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+    adapter: source_retrieval
+    encoder_adapter: contrastive_biomedclip
+    modalities: [pathology, gross_pathology, cxr, xray, ct, mri, ultrasound, oct, fundus, dermatology, endoscopy, clinical_photo, diagram]
+    tasks: [open_vqa]
+    capabilities: [retrieval]
+    scope: related_source_qa
+    prefix_invariant: true
+    top_k: 1
+    question_weight: 0.5
+    # Knowledge-bearing source-only variant. Set false for a no-answer ablation.
+    # Source answers never affect ranking; each remains tied to its SOURCE image.
+    include_source_answers: true
+    description: Retrieve one source case matched by image AND question, from another source domain and same image type. Its answer belongs only to that different image; this is an analogy, not proof about the current image.
+  cxr_findings:
+    id: xrv/densenet121-res224-all
+    adapter: xrv_classification
+    checkpoint_path: artifacts/models/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    weights: densenet121-res224-all
+    modalities: [cxr]
+    tasks: [open_vqa]
+    capabilities: [classification]
+    scope: cxr_findings
+    prefix_invariant: true
+    excluded_question_types: [count, measurement, anatomy, location]
+    description: Whole-chest-radiograph disease finding scores from a small chest X-ray classifier. Not calibrated probabilities, not CT/MRI and not lesion location.
+  cxr_anatomy:
+    id: xrv/pspnet-chestxray
+    adapter: xrv_anatomy
+    checkpoint_path: artifacts/models/xrv/pspnet_chestxray_best_model_4.pth
+    modalities: [cxr]
+    tasks: [open_vqa]
+    capabilities: [segmentation]
+    scope: thoracic_anatomy
+    requires_region: false
+    prefix_invariant: true
+    question_types: [anatomy, location, measurement, appearance]
+    description: Segment lung and heart anatomy in a chest radiograph, return crop-aware masks and spatial measurements. No tumor detection, no physical size without image calibration.
+  chexagent_description:
+    id: StanfordAIMI/CheXagent-2-3b
+    checkpoint_path: artifacts/models/StanfordAIMI--CheXagent-2-3b
+    optional: true
+    factory: merit_feddg.experts.native_chexagent:CheXagentCapabilityExpert
+    factory_kwargs:
+      expert_id: chexagent_description
+      scope: cxr_description
+      dtype: bfloat16
+      device_map: auto
+      max_new_tokens: 64
+    modalities: [cxr]
+    tasks: [open_vqa]
+    capabilities: [generation]
+    scope: cxr_description
+    requires_region: false
+    description: Ask an existing specialist chest X-ray VLM for a short visual description relevant to the question. Its generated observation can be wrong and is not a gold report.

@@ -196,7 +196,10 @@ class CapabilityPool:
         return _stable_hash(
             {
                 key: payload.get(key)
-                for key in ("id", "revision", "adapter", "factory", "factory_kwargs", "device")
+                for key in (
+                    "id", "revision", "adapter", "factory", "factory_kwargs", "device",
+                    "weights", "sha256",
+                )
             }
         )
 
@@ -205,7 +208,20 @@ class CapabilityPool:
         if key not in self.models:
             payload = self._model_spec(spec)
             artifacts = None if spec.get("checkpoint_path") else self.artifacts
-            if payload["adapter"] == "medsam" and not payload.get("factory"):
+            if payload["adapter"] in {"xrv_classification", "xrv_anatomy"}:
+                from .experts.native_xrv import XrvCapabilityAdapter
+
+                self.models[key] = XrvCapabilityAdapter(
+                    spec.get("checkpoint_path", ""),
+                    capability=(
+                        "classification" if payload["adapter"] == "xrv_classification"
+                        else "segmentation"
+                    ),
+                    device=str(payload.get("device", "auto")),
+                    weights=str(payload.get("weights", "densenet121-res224-all")),
+                    sha256=payload.get("sha256"),
+                )
+            elif payload["adapter"] == "medsam" and not payload.get("factory"):
                 self.models[key] = MedSamCapabilityAdapter(
                     _local_or_remote(payload["id"], artifacts),
                     device=str(payload.get("device", "auto")),
@@ -291,6 +307,8 @@ class CapabilityPool:
             "medsam": ("segmentation",),
             "contrastive_conch": ("classification",),
             "contrastive_biomedclip": ("classification",),
+            "xrv_classification": ("classification",),
+            "xrv_anatomy": ("segmentation",),
         }
         allowed = spec.get("capabilities", defaults.get(adapter, ()))
         if request.capability not in allowed:
@@ -306,6 +324,8 @@ class CapabilityPool:
             "source_retrieval",
             "contrastive_conch",
             "contrastive_biomedclip",
+            "xrv_classification",
+            "xrv_anatomy",
         }:
             return CapabilityResult(expert_id, request.capability, (), reason="unsupported_region")
         if adapter == "source_retrieval":
@@ -314,6 +334,10 @@ class CapabilityPool:
             return self._classify(expert_id, spec, request)
         if adapter == "medsam":
             return self._segment(expert_id, spec, request)
+        if adapter == "xrv_classification":
+            return self._xrv_classify(expert_id, spec, request)
+        if adapter == "xrv_anatomy":
+            return self._xrv_segment(expert_id, spec, request)
         model = self._model(spec)
         if not hasattr(model, "infer"):
             raise ValueError("native capability factories must implement infer(request)")
@@ -373,6 +397,15 @@ class CapabilityPool:
         limit = int(spec.get("top_k", 3))
         if limit < 1:
             raise ValueError("retrieval top_k must be positive")
+        question_weight = float(spec.get("question_weight", 0.5))
+        if not np.isfinite(question_weight) or not 0 <= question_weight <= 1:
+            raise ValueError("retrieval question_weight must be finite and in [0, 1]")
+        include_answers = spec.get("include_source_answers", False)
+        if not isinstance(include_answers, bool):
+            raise TypeError("include_source_answers must be an explicit boolean")
+        query_text = (request.query or request.question).strip()
+        if question_weight and not query_text:
+            raise ValueError("question-conditioned retrieval requires a question or query")
         query_digest = self._digest(request.image)
         candidates = []
         for row in self.source_records:
@@ -382,40 +415,64 @@ class CapabilityPool:
                 or str(row["id"]) == request.sample_id
                 or self._digest(row["image"]) == query_digest
                 or (row.get("modality") and row["modality"] != request.modality)
+                or (row.get("task") and row["task"] != request.task)
+                or (question_weight and not str(row.get("question", "")).strip())
             ):
                 continue
             candidates.append(row)
         if not candidates:
             return CapabilityResult(expert_id, request.capability, (), reason="no_eligible_sources")
         image = self._image_feature(spec, request.image)
+        question_vectors = None
+        if question_weight:
+            prompts = (("query", query_text),) + tuple(
+                (str(row["id"]), str(row["question"])) for row in candidates
+            )
+            question_vectors = self._text_vectors(spec, prompts)
         ranked = []
-        for row in candidates:
+        for index, row in enumerate(candidates):
             feature = self._image_feature(spec, row["image"], source=True)
             if feature.shape != image.shape:
                 raise ValueError("retrieval index embedding dimension mismatch")
-            ranked.append((float(np.clip(image @ feature, -1, 1)), str(row["id"]), row))
+            image_similarity = float(np.clip(image @ feature, -1, 1))
+            question_similarity = (
+                float(np.clip(question_vectors[0] @ question_vectors[index + 1], -1, 1))
+                if question_vectors is not None else None
+            )
+            similarity = (1 - question_weight) * image_similarity
+            if question_similarity is not None:
+                similarity += question_weight * question_similarity
+            ranked.append((similarity, str(row["id"]), row, image_similarity, question_similarity))
         ranked.sort(key=lambda value: (-value[0], value[1]))
         references = []
-        for similarity, _, row in ranked[:limit]:
-            references.append(
-                {
+        for similarity, _, row, image_similarity, question_similarity in ranked[:limit]:
+            record = {
                     "source_id": row["id"],
                     "source_domain": row["domain"],
                     "source_group_id": row["group_id"],
                     "source_image": str(row["image"]),
                     "source_question": str(row.get("question", "")),
-                    "source_reference": self.source_references.get(row["id"]),
                     "similarity": similarity,
+                    "image_similarity": image_similarity,
+                    "question_similarity": question_similarity,
+                    "query_image_claim": "unknown",
                 }
-            )
-        summary = "Similar SOURCE cases; these records are not diagnoses of the query image. "
-        summary += " ".join(
-            f"[{row['source_id']}] Source question: {row['source_question']} "
-            f"Source reference: {json.dumps(row['source_reference'], ensure_ascii=False)}."
-            for row in references
+            if include_answers:
+                record["source_reference"] = self.source_references.get(row["id"])
+                record["reference_applies_to"] = "source_image_only"
+            references.append(record)
+        # Detailed source data is in the payload only; do not duplicate it in memory.
+        summary = (
+            f"{len(references)} image/question-matched SOURCE case pointers. "
+            "These are not observations or diagnoses of the query image. "
+            + ("Source answers are attached only to their original cases."
+               if include_answers else "Source answers are withheld; no diagnostic fact is supplied.")
         )
         item = EvidenceItem(
-            evidence_id=f"{expert_id}:{request.sample_id}:retrieval",
+            evidence_id=(
+                f"{expert_id}:{request.sample_id}:retrieval:"
+                + _stable_hash({"query": query_text, "weight": question_weight})[:12]
+            ),
             expert_id=expert_id,
             capability="retrieval",
             scope=str(spec.get("scope", "retrieval")),
@@ -423,6 +480,7 @@ class CapabilityPool:
                 "references": references,
                 "score_semantics": "relative_similarity",
                 "query_diagnosis": "not_inferred",
+                "source_answers_included": include_answers,
             },
             summary=summary,
             confidence=None,
@@ -433,9 +491,89 @@ class CapabilityPool:
                 "source_only": True,
                 "eligible_source_count": len(candidates),
                 "target_answers_used": False,
-                "query_used": False,
-                "search_mode": "whole_image_similarity",
+                "query_used": bool(question_weight),
+                "question_weight": question_weight,
+                "source_answers_used_for_ranking": False,
+                "generated_prefix_used": False,
+                "search_mode": (
+                    "image_and_question_similarity" if question_weight else "whole_image_similarity"
+                ),
             },
+        )
+        return CapabilityResult(expert_id, request.capability, (item,))
+
+    def _xrv_classify(self, expert_id, spec, request):
+        labels, scores, transform = self._model(spec).classify(request.image)
+        entries = [
+            {"finding": label, "score": float(score)}
+            for label, score in zip(labels, scores, strict=True) if label
+        ]
+        entries.sort(key=lambda value: (-value["score"], value["finding"]))
+        if any(not np.isfinite(x["score"]) or not 0 <= x["score"] <= 1 for x in entries):
+            raise ValueError("XRV classifier scores must be finite sigmoid values")
+        item = EvidenceItem(
+            f"{expert_id}:{request.sample_id}:cxr-findings", expert_id, "classification",
+            str(spec.get("scope", "classification")),
+            payload={
+                "findings": entries,
+                "score_semantics": "uncalibrated_independent_sigmoid",
+                "positive_threshold": "not_calibrated_for_query_domain",
+                "unlisted_findings": "unknown",
+                "image_transform": transform,
+                "query_diagnosis": "not_established",
+            },
+            summary="Chest-radiograph finding scores, not confirmed diagnoses. "
+            "A high score requires image-grounded interpretation; low scores do not exclude disease.",
+            provenance={"adapter": "xrv_classification", "target_answers_used": False},
+        )
+        return CapabilityResult(expert_id, request.capability, (item,))
+
+    def _xrv_segment(self, expert_id, spec, request):
+        labels, probabilities, transform = self._model(spec).segment(request.image)
+        threshold = float(spec.get("mask_threshold", 0.5))
+        if not np.isfinite(threshold) or not 0 < threshold < 1:
+            raise ValueError("mask_threshold must lie strictly between zero and one")
+        selected = spec.get("structures", ["Left Lung", "Right Lung", "Heart"])
+        if not selected or len(set(selected)) != len(selected) or set(selected) - set(labels):
+            raise ValueError("structures must be unique official XRV anatomical labels")
+        structures = []
+        for label in selected:
+            probability = np.asarray(probabilities[labels.index(label)], dtype=float)
+            if not np.isfinite(probability).all() or ((probability < 0) | (probability > 1)).any():
+                raise ValueError("XRV mask probabilities must be finite and in [0, 1]")
+            mask = probability >= threshold
+            ys, xs = np.nonzero(mask)
+            height, width = mask.shape
+            crop = transform["crop_box_xyxy_normalized"]
+            bbox = None
+            if len(xs):
+                bbox = [
+                    crop[0] + xs.min() / width * (crop[2] - crop[0]),
+                    crop[1] + ys.min() / height * (crop[3] - crop[1]),
+                    crop[0] + (xs.max() + 1) / width * (crop[2] - crop[0]),
+                    crop[1] + (ys.max() + 1) / height * (crop[3] - crop[1]),
+                ]
+            structures.append({
+                "anatomical_structure": label,
+                "mask": encode_binary_mask(mask),
+                "mask_coordinate_system": "model_grid_of_center_crop",
+                "foreground_fraction_of_crop": float(mask.mean()),
+                "bbox_xyxy_normalized_original_image": [float(x) for x in bbox] if bbox else None,
+                "empty_mask_means": "no_predicted_foreground_not_anatomical_absence",
+            })
+        item = EvidenceItem(
+            f"{expert_id}:{request.sample_id}:cxr-anatomy", expert_id, "segmentation",
+            str(spec.get("scope", "segmentation")),
+            payload={
+                "structures": structures,
+                "image_transform": transform,
+                "mask_threshold": threshold,
+                "mask_probabilities_calibrated": False,
+                "disease_or_lesion_segmentation": False,
+            },
+            summary="Predicted chest anatomy masks for " + ", ".join(selected)
+            + ". Masks localize anatomy, not disease; image margins outside the crop are unknown.",
+            provenance={"adapter": "xrv_anatomy", "target_masks_used": False},
         )
         return CapabilityResult(expert_id, request.capability, (item,))
 

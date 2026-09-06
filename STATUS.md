@@ -1,5 +1,29 @@
 # Current status
 
+## v0.8 LLaVA-Med native-tool revision (2026-09-06)
+
+- Default remote entry `run_llava_med.sh` reuses the supplied LLaVA-Med Mistral 7B,
+  official source and huatuo Python. OpenMed remains a same-protocol comparison.
+- Compact finite tool IDs replace free JSON action generation in the new config.
+  Medical answers remain unconstrained free text; exact committed tokens survive
+  evidence-context reconstruction. Image-only routing removes the all-PathVQA-is-
+  histology assumption. Native masks and generation adapters use actual models.
+- Default native capabilities: CONCH tissue appearance; BiomedCLIP major anatomy
+  and image/question source retrieval; small XRV CXR classification and anatomy
+  segmentation. CheXagent generation is optional and local-only. No new generalist
+  or 3B generation model is downloaded by this entry.
+- Source utility is measured using forced single-tool real generation, not calls
+  selected by the same potentially broken controller. Empty evidence and runtime
+  failures are distinguished. No relaxed source threshold or target-label fitting.
+- Real non-yes/no PathVQA + image-disjoint re-split VQA-RAD; proxy groups remain
+  explicitly non-hospital. New single-tool baselines, shorter evidence prompts,
+  routing cost accounting and external LLaVA/CLIP provenance.
+- No remote pretrained medical GPU run was performed by this local revision.
+  No improvement in medical hallucination, DG performance or ICLR novelty is claimed.
+  Local verification: 299 tests passed; Ruff and Linux entry syntax checks passed.
+  Includes actual tiny random-weight Mistral and XRV CPU checks, not medical accuracy.
+- Read `docs/V08_LLAVA.md` for exact paths, dependencies, coverage and limitations.
+
 ## v0.7 native capability collaboration (2026-09-05)
 
 - Primary entry: `run_capabilities.sh`. The frozen medical VLM requests registered

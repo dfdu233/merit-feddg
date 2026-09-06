@@ -189,6 +189,7 @@ class QwenLayerProbe:
         prompt: str,
         max_new_tokens: int = 64,
         logits_processor=None,
+        allowed_texts=None,
     ) -> dict:
         """One real greedy call, with actual token counts (including generated EOS)."""
         native = load_rgb(image)
@@ -199,6 +200,13 @@ class QwenLayerProbe:
         }
         if logits_processor is not None:
             generation_options["logits_processor"] = [logits_processor]
+        if allowed_texts is not None:
+            from .constrained import finite_choice_constraint
+
+            generation_options["prefix_allowed_tokens_fn"] = finite_choice_constraint(
+                self.processor.tokenizer, allowed_texts,
+                prompt_length=int(inputs.input_ids.shape[1]),
+            )
         with self.torch.inference_mode():
             generated = self.model.generate(**inputs, **generation_options)
         trimmed = [output[len(source) :] for source, output in zip(inputs.input_ids, generated)]
