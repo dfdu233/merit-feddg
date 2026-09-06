@@ -185,7 +185,11 @@ class QwenBlockSession:
         from .experts.base import load_rgb
 
         self.probe = probe
-        self.inputs = probe._inputs(load_rgb(image), prompt)
+        native = (
+            [load_rgb(view) for view in image]
+            if isinstance(image, (list, tuple)) else load_rgb(image)
+        )
+        self.inputs = probe._inputs(native, prompt)
 
     def decode(self, tokens):
         return self.probe.processor.tokenizer.decode(tokens, skip_special_tokens=True)

@@ -16,6 +16,11 @@ def parser():
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("--config", default="configs/llava_med_capabilities.yaml")
     result.add_argument("--generalist", choices=["llava", "openmed"], default="llava")
+    result.add_argument("--study", choices=["capabilities", "value"], default="capabilities")
+    result.add_argument("--value-stage", choices=["all", "source", "evaluate"], default="all")
+    result.add_argument("--source-manifest")
+    result.add_argument("--target-manifest")
+    result.add_argument("--references")
     result.add_argument("--model-path")
     result.add_argument("--llava-source")
     result.add_argument("--vision-tower-path")
@@ -69,6 +74,23 @@ def experiment_config(args):
         # of silently excluding the optional expert.
         chexagent["optional"] = False
     config["generalist"] = resolve_generalist_spec(config["generalist"])
+    if args.study == "value":
+        if config["generalist"].get("backend") == "llava_med":
+            config["generalist"].setdefault("deterministic_image_padding", True)
+        # Additive profile: the saved v0.8 configuration/entry point stays intact.
+        config.setdefault("capability_value", {
+            "generation": {"max_new_tokens": 96, "block_tokens": 16, "max_expert_calls": 2,
+                           "max_decisions": 4, "controller_tokens": 48,
+                           "max_evidence_chars": 1200, "visual_views": 1},
+            "encoder": {"expert": "source_cases", "dimensions": 16, "seed": 17},
+            "collection": {"collect_continuations": True,
+                           "verify_block_none": True,
+                           "pair_first_tools": ["cxr_anatomy", "conch_tissue", "source_cases"],
+                           "max_pair_first_tools": 2},
+            "fit": {"ridge": 1.0, "min_cases_per_domain": 8, "min_domains": 2,
+                    "residual_quantile": 0.9, "cost_weight": 0.0},
+            "quality": {"name": "token_f1"}, "single_tools": True,
+        })
     return config
 
 
@@ -153,6 +175,11 @@ def main(argv=None):
     args = parser().parse_args(argv)
     if min(args.source_per_group, args.target_limit) < 1:
         raise ValueError("sample limits must be positive")
+    manifests = (args.source_manifest, args.target_manifest, args.references)
+    if any(manifests) and not all(manifests):
+        raise ValueError("custom data requires --source-manifest, --target-manifest and --references")
+    if args.study != "value" and args.value_stage != "all":
+        raise ValueError("--value-stage requires --study value")
     # Set endpoints before importing huggingface_hub. No credential is logged.
     os.environ["HF_ENDPOINT"] = (
         "https://hf-mirror.com" if args.mirror == "cn" else "https://huggingface.co"
@@ -203,9 +230,15 @@ def main(argv=None):
     root = Path(args.output).resolve()
     cohort_key = f"{args.dataset}-source{args.source_per_group}-target{args.target_limit}-seed{args.seed}"
     data_root = root / "data" / cohort_key
-    data = prepare_multimodal_vqa(
-        args.artifacts, data_root, args.source_per_group, args.target_limit, datasets, args.seed
-    )
+    if all(manifests):
+        manifest_paths = [Path(path).expanduser().resolve() for path in manifests]
+        data = {"custom_manifests": [str(path) for path in manifest_paths],
+                "warning": "domain provenance must be supplied honestly by the dataset owner"}
+    else:
+        data = prepare_multimodal_vqa(
+            args.artifacts, data_root, args.source_per_group, args.target_limit, datasets, args.seed
+        )
+        manifest_paths = [data_root / name for name in ("source.jsonl", "target.jsonl", "references.json")]
     root.mkdir(parents=True, exist_ok=True)
     settings = root / f"config-{args.generalist}-{fingerprint(config)[:12]}.yaml"
     settings.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
@@ -214,10 +247,13 @@ def main(argv=None):
     if args.prepare_only:
         return
     # Common inference files are label-free; references enter only evaluation/source calibration.
-    result = run_capability_study(
-        data_root / "source.jsonl", data_root / "target.jsonl", data_root / "references.json",
-        settings, args.artifacts, root / args.generalist,
-    )
+    if args.study == "value":
+        from .capability_value_study import run_value_study
+
+        result = run_value_study(*manifest_paths, settings, args.artifacts, root / args.generalist,
+                                 stage=args.value_stage)
+    else:
+        result = run_capability_study(*manifest_paths, settings, args.artifacts, root / args.generalist)
     print(json.dumps(result, indent=2), flush=True)
 
 

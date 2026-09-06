@@ -62,11 +62,14 @@ class QwenLayerProbe:
         return next((item for item in candidates if item is not None), None)
 
     def _inputs(self, image: Image.Image, prompt: str, answer: str | None = None):
+        views = image if isinstance(image, (list, tuple)) else [image]
+        if not 1 <= len(views) <= 2:
+            raise ValueError("Use one original image and at most one predicted evidence view")
         messages = [
             {
                 "role": "user",
                 "content": [
-                    {"type": "image", "image": image},
+                    *[{"type": "image", "image": view} for view in views],
                     {"type": "text", "text": prompt},
                 ],
             }
@@ -192,7 +195,10 @@ class QwenLayerProbe:
         allowed_texts=None,
     ) -> dict:
         """One real greedy call, with actual token counts (including generated EOS)."""
-        native = load_rgb(image)
+        native = (
+            [load_rgb(view) for view in image]
+            if isinstance(image, (list, tuple)) else load_rgb(image)
+        )
         inputs = self._inputs(native, prompt, None)
         generation_options = {
             "max_new_tokens": max_new_tokens,

@@ -1,6 +1,49 @@
 # Med-DEFER / MERIT-FedDG
 
-## v0.8：优先使用已有 LLaVA-Med（当前推荐入口）
+## v0.9：同前缀、原生证据、源域条件价值（新研究入口）
+
+不是把专科模型全部变成诊断打分器，也不是答案生成后再验证。
+LLaVA-Med 在第一块之前或后续生成块之间，按“当前图像/问题/前缀/已有证据”选择能力；
+分类、检索、生成返回结构化观察，分割/检测可增加一张明确标为**预测**的视图，原图始终保留。
+一个源域训练的小型连续回归策略估计下一工具的边际收益，替代正式方法中的长文本控制器。
+默认仍复用现有 LLaVA-Med、CONCH、BiomedCLIP、XRV 与本地 CheXagent，不新增大模型下载。
+
+```bash
+git pull --ff-only
+# 推荐先仅采集/拟合 source，检查是否存在可迁移的正增益；不生成 target。
+bash run_value.sh --skip-download --chexagent on --value-stage source
+# 保持完全相同的配置与 source，冻结后评估 target。
+bash run_value.sh --skip-download --chexagent on --value-stage evaluate
+# 也可一次完成以上两步：bash run_value.sh --skip-download --chexagent on
+```
+
+先妥善保留服务器未提交修改再 pull；不要盲目覆盖兼容性修复。
+解释器自动发现沿用 v0.8，可用 `--python /实际/环境/bin/python` 指定。
+`--chexagent on` 要求已有本地权重；不具备时用 `--chexagent off`。
+默认数据仍是非 yes/no 的真实 PathVQA、图像不重叠重划分 VQA-RAD；**哈希 proxy 不是医院域**。
+`--source-manifest PATH --target-manifest PATH --references PATH` 可改用带真实来源的独立数据清单；
+三项必须一起提供，字段/像素/组/域不重叠均会检查，不凭文件名推断真实医院。
+
+源域采集运行真实模型的 NONE、单工具和预声明 A→B 分支；同前缀、同剩余 token 预算，
+不调用的工具不会被虚构为零收益。代价是**首次 source 校准比单次推理昂贵**；
+病例级断点缓存绑定代码、模型、图像、源标签和配置，重复命令续用，旧权重不重下。
+正式策略以不同源域的留出过估残差作经验保守项，不是任意目标域安全概率。
+小样本/未见工具历史仍可能全部 NONE：应如实报告，不通过降低门槛伪造有效协作。
+
+比较 generalist、同协议 block-NONE、预算内 all-evidence、有限语义动作 agent、
+value-mean、value-robust 和逐工具对照。默认两次工具预算，各方法主模型、证据编译和输出预算一致。
+新入口固定 LLaVA 的方形填充，避免官方源码可能产生的 1 像素随机偏移污染配对实验；
+旧 v0.8 默认预处理不变，新旧版本须使用各自重新测得的基准，不能直接混用历史数字。
+
+结果索引：`runs/native-v09-value/llava/latest-value.json`。目录内包括策略、支持不足原因、
+真实分支缓存、逐步工具/视觉证据轨迹、配对词面指标和医学事实盲评模板。
+**默认训练收益仍是 Token-F1，不是幻觉率。** 提供版本绑定的连续质量评分插件接口；
+要提出医学幻觉结论仍需独立事实评估。检测/框提示工具虽有契约，不等于默认已有真实检测实验。
+
+详见 [跨领域论文、算法公式、ICLR 定位与边界](docs/CAPABILITY_VALUE_DESIGN.md)。
+本次是代码与本地验证交付，尚无 v0.9 远程医学 GPU 性能结果。
+
+## v0.8：已有 LLaVA-Med 的历史对照入口
 
 ```bash
 git pull --ff-only

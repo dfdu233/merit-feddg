@@ -31,6 +31,7 @@ def load_generalist(spec, artifacts=None):
             vision_tower_path=spec.get("vision_tower_path"),
             dtype=spec.get("dtype", "float16"), device_map=spec.get("device_map", "auto"),
             local_files_only=True,
+            deterministic_image_padding=spec.get("deterministic_image_padding", False),
         )
     if backend != "qwen":
         raise ValueError(f"unsupported medical generalist backend: {backend}")

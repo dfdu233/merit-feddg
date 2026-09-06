@@ -31,6 +31,8 @@ while (($#)); do
       echo '         --source-per-group N --target-limit N --artifacts PATH --output PATH'
       echo '         --generalist llava|openmed --config PATH --retrieval-answers on|off'
       echo '         --chexagent auto|on|off'
+      echo '         --study capabilities|value --value-stage all|source|evaluate'
+      echo '         --source-manifest PATH --target-manifest PATH --references PATH'
       echo 'No torch/transformers upgrades and no default 3B/7B model downloads.'
       exit 0 ;;
     *) ARGS+=("$1"); shift ;;

@@ -1,5 +1,33 @@
 # Current status
 
+## v0.9 source-conditioned native capability value (2026-09-06)
+
+- Additive `run_value.sh` / `llava_run --study value`; legacy v0.8 remains available.
+- Frozen LLaVA-Med remains the final free-text generator. Native evidence is used
+  before/between answer blocks, never as a post-answer replacement. Registered
+  classification/retrieval/generation and predicted mask/bbox views are supported;
+  original images remain intact. Default real tools remain the existing v0.8 set.
+- Continuous state x tool ridge predicts marginal quality, not binary model error.
+  Source branches compare exact prefixes and identical no-further-tools continuations,
+  including declared A->B histories and actual empty/negative outcomes. Independent
+  image groups, not extra prefixes, determine support. Unknown histories fail closed.
+- Mean and empirical worst-held-source overprediction ablations share support checks.
+  This is source-balanced regression and LODO pessimism, NOT a proved DG guarantee,
+  minimax GroupDRO implementation or federated training protocol. Shared source-bank
+  retrieval means LODO is policy-level, not an entirely fold-isolated pipeline.
+- Added deterministic image padding for the value profile only: the inspected
+  official LLaVA-Med padding helper can jitter a nonsquare image by one pixel.
+  Source block-NONE must match single-pass token IDs before fitting; old preprocessing
+  remains the v0.8 default for historical reproduction.
+- Source/evaluate stages, fingerprint-bound branch caches, target-label isolation,
+  native visual provenance, source support diagnostics and blind factuality templates.
+  Default quality is explicitly lexical F1; custom continuous scorers need version identity.
+- No new v0.9 remote medical-GPU result has been run locally. Previous negative
+  results below are retained; engineering tests cannot establish clinical benefit.
+- Local verification for this revision: 422 tests passed (including deterministic
+  padding, two-image protocol, source/target cache separation and paired-history
+  collection); Ruff, both modified Bash entry syntax checks and git diff checks passed.
+
 ## v0.8 LLaVA-Med native-tool revision (2026-09-06)
 
 - Default remote entry `run_llava_med.sh` reuses the supplied LLaVA-Med Mistral 7B,

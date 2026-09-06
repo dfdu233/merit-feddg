@@ -16,6 +16,7 @@ from pathlib import Path, PurePosixPath
 from types import SimpleNamespace
 
 import numpy as np
+from PIL import Image
 
 from .block_decode import Block
 from .experts.base import load_rgb
@@ -192,6 +193,7 @@ class LlavaMedGeneralist:
         vision_tower_path: str | None = None,
         local_files_only: bool = True,
         conv_mode: str = "mistral_instruct",
+        deterministic_image_padding: bool = False,
     ):
         info = inspect_llava_checkpoint(
             model_id,
@@ -205,6 +207,7 @@ class LlavaMedGeneralist:
         if conv_mode not in runtime.conv_templates:
             raise ValueError(f"Unknown LLaVA conversation template: {conv_mode}")
         self.conv_mode = conv_mode
+        self.deterministic_image_padding = deterministic_image_padding
         self.checkpoint_info = info
         self.tokenizer = runtime.AutoTokenizer.from_pretrained(
             info["model_path"], use_fast=False, local_files_only=True, trust_remote_code=False
@@ -248,10 +251,12 @@ class LlavaMedGeneralist:
         self.model.config.use_cache = True
 
     def _inputs(self, image, prompt):
-        native = load_rgb(image)
+        views = image if isinstance(image, (list, tuple)) else [image]
+        if not 1 <= len(views) <= 2:
+            raise ValueError("Use one original image and at most one predicted evidence view")
+        native = [load_rgb(view) for view in views]
         constants = self.runtime.constants
-        # Match the official eval path: exactly one image token, even if callers
-        # supplied one in a prompt copied from an external benchmark.
+        # One token per image. The single-image baseline retains its exact prompt.
         question = str(prompt).replace(constants.DEFAULT_IMAGE_TOKEN, "").strip()
         image_token = constants.DEFAULT_IMAGE_TOKEN
         if getattr(self.model.config, "mm_use_im_start_end", False):
@@ -259,7 +264,9 @@ class LlavaMedGeneralist:
                 constants.DEFAULT_IM_START_TOKEN + image_token + constants.DEFAULT_IM_END_TOKEN
             )
         conversation = self.runtime.conv_templates[self.conv_mode].copy()
-        conversation.append_message(conversation.roles[0], image_token + "\n" + question)
+        conversation.append_message(
+            conversation.roles[0], (image_token + "\n") * len(native) + question
+        )
         conversation.append_message(conversation.roles[1], None)
         device = self.model.get_input_embeddings().weight.device
         ids = (
@@ -272,7 +279,19 @@ class LlavaMedGeneralist:
             .unsqueeze(0)
             .to(device)
         )
-        images = self.runtime.process_images([native], self.image_processor, self.model.config)
+        pixels = native
+        if (getattr(self, "deterministic_image_padding", False)
+                and getattr(self.model.config, "image_aspect_ratio", None) == "pad"):
+            # Official expand2square can randomly jitter nonsquare images by a
+            # pixel. Fix this before source paired interventions; no RNG change.
+            background = tuple(int(value * 255) for value in self.image_processor.image_mean)
+            pixels = []
+            for view in native:
+                side = max(view.size)
+                canvas = Image.new("RGB", (side, side), background)
+                canvas.paste(view, ((side - view.width) // 2, (side - view.height) // 2))
+                pixels.append(canvas)
+        images = self.runtime.process_images(pixels, self.image_processor, self.model.config)
         tower = self.model.get_vision_tower()
         if isinstance(images, list):
             images = [image.to(device=tower.device, dtype=tower.dtype) for image in images]
@@ -282,7 +301,7 @@ class LlavaMedGeneralist:
             "inputs": ids,
             "attention_mask": self.torch.ones_like(ids),
             "images": images,
-            "image_sizes": [native.size],
+            "image_sizes": [view.size for view in native],
         }
 
     def new_answer_session(self, image, prompt):
