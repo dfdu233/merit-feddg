@@ -40,12 +40,72 @@
 - Controller generation cost is measured, including invalid JSON; no-tools paths
   skip the controller. This is evidence-conditioned re-prefill, not KV reuse or
   token-logit guidance. Single-scope qualification does not certify composition.
-- No new medical-checkpoint GPU results are reported in this release. See
-  `docs/CAPABILITY_COLLABORATION.md` for exact algorithm, integration boundaries,
-  experimental comparisons and outstanding academic requirements.
+- At release time no medical-checkpoint GPU result was reported; the subsequent
+  server validation is recorded below. See `docs/CAPABILITY_COLLABORATION.md` for
+  exact algorithm, integration boundaries and outstanding academic requirements.
 - Local verification: 191 tests passed, Ruff passed, Bash syntax/entry-point
   checks passed. Includes real tiny image-bearing Qwen controller/memory/continuation
   and tiny SAM forward checks on CPU; no downloaded medical-weight performance claim.
+
+## GPU validation after v0.7 (2026-09-05)
+
+- The real default pilot used 32 PathVQA source questions (16 per proxy group) and
+  16 target questions. The OpenMed 3B generalist, CONCH catalog tool and BiomedCLIP
+  source-image retrieval all ran with native traces; peak PyTorch allocation was
+  9.58 GiB. Source/target pixel and group audits passed.
+- Generalist token-F1 was 0.2431. Adaptive no-DG reached 0.2826, a paired gain of
+  0.0396 with bootstrap 95% interval [0.0000, 0.1021], two lexical improvements
+  and no lexical harms. It invoked retrieval four times over three target cases,
+  adopted three results, and never selected CONCH. No target case composed more
+  than one capability.
+- The apparent automatic gain is not evidence of medical factuality. One changed
+  answer only moved from `kidney` to the lexically closer `renal`; another changed
+  from a mandible radiograph to a femur implant while the reference was a bone
+  marrow defect. Independent clinical claim annotation is required.
+- Static all-evidence was strongly harmful: token-F1 fell to 0.0159, paired gain
+  -0.2271 with bootstrap 95% interval [-0.4388, -0.0555]. It expanded answers from
+  4.0 to 64.6 mean tokens and often copied or over-interpreted irrelevant catalog
+  and retrieved-source context.
+- Neither scope qualified. CONCH was actually invoked in only 6 cases per source
+  proxy domain (below the configured 8) and its observed paired gains were negative.
+  Retrieval was never requested in its isolated source qualification runs, so it
+  had no intervention support. Adaptive DG therefore correctly made zero target
+  tool calls and matched the generalist.
+- Adaptive no-DG issued 19 target controller decisions; 13 were invalid. Most mixed
+  the retrieval expert with the classification scope, supplied `[]` as a region,
+  or exceeded the controller output budget and produced truncated JSON. Whitelist
+  and ROI validation failed closed, but the unconstrained 3B JSON controller is not
+  reliable enough for a larger efficacy experiment.
+- The implementation and safety plumbing are validated; usefulness, dynamic
+  multi-capability composition, real-domain generalization and hallucination
+  reduction are not established. The next experiment should follow controller and
+  evidence-policy repairs rather than merely increasing target sample count.
+
+## GPU validation after v0.6 (2026-09-05)
+
+- Environment and entry points passed 121 unit tests, Ruff and Bash syntax checks. Pinned
+  OpenMed/Qwen2.5-3B-MedVL, BiomedCLIP and CONCH snapshots passed payload fingerprint
+  verification; the PathoROB and PathVQA split audits reported no source/target leakage.
+- The real PathoROB 12-patch-per-center pilot evaluated 48 frozen real-model records over four
+  leave-one-center-out folds. Aggregate accuracy was 18.75% for the medical generalist, 54.17%
+  for the always-on CONCH specialist, 27.08% for shuffled evidence and 33.33% for full Med-DEFER.
+  Full Med-DEFER therefore improved over the generalist by 14.58 points and over shuffled
+  evidence by 6.25 points, with three patches rescued and none harmed. The slide-cluster
+  bootstrap interval for full minus shuffled was [0.00, 13.64] points and the paired sign-test
+  p-value was 0.25, so this is a mechanism signal, not a statistically established gain.
+- Full Med-DEFER called the expert on 70.83% of target patches. It failed closed for the UKK fold
+  because regressed-tumor tissue had no source support outside UKK; the other three folds showed
+  a positive full-versus-shuffled diagnostic. Selected-call counts are counterfactual over frozen
+  model evidence and are not live latency measurements.
+- In the open PathVQA pilot, 16 source examples (8 per proxy group) and 8 target examples were
+  generated with real short-block proposals. Both expert cards had sufficient source support but
+  failed source-only gain qualification: conservative token-F1 gain was -0.3597 for CONCH and
+  -0.0403 for BiomedCLIP. Robust decoding consequently made zero expert calls and matched the
+  beam-only token-F1 of 0.25. Forced ungated experts changed 12.5% and 37.5% of target answers,
+  respectively, without improving target token-F1.
+- These pilots validate execution, fail-closed qualification and evidence-sensitive controls.
+  They do not establish hallucination reduction: PathoROB is closed-set classification, PathVQA
+  uses lexical EM/F1 and proxy rather than hospital domains, and both target samples are small.
 
 ## v0.6 open-generation upgrade (2026-09-05)
 
@@ -63,7 +123,7 @@
   per-case resumability, beam-only and ungated controls, corrupted-support control, blind annotation
   templates, latency and memory reporting.
 - PathVQA train partitions are explicitly proxy domains. Retain the v0.5 PathoROB experiment for
-  independent-center closed-set checks. No new medical GPU performance result is claimed here.
+  independent-center closed-set checks. Subsequent GPU pilot results are recorded above.
 - Research overlap and limitations are documented in `docs/OPEN_DECODING_RESEARCH.md`:
   especially CCD, GSCo, FUDGE, GeDi, VGS and FedDG. No first-expert-decoding novelty claim.
 - Local verification: 121 tests passed with PyTorch 2.6.0 CPU, Transformers 4.57.1 and
@@ -125,8 +185,8 @@ The comparison reuses frozen outputs from real models. Its accuracy and
 shuffled-evidence controls are real, but selected-call rates remain
 counterfactual until a matched live batch is run; they are not latency claims.
 
-No new medical performance number is claimed in this commit: the real models
-must be run on the GPU server after pulling. The result JSON includes post-hoc
+At code-landing time no medical performance number was claimed; the subsequent
+GPU pilot is recorded at the top of this file. The result JSON includes post-hoc
 falsification diagnostics. They describe whether full Med-DEFER beats shuffled
 evidence, whether rescues exceed harms, and whether calls change predictions;
 they are explicitly forbidden as target-label-based tuning or sample-size rules.
@@ -144,9 +204,10 @@ real source-task evidence is silently assigned a default trust score.
 
 ## Remaining boundary
 
-The new PathoROB study validates the first, closed multiclass clinical claim.
-It is a real domain-generalization experiment, but not yet an open-report
-hallucination experiment. Open generation requires a dynamic claim-candidate
-provider (claim-beam decoding) plus claim-level factuality annotations. The
-semantic `ClaimSpec` and heterogeneous evidence bridge are implemented as the
-foundation for that second phase; no open-ended benefit is claimed yet.
+The PathoROB study validates the first, closed multiclass clinical claim and is
+a real domain-generalization experiment. The separate open-generation path now
+provides dynamic block candidates, but it is not yet an open-report hallucination
+result: source-qualified experts did not pass the current PathVQA pilot, and
+claim-level factuality annotations are still required. The semantic `ClaimSpec`
+and heterogeneous evidence bridge remain the foundation for that next phase;
+no open-ended benefit is claimed yet.
