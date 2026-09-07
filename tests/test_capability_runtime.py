@@ -124,6 +124,29 @@ def test_intervention_reuses_same_exact_committed_token_prefix(setup):
     assert len(probe.contexts) == 2  # Same committed IDs; new evidence context.
 
 
+def test_applicability_rejection_precedes_controller_and_tool(setup):
+    build, _, _ = setup
+    runtime, probe, pool = build(choices=("A",))
+    class Gate:
+        def decide(self, row, descriptor):
+            return {"allowed": False, "reason": "NONE:input_risk", "risk": .8}
+    result = runtime.run("agent", applicability=Gate())
+    assert not pool.calls and not probe.controls
+    assert result["token_ids"] == [1, 2, 3, 4, 5, 6]
+    assert result["trace"][0]["event"] == "applicability"
+
+
+def test_applicability_acceptance_preserves_native_collaboration(setup):
+    build, _, _ = setup
+    runtime, _, pool = build(choices=("A",))
+    class Gate:
+        def decide(self, row, descriptor):
+            return {"allowed": True, "reason": "admitted", "risk": 0.}
+    result = runtime.run("agent", applicability=Gate())
+    assert len(pool.calls) == 1 and result["expert_calls"] == 1
+    assert result["token_ids"] == [101, 102, 103, 104, 105, 106]
+
+
 def test_paired_continuations_start_from_identical_ids_without_state_mutation(setup):
     build, _, _ = setup
     runtime, probe, _ = build()

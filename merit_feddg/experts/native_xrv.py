@@ -117,6 +117,16 @@ class XrvCapabilityAdapter:
             raise ValueError("XRV classification produced invalid scores")
         return self.targets, scores, transform
 
+    def domain_embedding(self, image):
+        """Frozen DenseNet pre-classifier features, not sigmoid finding scores."""
+        if self.capability != "classification":
+            raise NotImplementedError("XRV anatomy has no validated native embedding adapter yet")
+        tensor, _ = self._inputs(image)
+        with self.torch.inference_mode():
+            features = self.model.features(tensor)
+            vector = self.torch.relu(features).mean(dim=(-2, -1))[0]
+        return vector.detach().float().cpu().numpy()
+
     def segment(self, image):
         tensor, transform = self._inputs(image)
         tensor = ((tensor + 1024) / 2048).repeat(1, 3, 1, 1)

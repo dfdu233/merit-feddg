@@ -1,0 +1,27 @@
+# Independent experiment; existing v0.12/ROVER entry points are unchanged.
+base_config: configs/llava_med_capabilities.yaml
+applicability:
+  # Native-embedding support is explicit. Other capabilities stay in the core registry.
+  experts: [conch_tissue, source_cases, cxr_findings]
+  admission:
+    neighbors: 4
+    min_per_domain: 2
+    min_domains: 2
+    max_risk: 0.1
+    max_distance: 0.4
+    residual_quantile: 0.9
+    allow_proxy: false
+  generation:
+    max_new_tokens: 24
+    block_tokens: 8
+    max_expert_calls: 2
+    max_decisions: 3
+    controller_tokens: 48
+    max_evidence_chars: 1200
+    visual_views: 1
+    evidence_style: graph
+    request_style: need
+    evidence_top_k: 2
+    retrieval_answer_context: false
+  quality:
+    name: token_f1

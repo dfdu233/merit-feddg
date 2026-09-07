@@ -229,7 +229,7 @@ class CapabilityRuntime:
             "guidance_spent": final.guidance_spent,
         }
 
-    def run(self, mode, *, policy=None, forced_expert=None):
+    def run(self, mode, *, policy=None, forced_expert=None, applicability=None):
         modes = {"generalist", "block_none", "all_evidence", "agent", "value_mean", "value_robust"}
         if mode not in modes:
             raise ValueError("unknown value study mode")
@@ -244,6 +244,15 @@ class CapabilityRuntime:
             descriptors = self.descriptors(state)
             if forced_expert is not None:
                 descriptors = [d for d in descriptors if d["expert"] == forced_expert]
+            if applicability is not None and mode != "block_none":
+                admitted = []
+                for descriptor in descriptors:
+                    audit = applicability.decide(self.row, descriptor)
+                    trace.append({"event": "applicability", "expert": descriptor["expert"],
+                                  "token_start": len(state.prefix), **audit})
+                    if audit["allowed"]:
+                        admitted.append(descriptor)
+                descriptors = admitted
             choice, score_trace, reason = None, [], "NONE:no_compatible_tool"
             if descriptors and controls < self.config.max_decisions and mode != "block_none":
                 controls += 1

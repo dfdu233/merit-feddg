@@ -1,5 +1,20 @@
 # Current status
 
+## Input applicability collaboration implementation (remote GPU pending)
+
+- Core remains NativeSession/CapabilityRuntime with heterogeneous native evidence.
+  Optional input-aware admission filters tool descriptors before controller choice.
+- Added source intervention collection, expert-native neighborhoods, four gate
+  ablations, whole-domain residual cross-fitting, cache fingerprints and live traces.
+- Default risk measures paired answer harm, not native expert correctness. Native
+  task losses can be provided explicitly; neither is automatically hallucination rate.
+- Native features: CONCH, BiomedCLIP/retrieval, XRV findings. Other plugins need
+  a validated domain_embedding adapter; no hidden shared-encoder substitution.
+- Read docs/INPUT_APPLICABILITY.md before GPU runs. Three real source domains are
+  normally needed for robust residual calibration, four for nested source-only
+  evaluation with the default two-domain support. Existing proxy data is diagnostic.
+- No new clinical result or domain-generalization improvement is claimed.
+
 ## ROVER source pilot implementation (2026-09-07; remote GPU pending)
 
 - Added `python -m merit_feddg.rover_run`: five matched-input region arms,

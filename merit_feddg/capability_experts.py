@@ -271,6 +271,10 @@ class CapabilityPool:
             self.text_features[key] = np.stack([_unit_vector(row) for row in values])
         return self.text_features[key]
 
+    def domain_embedding(self, expert_id, image):
+        """Public native-feature contract; no silent shared-encoder substitution."""
+        return self._image_feature(self.specs[expert_id], image)
+
     def source_index_identity(self):
         rows = []
         for row in sorted(self.source_records, key=lambda value: str(value["id"])):
