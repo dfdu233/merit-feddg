@@ -1,0 +1,94 @@
+# Source capability diagnostics
+
+Descriptive source-only lexical diagnostics, NOT hallucination reduction or DG proof.
+
+| Presentation | Source domain | State | Independent groups | Mean paired gain |
+| --- | --- | --- | ---: | ---: |
+| format:duplicate_original | pathvqa-train-proxy-0 | continuation | 12 | -0.01255 |
+| format:duplicate_original | pathvqa-train-proxy-0 | initial | 16 | -0.01682 |
+| format:duplicate_original | pathvqa-train-proxy-1 | continuation | 15 | -0.00609 |
+| format:duplicate_original | pathvqa-train-proxy-1 | initial | 16 | -0.03749 |
+| format:duplicate_original | vqarad-image-proxy-0 | continuation | 11 | +0.00186 |
+| format:duplicate_original | vqarad-image-proxy-0 | initial | 16 | -0.09286 |
+| format:duplicate_original | vqarad-image-proxy-1 | continuation | 11 | -0.00420 |
+| format:duplicate_original | vqarad-image-proxy-1 | initial | 16 | -0.05664 |
+| pair:conch_tissue->source_cases:scoped_text | pathvqa-train-proxy-0 | continuation | 7 | +0.00000 |
+| pair:conch_tissue->source_cases:scoped_text | pathvqa-train-proxy-0 | initial | 8 | -0.02174 |
+| pair:conch_tissue->source_cases:scoped_text | pathvqa-train-proxy-1 | continuation | 9 | +0.01357 |
+| pair:conch_tissue->source_cases:scoped_text | pathvqa-train-proxy-1 | initial | 9 | +0.00776 |
+| pair:cxr_anatomy->chexagent_description:scoped_text | vqarad-image-proxy-0 | initial | 1 | +0.00000 |
+| single:biomed_anatomy:question:native_text | vqarad-image-proxy-0 | initial | 1 | +0.00000 |
+| single:biomed_anatomy:question:native_text | vqarad-image-proxy-1 | initial | 1 | +0.00000 |
+| single:biomed_anatomy:question:scoped_text | vqarad-image-proxy-0 | initial | 1 | +0.00000 |
+| single:biomed_anatomy:question:scoped_text | vqarad-image-proxy-1 | initial | 1 | +0.00000 |
+| single:chexagent_description:need:native_text | pathvqa-train-proxy-0 | initial | 1 | +0.00000 |
+| single:chexagent_description:need:native_text | vqarad-image-proxy-0 | continuation | 3 | +0.00000 |
+| single:chexagent_description:need:native_text | vqarad-image-proxy-0 | initial | 6 | +0.01639 |
+| single:chexagent_description:need:native_text | vqarad-image-proxy-1 | continuation | 3 | +0.00000 |
+| single:chexagent_description:need:native_text | vqarad-image-proxy-1 | initial | 4 | +0.00000 |
+| single:chexagent_description:need:scoped_text | pathvqa-train-proxy-0 | initial | 1 | +0.00000 |
+| single:chexagent_description:need:scoped_text | vqarad-image-proxy-0 | continuation | 3 | +0.00000 |
+| single:chexagent_description:need:scoped_text | vqarad-image-proxy-0 | initial | 6 | +0.01639 |
+| single:chexagent_description:need:scoped_text | vqarad-image-proxy-1 | continuation | 3 | +0.00000 |
+| single:chexagent_description:need:scoped_text | vqarad-image-proxy-1 | initial | 4 | +0.00000 |
+| single:chexagent_description:question:native_text | pathvqa-train-proxy-0 | initial | 1 | +0.08696 |
+| single:chexagent_description:question:native_text | vqarad-image-proxy-0 | continuation | 3 | +0.00000 |
+| single:chexagent_description:question:native_text | vqarad-image-proxy-0 | initial | 6 | +0.01798 |
+| single:chexagent_description:question:native_text | vqarad-image-proxy-1 | continuation | 3 | +0.00000 |
+| single:chexagent_description:question:native_text | vqarad-image-proxy-1 | initial | 4 | +0.00000 |
+| single:chexagent_description:question:scoped_text | pathvqa-train-proxy-0 | initial | 1 | +0.08696 |
+| single:chexagent_description:question:scoped_text | vqarad-image-proxy-0 | continuation | 3 | +0.00000 |
+| single:chexagent_description:question:scoped_text | vqarad-image-proxy-0 | initial | 6 | +0.01798 |
+| single:chexagent_description:question:scoped_text | vqarad-image-proxy-1 | continuation | 3 | +0.00000 |
+| single:chexagent_description:question:scoped_text | vqarad-image-proxy-1 | initial | 4 | +0.00000 |
+| single:conch_tissue:question:native_text | pathvqa-train-proxy-0 | continuation | 7 | +0.00000 |
+| single:conch_tissue:question:native_text | pathvqa-train-proxy-0 | initial | 8 | +0.00326 |
+| single:conch_tissue:question:native_text | pathvqa-train-proxy-1 | continuation | 9 | -0.00192 |
+| single:conch_tissue:question:native_text | pathvqa-train-proxy-1 | initial | 9 | -0.00085 |
+| single:conch_tissue:question:scoped_text | pathvqa-train-proxy-0 | continuation | 7 | +0.00000 |
+| single:conch_tissue:question:scoped_text | pathvqa-train-proxy-0 | initial | 8 | +0.00326 |
+| single:conch_tissue:question:scoped_text | pathvqa-train-proxy-1 | continuation | 9 | +0.01767 |
+| single:conch_tissue:question:scoped_text | pathvqa-train-proxy-1 | initial | 9 | +0.00190 |
+| single:cxr_anatomy:question:native_overlay | vqarad-image-proxy-0 | initial | 1 | +0.00000 |
+| single:cxr_anatomy:question:native_text | vqarad-image-proxy-0 | initial | 1 | +0.00000 |
+| single:cxr_anatomy:question:scoped_overlay | vqarad-image-proxy-0 | initial | 1 | +0.00000 |
+| single:cxr_anatomy:question:scoped_text | vqarad-image-proxy-0 | initial | 1 | +0.00000 |
+| single:cxr_anatomy:question:scoped_text_duplicate | vqarad-image-proxy-0 | initial | 1 | +0.00000 |
+| single:cxr_findings:question:native_text | pathvqa-train-proxy-0 | initial | 1 | +0.11940 |
+| single:cxr_findings:question:native_text | vqarad-image-proxy-0 | continuation | 3 | +0.00000 |
+| single:cxr_findings:question:native_text | vqarad-image-proxy-0 | initial | 5 | -0.11559 |
+| single:cxr_findings:question:native_text | vqarad-image-proxy-1 | continuation | 3 | +0.00000 |
+| single:cxr_findings:question:native_text | vqarad-image-proxy-1 | initial | 4 | +0.01026 |
+| single:cxr_findings:question:scoped_text | pathvqa-train-proxy-0 | initial | 1 | +0.05405 |
+| single:cxr_findings:question:scoped_text | vqarad-image-proxy-0 | continuation | 3 | +0.00000 |
+| single:cxr_findings:question:scoped_text | vqarad-image-proxy-0 | initial | 5 | -0.02456 |
+| single:cxr_findings:question:scoped_text | vqarad-image-proxy-1 | continuation | 3 | +0.00000 |
+| single:cxr_findings:question:scoped_text | vqarad-image-proxy-1 | initial | 4 | +0.03333 |
+| single:source_cases:question:native_text | pathvqa-train-proxy-0 | continuation | 12 | -0.00036 |
+| single:source_cases:question:native_text | pathvqa-train-proxy-0 | initial | 16 | -0.00177 |
+| single:source_cases:question:native_text | pathvqa-train-proxy-1 | continuation | 15 | +0.00447 |
+| single:source_cases:question:native_text | pathvqa-train-proxy-1 | initial | 16 | -0.02058 |
+| single:source_cases:question:native_text | vqarad-image-proxy-0 | continuation | 11 | -0.00303 |
+| single:source_cases:question:native_text | vqarad-image-proxy-0 | initial | 16 | -0.07054 |
+| single:source_cases:question:native_text | vqarad-image-proxy-1 | continuation | 11 | +0.00186 |
+| single:source_cases:question:native_text | vqarad-image-proxy-1 | initial | 16 | -0.03100 |
+| single:source_cases:question:scoped_text | pathvqa-train-proxy-0 | continuation | 12 | +0.00132 |
+| single:source_cases:question:scoped_text | pathvqa-train-proxy-0 | initial | 16 | -0.00460 |
+| single:source_cases:question:scoped_text | pathvqa-train-proxy-1 | continuation | 15 | +0.00781 |
+| single:source_cases:question:scoped_text | pathvqa-train-proxy-1 | initial | 16 | -0.01542 |
+| single:source_cases:question:scoped_text | vqarad-image-proxy-0 | continuation | 11 | +0.00000 |
+| single:source_cases:question:scoped_text | vqarad-image-proxy-0 | initial | 16 | -0.06854 |
+| single:source_cases:question:scoped_text | vqarad-image-proxy-1 | continuation | 11 | +0.00186 |
+| single:source_cases:question:scoped_text | vqarad-image-proxy-1 | initial | 16 | -0.03391 |
+| single:source_cases:question:scoped_text_answers | pathvqa-train-proxy-0 | continuation | 12 | -0.00036 |
+| single:source_cases:question:scoped_text_answers | pathvqa-train-proxy-0 | initial | 16 | -0.00177 |
+| single:source_cases:question:scoped_text_answers | pathvqa-train-proxy-1 | continuation | 15 | +0.00447 |
+| single:source_cases:question:scoped_text_answers | pathvqa-train-proxy-1 | initial | 16 | -0.02058 |
+| single:source_cases:question:scoped_text_answers | vqarad-image-proxy-0 | continuation | 11 | -0.00303 |
+| single:source_cases:question:scoped_text_answers | vqarad-image-proxy-0 | initial | 16 | -0.07054 |
+| single:source_cases:question:scoped_text_answers | vqarad-image-proxy-1 | continuation | 11 | +0.00186 |
+| single:source_cases:question:scoped_text_answers | vqarad-image-proxy-1 | initial | 16 | -0.03100 |
+
+Pairs are joint evidence presentations, not proof of native tool-to-tool transfer.
+No fitted gate, target generation, clinical safety guarantee or automatic go/no-go verdict.
+See evidence-audit.json for separate correctness, relevance and factuality review.

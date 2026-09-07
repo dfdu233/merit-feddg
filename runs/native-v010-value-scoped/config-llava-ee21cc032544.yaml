@@ -1,0 +1,241 @@
+generalist:
+  backend: llava_med
+  id: microsoft/llava-med-v1.5-mistral-7b
+  checkpoint_path: /home/dbw/ANCHOR/hf_cache/llava-med-v1.5-mistral-7b
+  source_path: /home/dbw/ANCHOR/data/medheval/code/baselines/Med-LVLMs/llava-med-1.5
+  vision_tower_path: /home/dbw/ANCHOR/hf_cache/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1
+  dtype: float16
+  device_map: auto
+  deterministic_image_padding: true
+prompt_suffix: Answer the original question briefly using only image-supported information.
+  Give the requested name or finding, not a report, unless an explanation is explicitly
+  requested.
+routing:
+  enabled: true
+  override_dataset_modality: true
+capability_generation:
+  control_protocol: action_id
+  max_new_tokens: 96
+  block_tokens: 16
+  max_calls: 3
+  max_controller_calls: 4
+  controller_tokens: 8
+  max_evidence_chars: 1600
+qualification:
+  min_per_domain: 8
+  min_domains: 2
+  penalty: 1.645
+evaluation:
+  single_tools: true
+  source_adaptive_audit: false
+experts:
+  conch_tissue:
+    id: MahmoodLab/CONCH
+    revision: f9ca9f877171a28ade80228fb195ac5d79003357
+    adapter: conch
+    modalities:
+    - pathology
+    tasks:
+    - open_vqa
+    capabilities:
+    - classification
+    scope: tissue_appearance
+    prefix_invariant: true
+    excluded_question_types:
+    - count
+    - measurement
+    - location
+    description: Compare microscopic histology against a fixed tissue-appearance catalog.
+      No gross photographs, arbitrary diagnoses, cell counts or measurements.
+    catalog:
+    - name: glandular epithelium
+      prompt: A histopathology image of glandular epithelial tissue.
+    - name: squamous epithelium
+      prompt: A histopathology image of squamous epithelial tissue.
+    - name: connective tissue
+      prompt: A histopathology image of connective tissue.
+    - name: adipose tissue
+      prompt: A histopathology image of adipose tissue.
+    - name: smooth muscle
+      prompt: A histopathology image of smooth muscle tissue.
+    - name: skeletal muscle
+      prompt: A histopathology image of skeletal muscle tissue.
+    - name: lymphoid tissue
+      prompt: A histopathology image of lymphoid tissue.
+    - name: neural tissue
+      prompt: A histopathology image of neural tissue.
+    - name: blood vessels
+      prompt: A histopathology image of blood vessels.
+    - name: necrotic tissue
+      prompt: A histopathology image of necrotic tissue.
+  biomed_anatomy:
+    id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+    adapter: contrastive_biomedclip
+    modalities:
+    - cxr
+    - xray
+    - ct
+    - mri
+    - gross_pathology
+    tasks:
+    - open_vqa
+    capabilities:
+    - classification
+    scope: major_anatomy
+    prefix_invariant: true
+    question_types:
+    - anatomy
+    description: Compare this image against a non-exhaustive major-organ catalog.
+      Only for organ identification, not disease diagnosis, location, counts or segmentation.
+    catalog:
+    - brain
+    - lung
+    - heart
+    - liver
+    - kidney
+    - spleen
+    - pancreas
+    - stomach
+    - intestine
+    - thyroid
+    - skin
+    - bone
+    - breast
+    - uterus
+    - testis
+  source_cases:
+    id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+    adapter: source_retrieval
+    encoder_adapter: contrastive_biomedclip
+    modalities:
+    - pathology
+    - gross_pathology
+    - cxr
+    - xray
+    - ct
+    - mri
+    - ultrasound
+    - oct
+    - fundus
+    - dermatology
+    - endoscopy
+    - clinical_photo
+    - diagram
+    tasks:
+    - open_vqa
+    capabilities:
+    - retrieval
+    scope: related_source_qa
+    prefix_invariant: true
+    top_k: 1
+    question_weight: 0.5
+    include_source_answers: true
+    description: Retrieve one source case matched by image AND question, from another
+      source domain and same image type. Its answer belongs only to that different
+      image; this is an analogy, not proof about the current image.
+  cxr_findings:
+    id: xrv/densenet121-res224-all
+    adapter: xrv_classification
+    checkpoint_path: /home/dbw/merit-feddg/artifacts/models/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    weights: densenet121-res224-all
+    modalities:
+    - cxr
+    tasks:
+    - open_vqa
+    capabilities:
+    - classification
+    scope: cxr_findings
+    prefix_invariant: true
+    excluded_question_types:
+    - count
+    - measurement
+    - anatomy
+    - location
+    description: Whole-chest-radiograph disease finding scores from a small chest
+      X-ray classifier. Not calibrated probabilities, not CT/MRI and not lesion location.
+  cxr_anatomy:
+    id: xrv/pspnet-chestxray
+    adapter: xrv_anatomy
+    checkpoint_path: /home/dbw/merit-feddg/artifacts/models/xrv/pspnet_chestxray_best_model_4.pth
+    modalities:
+    - cxr
+    tasks:
+    - open_vqa
+    capabilities:
+    - segmentation
+    scope: thoracic_anatomy
+    requires_region: false
+    prefix_invariant: true
+    question_types:
+    - anatomy
+    - location
+    - measurement
+    - appearance
+    description: Segment lung and heart anatomy in a chest radiograph, return crop-aware
+      masks and spatial measurements. No tumor detection, no physical size without
+      image calibration.
+  chexagent_description:
+    id: StanfordAIMI/CheXagent-2-3b
+    checkpoint_path: /home/dbw/merit-feddg/artifacts/models/StanfordAIMI--CheXagent-2-3b
+    optional: false
+    factory: merit_feddg.experts.native_chexagent:CheXagentCapabilityExpert
+    factory_kwargs:
+      expert_id: chexagent_description
+      scope: cxr_description
+      dtype: bfloat16
+      device_map: auto
+      max_new_tokens: 64
+    modalities:
+    - cxr
+    tasks:
+    - open_vqa
+    capabilities:
+    - generation
+    scope: cxr_description
+    requires_region: false
+    description: Ask an existing specialist chest X-ray VLM for a short visual description
+      relevant to the question. Its generated observation can be wrong and is not
+      a gold report.
+capability_value:
+  generation:
+    max_new_tokens: 96
+    block_tokens: 16
+    max_expert_calls: 2
+    max_decisions: 4
+    controller_tokens: 48
+    max_evidence_chars: 1200
+    visual_views: 0
+    evidence_style: scoped
+    request_style: need
+    evidence_top_k: 2
+    retrieval_answer_context: false
+  encoder:
+    expert: source_cases
+    dimensions: 16
+    seed: 17
+  collection:
+    collect_continuations: true
+    verify_block_none: true
+    pair_first_tools:
+    - cxr_anatomy
+    - conch_tissue
+    - source_cases
+    max_pair_first_tools: 2
+  fit:
+    ridge: 1.0
+    min_cases_per_domain: 8
+    min_domains: 2
+    residual_quantile: 0.9
+    cost_weight: 0.0
+  quality:
+    name: token_f1
+  single_tools: true
+runtime_dependencies:
+  biomedbert_text_config:
+    id: microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract
+    revision: d673b8835373c6fa116d6d8006b33d48734e305d
+    path: /home/dbw/models/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224/.cache/merit-text-config/config.json
+    sha256: 56bab767c02bc792897638feb8addc06d483d9c73769a5f554bbabea1f5507a1
+    weights_downloaded: false

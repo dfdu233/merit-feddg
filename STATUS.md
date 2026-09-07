@@ -22,10 +22,53 @@
   defaults remain available. No DG threshold was weakened to force calls.
 - Local verification: 449 tests passed; Ruff, Bash syntax and diff checks passed.
   These include offline model doubles, NOT new real-model medical evidence.
-- Remote source diagnosis and any new clinical/target performance result are still
-  pending. Frozen native features, retrieval bank LODO isolation, real hospital
-  coverage, learned evidence alignment and ROI/sequence-policy extensions are not
-  newly solved by this patch. Read `docs/SERVER_CODEX_V010.md` before server execution.
+- The remote source diagnosis and bounded source-only fits were subsequently completed
+  as recorded below. No new clinical/target performance result was produced. Frozen
+  native features, retrieval bank LODO isolation, real hospital coverage, learned
+  evidence alignment and ROI/sequence-policy extensions remain unsolved. Read
+  `docs/SERVER_CODEX_V010.md` before any later target execution.
+
+## GPU validation after v0.10 (2026-09-07)
+
+- Completed handoff stages 0--4 with the existing huatuo environment, local
+  LLaVA-Med v1.5 Mistral 7B, CheXagent, CONCH, XRV and the exact 64-source v0.9
+  manifests. No model/data download, target generation, target scoring or target
+  hyperparameter search was performed. Detailed paths and commands are recorded in
+  `runs/native-v010-audit/HANDOFF_RESULT.md`.
+- A first full diagnostic attempt exposed a per-case CUDA allocator-cache lifecycle
+  issue: recorded live allocation stayed near 17.4 GiB while total device use grew
+  to 48.5 GiB after 11 cases. The value/diagnostic cache lifecycle now resets case
+  state, runs GC and releases unused CUDA cache after success or failure without
+  unloading expert weights. A focused regression test and a real 8-source canary
+  verified the repair. Full checks passed with 447 tests and two environment skips;
+  Ruff, Bash syntax and diff checks passed.
+- The 64-source diagnostic completed at
+  `runs/native-v010-source-diagnostics/llava/33f84d09e0bdb3a1`: all 64 block-NONE
+  token sequences matched baseline, all 233 tool events executed without a runtime
+  error, and peak per-case PyTorch allocation was 24.03 GiB. The run fitted no policy
+  and generated zero target answers.
+- Duplicate-original input alone had mean initial Token-F1 gain -0.05095 and harmed
+  17/64 groups, exposing a substantial multi-image-format confound. Scoped XRV
+  findings changed the 10-CXR mean from -0.04175 to +0.00646, primarily by reducing
+  verbose evidence harm. CONCH scoped continuation changed 16-group mean from
+  -0.00108 to +0.00994. These are lexical communication signals, not medical
+  correctness or hallucination reduction.
+- Source retrieval remained harmful at initial state (about -0.031 mean over 64
+  groups), and removing attached source answers did not solve it. The predeclared
+  CONCH-to-retrieval pair averaged -0.00612 over 17 initial groups and beat the best
+  single action only once; the CXR anatomy-to-CheXagent pair had only one supported
+  case and zero gain. No stable complementarity claim is supported.
+- The diagnostic justified a bounded source-only legacy/scoped fit, not target use.
+  Legacy fitted 292 and scoped 294 real source interventions, with zero runtime
+  failures and 64 independent groups each. Only five exact conditions in each policy
+  met support requirements, all involving pathology CONCH/retrieval. Both robust
+  policies selected NONE at all 200 observed source states after their source-LODO
+  overestimation penalties. This is conservative rejection, not a performance win.
+- The four source domains are dataset/hash proxies, not hospitals. CXR conditions
+  lack two domains with eight independent groups, routing and evidence factuality
+  annotation sheets remain unfilled, and pretraining-source exposure is unresolved.
+  The next step is blinded routing/medical evidence review plus source-only CXR
+  coverage, not lowering thresholds or tuning on the old 32-case development target.
 
 ## v0.9 source-conditioned native capability value (2026-09-06)
 

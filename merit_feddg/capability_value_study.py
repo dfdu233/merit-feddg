@@ -7,6 +7,7 @@ Target references are only accessed after the source policy has been frozen.
 
 from __future__ import annotations
 
+import gc
 import importlib
 import json
 import math
@@ -238,23 +239,32 @@ def run_value_study(source_path, target_path, references_path, config_path, arti
             if saved.get("cache_key") == key:
                 return saved
         print(f"Value study {row['role']} {row['id']} {method}", flush=True)
-        engine = make_runtime(row)
-        cuda = engine.session.probe.torch.cuda
-        if cuda.is_available():
-            for device in range(cuda.device_count()):
-                cuda.synchronize(device)
-                cuda.reset_peak_memory_stats(device)
-        started = perf_counter()
-        result = callback(engine)
-        if cuda.is_available():
-            for device in range(cuda.device_count()):
-                cuda.synchronize(device)
-            result["peak_allocated_gib"] = sum(
-                cuda.max_memory_allocated(i) for i in range(cuda.device_count())
-            ) / 2**30
-        result.update(cache_key=key, generation_seconds=perf_counter() - started)
-        atomic_json(path, result)
-        return result
+        engine = None
+        cuda = None
+        try:
+            engine = make_runtime(row)
+            cuda = engine.session.probe.torch.cuda
+            if cuda.is_available():
+                for device in range(cuda.device_count()):
+                    cuda.synchronize(device)
+                    cuda.reset_peak_memory_stats(device)
+            started = perf_counter()
+            result = callback(engine)
+            if cuda.is_available():
+                for device in range(cuda.device_count()):
+                    cuda.synchronize(device)
+                result["peak_allocated_gib"] = sum(
+                    cuda.max_memory_allocated(i) for i in range(cuda.device_count())
+                ) / 2**30
+            result.update(cache_key=key, generation_seconds=perf_counter() - started)
+            atomic_json(path, result)
+            return result
+        finally:
+            pool.reset_case()
+            del engine
+            gc.collect()
+            if cuda is not None and cuda.is_available():
+                cuda.empty_cache()
 
     policy_path = root / "value-policy.json"
     try:

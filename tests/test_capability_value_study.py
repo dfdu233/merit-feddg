@@ -248,7 +248,11 @@ def test_source_stage_freezes_before_target_and_target_reference_changes_only_ev
     monkeypatch.setattr(study, "_route_records", route)
     monkeypatch.setattr(generalist_factory, "resolve_generalist_spec", lambda spec: spec)
     monkeypatch.setattr(generalist_factory, "generalist_provenance", lambda *args: {"model": "fixed"})
-    probe = SimpleNamespace(torch=SimpleNamespace(cuda=SimpleNamespace(is_available=lambda: False)))
+    cuda_cleanups = []
+    probe = SimpleNamespace(torch=SimpleNamespace(cuda=SimpleNamespace(
+        is_available=lambda: True, device_count=lambda: 0,
+        empty_cache=lambda: cuda_cleanups.append("empty"),
+    )))
     monkeypatch.setattr(generalist_factory, "load_generalist", lambda *args: probe)
     banks, generated = [], []
 
@@ -283,6 +287,7 @@ def test_source_stage_freezes_before_target_and_target_reference_changes_only_ev
     assert result["target_generations"] == 0 and not generated and set(routed) == {"source"}
     assert all(row["role"] == "source" for bank, _ in banks for row in bank)
     assert all("target" not in bank_refs for _, bank_refs in banks)
+    assert len(cuda_cleanups) == len(source), "each uncached case must release CUDA cache"
 
     first = study.run_value_study(*args, stage="evaluate")
     assert len(generated) == 2

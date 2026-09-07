@@ -1,0 +1,903 @@
+{
+  "presentation_by_domain": [
+    {
+      "name": "format:duplicate_original",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 12,
+      "branch_count": 12,
+      "mean_gain": -0.012547838634795154,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 2
+    },
+    {
+      "name": "format:duplicate_original",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.016821946169772256,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 2
+    },
+    {
+      "name": "format:duplicate_original",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 15,
+      "branch_count": 15,
+      "mean_gain": -0.006088424973511305,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 3
+    },
+    {
+      "name": "format:duplicate_original",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.03749111018875527,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 6
+    },
+    {
+      "name": "format:duplicate_original",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 11,
+      "branch_count": 11,
+      "mean_gain": 0.0018648018648018657,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "format:duplicate_original",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.09285714285714286,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 5
+    },
+    {
+      "name": "format:duplicate_original",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 11,
+      "branch_count": 11,
+      "mean_gain": -0.004195804195804196,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "format:duplicate_original",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.05663919413919414,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 4
+    },
+    {
+      "name": "pair:conch_tissue->source_cases:scoped_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 7,
+      "branch_count": 7,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "pair:conch_tissue->source_cases:scoped_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 8,
+      "branch_count": 8,
+      "mean_gain": -0.021739130434782608,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "pair:conch_tissue->source_cases:scoped_text",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 9,
+      "branch_count": 9,
+      "mean_gain": 0.013569276727171465,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "pair:conch_tissue->source_cases:scoped_text",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 9,
+      "branch_count": 9,
+      "mean_gain": 0.0077626077626077655,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "pair:cxr_anatomy->chexagent_description:scoped_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:biomed_anatomy:question:native_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:biomed_anatomy:question:native_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:biomed_anatomy:question:scoped_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:biomed_anatomy:question:scoped_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:need:native_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:need:native_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 3,
+      "branch_count": 3,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:need:native_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 6,
+      "branch_count": 6,
+      "mean_gain": 0.01639344262295082,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:chexagent_description:need:native_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 3,
+      "branch_count": 3,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:need:native_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 4,
+      "branch_count": 4,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:need:scoped_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:need:scoped_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 3,
+      "branch_count": 3,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:need:scoped_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 6,
+      "branch_count": 6,
+      "mean_gain": 0.01639344262295082,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:chexagent_description:need:scoped_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 3,
+      "branch_count": 3,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:need:scoped_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 4,
+      "branch_count": 4,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:question:native_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.08695652173913043,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:question:native_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 3,
+      "branch_count": 3,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:question:native_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 6,
+      "branch_count": 6,
+      "mean_gain": 0.017980744210252406,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:chexagent_description:question:native_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 3,
+      "branch_count": 3,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:question:native_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 4,
+      "branch_count": 4,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:question:scoped_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.08695652173913043,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:question:scoped_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 3,
+      "branch_count": 3,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:question:scoped_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 6,
+      "branch_count": 6,
+      "mean_gain": 0.017980744210252406,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:chexagent_description:question:scoped_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 3,
+      "branch_count": 3,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:chexagent_description:question:scoped_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 4,
+      "branch_count": 4,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:conch_tissue:question:native_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 7,
+      "branch_count": 7,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:conch_tissue:question:native_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 8,
+      "branch_count": 8,
+      "mean_gain": 0.0032608695652173933,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:conch_tissue:question:native_text",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 9,
+      "branch_count": 9,
+      "mean_gain": -0.0019240019240019236,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:conch_tissue:question:native_text",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 9,
+      "branch_count": 9,
+      "mean_gain": -0.0008473008473008451,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:conch_tissue:question:scoped_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 7,
+      "branch_count": 7,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:conch_tissue:question:scoped_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 8,
+      "branch_count": 8,
+      "mean_gain": 0.0032608695652173933,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:conch_tissue:question:scoped_text",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 9,
+      "branch_count": 9,
+      "mean_gain": 0.01767411510058569,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:conch_tissue:question:scoped_text",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 9,
+      "branch_count": 9,
+      "mean_gain": 0.0019041613244511818,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:cxr_anatomy:question:native_overlay",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:cxr_anatomy:question:native_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:cxr_anatomy:question:scoped_overlay",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:cxr_anatomy:question:scoped_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:cxr_anatomy:question:scoped_text_duplicate",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:cxr_findings:question:native_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.11940298507462686,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:cxr_findings:question:native_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 3,
+      "branch_count": 3,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:cxr_findings:question:native_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 5,
+      "branch_count": 5,
+      "mean_gain": -0.11558740110464247,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 2
+    },
+    {
+      "name": "single:cxr_findings:question:native_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 3,
+      "branch_count": 3,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:cxr_findings:question:native_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 4,
+      "branch_count": 4,
+      "mean_gain": 0.010256410256410262,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:cxr_findings:question:scoped_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "branch_count": 1,
+      "mean_gain": 0.05405405405405406,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:cxr_findings:question:scoped_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 3,
+      "branch_count": 3,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:cxr_findings:question:scoped_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 5,
+      "branch_count": 5,
+      "mean_gain": -0.024561403508771923,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:cxr_findings:question:scoped_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 3,
+      "branch_count": 3,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:cxr_findings:question:scoped_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 4,
+      "branch_count": 4,
+      "mean_gain": 0.03333333333333334,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:source_cases:question:native_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 12,
+      "branch_count": 12,
+      "mean_gain": -0.0003607503607503601,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:source_cases:question:native_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.0017717789456919882,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:source_cases:question:native_text",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 15,
+      "branch_count": 15,
+      "mean_gain": 0.0044736196353472365,
+      "lexical_improved_groups": 3,
+      "lexical_harmed_groups": 2
+    },
+    {
+      "name": "single:source_cases:question:native_text",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.020584058906703985,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 6
+    },
+    {
+      "name": "single:source_cases:question:native_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 11,
+      "branch_count": 11,
+      "mean_gain": -0.0030303030303030294,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:source_cases:question:native_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.07053571428571428,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 4
+    },
+    {
+      "name": "single:source_cases:question:native_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 11,
+      "branch_count": 11,
+      "mean_gain": 0.0018648018648018646,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:source_cases:question:native_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.031004944667735367,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 3
+    },
+    {
+      "name": "single:source_cases:question:scoped_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 12,
+      "branch_count": 12,
+      "mean_gain": 0.0013227513227513227,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:source_cases:question:scoped_text",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.004602394887720974,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:source_cases:question:scoped_text",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 15,
+      "branch_count": 15,
+      "mean_gain": 0.007805169170086892,
+      "lexical_improved_groups": 3,
+      "lexical_harmed_groups": 2
+    },
+    {
+      "name": "single:source_cases:question:scoped_text",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.0154227215881086,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 6
+    },
+    {
+      "name": "single:source_cases:question:scoped_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 11,
+      "branch_count": 11,
+      "mean_gain": 0.0,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 0
+    },
+    {
+      "name": "single:source_cases:question:scoped_text",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.06853587588881706,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 4
+    },
+    {
+      "name": "single:source_cases:question:scoped_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 11,
+      "branch_count": 11,
+      "mean_gain": 0.0018648018648018646,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:source_cases:question:scoped_text",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.03391192141192141,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 3
+    },
+    {
+      "name": "single:source_cases:question:scoped_text_answers",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 12,
+      "branch_count": 12,
+      "mean_gain": -0.0003607503607503601,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:source_cases:question:scoped_text_answers",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.0017717789456919882,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:source_cases:question:scoped_text_answers",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 15,
+      "branch_count": 15,
+      "mean_gain": 0.0044736196353472365,
+      "lexical_improved_groups": 3,
+      "lexical_harmed_groups": 2
+    },
+    {
+      "name": "single:source_cases:question:scoped_text_answers",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.020584058906703985,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 6
+    },
+    {
+      "name": "single:source_cases:question:scoped_text_answers",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 11,
+      "branch_count": 11,
+      "mean_gain": -0.0030303030303030294,
+      "lexical_improved_groups": 0,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:source_cases:question:scoped_text_answers",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.07053571428571428,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 4
+    },
+    {
+      "name": "single:source_cases:question:scoped_text_answers",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 11,
+      "branch_count": 11,
+      "mean_gain": 0.0018648018648018646,
+      "lexical_improved_groups": 1,
+      "lexical_harmed_groups": 1
+    },
+    {
+      "name": "single:source_cases:question:scoped_text_answers",
+      "domain": "vqarad-image-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 16,
+      "branch_count": 16,
+      "mean_gain": -0.031004944667735367,
+      "lexical_improved_groups": 2,
+      "lexical_harmed_groups": 3
+    }
+  ],
+  "pairs_by_domain": [
+    {
+      "pair": "conch_tissue->source_cases",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "continuation",
+      "independent_groups": 7,
+      "joint_gain": 0.0,
+      "second_given_first_gain": 0.0,
+      "interaction": 0.0,
+      "beats_best_single": 0.0
+    },
+    {
+      "pair": "conch_tissue->source_cases",
+      "domain": "pathvqa-train-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 8,
+      "joint_gain": -0.021739130434782608,
+      "second_given_first_gain": -0.025,
+      "interaction": -0.0032608695652173933,
+      "beats_best_single": 0.0
+    },
+    {
+      "pair": "conch_tissue->source_cases",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "continuation",
+      "independent_groups": 9,
+      "joint_gain": 0.013569276727171465,
+      "second_given_first_gain": -0.004104838373414225,
+      "interaction": -0.01285846760897117,
+      "beats_best_single": 0.0
+    },
+    {
+      "pair": "conch_tissue->source_cases",
+      "domain": "pathvqa-train-proxy-1",
+      "state_kind": "initial",
+      "independent_groups": 9,
+      "joint_gain": 0.0077626077626077655,
+      "second_given_first_gain": 0.005858446438156584,
+      "interaction": -0.008205267625557481,
+      "beats_best_single": 0.1111111111111111
+    },
+    {
+      "pair": "cxr_anatomy->chexagent_description",
+      "domain": "vqarad-image-proxy-0",
+      "state_kind": "initial",
+      "independent_groups": 1,
+      "joint_gain": 0.0,
+      "second_given_first_gain": 0.0,
+      "interaction": 0.0,
+      "beats_best_single": 0.0
+    }
+  ],
+  "source_cases": 64,
+  "target_generations": 0,
+  "domain_kinds": [
+    "proxy"
+  ],
+  "policy_fitted": false,
+  "warning": "Descriptive source-only lexical diagnostics, NOT hallucination reduction or DG proof."
+}
