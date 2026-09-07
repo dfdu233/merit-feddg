@@ -124,6 +124,30 @@ def test_intervention_reuses_same_exact_committed_token_prefix(setup):
     assert len(probe.contexts) == 2  # Same committed IDs; new evidence context.
 
 
+def test_behavior_audit_does_not_reject_but_reject_mode_withholds_evidence(setup):
+    build, _, _ = setup
+    for mode in ("audit", "reject"):
+        runtime, _, pool = build(behavior_probe=mode, behavior_max_sensitivity=.2)
+        pool.behavior_probe = lambda *args: {
+            "informative": True, "sensitivity": .8, "extra_model_calls": 3}
+        state, event = runtime.execute(NativeState(), runtime.descriptors(NativeState())[0])
+        assert event["executed"] and event["behavior_probe"]["extra_model_calls"] == 3
+        assert bool(state.items) == (mode == "audit")
+        assert len(state.history) == 1
+
+
+def test_crop_evidence_rebuilds_visual_context_preserving_prefix(setup):
+    build, _, _ = setup
+    runtime, probe, _ = build({"A": spec("segmentation")}, visual_mode="crop")
+    state = runtime.advance(NativeState(), 2)
+    state, event = runtime.execute(state, runtime.descriptors(state)[0])
+    result = runtime.complete(state)
+    assert event["adopted"] and result["token_ids"][:2] == [1, 2]
+    assert len(probe.contexts) == 2
+    assert len(probe.contexts[-1][0]) == 2
+    assert result["visual_evidence"][0]["view_kind"] == "predicted_region_crop"
+
+
 def test_applicability_rejection_precedes_controller_and_tool(setup):
     build, _, _ = setup
     runtime, probe, pool = build(choices=("A",))

@@ -48,6 +48,10 @@ def experiment_config(args):
     from .io import load_yaml
 
     config = load_yaml(args.config)
+    if "base_config" in config:
+        base = load_yaml(config.pop("base_config"))
+        base.update(config)
+        config = base
     if args.generalist == "openmed":
         config["generalist"] = {
             "backend": "qwen", "id": "OpenMed/Qwen2.5-3B-MedVL",

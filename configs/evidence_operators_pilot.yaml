@@ -1,0 +1,24 @@
+# Source-only communication diagnostic, NOT a domain-generalization certificate.
+# Base paths are resolved from the repository working directory.
+base_config: configs/llava_med_capabilities.yaml
+capability_value:
+  generation:
+    max_new_tokens: 32
+    block_tokens: 8
+    max_expert_calls: 2
+    max_decisions: 3
+    controller_tokens: 48
+    max_evidence_chars: 1200
+    visual_views: 1
+    visual_mode: overlay
+    evidence_style: scoped
+    request_style: need
+    evidence_top_k: 2
+    retrieval_answer_context: false
+    behavior_probe: audit
+  quality:
+    name: token_f1
+capability_diagnostics:
+  pairs: []
+  continuations: false
+  evidence_operators: true

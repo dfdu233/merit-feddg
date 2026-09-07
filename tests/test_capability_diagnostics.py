@@ -41,6 +41,24 @@ def collect(runtime, **kwargs):
     return collect_diagnostic_case(runtime, ["unused-source-only-reference"], metric, **kwargs)
 
 
+def test_operator_branches_reuse_exact_native_evidence(setup):
+    runtime, _, pool = source_runtime(setup, {"A": spec("segmentation")})
+    result = collect(runtime, continuations=False, evidence_operators=True)
+    branches = {b["name"].split(":")[-1]: b for b in result["branches"]}
+    assert len(pool.calls) == 1
+    assert branches["scoped_crop"]["native_evidence"] == branches["scoped_control_crop"]["native_evidence"]
+    assert branches["scoped_crop"]["presented_memory"] == branches["scoped_control_crop"]["presented_memory"]
+    assert branches["scoped_crop"]["with"]["visual_evidence"][0]["view_kind"] == "predicted_region_crop"
+
+
+def test_operator_pilot_inherits_models_and_is_audit_only():
+    args = parser().parse_args(["--study", "diagnose", "--config", "configs/evidence_operators_pilot.yaml"])
+    config = experiment_config(args)
+    assert "cxr_anatomy" in config["experts"]
+    assert config["capability_value"]["generation"]["behavior_probe"] == "audit"
+    assert config["capability_diagnostics"]["evidence_operators"] is True
+
+
 def test_scope_compiler_preserves_native_scores_and_raw_items():
     raw = EvidenceItem("a", "conch", "classification", "tissue", {
         "catalog": [{"concept": "lung", "similarity": 0.8},

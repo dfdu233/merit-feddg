@@ -303,6 +303,24 @@ class CapabilityPool:
         self._digest_cache.clear()
         gc.collect()
 
+    def behavior_probe(self, expert_id, request):
+        """Optional output-native probe. Unsupported adapters are never substituted."""
+        from .behavior_probe import probe_xrv
+
+        spec = self.specs[expert_id]
+        adapter = self._adapter(spec)
+        expected = {"xrv_classification": "classification", "xrv_anatomy": "segmentation"}
+        if (request.modality != "cxr" or expected.get(adapter) != request.capability
+                or request.region is not None):
+            return {"status": "unsupported", "extra_model_calls": 0, "seconds": 0.0,
+                    "sensitivity": None, "informative": False}
+        return probe_xrv(
+            self._model(spec), request.image, request.capability,
+            structures=(spec.get("structures", ["Left Lung", "Right Lung", "Heart"])
+                        if request.capability == "segmentation" else None),
+            threshold=float(spec.get("mask_threshold", 0.5)),
+        )
+
     def infer(self, expert_id: str, request: CapabilityRequest) -> CapabilityResult:
         spec = self.specs[expert_id]
         adapter = self._adapter(spec)

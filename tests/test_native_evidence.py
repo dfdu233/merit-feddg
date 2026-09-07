@@ -135,6 +135,21 @@ def test_explicit_detection_box_view(box):
     assert meta[0]["sources"][0]["representation"] == "predicted_bbox"
 
 
+def test_crop_and_control_keep_equal_area_and_original_pixels():
+    image = Image.fromarray(np.arange(40 * 40 * 3, dtype=np.uint8).reshape(40, 40, 3))
+    item = evidence("detection", {"detections": [
+        {"label": "anatomy", "bbox_xyxy_normalized": [.1, .1, .4, .4]}]})
+    before = image.tobytes()
+    crops, crop_meta = make_visual_evidence(image, [item], "", mode="crop")
+    controls, control_meta = make_visual_evidence(image, [item], "", mode="control_crop")
+    assert crops[0].size == controls[0].size == (12, 12)
+    assert crop_meta[0]["sources"] == control_meta[0]["sources"]
+    assert crop_meta[0]["crop_box_pixels"] != control_meta[0]["crop_box_pixels"]
+    assert crops[0].tobytes() == image.crop((4, 4, 16, 16)).tobytes()
+    assert image.tobytes() == before
+    assert control_meta[0]["control_is_not_guaranteed_irrelevant"]
+
+
 @pytest.mark.parametrize("box", [[1, 0, 0, 1], [0, 0, 40, 40], [0, 0, float("nan"), 1],
                                  [0, 0, float("inf"), 1], [True, 0, 1, 1], [], "0,0,1,1"])
 def test_invalid_box_and_unknown_coordinates_skipped(box):

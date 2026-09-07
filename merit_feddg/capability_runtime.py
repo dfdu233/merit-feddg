@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict, dataclass, replace
 from time import perf_counter
 
@@ -38,8 +39,21 @@ class ValueGenerationConfig:
     request_style: str = "question"
     evidence_top_k: int = 2
     retrieval_answer_context: bool = False
+    visual_mode: str = "overlay"
+    behavior_probe: str = "off"
+    behavior_max_sensitivity: float | None = None
 
     def __post_init__(self):
+        if self.visual_mode not in {"overlay", "crop", "control_crop"}:
+            raise ValueError("visual_mode must be overlay, crop or control_crop")
+        if self.behavior_probe not in {"off", "audit", "reject"}:
+            raise ValueError("behavior_probe must be off, audit or reject")
+        bound = self.behavior_max_sensitivity
+        if bound is not None and (type(bound) not in (float, int)
+                                  or not math.isfinite(bound) or not 0 <= bound <= 1):
+            raise ValueError("behavior_max_sensitivity must be a finite [0,1] value")
+        if self.behavior_probe == "reject" and bound is None:
+            raise ValueError("reject requires an explicit source-selected sensitivity threshold")
         if any(type(value) is not int or value < 1 for value in (
             self.max_new_tokens, self.block_tokens, self.max_expert_calls,
             self.max_decisions, self.controller_tokens, self.max_evidence_chars,
@@ -81,7 +95,8 @@ class NativeSession:
         memory = evidence_memory(state.items, self.question, self.config)
         presented_items = presentation_items(state.items, self.question, self.config)
         views, metadata = make_visual_evidence(
-            self.image, presented_items, self.question, max_views=self.config.visual_views
+            self.image, presented_items, self.question, max_views=self.config.visual_views,
+            mode=self.config.visual_mode,
         ) if state.items and self.config.visual_views else ([], [])
         prompt = self.prompt
         if memory or views:
@@ -91,6 +106,10 @@ class NativeSession:
                 "\nImage 1 is the unchanged original. Image 2 is a PREDICTED tool overlay "
                 "of that same image, not a second patient or ground truth. Its labels name "
                 "predicted regions, not diagnoses."
+            ) if self.config.visual_mode == "overlay" else (
+                "\nImage 1 is the unchanged original. Image 2 is an auxiliary crop from "
+                "that same image, not another patient. A crop is not a diagnosis. "
+                "Use Image 1 for orientation and global context."
             )
         self.view_metadata = metadata
         return ([self.image, *views] if views else self.image), prompt
@@ -180,6 +199,16 @@ class CapabilityRuntime:
                 self.pool.infer(descriptor["expert"], request), descriptor["expert"], request
             )
             trace["executed"] = True
+            if self.config.behavior_probe != "off":
+                audit = self.pool.behavior_probe(descriptor["expert"], request)
+                trace["behavior_probe"] = audit
+                if self.config.behavior_probe == "reject" and (
+                    not audit.get("informative") or audit.get("sensitivity") is None
+                    or audit["sensitivity"] > self.config.behavior_max_sensitivity
+                ):
+                    trace.update(reason="behavior_probe_rejected", seconds=perf_counter() - started,
+                                 native_evidence=[asdict(v) for v in result.items])
+                    return replace(state, history=(*state.history, key)), trace
             # Native payload is immutable. Only evidence visible to the VLM is
             # counted as adopted; empty generated_text is not an intervention.
             proposed = tuple(result.items) + state.items
@@ -190,6 +219,7 @@ class CapabilityRuntime:
                     self.row["image"], presentation_items(proposed, self.row["question"], self.config),
                     self.row["question"],
                     max_views=self.config.visual_views,
+                    mode=self.config.visual_mode,
                 )
                 visible.update((v["expert_id"], v["evidence_id"])
                                for view in view_meta for v in view.get("sources", []))
@@ -238,6 +268,7 @@ class CapabilityRuntime:
         if mode == "generalist":
             completed = self.complete(state)
             return {**completed, "expert_calls": 0, "controller_calls": 0,
+                    "probe_model_calls": 0, "probe_seconds": 0.0,
                     "controller_output_tokens": 0, "trace": [], "evidence": [],
                     "adopted_evidence_count": 0, "seconds": perf_counter() - started}
         while not state.finished and len(state.prefix) < self.config.max_new_tokens:
@@ -294,6 +325,9 @@ class CapabilityRuntime:
         return {
             "text": self.session.decode(state.prefix).strip(), "token_ids": list(state.prefix),
             "expert_calls": len(state.history), "controller_calls": controls,
+            "probe_model_calls": sum(e.get("behavior_probe", {}).get("extra_model_calls", 0)
+                                     for e in trace),
+            "probe_seconds": sum(e.get("behavior_probe", {}).get("seconds", 0.0) for e in trace),
             "controller_output_tokens": control_tokens, "trace": trace,
             "evidence": [asdict(item) for item in state.items],
             "adopted_evidence_count": sum(e.get("adopted", False) for e in trace),

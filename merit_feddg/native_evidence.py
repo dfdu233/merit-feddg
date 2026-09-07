@@ -325,13 +325,15 @@ def _annotations(image, items, question):
     return annotations[:8]
 
 
-def make_visual_evidence(image, items, question, max_views=1) -> tuple[list[Image.Image], list[dict]]:
+def make_visual_evidence(image, items, question, max_views=1, mode="overlay") -> tuple[list[Image.Image], list[dict]]:
     """Make at most one predicted-mask/bbox overlay of the current query image.
 
     ``items`` must belong to this query; arbitrary payload paths are never opened.
     Only explicitly supported coordinate systems are rendered. Geometry is not
     ground truth, and an empty mask produces no view and no anatomical claim.
     """
+    if mode not in {"overlay", "crop", "control_crop"}:
+        raise ValueError("unknown visual evidence mode")
     if isinstance(max_views, bool) or not isinstance(max_views, int) or max_views < 0:
         raise ValueError("max_views must be a nonnegative integer")
     if not max_views:
@@ -340,6 +342,29 @@ def make_visual_evidence(image, items, question, max_views=1) -> tuple[list[Imag
     annotations = _annotations(original, items, question)
     if not annotations:
         return [], []
+    if mode != "overlay":
+        # Same selected native region and pixel area in the matched control.
+        # A control is not guaranteed irrelevant (especially for a whole lung).
+        metadata, _ = annotations[0]
+        x0, y0, x1, y1 = metadata["coordinates"]
+        width, height = original.size
+        left, top = math.floor(x0 * width), math.floor(y0 * height)
+        right, bottom = math.ceil(x1 * width), math.ceil(y1 * height)
+        crop_width, crop_height = right - left, bottom - top
+        if mode == "control_crop":
+            corners = [(0, 0), (width - crop_width, 0),
+                       (0, height - crop_height), (width - crop_width, height - crop_height)]
+            left, top = max(corners, key=lambda p: (p[0] - left) ** 2 + (p[1] - top) ** 2)
+            right, bottom = left + crop_width, top + crop_height
+        box = [left, top, right, bottom]
+        view = original.crop(box)
+        return [view], [{
+            "view_kind": "predicted_region_crop" if mode == "crop" else "matched_control_crop",
+            "sources": [metadata], "crop_box_pixels": box,
+            "pixel_digest": _pixel_digest(view), "original_pixel_digest": _pixel_digest(original),
+            "ground_truth": False, "outside_predicted_region": "unknown",
+            "control_is_not_guaranteed_irrelevant": mode == "control_crop",
+        }]
     view = original.copy()
     colors = ((255, 180, 0), (0, 210, 255), (235, 80, 235), (80, 240, 120))
     for index, (metadata, mask) in enumerate(annotations):

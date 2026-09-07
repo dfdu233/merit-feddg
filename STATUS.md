@@ -1,5 +1,16 @@
 # Current status
 
+## Typed behavior probes and evidence operators (remote GPU pending)
+
+- Added opt-in source diagnostics sharing native tool outputs across text, overlay,
+  region crop and equal-area location control. Existing dynamic framework stays intact.
+- XRV classification/segmentation photometric probes report sensitivity and extra
+  forwards, not correctness. Default off; pilot audit does not alter adoption.
+- Rejection requires an explicit source-selected threshold; unsupported/empty probes
+  cannot certify applicability. Existing source-neighborhood admission is unchanged.
+- See docs/DOMAIN_AWARE_EVIDENCE_OPERATORS.md and configs/evidence_operators_pilot.yaml.
+  No new GPU, clinical benefit or domain-generalization result is claimed.
+
 ## Input applicability collaboration implementation (remote GPU pending)
 
 - Core remains NativeSession/CapabilityRuntime with heterogeneous native evidence.

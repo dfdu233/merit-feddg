@@ -34,9 +34,9 @@ class _DuplicateSession(NativeSession):
 
 
 def _variant_runtime(runtime, *, style="native", query="question", views=0,
-                     duplicate=False, answers=False):
+                     duplicate=False, answers=False, visual_mode="overlay"):
     config = replace(runtime.config, evidence_style=style, request_style=query,
-                     visual_views=views, retrieval_answer_context=answers)
+                     visual_views=views, retrieval_answer_context=answers, visual_mode=visual_mode)
     session_class = _DuplicateSession if duplicate else NativeSession
     old = runtime.session
     session = session_class(old.probe, old.image, old.prompt, old.question, config)
@@ -50,9 +50,12 @@ def _raw_state(after, event, previous):
     return replace(after, items=raw + previous.items)
 
 
-def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuations=True):
+def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuations=True,
+                            evidence_operators=False):
     if runtime.row["role"] != "source":
         raise ValueError("diagnostics may only run on source cases")
+    if runtime.config.behavior_probe == "reject":
+        raise ValueError("channel diagnostics require off/audit probes, not rejection")
     if (not isinstance(pairs, (list, tuple)) or any(
         not isinstance(pair, (list, tuple)) or len(pair) != 2 or pair[0] == pair[1]
         or any(not isinstance(name, str) or name not in runtime.specs for name in pair)
@@ -96,11 +99,11 @@ def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuati
             return executed[key]
 
         def observe(name, after, *, style="native", query="question", views=0,
-                    duplicate=False, answers=False, tools=(), tool_events=(),
+                    duplicate=False, answers=False, tools=(), tool_events=(), visual_mode="overlay",
                     state=state, state_id=state_id, base=base, base_score=base_score,
                     outputs=outputs):
             engine = _variant_runtime(runtime, style=style, query=query, views=views,
-                                      duplicate=duplicate, answers=answers)
+                                      duplicate=duplicate, answers=answers, visual_mode=visual_mode)
             output = engine.complete(after)
             if output["token_ids"][:len(state.prefix)] != list(state.prefix):
                 raise RuntimeError("diagnostic changed committed prefix")
@@ -110,6 +113,7 @@ def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuati
                 "name": name, "state_id": state_id, "state_kind": state_kind(state),
                 "prefix_tokens": list(state.prefix), "tools": list(tools),
                 "request_style": query, "presentation": style, "duplicate_control": duplicate,
+                "visual_mode": visual_mode, "visual_views": views,
                 "without": base, "with": output, "base_quality": base_score,
                 "quality": score, "gain": score - base_score, "presented_memory": memory,
                 "native_evidence": [asdict(item) for item in after.items],
@@ -138,6 +142,10 @@ def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuati
                 if capability == "retrieval":
                     observe(stem + ":scoped_text_answers", after, style="scoped", answers=True, **common)
                 if capability in {"segmentation", "detection"}:
+                    if evidence_operators:
+                        for visual_mode in ("crop", "control_crop"):
+                            observe(stem + ":scoped_" + visual_mode, after, style="scoped",
+                                    views=1, visual_mode=visual_mode, **common)
                     observe(stem + ":native_overlay", after, views=1, **common)
                     observe(stem + ":scoped_overlay", after, style="scoped", views=1, **common)
                     observe(stem + ":scoped_text_duplicate", after, style="scoped",
@@ -209,6 +217,14 @@ def diagnostic_summary(cases):
             result[key] = float(means([(g, p[key]) for g, p in entries]).mean())
         pair_rows.append(result)
     return {"presentation_by_domain": rows, "pairs_by_domain": pair_rows,
+            "behavior_probes": [
+                {"sample_id": case["sample_id"], "expert": event["expert"],
+                 "token_start": event["token_start"], **event["behavior_probe"]}
+                for case in cases for event in case.get("tool_events", [])
+                if "behavior_probe" in event
+            ],
+            "probe_model_calls": sum(event.get("behavior_probe", {}).get("extra_model_calls", 0)
+                                     for case in cases for event in case.get("tool_events", [])),
             "source_cases": len(cases), "target_generations": 0,
             "domain_kinds": sorted({case["domain_kind"] for case in cases}),
             "policy_fitted": False,
