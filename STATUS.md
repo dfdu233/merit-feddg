@@ -1,5 +1,74 @@
 # Current status
 
+## v0.12 source-only GPU canary (2026-09-07)
+
+- Ran the prescribed check-only and source-only canary on pulled commit `e417662`
+  with `/home/dbw/.runtime/miniconda3/envs/huatuo/bin/python`, Torch 2.0.1,
+  Transformers 4.37.2 and GPU 0 (NVIDIA GeForce RTX 4090, 48 GiB). All hub and
+  dataset offline flags were set. Existing local LLaVA-Med, CLIP vision tower,
+  CONCH, BiomedCLIP, CheXagent and XRV assets were reused; no model was downloaded
+  and no dependency was installed or upgraded. The run is
+  `runs/claim-grounded-v012-canary/llava/4fa43d6d663f956b`.
+- The canary completed 8 source cases and 15 calibration records from 5 actual
+  expert/case executions: CONCH 3, XRV findings 1 and CheXagent 1. Four other
+  cases had no compatible expert. Every executed observation was adopted, tool
+  and runtime errors were zero, and target generations were exactly zero. The
+  successful hard assertion established baseline/Block-NONE/zero-strength token
+  identity for all 8 cases; 127 production next-token positions were also checked.
+- The real path emitted `typed-clinical-evidence-v1`. CONCH scores remained
+  `visual_match` with `relative_similarity`, unknown polarity, whole-image scope,
+  a non-exhaustive-catalog limitation and no diagnosis interpretation. XRV scores
+  remained whole-image `finding_score` values with
+  `uncalibrated_independent_sigmoid`; low scores did not become negatives.
+  CheXagent's `Consolidation` remained an unverified specialist statement with
+  unspecified spatial scope. Format-null packets retained tool identity/scope but
+  contained only `withheld control`; no real observation, score or summary survived.
+  Spatial and retrieval semantics were not exercised by these routed cases, but the
+  full 497-pass/2-skip suite covered their fail-closed contracts and the unconnected
+  `ClaimCommitVerifier` contract. Ruff, three Bash syntax checks and diff checks passed.
+- Across the 5 expert/case interventions, direct real versus baseline had mean
+  Token-F1 gain +0.02373 (2 improved, 1 harmed, 2 unchanged); direct-format had
+  -0.01823 (1/2/2). Direct content gain was +0.04196 (3 positive, 0 negative,
+  2 zero). All 5 direct real outputs differed from direct-format, so expert content
+  affected surface text, while the nonzero direct-format gains also expose a material
+  format-envelope effect. At both bounded strengths 0.25 and 0.5, real and format
+  each had mean output/control gain 0, content gain 0, and 0/0/5
+  improved/harmed/unchanged. Bounded real differed from format-null only for
+  `pathvqa-train-4584` at each strength, without any Token-F1 change.
+- Per expert, CONCH direct content/output/control gains were
+  +0.01480/+0.02899/+0.01418 over 3 cases; XRV findings were
+  +0.16226/+0.06667/-0.09560 over 1 case; CheXagent was
+  +0.00312/-0.03497/-0.03810 over 1 case. For every expert, bounded content,
+  output and control gains were all exactly zero at both strengths. Every one of
+  the 15 records satisfied `content_gain = output_gain - control_gain`.
+- Manual review does not support a clinical improvement claim. In
+  `pathvqa-train-10960`, every branch failed to answer the expected "alternate
+  areas" and the CONCH matches were irrelevant to the alveolar question. In
+  `pathvqa-train-15641`, the Token-F1 increase came from generic tissue wording;
+  the image is a gross specimen routed as microscopic pathology, so CONCH's catalog
+  use was scope-inappropriate. `pathvqa-train-4584` had the same gross-specimen
+  routing problem and no branch answered "prostate". In the CXR case, XRV
+  atelectasis/infiltration and CheXagent consolidation were directionally closer to
+  the reference left retrocardiac opacity than the baseline right pleural effusion,
+  but neither localized the finding to the left retrocardiac region and neither is
+  sufficient to establish correctness. Token-F1 is not a medical hallucination rate.
+- All three qualification cards selected no action (`NONE`, strength 0); source
+  selection and independent confirmation were not attempted because every observed
+  domain kind was `proxy`. Each card correctly rejected with
+  `proxy_or_unverified_domains`. These hash/dataset proxy domains are not hospitals
+  and cannot prove domain generalization.
+- Source replay totaled 258.08 s (32.26 s/case; 5.75--87.45 s); actual tool calls
+  totaled 13.42 s. Peak PyTorch allocation/reservation was 22.95/23.66 GiB. Maximum
+  per-token KL was 0.02, maximum case spend was 0.24136 versus the 0.32 budget, and
+  evidence stopped after token 15. Per-case cleanup returned observed device use to
+  18 MiB, and all 8 fingerprinted case caches were saved for recovery. This timing
+  is source replay, not online end-to-end latency.
+- Engineering canary acceptance passed, but the scientific stop condition fired:
+  bounded evidence did not change quality, direct gains were sparse/confounded, and
+  two CONCH routes were medically mismatched. No sample expansion or target
+  generation/evaluation was started. `ClaimCommitVerifier` remains a tested semantic
+  contract and has not entered live decoding.
+
 ## v0.12 typed evidence and content-controlled qualification (2026-09-07)
 
 - Added a real-path `typed-clinical-evidence-v1` presentation for classification,
