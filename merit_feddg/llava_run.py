@@ -86,7 +86,7 @@ def experiment_config(args):
         config.setdefault("bounded_evidence", {
             "generation": {"max_new_tokens": 96, "block_tokens": 16, "max_expert_calls": 2,
                            "max_decisions": 2, "controller_tokens": 48, "max_evidence_chars": 1200,
-                           "visual_views": 0, "evidence_style": "scoped", "request_style": "question",
+                           "visual_views": 0, "evidence_style": "graph", "request_style": "need",
                            "evidence_top_k": 2, "retrieval_answer_context": False},
             "guidance": {"strength": 0.5, "clip": 2.0, "token_kl": 0.02,
                          "case_kl": 0.32, "evidence_tokens": 16},

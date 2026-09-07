@@ -6,6 +6,30 @@ from .evidence_need import evidence_memory
 from .open_study import fingerprint
 
 
+def format_control_packet(packet):
+    """Keep the evidence envelope and tool identities while withholding content.
+
+    This controls the presence of a tool message, not its exact tokenizer length.
+    Qualification therefore compares both content-vs-control and output-vs-base.
+    """
+
+    return [
+        {
+            "expert_id": value["expert_id"],
+            "evidence_id": value["evidence_id"],
+            "capability": value["capability"],
+            "scope": value["scope"],
+            "payload": {
+                "schema": "typed-clinical-evidence-v1",
+                "status": "unknown",
+                "observation": "withheld control",
+                "provenance": "format_control",
+            },
+        }
+        for value in packet
+    ]
+
+
 def active_packet(items, question, config, *, prefix_tokens, lifetime, control="real"):
     """Deduplicate exact same-expert observations and expire by token distance.
 
@@ -35,8 +59,5 @@ def active_packet(items, question, config, *, prefix_tokens, lifetime, control="
     if control == "format_only":
         # Identical outer schema and tool IDs, NOT an exact token-length match.
         # No observations, score values, diagnoses or native summaries survive.
-        packet = [{"expert_id": v["expert_id"], "evidence_id": v["evidence_id"],
-                   "capability": v["capability"], "scope": v["scope"],
-                   "payload": {"status": "unknown", "observation": "withheld control"}}
-                  for v in packet]
+        packet = format_control_packet(packet)
     return packet, audit

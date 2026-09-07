@@ -51,7 +51,10 @@ def test_source_native_tool_executed_once_across_strengths():
     engine = CapabilityRuntime(NativeSession(probe, row["image"], "q", row["question"], cfg),
                                pool, row, SPECS, cfg)
     result = compare_source_case(engine, ["evidence"], InterventionScorer({}), GuidanceConfig(), [0.25, 0.5])
-    assert pool.calls == 1 and len(result["records"]) == 2
+    assert pool.calls == 1 and len(result["records"]) == 3
+    assert {record["intervention"] for record in result["records"]} == {"direct", "bounded"}
+    assert all(record["gain"] == record["output_gain"] - record["control_gain"]
+               for record in result["records"])
     assert all("guidance_trace" in b["guided"] for b in result["branches"])
     assert "replay" in result["latency_note"]
     engine.row["role"] = "target"
@@ -65,8 +68,8 @@ def test_opt_in_configuration_preserves_old_default():
     assert "bounded_evidence" not in old
     cfg = new["bounded_evidence"]
     assert cfg["generation"]["visual_views"] == 0
-    assert cfg["generation"]["request_style"] == "question"
-    assert cfg["generation"]["evidence_style"] == "scoped"
+    assert cfg["generation"]["request_style"] == "need"
+    assert cfg["generation"]["evidence_style"] == "graph"
     assert "capability_value" not in new
     with pytest.raises(ValueError):
         experiment_config(parser().parse_args(["--study", "evidence", "--generalist", "openmed"]))
@@ -111,6 +114,8 @@ def test_real_runner_staging_cache_and_target_reference_isolation(tmp_path, monk
     assert evaluated["results"]["source_calibrated"]["mean_expert_calls"] == 0
     assert evaluated["results"]["bounded:tool"]["mean_expert_calls"] == 1
     assert report["bridge_summary"]
+    assert report["effect_summary"]
+    assert {item["intervention"] for item in report["effect_summary"]} == {"direct", "bounded"}
     policy_path = tmp_path / "runs" / evaluated["source_key"][:16] / "evidence-policy.json"
     saved = json.loads(policy_path.read_text(encoding="utf-8"))
     saved["cards"][next(iter(saved["cards"]))]["qualified"] = True

@@ -1,5 +1,25 @@
 # Med-DEFER / MERIT-FedDG
 
+## v0.12：命题级结构化证据与内容控制资格
+
+v0.11 的真实 source 结果表明，直接证据偶有弱信号，但有界残差没有稳定传递专家内容。
+v0.12 不放宽门控，先把真实专家输出转换成保守 typed evidence graph，并新增与真实证据
+具有相同工具身份的 direct-format 对照。source 资格现在优化 `real - format-null` 内容效应，
+且同时要求 real 输出优于未干预医学 VLM；可在 direct context 与 bounded guidance 中选择。
+
+```bash
+git pull --ff-only
+bash run_llava_med.sh --study evidence --check-only --chexagent on
+bash run_llava_med.sh --study evidence --evidence-stage source \
+  --source-per-group 2 --target-limit 1 --chexagent on \
+  --output runs/claim-grounded-v012-canary
+```
+
+新增的 `ClaimCommitVerifier` 将空间支持、否定命题的 exhaustive coverage 和 source-only
+证书定义成 `COMMIT/REVISE/ABSTAIN` 契约；它尚未接入真实 live claim decoding，不能写成
+已降低医学幻觉。服务器执行步骤、验收项和停机条件见
+[v0.12 交接文档](docs/CLAIM_GROUNDED_V012.md)。
+
 ## v0.11：单图、有界证据解码（显式实验入口）
 
 针对 v0.10 的第二张图片格式混杂、长证据伤害和策略全 NONE，新增不训练主模型/专家的

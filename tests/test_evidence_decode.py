@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 from merit_feddg.block_decode import Block
-from merit_feddg.bounded_session import BoundedNativeSession
+from merit_feddg.bounded_session import BoundedNativeSession, FormatControlNativeSession
 from merit_feddg.capabilities import EvidenceItem
 from merit_feddg.capability_runtime import NativeSession, NativeState, ValueGenerationConfig
 from merit_feddg.evidence_calibration import calibration_partition, fit_evidence_calibration
@@ -160,21 +160,32 @@ def test_direct_and_guided_evidence_use_identical_prompt_serialization():
     assert probe.calls[1][1] == expected
 
 
+def test_direct_format_control_keeps_identity_but_withholds_observation():
+    probe = TinyProbe()
+    config = ValueGenerationConfig(visual_views=0, evidence_style="scoped")
+    session = FormatControlNativeSession(probe, "original", "q", "What organ?", config)
+    image, prompt = session.context(NativeState(items=(item(),)))
+    assert image == "original"
+    assert "small" in prompt and "classification" in prompt and "appearance" in prompt
+    assert "withheld control" in prompt and "lung" not in prompt
+
+
 def records(gain=0.1, kind="hospital"):
     output = []
     for domain in ("one", "two"):
         for index in range(80):
             group = f"{domain}-patient-{index}"
-            for strength in (0.25, 0.5):
+            for intervention, strength in (("direct", 1.0), ("bounded", 0.25), ("bounded", 0.5)):
                 output.append({"role": "source", "scope": "s", "sample_id": group,
                                "group_id": group, "domain": domain, "domain_kind": kind,
-                               "strength": strength, "gain": gain})
+                               "intervention": intervention, "strength": strength,
+                               "gain": gain, "output_gain": gain, "control_gain": 0.0})
     return output
 
 
-def test_calibration_independent_groups_tie_smallest_and_proxy_refusal():
+def test_calibration_independent_groups_tie_prefers_direct_and_proxy_refusal():
     card = fit_evidence_calibration(records())["cards"]["s"]
-    assert card["qualified"] and card["strength"] == 0.25
+    assert card["qualified"] and card["intervention"] == "direct"
     assert fit_evidence_calibration(records(kind="proxy"))["cards"]["s"]["status"] == "proxy_or_unverified_domains"
     assert not fit_evidence_calibration(records(gain=-0.1))["cards"]["s"]["qualified"]
 
@@ -183,11 +194,22 @@ def test_confirmation_cannot_reselect_strength_to_hide_failure():
     data = records()
     for row in data:
         if calibration_partition(row["group_id"]) == "select":
-            row["gain"] = 0.2 if row["strength"] == 0.25 else 0.1
+            row["gain"] = 0.2 if row["intervention"] == "direct" else 0.1
         else:
-            row["gain"] = -0.1 if row["strength"] == 0.25 else 0.9
+            row["gain"] = -0.1 if row["intervention"] == "direct" else 0.9
+        row["output_gain"] = row["gain"] + row["control_gain"]
     card = fit_evidence_calibration(data)["cards"]["s"]
-    assert not card["qualified"] and card["selected_strength"] == 0.25
+    assert not card["qualified"] and card["selected_intervention"] == "direct"
+
+
+def test_positive_content_that_remains_worse_than_generalist_is_not_qualified():
+    data = records(gain=0.1)
+    for row in data:
+        row["control_gain"] = -0.2
+        row["output_gain"] = -0.1
+    card = fit_evidence_calibration(data)["cards"]["s"]
+    assert not card["qualified"]
+    assert card["status"] == "nonpositive_content_or_output_gain"
 
 
 def test_calibration_rejects_target_and_incomplete_or_duplicate_cohort():

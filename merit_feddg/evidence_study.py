@@ -16,7 +16,7 @@ from time import perf_counter
 
 import numpy as np
 
-from .bounded_session import BoundedNativeSession
+from .bounded_session import BoundedNativeSession, FormatControlNativeSession
 from .capabilities import scoped_key
 from .capability_runtime import CapabilityRuntime, NativeSession, NativeState, ValueGenerationConfig
 from .capability_study import (
@@ -71,7 +71,37 @@ def compare_source_case(runtime, references, scorer, guidance, strengths):
         after = replace(after, items=tuple(replace(item, provenance={**item.provenance,
                         "merit_acquired_token": 0}) for item in after.items))
         direct = runtime.complete(after)
+        direct_control_session = FormatControlNativeSession(
+            runtime.session.probe,
+            runtime.row["image"],
+            runtime.session.prompt,
+            runtime.row["question"],
+            runtime.config,
+        )
+        direct_control = CapabilityRuntime(
+            direct_control_session, runtime.pool, runtime.row, runtime.specs, runtime.config
+        ).complete(after)
         base_quality = scorer(runtime.row, baseline, references)
+        direct_quality = scorer(runtime.row, direct, references)
+        direct_control_quality = scorer(runtime.row, direct_control, references)
+        common = {
+            "role": "source",
+            "scope": descriptor_scope(runtime.row, descriptor),
+            "sample_id": runtime.row["id"],
+            "group_id": runtime.row["group_id"],
+            "domain": runtime.row["domain"],
+            "domain_kind": runtime.row["domain_kind"],
+        }
+        records.append(
+            {
+                **common,
+                "intervention": "direct",
+                "strength": 1.0,
+                "gain": direct_quality - direct_control_quality,
+                "output_gain": direct_quality - base_quality,
+                "control_gain": direct_control_quality - base_quality,
+            }
+        )
         for strength in strengths:
             session = BoundedNativeSession(
                 runtime.session.probe, runtime.row["image"], runtime.session.prompt,
@@ -86,17 +116,25 @@ def compare_source_case(runtime, references, scorer, guidance, strengths):
             )
             control = CapabilityRuntime(control_session, runtime.pool, runtime.row,
                                         runtime.specs, runtime.config).complete(after)
-            quality = {"baseline": base_quality, "direct_context": scorer(runtime.row, direct, references),
-                       "guided": scorer(runtime.row, guided, references),
-                       "format_only": scorer(runtime.row, control, references)}
-            gain = quality["guided"] - base_quality
-            record = {"role": "source", "scope": descriptor_scope(runtime.row, descriptor),
-                      "sample_id": runtime.row["id"], "group_id": runtime.row["group_id"],
-                      "domain": runtime.row["domain"], "domain_kind": runtime.row["domain_kind"],
-                      "strength": strength, "gain": gain}
+            quality = {
+                "baseline": base_quality,
+                "direct_context": direct_quality,
+                "direct_format": direct_control_quality,
+                "guided": scorer(runtime.row, guided, references),
+                "format_only": scorer(runtime.row, control, references),
+            }
+            record = {
+                **common,
+                "intervention": "bounded",
+                "strength": strength,
+                "gain": quality["guided"] - quality["format_only"],
+                "output_gain": quality["guided"] - base_quality,
+                "control_gain": quality["format_only"] - base_quality,
+            }
             records.append(record)
             branches.append({**record, "baseline": baseline, "direct_context": direct,
-                             "guided": guided, "format_only": control, "tool": tool, "quality": quality})
+                             "direct_format": direct_control, "guided": guided,
+                             "format_only": control, "tool": tool, "quality": quality})
     return {"records": records, "branches": branches, "baseline": baseline,
             "tokenwise_baseline_checked": min(len(baseline["token_ids"]), guidance.evidence_tokens),
             "latency_note": "source evidence replay; not online end-to-end latency"}
@@ -106,7 +144,7 @@ def source_bridge_summary(branches):
     """Independent-group domain means, including harmful and empty observations."""
     groups = defaultdict(lambda: defaultdict(list))
     for row in branches:
-        for arm in ("direct_context", "guided", "format_only"):
+        for arm in ("direct_context", "direct_format", "guided", "format_only"):
             key = (row["scope"], row["domain"], row["strength"], arm)
             groups[key][row["group_id"]].append(row["quality"][arm] - row["quality"]["baseline"])
     result = []
@@ -116,6 +154,37 @@ def source_bridge_summary(branches):
                        "independent_groups": len(gains), "mean_gain": float(np.mean(gains)),
                        "positive_groups": sum(v > 0 for v in gains),
                        "negative_groups": sum(v < 0 for v in gains)})
+    return result
+
+
+def source_effect_summary(records):
+    """Group-balanced content, total-output and null-envelope effects."""
+
+    groups = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    for row in records:
+        key = (row["scope"], row["domain"], row["intervention"], row["strength"])
+        for field in ("gain", "output_gain", "control_gain"):
+            groups[key][row["group_id"]][field].append(row[field])
+    result = []
+    for (scope, domain, intervention, strength), by_group in sorted(groups.items()):
+        means = {
+            field: [float(np.mean(values[field])) for values in by_group.values()]
+            for field in ("gain", "output_gain", "control_gain")
+        }
+        result.append(
+            {
+                "scope": scope,
+                "domain": domain,
+                "intervention": intervention,
+                "strength": strength,
+                "independent_groups": len(by_group),
+                "content_gain": float(np.mean(means["gain"])),
+                "output_gain": float(np.mean(means["output_gain"])),
+                "control_gain": float(np.mean(means["control_gain"])),
+                "content_positive_groups": sum(value > 0 for value in means["gain"]),
+                "content_negative_groups": sum(value < 0 for value in means["gain"]),
+            }
+        )
     return result
 
 
@@ -161,7 +230,7 @@ def run_evidence_study(source_path, target_path, references_path, config_path, a
 
     code = {p.relative_to(Path(__file__).parent).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
             for p in sorted(Path(__file__).parent.rglob("*.py"))}
-    identity = {"schema": "bounded-evidence-v011", "config": config, "code": code,
+    identity = {"schema": "claim-grounded-evidence-v012", "config": config, "code": code,
                 "runtime": _extraction_runtime_provenance(), "hardware": hardware_provenance(),
                 "generalist": generalist_provenance(config["generalist"], artifacts),
                 "experts": {k: model_provenance(v, artifacts) for k, v in specs.items()}}
@@ -175,9 +244,13 @@ def run_evidence_study(source_path, target_path, references_path, config_path, a
     pool = CapabilityPool(specs, artifacts, source_records=[], source_references={})
     policy_path = root / "evidence-policy.json"
 
-    def engine(row, setting=None):
+    def engine(row, setting=None, *, direct_format=False):
         prompt = row["question"] + "\n" + config.get("prompt_suffix", "Answer concisely from the image.")
-        if setting is None:
+        if direct_format:
+            session = FormatControlNativeSession(
+                ensure_probe(), row["image"], prompt, row["question"], decoder
+            )
+        elif setting is None:
             session = NativeSession(ensure_probe(), row["image"], prompt, row["question"], decoder)
         else:
             session = BoundedNativeSession(ensure_probe(), row["image"], prompt, row["question"], decoder, setting)
@@ -240,6 +313,7 @@ def run_evidence_study(source_path, target_path, references_path, config_path, a
             report = {"stage": stage, "policy": str(policy_path), "source_cases": len(source),
                       "records": len(records), "target_generations": 0, "cards": policy["cards"],
                       "quality_metric": scorer.config, "bridge_summary": source_bridge_summary(branches),
+                      "effect_summary": source_effect_summary(records),
                       "domain_kinds": sorted({r["domain_kind"] for r in source}), "cases": cases,
                       "limitations": policy["limitations"] + ["Token-F1 is not clinical factuality."]}
             atomic_json(root / "source-result.json", report)
@@ -253,6 +327,16 @@ def run_evidence_study(source_path, target_path, references_path, config_path, a
                              f"{item['arm']} | {item['independent_groups']} | {item['mean_gain']:+.5f} |")
             lines += ["", "## Calibration (not a statistical safety guarantee)", ""]
             lines += [f"- {scope}: {card['status']}" for scope, card in policy["cards"].items()]
+            lines += ["", "## Content-controlled effects", "",
+                      "| Scope | Source domain | Action | Strength | Groups | Content | Output | Null |",
+                      "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |"]
+            for item in report["effect_summary"]:
+                lines.append(
+                    f"| {item['scope'].replace('|', '/')} | {item['domain']} | "
+                    f"{item['intervention']} | {item['strength']} | "
+                    f"{item['independent_groups']} | {item['content_gain']:+.5f} | "
+                    f"{item['output_gain']:+.5f} | {item['control_gain']:+.5f} |"
+                )
             lines += ["", *[f"- {v}" for v in report["limitations"]], "",
                       "Source timings reuse native evidence and are not end-to-end method latency."]
             (root / "source-result.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -273,26 +357,32 @@ def run_evidence_study(source_path, target_path, references_path, config_path, a
         # Default single-tool and format controls share the same configured tool
         # identity across all three arms. This is not target-oracle routing.
         methods = ["generalist", "source_calibrated"]
-        methods += [f"{arm}:{name}" for name in specs for arm in ("direct", "bounded", "format")]
+        methods += [
+            f"{arm}:{name}"
+            for name in specs
+            for arm in ("direct", "direct_format", "bounded", "format")
+        ]
         for method in methods:
             predictions[method] = {}
             for row in target:
                 def predict(row=row, method=method):
                     runtime = engine(row)
                     descriptors = runtime.descriptors(NativeState())
-                    choice, setting = None, None
+                    choice, setting, direct_format = None, None, False
                     if method == "source_calibrated":
                         eligible = [(d, policy["cards"].get(descriptor_scope(row, d), {})) for d in descriptors]
                         eligible = [(d, c) for d, c in eligible if c.get("qualified")]
                         if eligible:
-                            choice, card = max(eligible, key=lambda dc: min(dc[1]["selection_gain"].values()))
-                            setting = replace(guidance, strength=card["strength"])
+                            choice, card = max(eligible, key=lambda dc: dc[1]["selection_guard"])
+                            if card["intervention"] == "bounded":
+                                setting = replace(guidance, strength=card["strength"])
                     elif ":" in method:
                         arm, name = method.split(":", 1)
                         choice = next((d for d in descriptors if d["expert"] == name), None)
-                        if arm != "direct":
+                        direct_format = arm == "direct_format"
+                        if arm in {"bounded", "format"}:
                             setting = replace(guidance, control="format_only" if arm == "format" else "real")
-                    runtime = engine(row, setting)
+                    runtime = engine(row, setting, direct_format=direct_format)
                     state, events = NativeState(), []
                     if choice is not None:
                         state, event = runtime.execute(state, choice)

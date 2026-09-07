@@ -13,8 +13,26 @@ import numpy as np
 from .block_decode import Block
 from .capability_runtime import NativeSession, native_observation_prompt
 from .evidence_decode import GuidanceConfig, bounded_distribution
-from .evidence_packets import active_packet
+from .evidence_need import evidence_memory
+from .evidence_packets import active_packet, format_control_packet
 from .open_study import fingerprint
+
+
+class FormatControlNativeSession(NativeSession):
+    """Direct-context null arm with the same tool envelope and no medical content."""
+
+    def __init__(self, probe, image, prompt, question, config):
+        if config.visual_views != 0 or isinstance(image, (tuple, list)):
+            raise ValueError("format control requires exactly one original image")
+        super().__init__(probe, image, prompt, question, config)
+
+    def context(self, state):
+        packet = format_control_packet(evidence_memory(state.items, self.question, self.config))
+        prompt = self.prompt
+        if packet:
+            prompt = native_observation_prompt(prompt, packet)
+        self.view_metadata = []
+        return self.image, prompt
 
 
 class BoundedNativeSession(NativeSession):

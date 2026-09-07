@@ -92,5 +92,9 @@ def presentation_items(items, question, config):
 
 
 def evidence_memory(items, question, config):
-    return compile_evidence(presentation_items(items, question, config), question,
-                            config.max_evidence_chars)
+    presented = presentation_items(items, question, config)
+    if config.evidence_style == "graph":
+        from .structured_evidence import compile_typed_evidence
+
+        return compile_typed_evidence(presented, question, config.max_evidence_chars)
+    return compile_evidence(presented, question, config.max_evidence_chars)

@@ -1,5 +1,24 @@
 # Current status
 
+## v0.12 typed evidence and content-controlled qualification (2026-09-07)
+
+- Added a real-path `typed-clinical-evidence-v1` presentation for classification,
+  spatial, retrieval and generative specialists. It retains native score semantics,
+  source-only provenance and spatial scope without converting them into diagnoses.
+- Added a direct format-null arm. Source records now separate content gain
+  (`real - null`), output gain (`real - generalist`) and control gain. Qualification
+  requires positive content and output gains in every real source domain on both the
+  selection and independent confirmation groups, and can select direct or bounded use.
+- Added a fail-closed `ClaimCommitVerifier` contract: spatial claims need spatial
+  evidence, negative claims need explicit exhaustive coverage, proxy domains cannot
+  produce qualified certificates, and conflicts cause REVISE rather than voting.
+- The verifier is not yet wired into live claim-boundary decoding. The immediate real
+  experiment is source-only typed-bridge diagnosis; no target benefit or clinical
+  hallucination reduction is claimed. See `docs/CLAIM_GROUNDED_V012.md`.
+- Local verification: 499 tests passed under the repository Python 3.10 environment;
+  Ruff, three Bash syntax checks and `git diff --check` passed. These are protocol and
+  orchestration checks, not a real-weight clinical efficacy result.
+
 ## v0.11 opt-in bounded evidence bridge (2026-09-07)
 
 - Built on `8bdd256`, retaining the remote allocator-cache and compatibility fixes.
