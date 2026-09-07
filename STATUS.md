@@ -1,5 +1,32 @@
 # Current status
 
+## v0.11 opt-in bounded evidence bridge (2026-09-07)
+
+- Built on `8bdd256`, retaining the remote allocator-cache and compatibility fixes.
+  Historical reports and default v0.8/v0.9/v0.10 entry points are preserved.
+- Added single-original-image, same-prefix base/evidence token distributions, clipped
+  evidence residuals, per-token/case KL budgets, exact-payload deduplication and
+  token-distance expiry. NONE/zero uses production generation; no post-hoc rewrite.
+- Added `--study evidence --evidence-stage source|evaluate`, default source-only,
+  offline, existing local weights/environment. No model training or new downloads.
+  Source uses the same actual tool output for direct, bounded and format controls.
+- Source calibration selects strength on independent groups and confirms the fixed
+  choice on other groups. Proxy domains cannot qualify; matching source/code/model/
+  runtime fingerprints are required for the separate target stage. This is empirical
+  source confirmation, NOT LODO, a coverage guarantee, or a complete DG solution.
+- New profile reuses classification, generation and segmentation observations from
+  the existing registry; retrieval is excluded until independent bank partitioning.
+  Current experiment is initial single-tool bridge validation, not demonstrated
+  multistep capability composition. All medical conclusions remain unverified.
+- Correctness-first backend re-prefills twice per guided token; no cross-token KV
+  speedup. Default guidance lasts 16 tokens, not a semantically detected claim.
+- Local tests include numerical KL/mask tests, source/target isolation and cache
+  checks, fake-backend integration, and real random CPU Mistral score replay.
+  Verified: 488 tests passed (Python 3.10.9, Torch 2.6.0 CPU, Transformers 4.57.1),
+  Ruff passed, three Bash entry-point syntax checks and git diff checks passed.
+  No remote clinical checkpoints, new GPU experiment or clinical result was run here.
+  See `docs/BOUNDED_EVIDENCE_V011.md` for server handoff.
+
 ## v0.10 source communication diagnostics and scoped evidence (2026-09-07)
 
 - Synced the complete negative v0.9 report at `c99d488` before these changes.

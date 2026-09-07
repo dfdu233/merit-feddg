@@ -1,5 +1,32 @@
 # Med-DEFER / MERIT-FedDG
 
+## v0.11：单图、有界证据解码（显式实验入口）
+
+针对 v0.10 的第二张图片格式混杂、长证据伤害和策略全 NONE，新增不训练主模型/专家的
+逐 token 证据桥。保留全部历史入口和服务器兼容修复，不宣称已取得性能或幻觉改善。
+
+```bash
+git pull --ff-only  # 先保留本地修改，不强制覆盖
+bash run_llava_med.sh --study evidence --check-only
+# 仅真实 source 工程 canary：不生成 target、不下载、不升级环境
+bash run_llava_med.sh --study evidence --evidence-stage source \
+  --source-per-group 2 --target-limit 1 --chexagent on \
+  --output runs/bounded-evidence-canary
+```
+
+同一冻结 LLaVA-Med 的原图基线分布与原图+紧凑原生证据分布，共用实际生成前缀；
+裁剪证据残差并限制逐词/病例 KL 预算。无证据、零强度或有效期结束回到原始生成路径。
+本入口先验证单工具证据桥，**没有把多工具有效协作或完整域鲁棒算法标成已完成**。
+
+源域按独立图像/患者分成选择与确认两部分，只选择小规模引导强度；不拟合大控制器。
+默认真实 PathVQA/VQA-RAD 的 hash proxy 不可获得真实域资格，因此校准分支仍可能全 NONE。
+直接注入、固定有界引导、格式对照独立报告，不能用全 NONE 宣称成功。
+此正确性优先实现每个受引导 token 重做两次 prefill，**并非已实现推理加速**。
+
+服务器完整执行、配置、停机条件、论文代码对应关系：
+[v0.11 交接文档](docs/BOUNDED_EVIDENCE_V011.md)。
+调研与未完成的完整研究设计：[域鲁棒异构证据调研](docs/DOMAIN_ROBUST_EVIDENCE_RESEARCH_20260907.md)。
+
 ## v0.10：先优化能力请求与证据传递，再校准域鲁棒选择
 
 v0.9 的完整真实实验仍是负面/不确定结果；本更新**不宣称效果已经提升**。

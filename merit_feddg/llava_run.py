@@ -16,7 +16,8 @@ def parser():
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("--config", default="configs/llava_med_capabilities.yaml")
     result.add_argument("--generalist", choices=["llava", "openmed"], default="llava")
-    result.add_argument("--study", choices=["capabilities", "value", "diagnose"], default="capabilities")
+    result.add_argument("--study", choices=["capabilities", "value", "diagnose", "evidence"], default="capabilities")
+    result.add_argument("--evidence-stage", choices=["source", "evaluate"], default="source")
     result.add_argument("--value-stage", choices=["all", "source", "evaluate"], default="all")
     result.add_argument("--evidence-profile", choices=["legacy", "scoped"], default=None,
                         help="opt-in presentation/subrequest ablation, not a proven better method")
@@ -76,6 +77,22 @@ def experiment_config(args):
         # of silently excluding the optional expert.
         chexagent["optional"] = False
     config["generalist"] = resolve_generalist_spec(config["generalist"])
+    if args.study == "evidence":
+        if config["generalist"].get("backend") != "llava_med":
+            raise ValueError("--study evidence currently requires --generalist llava")
+        if args.evidence_profile is not None:
+            raise ValueError("evidence study has its own fixed single-image scoped profile")
+        config["generalist"].setdefault("deterministic_image_padding", True)
+        config.setdefault("bounded_evidence", {
+            "generation": {"max_new_tokens": 96, "block_tokens": 16, "max_expert_calls": 2,
+                           "max_decisions": 2, "controller_tokens": 48, "max_evidence_chars": 1200,
+                           "visual_views": 0, "evidence_style": "scoped", "request_style": "question",
+                           "evidence_top_k": 2, "retrieval_answer_context": False},
+            "guidance": {"strength": 0.5, "clip": 2.0, "token_kl": 0.02,
+                         "case_kl": 0.32, "evidence_tokens": 16},
+            "strengths": [0.25, 0.5], "quality": {"name": "token_f1"},
+            "calibration": {"min_groups": 8, "min_domains": 2},
+        })
     if args.study in {"value", "diagnose"}:
         if config["generalist"].get("backend") == "llava_med":
             config["generalist"].setdefault("deterministic_image_padding", True)
@@ -202,6 +219,15 @@ def main(argv=None):
         raise ValueError("custom data requires --source-manifest, --target-manifest and --references")
     if args.study != "value" and args.value_stage != "all":
         raise ValueError("--value-stage requires --study value")
+    if args.study != "evidence" and args.evidence_stage != "source":
+        raise ValueError("--evidence-stage evaluate requires --study evidence")
+    if args.study == "evidence":
+        # New inference experiment reuses existing assets and environment only.
+        if args.install_deps:
+            raise ValueError("evidence study does not install dependencies; use the existing environment")
+        args.skip_download = True
+        for variable in ("HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "HF_DATASETS_OFFLINE"):
+            os.environ[variable] = "1"
     if args.study == "capabilities" and args.evidence_profile is not None:
         raise ValueError("--evidence-profile requires --study value or diagnose")
     # Set endpoints before importing huggingface_hub. No credential is logged.
@@ -271,7 +297,12 @@ def main(argv=None):
     if args.prepare_only:
         return
     # Common inference files are label-free; references enter only evaluation/source calibration.
-    if args.study in {"value", "diagnose"}:
+    if args.study == "evidence":
+        from .evidence_study import run_evidence_study
+
+        result = run_evidence_study(*manifest_paths, settings, args.artifacts, root / args.generalist,
+                                    stage=args.evidence_stage)
+    elif args.study in {"value", "diagnose"}:
         from .capability_value_study import run_value_study
 
         result = run_value_study(*manifest_paths, settings, args.artifacts, root / args.generalist,

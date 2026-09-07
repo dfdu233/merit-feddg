@@ -276,6 +276,30 @@ def test_unsupported_beam_path_is_explicit(fake_backend):
         session.propose((), 3, 4)
 
 
+def test_next_scores_keep_original_image_and_exact_prefix(fake_backend):
+    backend, logs, _ = fake_backend
+    session = backend.new_answer_session(Image.new("RGB", (20, 10)), "Question")
+    scores = session.next_scores((7, 8))
+    assert scores.shape == (32,)
+    assert logs["generation"][-1]["max_new_tokens"] == 1
+    assert logs["generation"][-1]["inputs"].tolist() == [[1, -200, 5, 6, 4, 7, 8]]
+    assert logs["generation"][-1]["image_sizes"] == [(20, 10)]
+    assert session.eos_ids == {2}
+
+
+@pytest.mark.parametrize("name,value", [
+    ("forced_eos_token_id", 2), ("begin_suppress_tokens", [7]), ("min_new_tokens", 3),
+    ("repetition_penalty", 1.1), ("num_beams", 2), ("sequence_bias", {(7,): 1.0}),
+])
+def test_next_scores_reject_incompatible_generation_processors(fake_backend, name, value):
+    backend, logs, _ = fake_backend
+    setattr(backend.model.generation_config, name, value)
+    session = backend.new_answer_session(Image.new("RGB", (4, 4)), "Question")
+    with pytest.raises(ValueError):
+        session.next_scores(())
+    assert not logs["generation"]
+
+
 def test_context_overflow_never_silently_truncates_committed_prefix(fake_backend):
     backend, logs, _ = fake_backend
     backend.model.config.tokenizer_model_max_length = 7
@@ -341,3 +365,8 @@ def test_real_tiny_mistral_inputs_embeds_continuation_has_visual_context():
     assert model.last_input_ids.tolist() == [[1, -200, 5, 6, 7, 8]]
     assert torch.allclose(model.last_visual_embedding, torch.full((1, 16), 0.25))
     assert block.log_probability <= 0
+    # Random real CPU Mistral, not a mocked logits interface: one-token replay
+    # must agree with each production greedy token at the same exact prefix.
+    for position, token in enumerate(block.tokens):
+        scores = session.next_scores((7, 8) + block.tokens[:position])
+        assert int(scores.argmax()) == token

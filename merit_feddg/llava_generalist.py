@@ -388,11 +388,36 @@ class LlavaMedAnswerSession:
     def decode(self, tokens):
         return self.generalist.tokenizer.decode(tokens, skip_special_tokens=True)
 
-    def propose(self, prefix, count, length):
-        if count != 1:
-            raise ValueError("LLaVA-Med capability generation supports greedy blocks (count=1)")
-        if length < 1:
-            raise ValueError("block length must be positive")
+    @property
+    def eos_ids(self):
+        return _eos_ids(self.generalist.model, self.generalist.tokenizer)
+
+    def next_scores(self, prefix):
+        """Production generation scores at an exact prefix (not raw hidden logits).
+
+        One-step re-prefill is deliberate for the legacy Transformers backend.
+        Length-dependent processors would change under a one-token horizon;
+        refuse such configurations rather than compare incomparable branches.
+        """
+        generation = self.generalist.model.generation_config
+        for name in ("forced_eos_token_id", "forced_bos_token_id", "forced_decoder_ids",
+                     "exponential_decay_length_penalty", "begin_suppress_tokens",
+                     "bad_words_ids", "constraints", "force_words_ids", "sequence_bias"):
+            if getattr(generation, name, None) is not None:
+                raise ValueError(f"bounded next_scores does not support {name}")
+        for name in ("min_length", "min_new_tokens", "no_repeat_ngram_size", "encoder_no_repeat_ngram_size"):
+            if getattr(generation, name, 0):
+                raise ValueError(f"bounded next_scores does not support {name}")
+        if getattr(generation, "repetition_penalty", 1.0) != 1.0:
+            raise ValueError("bounded next_scores does not support repetition_penalty")
+        if getattr(generation, "num_beams", 1) != 1:
+            raise ValueError("bounded next_scores requires greedy num_beams=1")
+        output = self._generate(prefix, 1)
+        if len(output.scores) != 1:
+            raise RuntimeError("next_scores requires exactly one generation score vector")
+        return output.scores[0][0].detach().float().cpu().numpy()
+
+    def _generate(self, prefix, length):
         torch, model = self.generalist.torch, self.generalist.model
         inputs = dict(self.inputs)
         if prefix:
@@ -405,15 +430,18 @@ class LlavaMedAnswerSession:
             )
         self.generalist._validate_context(inputs, length)
         with torch.inference_mode():
-            output = model.generate(
-                **inputs,
-                max_new_tokens=length,
-                do_sample=False,
-                use_cache=True,
-                return_dict_in_generate=True,
-                output_scores=True,
+            return model.generate(
+                **inputs, max_new_tokens=length, do_sample=False, use_cache=True,
+                return_dict_in_generate=True, output_scores=True,
             )
-        ids, score, finished = _generated_rows(output, model, self.generalist.tokenizer)[0]
+
+    def propose(self, prefix, count, length):
+        if count != 1:
+            raise ValueError("LLaVA-Med capability generation supports greedy blocks (count=1)")
+        if length < 1:
+            raise ValueError("block length must be positive")
+        output = self._generate(prefix, length)
+        ids, score, finished = _generated_rows(output, self.generalist.model, self.generalist.tokenizer)[0]
         if len(ids) > length:
             raise RuntimeError("LLaVA-Med exceeded its block token budget")
         return [Block(ids, self.decode(ids), score, finished)]
