@@ -395,9 +395,11 @@ class LlavaMedAnswerSession:
     def next_scores(self, prefix):
         """Production generation scores at an exact prefix (not raw hidden logits).
 
-        One-step re-prefill is deliberate for the legacy Transformers backend.
-        Length-dependent processors would change under a one-token horizon;
-        refuse such configurations rather than compare incomparable branches.
+        Replay the committed prefix through the production KV-cache path. A
+        one-step full re-prefill is not numerically equivalent in FP16 and can
+        flip near-tied greedy tokens even when the prefix is identical.
+        Length-dependent processors remain unsupported because forced replay
+        would make their semantics ambiguous.
         """
         generation = self.generalist.model.generation_config
         for name in ("forced_eos_token_id", "forced_bos_token_id", "forced_decoder_ids",
@@ -412,10 +414,31 @@ class LlavaMedAnswerSession:
             raise ValueError("bounded next_scores does not support repetition_penalty")
         if getattr(generation, "num_beams", 1) != 1:
             raise ValueError("bounded next_scores requires greedy num_beams=1")
-        output = self._generate(prefix, 1)
-        if len(output.scores) != 1:
-            raise RuntimeError("next_scores requires exactly one generation score vector")
-        return output.scores[0][0].detach().float().cpu().numpy()
+        if not prefix:
+            output = self._generate((), 1)
+        else:
+            calls = 0
+            vocabulary = list(range(len(self.generalist.tokenizer)))
+
+            def force_prefix(batch_id, _input_ids):
+                nonlocal calls
+                if batch_id != 0 or calls > len(prefix):
+                    raise RuntimeError("bounded replay requires one deterministic sequence")
+                allowed = [int(prefix[calls])] if calls < len(prefix) else vocabulary
+                calls += 1
+                return allowed
+
+            with self.generalist.torch.inference_mode():
+                output = self.generalist.model.generate(
+                    **self.inputs, max_new_tokens=len(prefix) + 1, do_sample=False,
+                    use_cache=True, return_dict_in_generate=True, output_scores=True,
+                    prefix_allowed_tokens_fn=force_prefix,
+                )
+            if calls != len(prefix) + 1:
+                raise RuntimeError("production replay stopped before the requested prefix")
+        if len(output.scores) != len(prefix) + 1:
+            raise RuntimeError("next_scores replay did not cover the exact prefix")
+        return output.scores[-1][0].detach().float().cpu().numpy()
 
     def _generate(self, prefix, length):
         torch, model = self.generalist.torch, self.generalist.model

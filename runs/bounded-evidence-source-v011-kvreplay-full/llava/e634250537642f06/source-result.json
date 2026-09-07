@@ -1,0 +1,1018 @@
+{
+  "stage": "source",
+  "policy": "/home/dbw/merit-feddg/runs/bounded-evidence-source-v011-kvreplay-full/llava/e634250537642f06/evidence-policy.json",
+  "source_cases": 64,
+  "records": 82,
+  "target_generations": 0,
+  "cards": {
+    "conch_tissue|pathology|open_vqa|classification|tissue_appearance": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "pathvqa-train-proxy-0",
+        "pathvqa-train-proxy-1"
+      ],
+      "source_only": true
+    },
+    "cxr_findings|cxr|open_vqa|classification|cxr_findings": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "pathvqa-train-proxy-0",
+        "vqarad-image-proxy-0",
+        "vqarad-image-proxy-1"
+      ],
+      "source_only": true
+    },
+    "chexagent_description|cxr|open_vqa|generation|cxr_description": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "pathvqa-train-proxy-0",
+        "vqarad-image-proxy-0",
+        "vqarad-image-proxy-1"
+      ],
+      "source_only": true
+    },
+    "biomed_anatomy|ct|open_vqa|classification|major_anatomy": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "vqarad-image-proxy-1"
+      ],
+      "source_only": true
+    },
+    "biomed_anatomy|cxr|open_vqa|classification|major_anatomy": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "vqarad-image-proxy-0"
+      ],
+      "source_only": true
+    },
+    "cxr_anatomy|cxr|open_vqa|segmentation|thoracic_anatomy": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "vqarad-image-proxy-0"
+      ],
+      "source_only": true
+    }
+  },
+  "quality_metric": {
+    "name": "token_f1"
+  },
+  "bridge_summary": [
+    {
+      "scope": "biomed_anatomy|ct|open_vqa|classification|major_anatomy",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "biomed_anatomy|ct|open_vqa|classification|major_anatomy",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "biomed_anatomy|ct|open_vqa|classification|major_anatomy",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "biomed_anatomy|ct|open_vqa|classification|major_anatomy",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "biomed_anatomy|ct|open_vqa|classification|major_anatomy",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "biomed_anatomy|ct|open_vqa|classification|major_anatomy",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "biomed_anatomy|cxr|open_vqa|classification|major_anatomy",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "biomed_anatomy|cxr|open_vqa|classification|major_anatomy",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "biomed_anatomy|cxr|open_vqa|classification|major_anatomy",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "biomed_anatomy|cxr|open_vqa|classification|major_anatomy",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "biomed_anatomy|cxr|open_vqa|classification|major_anatomy",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "biomed_anatomy|cxr|open_vqa|classification|major_anatomy",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.08695652173913043,
+      "positive_groups": 1,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.08695652173913043,
+      "positive_groups": 1,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 6,
+      "mean_gain": 0.017980744210252406,
+      "positive_groups": 1,
+      "negative_groups": 1
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 6,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 6,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 6,
+      "mean_gain": 0.017980744210252406,
+      "positive_groups": 1,
+      "negative_groups": 1
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 6,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 6,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 4,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 4,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 4,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 4,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 4,
+      "mean_gain": -0.06666666666666667,
+      "positive_groups": 0,
+      "negative_groups": 1
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 4,
+      "mean_gain": -0.06666666666666667,
+      "positive_groups": 0,
+      "negative_groups": 1
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 8,
+      "mean_gain": 0.0032608695652173933,
+      "positive_groups": 1,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 8,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 8,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 8,
+      "mean_gain": 0.0032608695652173933,
+      "positive_groups": 1,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 8,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 8,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-1",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 9,
+      "mean_gain": 0.0019041613244511818,
+      "positive_groups": 2,
+      "negative_groups": 1
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-1",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 9,
+      "mean_gain": -0.00032507175364317957,
+      "positive_groups": 1,
+      "negative_groups": 1
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-1",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 9,
+      "mean_gain": -0.00032507175364317957,
+      "positive_groups": 1,
+      "negative_groups": 1
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-1",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 9,
+      "mean_gain": 0.0019041613244511818,
+      "positive_groups": 2,
+      "negative_groups": 1
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-1",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 9,
+      "mean_gain": -0.00032507175364317957,
+      "positive_groups": 1,
+      "negative_groups": 1
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-1",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 9,
+      "mean_gain": -0.00032507175364317957,
+      "positive_groups": 1,
+      "negative_groups": 1
+    },
+    {
+      "scope": "cxr_anatomy|cxr|open_vqa|segmentation|thoracic_anatomy",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_anatomy|cxr|open_vqa|segmentation|thoracic_anatomy",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_anatomy|cxr|open_vqa|segmentation|thoracic_anatomy",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_anatomy|cxr|open_vqa|segmentation|thoracic_anatomy",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_anatomy|cxr|open_vqa|segmentation|thoracic_anatomy",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_anatomy|cxr|open_vqa|segmentation|thoracic_anatomy",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.05405405405405406,
+      "positive_groups": 1,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.05405405405405406,
+      "positive_groups": 1,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 5,
+      "mean_gain": -0.024561403508771923,
+      "positive_groups": 1,
+      "negative_groups": 1
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 5,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 5,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 5,
+      "mean_gain": -0.024561403508771923,
+      "positive_groups": 1,
+      "negative_groups": 1
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 5,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 5,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 4,
+      "mean_gain": 0.03333333333333334,
+      "positive_groups": 1,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 4,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 4,
+      "mean_gain": -0.06666666666666667,
+      "positive_groups": 0,
+      "negative_groups": 1
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 4,
+      "mean_gain": 0.03333333333333334,
+      "positive_groups": 1,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 4,
+      "mean_gain": -0.06666666666666667,
+      "positive_groups": 0,
+      "negative_groups": 1
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-1",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 4,
+      "mean_gain": -0.06666666666666667,
+      "positive_groups": 0,
+      "negative_groups": 1
+    }
+  ],
+  "domain_kinds": [
+    "proxy"
+  ],
+  "cases": [
+    {
+      "id": "pathvqa-train-10030",
+      "cache_key": "dad59a78c298be71027194265d79869e0c1e8066cdca562788f8a15395885850"
+    },
+    {
+      "id": "pathvqa-train-10034",
+      "cache_key": "eb9537c934b814ec94f91cc60163ecbe650cca01ddd0a451cf11cf8e8ee04741"
+    },
+    {
+      "id": "pathvqa-train-10960",
+      "cache_key": "9682a1937feffb7c0564130b2b8f58fbe32e763687992896504d15694034d65d"
+    },
+    {
+      "id": "pathvqa-train-11162",
+      "cache_key": "65e6ac6ff6dcca9717dad24302c91bf09067c7b0e840aafa0ce68a45e1d0eb82"
+    },
+    {
+      "id": "pathvqa-train-11206",
+      "cache_key": "c51076d746bd00d9a1aa94ac64cf59c0da019ee7084dd3496810b7abb91c21b0"
+    },
+    {
+      "id": "pathvqa-train-11287",
+      "cache_key": "e68bdf8ad52db0485ba6443a85d935ec23b344529055873744c6dff835eacbe0"
+    },
+    {
+      "id": "pathvqa-train-11429",
+      "cache_key": "b57c90cb71223454d3eaae4e50e11347d3027a5777162d0e7c0bdcd6fcebdfe5"
+    },
+    {
+      "id": "pathvqa-train-13011",
+      "cache_key": "9a6cf915e045ff90e27dc13c992f95a3aef40684ba4d03f45e672d6bc831be2e"
+    },
+    {
+      "id": "pathvqa-train-13556",
+      "cache_key": "5834108db341815d9fefc8e9dba3a85994ef9c8d04fa1305e24657195f8362e8"
+    },
+    {
+      "id": "pathvqa-train-13870",
+      "cache_key": "d5a488dea00bd3b1a542d0c6e3fb28f8445615a3ba6f46afb66defbe98ce636e"
+    },
+    {
+      "id": "pathvqa-train-13885",
+      "cache_key": "d78044e7f008f8df5a796653fcd9f83153c93aedeb7e37b8ed06da204e50b436"
+    },
+    {
+      "id": "pathvqa-train-14024",
+      "cache_key": "4fe6a330eeb3cae80676a0848ab9cc2f91ec35be9e85f4a14fb62977a85625e2"
+    },
+    {
+      "id": "pathvqa-train-14357",
+      "cache_key": "999a9d9c7ce301b4f416b2245582c3b53cb6d6dea11b290beeec208ff8969898"
+    },
+    {
+      "id": "pathvqa-train-14754",
+      "cache_key": "36d5c3d307f3a905435ce1aba6295248f12ba969aea1a0c987261707d7b95a63"
+    },
+    {
+      "id": "pathvqa-train-14925",
+      "cache_key": "bf928efc3b05329cf1109686ccc1bc1a4e58f118691865d8759ff0fa6c361df6"
+    },
+    {
+      "id": "pathvqa-train-15249",
+      "cache_key": "45ada086d7aa92eec6035573bb0dfe5d91040e82944376ace380901eab9743ef"
+    },
+    {
+      "id": "pathvqa-train-15641",
+      "cache_key": "aaff28bb3598ee2ad2fdb108e42a534b6a6eacb200860f891fe03f2a076708e9"
+    },
+    {
+      "id": "pathvqa-train-16025",
+      "cache_key": "f9dd8c6b48d8d4d5a4ed0454aa3feeed9f590ef51b0340350104bde65f815501"
+    },
+    {
+      "id": "pathvqa-train-19592",
+      "cache_key": "c7165656154ba99b0c3505f1313235c546b78b7d79220e3434ddec3cc4de7b4c"
+    },
+    {
+      "id": "pathvqa-train-2423",
+      "cache_key": "6bad83ddc2e2c2a3fbc5ef6d2418079b15704353cf07a4d87cf28b54cf9331c2"
+    },
+    {
+      "id": "pathvqa-train-2874",
+      "cache_key": "b568503d9839cacb902f0f247459d194fb3ae0d70b7f28f5076dc6e18fb92728"
+    },
+    {
+      "id": "pathvqa-train-4333",
+      "cache_key": "f0c7e824d3bb09206db5c2a790e6aa3f1a227f0837e69afc9d2fe21e637804b1"
+    },
+    {
+      "id": "pathvqa-train-4584",
+      "cache_key": "43f71f7fc85463e80ebd9c5492d0f0acf1e46563694541dfc53fe682bb6a85a6"
+    },
+    {
+      "id": "pathvqa-train-4632",
+      "cache_key": "9d34dec905ef866626efaa47da5d12d0b60d8f4132425798fca2edf47df80307"
+    },
+    {
+      "id": "pathvqa-train-4991",
+      "cache_key": "2a6bdab45d5f0edbb5c6332b021b06865290408cde1b312568c60f546f326c55"
+    },
+    {
+      "id": "pathvqa-train-5816",
+      "cache_key": "ec7bd827dc5f0a889fd40570fa0b6760d8a2383918b0fb929d3516cc7db33b69"
+    },
+    {
+      "id": "pathvqa-train-6044",
+      "cache_key": "df611d5050d2908fee23898594fb013429ec5dd4eedab5274849d9205cd26a84"
+    },
+    {
+      "id": "pathvqa-train-6600",
+      "cache_key": "13698d88d1f2cdfa27a0451a6f2499dc39384b06df3a17bb9b3807368e037449"
+    },
+    {
+      "id": "pathvqa-train-8450",
+      "cache_key": "2f8a013cf56d8cc8fd4f6c0302e36ea36ebb0d96b58f69c257ac7b4765ef483d"
+    },
+    {
+      "id": "pathvqa-train-8564",
+      "cache_key": "89b04806f2501e86d919bcf7ff5cb49e1737c5ad557bffc2760d74b6e4c4c0f7"
+    },
+    {
+      "id": "pathvqa-train-9884",
+      "cache_key": "b72f95abfe92abb1ea50af7647a60b719d9578208e233b9b92066b012287c9e9"
+    },
+    {
+      "id": "pathvqa-train-9975",
+      "cache_key": "0a7cfa8d21f02080c27b9dd89af8195a403631a9a97c87e3d0ceaacfabd83ec9"
+    },
+    {
+      "id": "vqarad-017cf58e54447c1fd710-8e6c9e4dc146",
+      "cache_key": "342ef321588d00045ad97648317890c22a090d9a008451d9de1bc60d3eda8774"
+    },
+    {
+      "id": "vqarad-184e3f45d0c0f7822085-cf104416a966",
+      "cache_key": "79d496ec83443db80a0fbb701adbef80c79bac2e32c3aa8efc0052b010da594e"
+    },
+    {
+      "id": "vqarad-19896f4f28d2b0e4efb6-7c621062ebd8",
+      "cache_key": "4a6c6585f0676cbe338d60cc654732127223c54de301fd0ed29598c17a63fee1"
+    },
+    {
+      "id": "vqarad-1c62c7d46c3fb1648baf-92d482900c5f",
+      "cache_key": "3795fa0e04bd20a1cc8e5254d5f59d40eddea583e1d0f8edce4a56fb074af589"
+    },
+    {
+      "id": "vqarad-224a477094d20268a555-0b5bd11be0ed",
+      "cache_key": "0c747269c5a994a549d62255a75214a834ef6fa9a0135401a9ba4d9be6d4cdd9"
+    },
+    {
+      "id": "vqarad-2511598fb37ec4710d6d-798855e02f5f",
+      "cache_key": "05dc838fcd8a620362a52d497f2434e68cceff5a00ca5d9a08d2aee797f36283"
+    },
+    {
+      "id": "vqarad-30430d13ffa1dab866d6-dddb6548f8ad",
+      "cache_key": "a48b6580c67081b7397aca4e5026fce633f35b13980b29c0bdd0fa38603944f2"
+    },
+    {
+      "id": "vqarad-3e22b6de97ac77ab0384-df6e19978bff",
+      "cache_key": "2514de1a2c77116291f006dd18c587316d421ff988220f1e359bbf68e962ef87"
+    },
+    {
+      "id": "vqarad-43a7f01bada652e22e4e-bdea0409006d",
+      "cache_key": "54f6f5df01050ce815cd211f33a8be0987c0d8a8d179ab22a5568ad45b2c51cb"
+    },
+    {
+      "id": "vqarad-4f81f2667bff6f27ccc8-b0181813191b",
+      "cache_key": "eca92b36abb6ffee4741269ba8878d1b746a7d7cf89261b9771a4a9beb5e2ba0"
+    },
+    {
+      "id": "vqarad-56d96964caade2a6e301-6674b5fd441c",
+      "cache_key": "09c03f22f6750ddfa9f61b206a0cf332a3f17b0ea5bf3cdc6211bb6484ab370c"
+    },
+    {
+      "id": "vqarad-5f1799e4c54a9d5048b0-7291ba737f6c",
+      "cache_key": "25ea8842520520ac59dd4385179ae05b02b38a58d47a4c6546dc90771a004295"
+    },
+    {
+      "id": "vqarad-64dec04767ed6b4830da-9e5ac5141130",
+      "cache_key": "73e8783eb98cc15e8dfc3c16a81b13b5769b478ab0c141ae8f142e46817ba6fd"
+    },
+    {
+      "id": "vqarad-6956028cfb7ccc5bacb5-cecd6b097d0e",
+      "cache_key": "b411819d507ef7ead8ae43abf46f9efead8def589339655db6572e382aa0454d"
+    },
+    {
+      "id": "vqarad-697724fe7bc1159784dd-7b208e5b4132",
+      "cache_key": "f958a00bc9f44b781b84b2b67272ac5b5a455d4dc65943522160bc0016154d80"
+    },
+    {
+      "id": "vqarad-6d7babdf1c92b575cece-3d46c4a96cfc",
+      "cache_key": "f573ecf2811bed91d5d6aa3475e01e7d1742e2307ee43af3d27cfd7765937770"
+    },
+    {
+      "id": "vqarad-7abc1c751faf77e21f08-96e49992fc5a",
+      "cache_key": "c28cd765fc68abbfaf8f4ff44d3b196293eddfe302b281829d0a4f5f71be10f1"
+    },
+    {
+      "id": "vqarad-87ad82d8939581e706ba-8fc0d1b62bd8",
+      "cache_key": "4709856921bc2b524aeab27a95bbe37739d5bafe6661124d7c8dab58e3e8d571"
+    },
+    {
+      "id": "vqarad-91944d8bef4acc6ecfe9-6327391649df",
+      "cache_key": "f9d85faf441a704b1ecdfa41ab53914223c3ff259f01a90771a72f9e283ff3fd"
+    },
+    {
+      "id": "vqarad-91e9a534873980e293df-2e28b24215f6",
+      "cache_key": "0ab43ee2ff5188e842ba2c9afae5e3b8c7b7cc9f1474c15dfc42460813955c11"
+    },
+    {
+      "id": "vqarad-92622950c63c8087ba42-b296f9af07dd",
+      "cache_key": "6fda918e69eb32f934fa0195b0b75a206f7b26635cd22cc74a9b20a0c58f17bf"
+    },
+    {
+      "id": "vqarad-932c6035079aad2e68a7-d53f37679654",
+      "cache_key": "0987a6f04eacf7cee0e983cdd9b1f32988fa37d70dbdf01fe6a3eaf32e939619"
+    },
+    {
+      "id": "vqarad-9ea4e66943f0dfbe8477-8f03b9697e59",
+      "cache_key": "5b7fa6cedd0be81dfc281877683d2136a54b157626aba8c3b6c1a5e06a79e212"
+    },
+    {
+      "id": "vqarad-b3936cb852b71d5e45c4-a1fe03892ac7",
+      "cache_key": "7705773fddec8cb93838fd6a99a89d2b8864e6a42937edf419aed86ac25e170b"
+    },
+    {
+      "id": "vqarad-b61274ddfa6d1faef3c8-e589792bff68",
+      "cache_key": "9d148d58fb0124e170a8326c35d7eec880421f8988a42b9260e14e9e679aab59"
+    },
+    {
+      "id": "vqarad-b9c14f55bccd14627fe3-8a45357ac421",
+      "cache_key": "d0784ddd06d3b29d412b2f0899ab0f0a8beeb7da12db25366f8793572bf1129f"
+    },
+    {
+      "id": "vqarad-bc54bc4655dbc385b41f-561078e87342",
+      "cache_key": "728614794a8f2abfded6eb78c3cdff9cd4c4e8aaac5004ffd11e869698bb9767"
+    },
+    {
+      "id": "vqarad-d7d2c52a79fd4990b839-108fd5d03477",
+      "cache_key": "c9a57d2b59a11ab88bc3d083deb570f587621b8ac1194ff66379f290fdd361a1"
+    },
+    {
+      "id": "vqarad-e9639c4f30051a960f42-acaa6b6c17c5",
+      "cache_key": "e1eb16fc64cb4adb89e45ae5393b419db699aa7c5b7a219d39c3050bc6f635e4"
+    },
+    {
+      "id": "vqarad-eb456979afa7813c88bc-f55bb8e9e3b2",
+      "cache_key": "2329f079c5de6418cbe23c14d7f11f9275846ddb018718a8f98206a7dc00e199"
+    },
+    {
+      "id": "vqarad-f5c74ee28e69300e4bff-8a45357ac421",
+      "cache_key": "c5894aba8ae51034a5420a5bc55ac84f7ac6c3f734903ed672f50c29f4941964"
+    },
+    {
+      "id": "vqarad-fb5f58236d437b937910-d4c85f37be30",
+      "cache_key": "cd2d5622812a617dfc60ce9f4118cc198f8c64bdbd08704d6d24358caa11f8bc"
+    }
+  ],
+  "limitations": [
+    "Empirical independent-group confirmation is not a statistical safety bound.",
+    "Dataset domains are not necessarily independent hospitals.",
+    "No LODO or native multi-view stability is implemented in this profile.",
+    "Token-F1 is not clinical factuality."
+  ]
+}

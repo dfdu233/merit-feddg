@@ -18,14 +18,56 @@
   the existing registry; retrieval is excluded until independent bank partitioning.
   Current experiment is initial single-tool bridge validation, not demonstrated
   multistep capability composition. All medical conclusions remain unverified.
-- Correctness-first backend re-prefills twice per guided token; no cross-token KV
-  speedup. Default guidance lasts 16 tokens, not a semantically detected claim.
+- Correctness-first backend replays each committed prefix through the production
+  KV-cache path for base and evidence; there is no cross-branch KV sharing. Default
+  guidance lasts 16 tokens, not a semantically detected claim.
 - Local tests include numerical KL/mask tests, source/target isolation and cache
   checks, fake-backend integration, and real random CPU Mistral score replay.
   Verified: 488 tests passed (Python 3.10.9, Torch 2.6.0 CPU, Transformers 4.57.1),
   Ruff passed, three Bash entry-point syntax checks and git diff checks passed.
-  No remote clinical checkpoints, new GPU experiment or clinical result was run here.
-  See `docs/BOUNDED_EVIDENCE_V011.md` for server handoff.
+  A subsequent real-GPU canary and full source diagnosis are recorded below. See
+  `docs/BOUNDED_EVIDENCE_V011.md` for the server handoff.
+
+## GPU validation after v0.11 (2026-09-07)
+
+- Reused the existing huatuo Python, local LLaVA-Med v1.5 Mistral 7B, CheXagent,
+  CONCH, BiomedCLIP and XRV assets in forced offline mode. No model/data download,
+  target generation, target scoring or target tuning occurred. Exact commands and
+  paths are in `runs/bounded-evidence-v011-audit/HANDOFF_RESULT.md`.
+- The first real canary exposed two hard integration failures before any result was
+  accepted. CheXagent `device_map: auto` placed the remote-code model on CPU beside
+  LLaVA, so the profile now explicitly maps it to CUDA. More importantly, one-step
+  full-prefix FP16 prefill disagreed with production KV-cache generation on a near
+  tie (`right` versus `superior`, logit gap 0.0078125). `next_scores` now forces the
+  exact prefix through the production KV path; the failing real case then matched
+  16/16 tokens. The trace names this backend `production_kv_replay`.
+- The final 8-case canary and frozen 64-source run both exited successfully. The full
+  run is `runs/bounded-evidence-source-v011-kvreplay-full/llava/e634250537642f06`:
+  64 cases, 82 strength-specific records from 41 real expert executions, 35 cases
+  without a compatible expert, and zero tool/runtime failures. All 992 checked
+  production baseline tokens matched; target generations were exactly zero.
+- Across all real and format-control guidance traces, per-token KL never exceeded
+  0.02, maximum cumulative case KL was 0.25635 versus the 0.32 budget, evidence was
+  active only at token positions 0--15, and all branches retained a single original
+  image. Peak PyTorch allocation/reservation was 23.91/46.84 GiB; observed device
+  use briefly reached about 48.5 GiB during expert loading and returned after cases.
+- On the 41 applicable source expert/case interventions, direct context averaged
+  +0.00738 Token-F1 (8 improved, 3 harmed, 30 unchanged). Bounded strength 0.25
+  averaged -0.00658 while format-only averaged -0.00007; the entire net real-versus-
+  format loss (-0.00650) came from one CXR case changing correct `both sides` to
+  incorrect `right side`. At strength 0.5, bounded and format-only both averaged
+  -0.01308, so the aggregate net content effect was zero.
+- The content-sensitive signal is therefore sparse and not robust: guided and
+  format outputs differed in only 3/41 interventions at strength 0.25 and 4/41 at
+  0.5, with no positive real-versus-format Token-F1 case. Direct CheXagent context
+  averaged +0.01771 over 11 applicable cases, but bounded CheXagent was identical
+  to format control in quality; this does not establish medical factuality.
+- All six calibration cards correctly failed closed with
+  `proxy_or_unverified_domains` and strength 0.0. The four source domains are
+  dataset/hash proxies rather than hospitals, and several tools have only one
+  represented domain/case. No new strategy was fitted or unlocked, and target
+  evaluation remains intentionally unrun. The next valid step is real source-domain
+  coverage plus blinded evidence/answer review, not weaker gates or old-target tuning.
 
 ## v0.10 source communication diagnostics and scoped evidence (2026-09-07)
 

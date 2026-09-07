@@ -184,7 +184,9 @@ bash run_llava_med.sh --study evidence --evidence-stage evaluate \
 ## 7. 成本、验收与下一步
 
 新路径没有梯度训练成本，但 source 需多次生成，有真实推理成本。旧版 LLaVA 接口
-每个受引导 token 做两次完整 prefill，默认最多 16 次引导；源域还做基线一致性回放。
+每个受引导 token 分别沿 base/evidence 的生产 KV-cache 路径强制重放已提交前缀，默认最多
+16 次引导；源域还做基线一致性回放。不能改成一次性完整前缀 prefill：FP16 下后者与
+生产 KV-cache 解码并非数值等价，近似并列的 token 可能翻转 argmax。
 它可能慢于直接注入，不能把“少了控制器”写成已加速。源域复用证据时间不是线上延迟；
 目标逐方法计时包含实际工具执行和路由，报告 warm/cold 与总设备显存应另外注明。
 

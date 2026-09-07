@@ -111,7 +111,7 @@ experts:
       expert_id: chexagent_description
       scope: cxr_description
       dtype: bfloat16
-      device_map: auto
+      device_map: cuda
       max_new_tokens: 64
     modalities: [cxr]
     tasks: [open_vqa]

@@ -1,0 +1,811 @@
+{
+  "schema": "bounded-evidence-v011",
+  "config": {
+    "generalist": {
+      "backend": "llava_med",
+      "id": "microsoft/llava-med-v1.5-mistral-7b",
+      "checkpoint_path": "/home/dbw/ANCHOR/hf_cache/llava-med-v1.5-mistral-7b",
+      "source_path": "/home/dbw/ANCHOR/data/medheval/code/baselines/Med-LVLMs/llava-med-1.5",
+      "vision_tower_path": "/home/dbw/ANCHOR/hf_cache/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1",
+      "dtype": "float16",
+      "device_map": "auto",
+      "deterministic_image_padding": true
+    },
+    "prompt_suffix": "Answer the original question briefly using only image-supported information. Give the requested name or finding, not a report, unless an explanation is explicitly requested.",
+    "routing": {
+      "enabled": true,
+      "override_dataset_modality": true
+    },
+    "capability_generation": {
+      "control_protocol": "action_id",
+      "max_new_tokens": 96,
+      "block_tokens": 16,
+      "max_calls": 3,
+      "max_controller_calls": 4,
+      "controller_tokens": 8,
+      "max_evidence_chars": 1600
+    },
+    "qualification": {
+      "min_per_domain": 8,
+      "min_domains": 2,
+      "penalty": 1.645
+    },
+    "evaluation": {
+      "single_tools": true,
+      "source_adaptive_audit": false
+    },
+    "experts": {
+      "conch_tissue": {
+        "id": "MahmoodLab/CONCH",
+        "revision": "f9ca9f877171a28ade80228fb195ac5d79003357",
+        "adapter": "conch",
+        "modalities": [
+          "pathology"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "classification"
+        ],
+        "scope": "tissue_appearance",
+        "prefix_invariant": true,
+        "excluded_question_types": [
+          "count",
+          "measurement",
+          "location"
+        ],
+        "description": "Compare microscopic histology against a fixed tissue-appearance catalog. No gross photographs, arbitrary diagnoses, cell counts or measurements.",
+        "catalog": [
+          {
+            "name": "glandular epithelium",
+            "prompt": "A histopathology image of glandular epithelial tissue."
+          },
+          {
+            "name": "squamous epithelium",
+            "prompt": "A histopathology image of squamous epithelial tissue."
+          },
+          {
+            "name": "connective tissue",
+            "prompt": "A histopathology image of connective tissue."
+          },
+          {
+            "name": "adipose tissue",
+            "prompt": "A histopathology image of adipose tissue."
+          },
+          {
+            "name": "smooth muscle",
+            "prompt": "A histopathology image of smooth muscle tissue."
+          },
+          {
+            "name": "skeletal muscle",
+            "prompt": "A histopathology image of skeletal muscle tissue."
+          },
+          {
+            "name": "lymphoid tissue",
+            "prompt": "A histopathology image of lymphoid tissue."
+          },
+          {
+            "name": "neural tissue",
+            "prompt": "A histopathology image of neural tissue."
+          },
+          {
+            "name": "blood vessels",
+            "prompt": "A histopathology image of blood vessels."
+          },
+          {
+            "name": "necrotic tissue",
+            "prompt": "A histopathology image of necrotic tissue."
+          }
+        ]
+      },
+      "biomed_anatomy": {
+        "id": "microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224",
+        "revision": "9f341de24bfb00180f1b847274256e9b65a3a32e",
+        "adapter": "contrastive_biomedclip",
+        "modalities": [
+          "cxr",
+          "xray",
+          "ct",
+          "mri",
+          "gross_pathology"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "classification"
+        ],
+        "scope": "major_anatomy",
+        "prefix_invariant": true,
+        "question_types": [
+          "anatomy"
+        ],
+        "description": "Compare this image against a non-exhaustive major-organ catalog. Only for organ identification, not disease diagnosis, location, counts or segmentation.",
+        "catalog": [
+          "brain",
+          "lung",
+          "heart",
+          "liver",
+          "kidney",
+          "spleen",
+          "pancreas",
+          "stomach",
+          "intestine",
+          "thyroid",
+          "skin",
+          "bone",
+          "breast",
+          "uterus",
+          "testis"
+        ]
+      },
+      "source_cases": {
+        "id": "microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224",
+        "revision": "9f341de24bfb00180f1b847274256e9b65a3a32e",
+        "adapter": "source_retrieval",
+        "encoder_adapter": "contrastive_biomedclip",
+        "modalities": [
+          "pathology",
+          "gross_pathology",
+          "cxr",
+          "xray",
+          "ct",
+          "mri",
+          "ultrasound",
+          "oct",
+          "fundus",
+          "dermatology",
+          "endoscopy",
+          "clinical_photo",
+          "diagram"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "retrieval"
+        ],
+        "scope": "related_source_qa",
+        "prefix_invariant": true,
+        "top_k": 1,
+        "question_weight": 0.5,
+        "include_source_answers": true,
+        "description": "Retrieve one source case matched by image AND question, from another source domain and same image type. Its answer belongs only to that different image; this is an analogy, not proof about the current image."
+      },
+      "cxr_findings": {
+        "id": "xrv/densenet121-res224-all",
+        "adapter": "xrv_classification",
+        "checkpoint_path": "/home/dbw/merit-feddg/artifacts/models/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt",
+        "weights": "densenet121-res224-all",
+        "modalities": [
+          "cxr"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "classification"
+        ],
+        "scope": "cxr_findings",
+        "prefix_invariant": true,
+        "excluded_question_types": [
+          "count",
+          "measurement",
+          "anatomy",
+          "location"
+        ],
+        "description": "Whole-chest-radiograph disease finding scores from a small chest X-ray classifier. Not calibrated probabilities, not CT/MRI and not lesion location."
+      },
+      "cxr_anatomy": {
+        "id": "xrv/pspnet-chestxray",
+        "adapter": "xrv_anatomy",
+        "checkpoint_path": "/home/dbw/merit-feddg/artifacts/models/xrv/pspnet_chestxray_best_model_4.pth",
+        "modalities": [
+          "cxr"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "segmentation"
+        ],
+        "scope": "thoracic_anatomy",
+        "requires_region": false,
+        "prefix_invariant": true,
+        "question_types": [
+          "anatomy",
+          "location",
+          "measurement",
+          "appearance"
+        ],
+        "description": "Segment lung and heart anatomy in a chest radiograph, return crop-aware masks and spatial measurements. No tumor detection, no physical size without image calibration."
+      },
+      "chexagent_description": {
+        "id": "StanfordAIMI/CheXagent-2-3b",
+        "checkpoint_path": "/home/dbw/merit-feddg/artifacts/models/StanfordAIMI--CheXagent-2-3b",
+        "optional": false,
+        "factory": "merit_feddg.experts.native_chexagent:CheXagentCapabilityExpert",
+        "factory_kwargs": {
+          "expert_id": "chexagent_description",
+          "scope": "cxr_description",
+          "dtype": "bfloat16",
+          "device_map": "cuda",
+          "max_new_tokens": 64
+        },
+        "modalities": [
+          "cxr"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "generation"
+        ],
+        "scope": "cxr_description",
+        "requires_region": false,
+        "description": "Ask an existing specialist chest X-ray VLM for a short visual description relevant to the question. Its generated observation can be wrong and is not a gold report."
+      }
+    },
+    "bounded_evidence": {
+      "generation": {
+        "max_new_tokens": 96,
+        "block_tokens": 16,
+        "max_expert_calls": 2,
+        "max_decisions": 2,
+        "controller_tokens": 48,
+        "max_evidence_chars": 1200,
+        "visual_views": 0,
+        "evidence_style": "scoped",
+        "request_style": "question",
+        "evidence_top_k": 2,
+        "retrieval_answer_context": false
+      },
+      "guidance": {
+        "strength": 0.5,
+        "clip": 2.0,
+        "token_kl": 0.02,
+        "case_kl": 0.32,
+        "evidence_tokens": 16
+      },
+      "strengths": [
+        0.25,
+        0.5
+      ],
+      "quality": {
+        "name": "token_f1"
+      },
+      "calibration": {
+        "min_groups": 8,
+        "min_domains": 2
+      }
+    },
+    "runtime_dependencies": {
+      "biomedbert_text_config": {
+        "id": "microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract",
+        "revision": "d673b8835373c6fa116d6d8006b33d48734e305d",
+        "path": "/home/dbw/models/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224/.cache/merit-text-config/config.json",
+        "sha256": "56bab767c02bc792897638feb8addc06d483d9c73769a5f554bbabea1f5507a1",
+        "weights_downloaded": false
+      }
+    }
+  },
+  "code": {
+    "__init__.py": "a0a94545f7c29556750b88c09ba1d498db3bc3527b769a5122cb6c4569e4ee3f",
+    "assets.py": "14a2ff583e6518a1a238e312fc04b0ae5367016a2df893169fb0d1bcb840001d",
+    "block_decode.py": "328b664fb383eed96a0b7f3d5a02fd38e5ac088da4a05fdc815bfb40c6383bb3",
+    "bounded_session.py": "4b2be3b36670667e4f14812626e7e6bbe382be629d4fe5d0b645711e5f0fffc8",
+    "capabilities.py": "b3b3443480097271daf6d21abb9d06d0affd7fe59e2dd4c65c2b3d8757be52bf",
+    "capability_diagnostics.py": "23cb144d08febfbe7a118bc71574acddfa3b55f71b3e6c89d1ea4e773f04ad49",
+    "capability_experts.py": "3b5b27062e1f99967859942f35fc0fcbdcf02a8e24dfbf930a77038af2fd8b79",
+    "capability_features.py": "cdc2f0a57dc2cd6c505b3f2c8999a3d2f0b644fe04e65ec5fdeef289510b33b6",
+    "capability_generation.py": "04e7d1b83656df18616b546816e110a0218707313707553624ddc08c0e494ee5",
+    "capability_routing.py": "4c4eda51eadebf368619ae346d070c733d3f28443a7aadb1a5bd3ef9ad74509f",
+    "capability_runtime.py": "d6d1f3db5d8e39334bdd2d07d02786c0375d8acf95fae02ace0f6adabbf6200f",
+    "capability_setup.py": "cd117635c3da7fa1da5e7e7ea734b9c5696c6676bdeadfa1bee33cd47db32f1b",
+    "capability_study.py": "e6607877680ef618a49aba5e75a85ce49066bb9412a00765491536a15e8c8498",
+    "capability_value.py": "c5e60160230de603d3e99d47cfe9bef3cf841f77fca1ff832cc5894865e9f34b",
+    "capability_value_study.py": "cc12facc65caef4e415dbcdfdd73dc2c8621fc667700996228064d2cb10a7ae6",
+    "claims.py": "3e58ba689af6bf7963764d1b04402b2951f8f1169f8660baf26a028f944e5819",
+    "cli.py": "a97a00e19f3f3c49b58165bb426bd09d2859ae91c907bbbbc0721e8a25bd1d81",
+    "constrained.py": "6d9eea1bea49d3f1f12d992ebc8977970e2df08b5f2d246199177ad70730292c",
+    "contribution.py": "0017de7bc3de794d430aac4de5fd8c867a86b86c22826f1202a9595925b4ebef",
+    "decoding.py": "eefef84fafc23b5c715c5b8852f1a5796e0b660d8f8fd01a712a9fbaa30555ee",
+    "doctor.py": "b0bc33bc5acdb36c09c6e0523cab45fb607845c1be76642d0e822675528465ab",
+    "evaluation.py": "668e09c67576edbbc239077d399e0578174223f2d42c1a49c4819ff923ef38c5",
+    "evidence_bridges.py": "82051eaf405226dc6c2ddc18ac8816d96ae4d50ab9553c5e8853ba0301368fae",
+    "evidence_calibration.py": "0d9b63f633bc20fa72e21b566dbf5eb1b4fb07f88490e31bee4563aeb772cd7a",
+    "evidence_decode.py": "28888063f3ee2cee7ccbbfbf9a8d40286dba6c56536dcc7a9808963b617f3e06",
+    "evidence_need.py": "95bb013a7cb9182ca85cc7acc8d7353178e589b8eaa0e9a1be89d1e3e8947055",
+    "evidence_packets.py": "e841458d2fabd77747cee238f596bf48dd94cbefd3300c091e1cd794b7fc2f26",
+    "evidence_study.py": "71831c3103cb6fd0de8361fdaad3cb526e571e0a92464cec427135527a7a1e7a",
+    "expert_bridge.py": "af29094d803fd84f7cc5e9f9ca46c2e5000fe2a7928ad2af7c0ce2abeb56fac3",
+    "experts/__init__.py": "0021a0715f7172b9032490ea4f0b0d20d0addaa7bea0ae83cdaee9ef2e565681",
+    "experts/base.py": "5a4bd2c2d3366f045e8e37de5de6c1bd625ea87a6388442cac5c4f8d411c0e01",
+    "experts/biomedclip.py": "3550fa65961eac18a8f733d240168679a8b4c293522b1eeaec9bc04a268106ce",
+    "experts/blip.py": "821b93e053b09cd9a108cc4158761aaa004a5bd06043dba1188c6bdf7b75f6e5",
+    "experts/chexagent.py": "b65f710f3f6eff21dcd9a6e653ed177327b9c997e5d27122afff11a76fcb12d4",
+    "experts/conch.py": "636f5a42515a3c61f7fea594a7c22736416e84107542515cd10f177d8b706b11",
+    "experts/native_chexagent.py": "db51e4ffd8636892d01bac43b63e0d81c547e88cfe23b7d2d088be5515f9df75",
+    "experts/native_qwen.py": "ecaa344bc4e71f5f2d97298e173030e16a0cba9e8211b48f1427ce76965b5110",
+    "experts/native_xrv.py": "349176ecfd040e810f5b59f60a09549525cebfacf0d4665af7360ee3771d361c",
+    "extract.py": "8bd70bb08f67760603ea558c222979ac812a03379279521b81673b0cc2064174",
+    "feddg.py": "b479c6db4506b1dc7aedd180debef037215cd62c3a5548337ac76a2561f34113",
+    "generalist.py": "7b403d51729f667392ba3fa8edecc9bc60621e34246870b9bbb0ee3c173b5c24",
+    "generalist_factory.py": "aaf2b7e8239129486f3ef4a09d4facd52cb3b669d9a3d72cd76a00fd080ea2e0",
+    "guided_generate.py": "895e853856715fec12a36562e611e18e61713991f00a64bb8e24150693b8d0ef",
+    "io.py": "6b1446730bff801eba7f70677f4cd2b17b9b5f0fd61f46bfe16b2cc549f46539",
+    "llava_generalist.py": "d744fafae0e6178e2e909ed3dbacca29686d20a8cad8320f5d4d64cb2484b49e",
+    "llava_run.py": "95a363a0687073a59a09e57780814b65a64e393baa02e5aff0623acc162963ca",
+    "manifest.py": "582c6dc7659beae18f39a33833f29c18fa99367f8f1b9577e69a2accd740223e",
+    "math_utils.py": "1b76798e8d45634f9f16527f102837016f803ab13451f9b99e92ecc06898810f",
+    "med_defer.py": "d816e1282b6c91597a3255423fc9a95238e60594a8e1489b1ba4eb383304e74c",
+    "med_defer_study.py": "2040f379b9638f782c7422695e5d93f76fdc976cc28bd4328b8e9d403b6e174d",
+    "methods.py": "fb2f04debba55ad7710dd88a953884fe21684db68d91e615f1286187a52fe645",
+    "multimodal_data.py": "11202b5e8890d35d7ec0fd9606a7d4dcecba2a5d205d5a2682bdaa85dbf7aca9",
+    "native_evidence.py": "df108b3f3705aa3301972b3c4e858047131208b317ab7e543aae97cc34e45750",
+    "open_data.py": "fcd5ffad7b5d0d9bbd8d7a25f70d2c73326159d4231bfeb8d4873f75862ea3ef",
+    "open_experts.py": "64012202428a5b5fea83537f34a5bbf4aea4705e931f482cf15daffe944f1a12",
+    "open_study.py": "06245b6496ce463d42b626698cbe3f92841236368ebcca51651753e53e22c955",
+    "pathorob.py": "e6350343619163b37008d151e825ff275aa5e35d81381d2a573bc85788f7b5ad",
+    "prepare.py": "ca07e99a15808e1a6023ba5c09579b6a6d650bbf48b12b7568232b2268bbf031",
+    "qualification.py": "c0c1d5fd321ed4f599b0c6c9e977579d10f1ef9936542ae1cdaf100353014b6f",
+    "real_multiclass.py": "d4dfa8fa685cc305956aac355d8a2834c85b03bd797dc7a2a72498f474919e25",
+    "routing.py": "309ebd3e6f16926380a4b8817f028af9a7729f073e32bad141fc313af263d17b",
+    "runner.py": "89bc3dd4e49002a8921f37a4af070185f40cd5b7ec10f62100ac0cb602f4a8b8",
+    "simulation.py": "2a398d68d6c86603c0fe60a1511499765bb7c2ce4bdaf21169f1322cafb8ba5a",
+    "types.py": "ddd7672a1c4c1b30b00f9cc55c50a7eba8dbbead6ecd5ab5fba2d067b5874cbf",
+    "validators.py": "714b63d7110ca49821b6536df866371953a8438190108a7899a4372b48fa6551"
+  },
+  "runtime": {
+    "package_source_sha256": "87dc9e3046d7a312176a3f59a4692a4ecb67b8df40036800ee70568456ca7cda",
+    "dependency_versions": {
+      "torch": "2.0.1",
+      "transformers": "4.37.2",
+      "open-clip-torch": "3.2.0",
+      "qwen-vl-utils": "not-installed-as-distribution",
+      "conch": "0.1.0"
+    }
+  },
+  "hardware": {
+    "platform": "Linux-7.0.0-30-generic-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "cuda_devices": [
+      "NVIDIA GeForce RTX 4090"
+    ]
+  },
+  "generalist": {
+    "id": "microsoft/llava-med-v1.5-mistral-7b",
+    "checkpoint_path": "/home/dbw/ANCHOR/hf_cache/llava-med-v1.5-mistral-7b",
+    "snapshot": "custom-local",
+    "file_stats": [
+      [
+        ".gitattributes",
+        1519,
+        1785032694964418369
+      ],
+      [
+        "README.md",
+        4612,
+        1785032693729363830
+      ],
+      [
+        "config.json",
+        1407,
+        1785032694268387633
+      ],
+      [
+        "data_summary_card.md",
+        4163,
+        1785032694702406799
+      ],
+      [
+        "generation_config.json",
+        111,
+        1785032694639404017
+      ],
+      [
+        "model-00001-of-00004.safetensors",
+        4943162336,
+        1785032664970093845
+      ],
+      [
+        "model-00002-of-00004.safetensors",
+        4999819336,
+        1785032660400892072
+      ],
+      [
+        "model-00003-of-00004.safetensors",
+        4927408360,
+        1785032631042595636
+      ],
+      [
+        "model-00004-of-00004.safetensors",
+        262144128,
+        1785031629810879580
+      ],
+      [
+        "model.safetensors.index.json",
+        73152,
+        1785032694781410288
+      ],
+      [
+        "special_tokens_map.json",
+        438,
+        1785032694736408301
+      ],
+      [
+        "tokenizer.model",
+        493443,
+        1785031378434928880
+      ],
+      [
+        "tokenizer_config.json",
+        1463,
+        1785032694901415587
+      ]
+    ],
+    "vision_tower": {
+      "id": "llava-visual-dependency",
+      "checkpoint_path": "/home/dbw/ANCHOR/hf_cache/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1",
+      "snapshot": "custom-local",
+      "file_stats": [
+        [
+          "config.json",
+          4757,
+          1785138989770697193
+        ],
+        [
+          "preprocessor_config.json",
+          316,
+          1785138604638130548
+        ],
+        [
+          "pytorch_model.bin",
+          1711974081,
+          1785138923821302658
+        ]
+      ]
+    },
+    "external_source": {
+      "__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "constants.py": "05caa532060f61b30cada5ba23da0f4bf640c898298913f768653583482e5901",
+      "conversation.py": "dd9c8b52c0f22ea53ff60312b220fdf3c13a8c87e5ad8c9c38f41e94f0cb1943",
+      "eval/eval_batch.py": "2f2d2fcfde0814732864f5e2fe99bb87285f2e2b2debe39965152bfe9ecf8411",
+      "eval/eval_multimodal_chat_gpt_score.py": "3266c2561463b59596e79fa250c6124215298af1f22eeb413fbee83fe3e6df33",
+      "eval/llm.py": "2489093614dc137e762e425e11b069d4ea9dc8b5373eff199e8c693578679c47",
+      "eval/model_open_vqa.py": "48a5b18741f1df59f989526bac845149b0010a5ae0776c25bf9d9f24b42477b5",
+      "eval/model_vqa.py": "897819f9292e7a1dea78583cc66a96057ffc32b0cd7258afb42329de0121f831",
+      "eval/summarize_gpt_review.py": "076731cc687fea4a014642a068b23babf8f51a0a508af2a55295126e9039da24",
+      "eval/util.py": "b74d90688e8be16b91726b15332b364edaf7ba675293f0661394eb4545fc01d6",
+      "mm_utils.py": "821a78aaaf7ea61e47065200f0bc3c06b1eb1715198dcfcd57d4f8b594f65f33",
+      "model/__init__.py": "ceb3762cd9d39988090f685b8645b756327a1870a57c86dbcd38fead5cdc0ca4",
+      "model/builder.py": "595b32bcb1295026168ac55df1fc9797a6717954621a3e3b6d9aafdcacb14056",
+      "model/language_model/llava_mistral.py": "8a2d5ca1ac78fa6abb2577faa58810eda60a771be470ec6a05b6b783dcff04bd",
+      "model/llava_arch.py": "87238dbbe7e073c44fffa942980e23d9d4b4a096c9d7c86baef7127e700b3de6",
+      "model/multimodal_encoder/builder.py": "a1b8df62491c1c71ddb725f2adfc90ee16fe68182e3c47139eae6e3aacc5910e",
+      "model/multimodal_encoder/clip_encoder.py": "b49560405abde478ab83d0189d66b33aeca8f1e58f7152d8156fa01942ed074d",
+      "model/multimodal_projector/builder.py": "8d20e75b7a6adf8859f0ffae3e223fc38ccc92bce9abd7a226b1b1847d63962f",
+      "serve/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "serve/cli.py": "ea65a08f7cff20b428e2900a0b4bb9768d285347e5d3782ed434f96095944b74",
+      "serve/controller.py": "df4011be228da3de2c6f7a734bda9c27589d2405cfc58430e9822b87dc0b802d",
+      "serve/gradio_web_server.py": "245a365ca3348c1bcf1b7b1768894ca84985970b9b4752e149914f8b634124e4",
+      "serve/model_worker.py": "5f0ee4e9506067208ce5c7d009eb90ff4089f22b4348854116311e8197fa0f64",
+      "serve/register_worker.py": "ebd9ba00aa2b511d3bed8145bf6713fb93e884f2032ede37c361a9b46f8f9ed4",
+      "serve/test_message.py": "38c273e2deb8cf7555edbb6e0b420044240805a7485b5eeb750932a938250ff3",
+      "utils.py": "b51a3ef996597b7d8b7a54e280529985a7154992bd863209bdbc761b8b397102"
+    }
+  },
+  "experts": {
+    "conch_tissue": {
+      "id": "MahmoodLab/CONCH",
+      "revision": "f9ca9f877171a28ade80228fb195ac5d79003357",
+      "adapter": "conch",
+      "factory": null,
+      "snapshot": {
+        "schema": 1,
+        "id": "MahmoodLab/CONCH",
+        "kind": "model",
+        "revision": "f9ca9f877171a28ade80228fb195ac5d79003357",
+        "files": 6,
+        "payload_files": 1,
+        "bytes": 802929642,
+        "fingerprint": "1a12d12e91bcdacce9b1637af4dd29eb5ec3742892982b0264bfe44d2833ee1f"
+      },
+      "file_stats": [
+        [
+          ".gitattributes",
+          1519,
+          1788508187363869031
+        ],
+        [
+          ".merit-download-complete.json",
+          363,
+          1788606074274479373
+        ],
+        [
+          "README.md",
+          10258,
+          1788508186648833725
+        ],
+        [
+          "hf.jpg",
+          642534,
+          1788508195085250277
+        ],
+        [
+          "meta.yaml",
+          37,
+          1788508186340818517
+        ],
+        [
+          "pytorch_model.bin",
+          802235437,
+          1788508398005269543
+        ],
+        [
+          "requesting_access.png",
+          39857,
+          1788508187171859550
+        ]
+      ]
+    },
+    "biomed_anatomy": {
+      "id": "microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224",
+      "revision": "9f341de24bfb00180f1b847274256e9b65a3a32e",
+      "adapter": "contrastive_biomedclip",
+      "factory": null,
+      "snapshot": {
+        "schema": 1,
+        "id": "microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224",
+        "kind": "model",
+        "revision": "9f341de24bfb00180f1b847274256e9b65a3a32e",
+        "files": 22,
+        "payload_files": 1,
+        "bytes": 789433677,
+        "fingerprint": "1973c68024fc9b4f47938ea671bc2e62599468f269e484e842d1a14bb25600c6"
+      },
+      "file_stats": [
+        [
+          ".gitattributes",
+          1477,
+          1786203598734273925
+        ],
+        [
+          ".merit-download-complete.json",
+          476,
+          1788606073880268661
+        ],
+        [
+          "LICENSE.md",
+          1072,
+          1786203596494177505
+        ],
+        [
+          "README.md",
+          10287,
+          1786203598163249347
+        ],
+        [
+          "biomed-vlp-eval.svg",
+          63364,
+          1786203596317169886
+        ],
+        [
+          "biomed_clip_example.ipynb",
+          2890452,
+          1786203613294900654
+        ],
+        [
+          "example_data/biomed_image_classification_example_data/H_and_E_histopathology.jpg",
+          177447,
+          1786203598596267985
+        ],
+        [
+          "example_data/biomed_image_classification_example_data/IHC_histopathology.jpg",
+          180984,
+          1786203597436218053
+        ],
+        [
+          "example_data/biomed_image_classification_example_data/adenocarcinoma_histopathology.jpg",
+          26948,
+          1786203597741231182
+        ],
+        [
+          "example_data/biomed_image_classification_example_data/bone_X-ray.jpg",
+          7436,
+          1786203598059244870
+        ],
+        [
+          "example_data/biomed_image_classification_example_data/brain_MRI.jpg",
+          128221,
+          1786203598282254469
+        ],
+        [
+          "example_data/biomed_image_classification_example_data/chest_X-ray.jpg",
+          906335,
+          1786203601818406675
+        ],
+        [
+          "example_data/biomed_image_classification_example_data/covid_line_chart.png",
+          6303,
+          1786203598638269793
+        ],
+        [
+          "example_data/biomed_image_classification_example_data/pie_chart.png",
+          371161,
+          1786203600347968213
+        ],
+        [
+          "example_data/biomed_image_classification_example_data/squamous_cell_carcinoma_histopathology.jpeg",
+          17236,
+          1786203600283340601
+        ],
+        [
+          "open_clip_config.json",
+          707,
+          1786203599537308490
+        ],
+        [
+          "open_clip_pytorch_model.bin",
+          783705670,
+          1786208942278990072
+        ],
+        [
+          "special_tokens_map.json",
+          125,
+          1786203599517307629
+        ],
+        [
+          "text_encoder/config.json",
+          385,
+          1786209971368915906
+        ],
+        [
+          "tokenizer.json",
+          679168,
+          1786203600346343313
+        ],
+        [
+          "tokenizer_config.json",
+          394,
+          1786203600212337545
+        ],
+        [
+          "vocab.txt",
+          225062,
+          1786203601444390576
+        ],
+        [
+          "wget-log",
+          33443,
+          1786206341515530791
+        ]
+      ]
+    },
+    "cxr_findings": {
+      "id": "xrv/densenet121-res224-all",
+      "checkpoint_path": "/home/dbw/merit-feddg/artifacts/models/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt",
+      "snapshot": "custom-local",
+      "file_stats": [
+        [
+          "nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt",
+          28382008,
+          1788676212004805349
+        ]
+      ]
+    },
+    "cxr_anatomy": {
+      "id": "xrv/pspnet-chestxray",
+      "checkpoint_path": "/home/dbw/merit-feddg/artifacts/models/xrv/pspnet_chestxray_best_model_4.pth",
+      "snapshot": "custom-local",
+      "file_stats": [
+        [
+          "pspnet_chestxray_best_model_4.pth",
+          272988989,
+          1788676245829304099
+        ]
+      ]
+    },
+    "chexagent_description": {
+      "id": "StanfordAIMI/CheXagent-2-3b",
+      "checkpoint_path": "/home/dbw/merit-feddg/artifacts/models/StanfordAIMI--CheXagent-2-3b",
+      "snapshot": "custom-local",
+      "file_stats": [
+        [
+          ".gitattributes",
+          1519,
+          1788506812413628952
+        ],
+        [
+          ".merit-download-complete.json",
+          339,
+          1788508183712995137
+        ],
+        [
+          "README.md",
+          2590,
+          1788506813366670070
+        ],
+        [
+          "added_tokens.json",
+          2849,
+          1788506812367626968
+        ],
+        [
+          "config.json",
+          1059,
+          1788506812329625328
+        ],
+        [
+          "configuration_chexagent.py",
+          9347,
+          1788506813367670113
+        ],
+        [
+          "generation_config.json",
+          119,
+          1788506813291666834
+        ],
+        [
+          "merges.txt",
+          456318,
+          1788506815592766112
+        ],
+        [
+          "model-00001-of-00003.safetensors",
+          4982355512,
+          1788508115371674392
+        ],
+        [
+          "model-00002-of-00003.safetensors",
+          4982541984,
+          1788508183706688456
+        ],
+        [
+          "model-00003-of-00003.safetensors",
+          2598191968,
+          1788508014890252040
+        ],
+        [
+          "model.safetensors.index.json",
+          75808,
+          1788506813941694879
+        ],
+        [
+          "modeling_chexagent.py",
+          53700,
+          1788506814699727583
+        ],
+        [
+          "modeling_visual.py",
+          8236,
+          1788506814478718048
+        ],
+        [
+          "special_tokens_map.json",
+          769,
+          1788506814384713992
+        ],
+        [
+          "tokenization_chexagent.py",
+          26254,
+          1788506815568765076
+        ],
+        [
+          "tokenizer_config.json",
+          21014,
+          1788506815607766759
+        ],
+        [
+          "vocab.json",
+          999186,
+          1788506819600939039
+        ]
+      ],
+      "factory_source_sha256": "db51e4ffd8636892d01bac43b63e0d81c547e88cfe23b7d2d088be5515f9df75"
+    }
+  },
+  "source_key": "e634250537642f067a31f1bc4116a2e659dbb6be8ef9f18b0ad4b8d87bf7c739",
+  "excluded_optional_experts": {}
+}

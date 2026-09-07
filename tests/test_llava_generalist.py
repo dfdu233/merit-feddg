@@ -148,9 +148,13 @@ def fake_backend(tmp_path, monkeypatch):
                 # Official inputs_embeds generation may start with a synthetic
                 # BOS on older Transformers, not with the image/text IDs.
                 constrain = kwargs["prefix_allowed_tokens_fn"]
-                chosen = constrain(0, torch.tensor([1]))[0]
-                assert constrain(0, torch.tensor([1, chosen])) == [2]
-                ids = [chosen, 2]
+                ids = []
+                for _ in range(kwargs["max_new_tokens"]):
+                    allowed = constrain(0, torch.tensor([1, *ids]))
+                    chosen = allowed[0]
+                    ids.append(chosen)
+                    if chosen == 2:
+                        break
             # Include a synthetic BOS to catch prompt-length slicing bugs.
             return SimpleNamespace(
                 sequences=torch.tensor([[1, *ids]]),
@@ -281,8 +285,9 @@ def test_next_scores_keep_original_image_and_exact_prefix(fake_backend):
     session = backend.new_answer_session(Image.new("RGB", (20, 10)), "Question")
     scores = session.next_scores((7, 8))
     assert scores.shape == (32,)
-    assert logs["generation"][-1]["max_new_tokens"] == 1
-    assert logs["generation"][-1]["inputs"].tolist() == [[1, -200, 5, 6, 4, 7, 8]]
+    assert logs["generation"][-1]["max_new_tokens"] == 3
+    assert logs["generation"][-1]["inputs"].tolist() == [[1, -200, 5, 6, 4]]
+    assert "prefix_allowed_tokens_fn" in logs["generation"][-1]
     assert logs["generation"][-1]["image_sizes"] == [(20, 10)]
     assert session.eos_ids == {2}
 

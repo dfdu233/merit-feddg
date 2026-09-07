@@ -3,6 +3,7 @@ from types import SimpleNamespace
 import pytest
 
 from merit_feddg.experts.chexagent import (
+    CheXagentConceptExpert,
     _chexagent_transformers_compatibility,
     _patch_visual_hidden_state_fallback,
 )
@@ -57,3 +58,29 @@ def test_visual_forward_casts_pixels_to_patch_weight_dtype():
     _patch_visual_hidden_state_fallback(model)
     result = visual.forward(torch.ones(1, dtype=torch.float32))
     assert result.dtype == torch.bfloat16
+
+
+def test_explicit_cuda_places_the_whole_remote_model(monkeypatch):
+    transformers = pytest.importorskip("transformers")
+    calls = []
+
+    class Model:
+        model = SimpleNamespace(visual=None)
+
+        def eval(self):
+            return self
+
+        def to(self, **kwargs):
+            return self
+
+    monkeypatch.setattr(
+        transformers.AutoTokenizer, "from_pretrained", lambda *args, **kwargs: object()
+    )
+
+    def load(*args, **kwargs):
+        calls.append(kwargs)
+        return Model()
+
+    monkeypatch.setattr(transformers.AutoModelForCausalLM, "from_pretrained", load)
+    CheXagentConceptExpert("local-model", device_map="cuda", dtype="bfloat16")
+    assert calls[0]["device_map"] == {"": "cuda"}

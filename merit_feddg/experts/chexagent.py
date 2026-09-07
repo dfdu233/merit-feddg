@@ -62,7 +62,11 @@ class CheXagentConceptExpert(ConceptExpert):
             raise RuntimeError("install merit-feddg[research] to load CheXagent") from exc
         self.torch = torch
         self.tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
-        load_kwargs = {"trust_remote_code": True, "device_map": device_map}
+        # Accelerate's automatic placement can keep this remote-code model on
+        # CPU when another model is already resident on the GPU. Honour an
+        # explicit whole-device request in the same way as the LLaVA adapter.
+        mapping = {"": device_map} if device_map in ("cpu", "cuda") else device_map
+        load_kwargs = {"trust_remote_code": True, "device_map": mapping}
         if dtype is not None:
             if dtype not in {"float32", "float16", "bfloat16"}:
                 raise ValueError("invalid CheXagent dtype")

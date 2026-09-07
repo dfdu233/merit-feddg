@@ -1,7 +1,7 @@
 """Single-image evidence-guided tokens with auditable, expiring intervention.
 
-Uses the existing native expert runtime. Correctness-first re-prefill backend;
-no cross-token KV speedup or medical performance is claimed.
+Uses the existing native expert runtime. Correctness-first production KV replay;
+no cross-branch KV sharing or medical performance is claimed.
 """
 
 from __future__ import annotations
@@ -68,7 +68,7 @@ class BoundedNativeSession(NativeSession):
             info.update(event="guidance", token_start=len(prefix), token=chosen,
                         prefix_sha256=fingerprint(prefix), packet_sha256=key,
                         evidence_ids=[v["evidence_id"] for v in packet], audit=audit,
-                        seconds=perf_counter() - started, backend="single_token_reprefill")
+                        seconds=perf_counter() - started, backend="production_kv_replay")
             self.last_guidance_trace.append(info)
             spent = info["spent"]
             tokens.append(chosen)

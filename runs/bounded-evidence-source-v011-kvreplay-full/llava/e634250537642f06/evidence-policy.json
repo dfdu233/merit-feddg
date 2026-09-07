@@ -1,0 +1,91 @@
+{
+  "schema": "source-guidance-calibration-v1",
+  "cards": {
+    "conch_tissue|pathology|open_vqa|classification|tissue_appearance": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "pathvqa-train-proxy-0",
+        "pathvqa-train-proxy-1"
+      ],
+      "source_only": true
+    },
+    "cxr_findings|cxr|open_vqa|classification|cxr_findings": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "pathvqa-train-proxy-0",
+        "vqarad-image-proxy-0",
+        "vqarad-image-proxy-1"
+      ],
+      "source_only": true
+    },
+    "chexagent_description|cxr|open_vqa|generation|cxr_description": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "pathvqa-train-proxy-0",
+        "vqarad-image-proxy-0",
+        "vqarad-image-proxy-1"
+      ],
+      "source_only": true
+    },
+    "biomed_anatomy|ct|open_vqa|classification|major_anatomy": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "vqarad-image-proxy-1"
+      ],
+      "source_only": true
+    },
+    "biomed_anatomy|cxr|open_vqa|classification|major_anatomy": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "vqarad-image-proxy-0"
+      ],
+      "source_only": true
+    },
+    "cxr_anatomy|cxr|open_vqa|segmentation|thoracic_anatomy": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "vqarad-image-proxy-0"
+      ],
+      "source_only": true
+    }
+  },
+  "min_groups_per_domain_per_partition": 8,
+  "min_domains": 2,
+  "limitations": [
+    "Empirical independent-group confirmation is not a statistical safety bound.",
+    "Dataset domains are not necessarily independent hospitals.",
+    "No LODO or native multi-view stability is implemented in this profile."
+  ],
+  "source_key": "e634250537642f067a31f1bc4116a2e659dbb6be8ef9f18b0ad4b8d87bf7c739",
+  "source_interventions_sha256": "ee931e9bd2c99ccbcef8c014e74b744e2a13b18bcc484856df4508bd30f097b4"
+}

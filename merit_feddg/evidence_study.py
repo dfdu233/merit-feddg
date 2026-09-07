@@ -329,7 +329,8 @@ def run_evidence_study(source_path, target_path, references_path, config_path, a
                   "limitations": policy["limitations"] + [
                       "Initial-scope single-tool bridge study; no agent/multi-tool composition claim.",
                       "Token-F1 is not hallucination rate. Format-only is not exact length-matched.",
-                      "Guided steps re-prefill twice; no cross-token KV speedup."]}
+                      ("Guided scoring replays each prefix through two production KV paths; "
+                       "no cross-branch KV sharing.")]}
         atomic_json(evaluation_root / "result.json", report)
         atomic_json(evaluation_root / "predictions.json", predictions)
         _write_annotations(evaluation_root, predictions, target)

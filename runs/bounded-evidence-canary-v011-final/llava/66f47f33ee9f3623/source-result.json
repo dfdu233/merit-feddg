@@ -1,0 +1,334 @@
+{
+  "stage": "source",
+  "policy": "/home/dbw/merit-feddg/runs/bounded-evidence-canary-v011-final/llava/66f47f33ee9f3623/evidence-policy.json",
+  "source_cases": 8,
+  "records": 10,
+  "target_generations": 0,
+  "cards": {
+    "conch_tissue|pathology|open_vqa|classification|tissue_appearance": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "pathvqa-train-proxy-0",
+        "pathvqa-train-proxy-1"
+      ],
+      "source_only": true
+    },
+    "cxr_findings|cxr|open_vqa|classification|cxr_findings": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "vqarad-image-proxy-0"
+      ],
+      "source_only": true
+    },
+    "chexagent_description|cxr|open_vqa|generation|cxr_description": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "vqarad-image-proxy-0"
+      ],
+      "source_only": true
+    }
+  },
+  "quality_metric": {
+    "name": "token_f1"
+  },
+  "bridge_summary": [
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": -0.034972677595628415,
+      "positive_groups": 0,
+      "negative_groups": 1
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": -0.034972677595628415,
+      "positive_groups": 0,
+      "negative_groups": 1
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-0",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-1",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 2,
+      "mean_gain": 0.043478260869565216,
+      "positive_groups": 1,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-1",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 2,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-1",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 2,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-1",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 2,
+      "mean_gain": 0.043478260869565216,
+      "positive_groups": 1,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-1",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 2,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+      "domain": "pathvqa-train-proxy-1",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 2,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.07719298245614034,
+      "positive_groups": 1,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.25,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "direct_context",
+      "independent_groups": 1,
+      "mean_gain": 0.07719298245614034,
+      "positive_groups": 1,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "format_only",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    },
+    {
+      "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+      "domain": "vqarad-image-proxy-0",
+      "strength": 0.5,
+      "arm": "guided",
+      "independent_groups": 1,
+      "mean_gain": 0.0,
+      "positive_groups": 0,
+      "negative_groups": 0
+    }
+  ],
+  "domain_kinds": [
+    "proxy"
+  ],
+  "cases": [
+    {
+      "id": "pathvqa-train-10960",
+      "cache_key": "5588463de00579f350636661c5f552c81094dc84441aba113f6734dfc1c0a9b6"
+    },
+    {
+      "id": "pathvqa-train-11287",
+      "cache_key": "c6e7dca219a7ce41bcf7fb8e4b8670728da6e6166f92a8cf43ef26169572e315"
+    },
+    {
+      "id": "pathvqa-train-15641",
+      "cache_key": "c7934ad30b15476bbf79a2931ff7bc8c9c80b7a8382bd6a8595bb60680e32a9e"
+    },
+    {
+      "id": "pathvqa-train-4584",
+      "cache_key": "20536ec21ddbf2ef7b5b81214eab75549904a5d013b13f5611c1f519d98fad92"
+    },
+    {
+      "id": "vqarad-1c62c7d46c3fb1648baf-92d482900c5f",
+      "cache_key": "059bd58e87184ca0a569b1cbe44bccaf40a84883fef83f844925ca615537f13f"
+    },
+    {
+      "id": "vqarad-3e22b6de97ac77ab0384-df6e19978bff",
+      "cache_key": "779188e03ecbdf7d0d436bdecbff0261fc66d1f0ad7be690223de3b702c7eeca"
+    },
+    {
+      "id": "vqarad-43a7f01bada652e22e4e-bdea0409006d",
+      "cache_key": "71371886938acb9638bd1cba68d8b0fb5ece1597684f51069b9a5b85e76fe1c3"
+    },
+    {
+      "id": "vqarad-7abc1c751faf77e21f08-96e49992fc5a",
+      "cache_key": "daa14054dd31bdd72d29d94fbe0a7050af0401ca994ab2e0f3ed42f7d2e7a908"
+    }
+  ],
+  "limitations": [
+    "Empirical independent-group confirmation is not a statistical safety bound.",
+    "Dataset domains are not necessarily independent hospitals.",
+    "No LODO or native multi-view stability is implemented in this profile.",
+    "Token-F1 is not clinical factuality."
+  ]
+}

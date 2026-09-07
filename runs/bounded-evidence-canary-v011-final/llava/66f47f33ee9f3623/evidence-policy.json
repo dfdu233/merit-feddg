@@ -1,0 +1,51 @@
+{
+  "schema": "source-guidance-calibration-v1",
+  "cards": {
+    "conch_tissue|pathology|open_vqa|classification|tissue_appearance": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "pathvqa-train-proxy-0",
+        "pathvqa-train-proxy-1"
+      ],
+      "source_only": true
+    },
+    "cxr_findings|cxr|open_vqa|classification|cxr_findings": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "vqarad-image-proxy-0"
+      ],
+      "source_only": true
+    },
+    "chexagent_description|cxr|open_vqa|generation|cxr_description": {
+      "qualified": false,
+      "status": "proxy_or_unverified_domains",
+      "strength": 0.0,
+      "domain_kinds": [
+        "proxy"
+      ],
+      "domains": [
+        "vqarad-image-proxy-0"
+      ],
+      "source_only": true
+    }
+  },
+  "min_groups_per_domain_per_partition": 8,
+  "min_domains": 2,
+  "limitations": [
+    "Empirical independent-group confirmation is not a statistical safety bound.",
+    "Dataset domains are not necessarily independent hospitals.",
+    "No LODO or native multi-view stability is implemented in this profile."
+  ],
+  "source_key": "66f47f33ee9f36234b7b81dab09f8bec266c429a1b0fc57645b5b36e1061a6b4",
+  "source_interventions_sha256": "d6a4258c492a2d2da493f59c54fdab4139875f60de31695d06046ba6b42f6caa"
+}

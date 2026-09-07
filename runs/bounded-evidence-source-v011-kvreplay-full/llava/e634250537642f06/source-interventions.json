@@ -1,0 +1,822 @@
+[
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-10960",
+    "group_id": "15a66c4fff8f3871ef16a5cab22f6a1ac8d09df37f86919adba300eea24b853c",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-10960",
+    "group_id": "15a66c4fff8f3871ef16a5cab22f6a1ac8d09df37f86919adba300eea24b853c",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-11162",
+    "group_id": "35d039540168e0468e2c0287ed9e203f1e331ff63e53806820a9a837add1f642",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-11162",
+    "group_id": "35d039540168e0468e2c0287ed9e203f1e331ff63e53806820a9a837add1f642",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-11206",
+    "group_id": "bc5d9a37f4c14d93cafce60a8c93df2e966c83c3caa15df1de5fdc0f2c0d688d",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-11206",
+    "group_id": "bc5d9a37f4c14d93cafce60a8c93df2e966c83c3caa15df1de5fdc0f2c0d688d",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-13556",
+    "group_id": "a3031e3d653a392175647455b529c85ec51b08dd3c92f30c6f149a0abd897c63",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.010989010989011005
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-13556",
+    "group_id": "a3031e3d653a392175647455b529c85ec51b08dd3c92f30c6f149a0abd897c63",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.010989010989011005
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-13885",
+    "group_id": "145f6b2a01707a0e1ab5acfe45de31e4bf35cbf46b3b11886d29f218bc4efa4f",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-13885",
+    "group_id": "145f6b2a01707a0e1ab5acfe45de31e4bf35cbf46b3b11886d29f218bc4efa4f",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-14024",
+    "group_id": "42304eff274ab190d28ef6791b7d44bb366030dc61e36b85f8d4a6df6e3a898f",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-14024",
+    "group_id": "42304eff274ab190d28ef6791b7d44bb366030dc61e36b85f8d4a6df6e3a898f",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-14357",
+    "group_id": "5344063237bb77e31c7140caa9f226b876c308368e3f2dcc5912a7231944684f",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-14357",
+    "group_id": "5344063237bb77e31c7140caa9f226b876c308368e3f2dcc5912a7231944684f",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-14754",
+    "group_id": "3863ccb0492d611b61c4441e5a0e46a7c25a00e1dedd601f7aaaa676c14a0b06",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-14754",
+    "group_id": "3863ccb0492d611b61c4441e5a0e46a7c25a00e1dedd601f7aaaa676c14a0b06",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "pathvqa-train-14925",
+    "group_id": "2632a4633f2a4329cf83c7b743c62876d6373bdd83755cc75b784b36871dd50b",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "pathvqa-train-14925",
+    "group_id": "2632a4633f2a4329cf83c7b743c62876d6373bdd83755cc75b784b36871dd50b",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "pathvqa-train-14925",
+    "group_id": "2632a4633f2a4329cf83c7b743c62876d6373bdd83755cc75b784b36871dd50b",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "pathvqa-train-14925",
+    "group_id": "2632a4633f2a4329cf83c7b743c62876d6373bdd83755cc75b784b36871dd50b",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-15641",
+    "group_id": "1f641dd3475b4eb8894b45eb2d60a7a2e2d0567b24bbec8b244b6ed5b8d66c39",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-15641",
+    "group_id": "1f641dd3475b4eb8894b45eb2d60a7a2e2d0567b24bbec8b244b6ed5b8d66c39",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-16025",
+    "group_id": "87ee3e236c22cd25eaf7042c99da79cad2f905d93f8040909f5ee1dc422e41c9",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-16025",
+    "group_id": "87ee3e236c22cd25eaf7042c99da79cad2f905d93f8040909f5ee1dc422e41c9",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-19592",
+    "group_id": "8a4d803231401ac62b3a9832bb2dc081250743a2d8e691d7a007d9fddb828fda",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-19592",
+    "group_id": "8a4d803231401ac62b3a9832bb2dc081250743a2d8e691d7a007d9fddb828fda",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-2423",
+    "group_id": "63eca221d5b061ebf309cb3a3447df15bdbe056a2e9c1ab055d62d0d31e2f187",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-2423",
+    "group_id": "63eca221d5b061ebf309cb3a3447df15bdbe056a2e9c1ab055d62d0d31e2f187",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-4584",
+    "group_id": "eb749202183b4addc8b2829c51b6f3e1d84be42bdd05872d3f21589c4dfb8f21",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-4584",
+    "group_id": "eb749202183b4addc8b2829c51b6f3e1d84be42bdd05872d3f21589c4dfb8f21",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-4632",
+    "group_id": "530c9964d6c175993b091d7386d4d818009867beac94d8b6362c281e680498ea",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-4632",
+    "group_id": "530c9964d6c175993b091d7386d4d818009867beac94d8b6362c281e680498ea",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-4991",
+    "group_id": "79bf9b47bf324f25a5be70f540f1b3d31cadc9e42d55440084cb36ca89d0a378",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-4991",
+    "group_id": "79bf9b47bf324f25a5be70f540f1b3d31cadc9e42d55440084cb36ca89d0a378",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-8450",
+    "group_id": "8ebf628ac25608ac2ea68fae8ff5ce0e72451fb36eb2e82a56d03794eaa648f6",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-8450",
+    "group_id": "8ebf628ac25608ac2ea68fae8ff5ce0e72451fb36eb2e82a56d03794eaa648f6",
+    "domain": "pathvqa-train-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-9975",
+    "group_id": "418947e641948fe84ed30a15202db130330bb23b61762fbeabdc796102083e6e",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": -0.013914656771799622
+  },
+  {
+    "role": "source",
+    "scope": "conch_tissue|pathology|open_vqa|classification|tissue_appearance",
+    "sample_id": "pathvqa-train-9975",
+    "group_id": "418947e641948fe84ed30a15202db130330bb23b61762fbeabdc796102083e6e",
+    "domain": "pathvqa-train-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": -0.013914656771799622
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-017cf58e54447c1fd710-8e6c9e4dc146",
+    "group_id": "017cf58e54447c1fd7107faa9feb268bfcba8981dcb3c6f819c2da83fda798d4",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-017cf58e54447c1fd710-8e6c9e4dc146",
+    "group_id": "017cf58e54447c1fd7107faa9feb268bfcba8981dcb3c6f819c2da83fda798d4",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-017cf58e54447c1fd710-8e6c9e4dc146",
+    "group_id": "017cf58e54447c1fd7107faa9feb268bfcba8981dcb3c6f819c2da83fda798d4",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-017cf58e54447c1fd710-8e6c9e4dc146",
+    "group_id": "017cf58e54447c1fd7107faa9feb268bfcba8981dcb3c6f819c2da83fda798d4",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-224a477094d20268a555-0b5bd11be0ed",
+    "group_id": "224a477094d20268a555d96e42e2176a1063a2ce6bc58c1db68c5234c49a8af5",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": -0.26666666666666666
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-224a477094d20268a555-0b5bd11be0ed",
+    "group_id": "224a477094d20268a555d96e42e2176a1063a2ce6bc58c1db68c5234c49a8af5",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": -0.26666666666666666
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-224a477094d20268a555-0b5bd11be0ed",
+    "group_id": "224a477094d20268a555d96e42e2176a1063a2ce6bc58c1db68c5234c49a8af5",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-224a477094d20268a555-0b5bd11be0ed",
+    "group_id": "224a477094d20268a555d96e42e2176a1063a2ce6bc58c1db68c5234c49a8af5",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": -0.26666666666666666
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-3e22b6de97ac77ab0384-df6e19978bff",
+    "group_id": "3e22b6de97ac77ab03843af09afc7194485eb1ee0d9281bdacb76d7ba9a116e0",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-3e22b6de97ac77ab0384-df6e19978bff",
+    "group_id": "3e22b6de97ac77ab03843af09afc7194485eb1ee0d9281bdacb76d7ba9a116e0",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-3e22b6de97ac77ab0384-df6e19978bff",
+    "group_id": "3e22b6de97ac77ab03843af09afc7194485eb1ee0d9281bdacb76d7ba9a116e0",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-3e22b6de97ac77ab0384-df6e19978bff",
+    "group_id": "3e22b6de97ac77ab03843af09afc7194485eb1ee0d9281bdacb76d7ba9a116e0",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "biomed_anatomy|ct|open_vqa|classification|major_anatomy",
+    "sample_id": "vqarad-4f81f2667bff6f27ccc8-b0181813191b",
+    "group_id": "4f81f2667bff6f27ccc8454436dbffd2f7d8b98de6d61a99f66a2929ea492803",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "biomed_anatomy|ct|open_vqa|classification|major_anatomy",
+    "sample_id": "vqarad-4f81f2667bff6f27ccc8-b0181813191b",
+    "group_id": "4f81f2667bff6f27ccc8454436dbffd2f7d8b98de6d61a99f66a2929ea492803",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-56d96964caade2a6e301-6674b5fd441c",
+    "group_id": "56d96964caade2a6e301ae77001ac9d103ea169d2a27c8e25d4578e203a2cef9",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-56d96964caade2a6e301-6674b5fd441c",
+    "group_id": "56d96964caade2a6e301ae77001ac9d103ea169d2a27c8e25d4578e203a2cef9",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-56d96964caade2a6e301-6674b5fd441c",
+    "group_id": "56d96964caade2a6e301ae77001ac9d103ea169d2a27c8e25d4578e203a2cef9",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-56d96964caade2a6e301-6674b5fd441c",
+    "group_id": "56d96964caade2a6e301ae77001ac9d103ea169d2a27c8e25d4578e203a2cef9",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-64dec04767ed6b4830da-9e5ac5141130",
+    "group_id": "64dec04767ed6b4830daf347be787657cb833ddc5cc9ca45bc4b850acc11f10a",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-64dec04767ed6b4830da-9e5ac5141130",
+    "group_id": "64dec04767ed6b4830daf347be787657cb833ddc5cc9ca45bc4b850acc11f10a",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-64dec04767ed6b4830da-9e5ac5141130",
+    "group_id": "64dec04767ed6b4830daf347be787657cb833ddc5cc9ca45bc4b850acc11f10a",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-64dec04767ed6b4830da-9e5ac5141130",
+    "group_id": "64dec04767ed6b4830daf347be787657cb833ddc5cc9ca45bc4b850acc11f10a",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-6d7babdf1c92b575cece-3d46c4a96cfc",
+    "group_id": "6d7babdf1c92b575cece55c4c3c7b2ef5fe7010fcbbb8ded78ddf47aefae6022",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-6d7babdf1c92b575cece-3d46c4a96cfc",
+    "group_id": "6d7babdf1c92b575cece55c4c3c7b2ef5fe7010fcbbb8ded78ddf47aefae6022",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-6d7babdf1c92b575cece-3d46c4a96cfc",
+    "group_id": "6d7babdf1c92b575cece55c4c3c7b2ef5fe7010fcbbb8ded78ddf47aefae6022",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-6d7babdf1c92b575cece-3d46c4a96cfc",
+    "group_id": "6d7babdf1c92b575cece55c4c3c7b2ef5fe7010fcbbb8ded78ddf47aefae6022",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-9ea4e66943f0dfbe8477-8f03b9697e59",
+    "group_id": "9ea4e66943f0dfbe8477b213124467250357a7f00b21a3c851b52178ead0db1d",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-9ea4e66943f0dfbe8477-8f03b9697e59",
+    "group_id": "9ea4e66943f0dfbe8477b213124467250357a7f00b21a3c851b52178ead0db1d",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-9ea4e66943f0dfbe8477-8f03b9697e59",
+    "group_id": "9ea4e66943f0dfbe8477b213124467250357a7f00b21a3c851b52178ead0db1d",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-9ea4e66943f0dfbe8477-8f03b9697e59",
+    "group_id": "9ea4e66943f0dfbe8477b213124467250357a7f00b21a3c851b52178ead0db1d",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-b9c14f55bccd14627fe3-8a45357ac421",
+    "group_id": "b9c14f55bccd14627fe3f7318c3c48040278ba9d2c8706450d61373fcc3b9cf4",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-b9c14f55bccd14627fe3-8a45357ac421",
+    "group_id": "b9c14f55bccd14627fe3f7318c3c48040278ba9d2c8706450d61373fcc3b9cf4",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-b9c14f55bccd14627fe3-8a45357ac421",
+    "group_id": "b9c14f55bccd14627fe3f7318c3c48040278ba9d2c8706450d61373fcc3b9cf4",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-b9c14f55bccd14627fe3-8a45357ac421",
+    "group_id": "b9c14f55bccd14627fe3f7318c3c48040278ba9d2c8706450d61373fcc3b9cf4",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-bc54bc4655dbc385b41f-561078e87342",
+    "group_id": "bc54bc4655dbc385b41fa5746594adc3b0366c9cf534a345640392057539eb64",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_findings|cxr|open_vqa|classification|cxr_findings",
+    "sample_id": "vqarad-bc54bc4655dbc385b41f-561078e87342",
+    "group_id": "bc54bc4655dbc385b41fa5746594adc3b0366c9cf534a345640392057539eb64",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-bc54bc4655dbc385b41f-561078e87342",
+    "group_id": "bc54bc4655dbc385b41fa5746594adc3b0366c9cf534a345640392057539eb64",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-bc54bc4655dbc385b41f-561078e87342",
+    "group_id": "bc54bc4655dbc385b41fa5746594adc3b0366c9cf534a345640392057539eb64",
+    "domain": "vqarad-image-proxy-1",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "biomed_anatomy|cxr|open_vqa|classification|major_anatomy",
+    "sample_id": "vqarad-e9639c4f30051a960f42-acaa6b6c17c5",
+    "group_id": "e9639c4f30051a960f421d08e919fd4e894e359ed396d49003a39b345cfd2589",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "biomed_anatomy|cxr|open_vqa|classification|major_anatomy",
+    "sample_id": "vqarad-e9639c4f30051a960f42-acaa6b6c17c5",
+    "group_id": "e9639c4f30051a960f421d08e919fd4e894e359ed396d49003a39b345cfd2589",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_anatomy|cxr|open_vqa|segmentation|thoracic_anatomy",
+    "sample_id": "vqarad-e9639c4f30051a960f42-acaa6b6c17c5",
+    "group_id": "e9639c4f30051a960f421d08e919fd4e894e359ed396d49003a39b345cfd2589",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "cxr_anatomy|cxr|open_vqa|segmentation|thoracic_anatomy",
+    "sample_id": "vqarad-e9639c4f30051a960f42-acaa6b6c17c5",
+    "group_id": "e9639c4f30051a960f421d08e919fd4e894e359ed396d49003a39b345cfd2589",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-e9639c4f30051a960f42-acaa6b6c17c5",
+    "group_id": "e9639c4f30051a960f421d08e919fd4e894e359ed396d49003a39b345cfd2589",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.25,
+    "gain": 0.0
+  },
+  {
+    "role": "source",
+    "scope": "chexagent_description|cxr|open_vqa|generation|cxr_description",
+    "sample_id": "vqarad-e9639c4f30051a960f42-acaa6b6c17c5",
+    "group_id": "e9639c4f30051a960f421d08e919fd4e894e359ed396d49003a39b345cfd2589",
+    "domain": "vqarad-image-proxy-0",
+    "domain_kind": "proxy",
+    "strength": 0.5,
+    "gain": 0.0
+  }
+]
