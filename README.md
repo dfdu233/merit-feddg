@@ -1,5 +1,15 @@
 # Med-DEFER / MERIT-FedDG
 
+## ROVER：区域证据快速验证入口（尚未完成真实 GPU 实验）
+
+新增独立的免训练 source-only 实验：原图、预测区域、同尺寸位置对照、固定融合、
+位置特异性与裁剪稳定性门控。支持复用 XRV 解剖分割权重生成候选框，也接受其他
+实际预测模型的区域。保留相同前缀解码、production token parity、逐例缓存与审计图。
+首轮仅跑 2–4 例；解剖区域不等于病灶，词面指标不等于医学收益。
+
+服务器执行说明与完整命令见 [ROVER_QUICKSTART.md](docs/ROVER_QUICKSTART.md)。
+入口：`python -m merit_feddg.rover_run --help`。复用已有环境，不需要安装新依赖。
+
 ## v0.12：命题级结构化证据与内容控制资格
 
 v0.11 的真实 source 结果表明，直接证据偶有弱信号，但有界残差没有稳定传递专家内容。

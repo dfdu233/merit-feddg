@@ -1,5 +1,18 @@
 # Current status
 
+## ROVER source pilot implementation (2026-09-07; remote GPU pending)
+
+- Added `python -m merit_feddg.rover_run`: five matched-input region arms,
+  per-token position/stability traces, production baseline parity and case cache.
+- Existing XRV anatomical segmentation can prepare proposals in a separate
+  process; generic predicted region JSON supports later lesion-model integration.
+- 11 new CPU tests cover gating, geometry, prefix sharing, provenance rejection,
+  and end-to-end mocked cache recovery. No local medical-model inference performed.
+- Start with 2 source images / 16 tokens using `docs/ROVER_QUICKSTART.md`.
+  The replay implementation repeats forward work; no speed or DG guarantee.
+  Real anatomy proposals are not lesion localization or clinical verification.
+- The v0.12 negative scientific result below remains unchanged.
+
 ## v0.12 source-only GPU canary (2026-09-07)
 
 - Ran the prescribed check-only and source-only canary on pulled commit `e417662`
