@@ -61,8 +61,10 @@
   totaled 13.42 s. Peak PyTorch allocation/reservation was 22.95/23.66 GiB. Maximum
   per-token KL was 0.02, maximum case spend was 0.24136 versus the 0.32 budget, and
   evidence stopped after token 15. Per-case cleanup returned observed device use to
-  18 MiB, and all 8 fingerprinted case caches were saved for recovery. This timing
-  is source replay, not online end-to-end latency.
+  18 MiB. All 8 fingerprinted case caches were saved; a same-config recovery rerun
+  exited in 15.59 s without loading checkpoint shards or executing any new case/tool,
+  and reproduced 8 source cases, 15 records and zero target generations. The original
+  timing is source replay, not online end-to-end latency.
 - Engineering canary acceptance passed, but the scientific stop condition fired:
   bounded evidence did not change quality, direct gains were sparse/confounded, and
   two CONCH routes were medically mismatched. No sample expansion or target
