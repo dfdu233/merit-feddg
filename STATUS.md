@@ -16,6 +16,8 @@
 
 ## Evidence-operator source canary (2026-09-08; negative medical result)
 
+- A compact case-by-case view is in
+  `docs/EVIDENCE_OPERATORS_CANARY_RESULTS_2026-09-08.md`.
 - Safely fast-forwarded `main` from `11061d4` to requested commit `e2c99c4` while
   preserving the two pre-existing untracked weekly-report files. Reused the existing
   huatuo environment (Torch 2.0.1, Transformers 4.37.2, XRV 1.5.4), LLaVA-Med,
