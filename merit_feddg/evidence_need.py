@@ -85,6 +85,10 @@ def scoped_items(items, question, *, top_k=2, retrieval_answers=False):
 
 
 def presentation_items(items, question, config):
+    if config.evidence_style == "focused":
+        from .request_scope import focused_items
+
+        items = focused_items(items)
     if config.evidence_style == "native":
         return tuple(items)
     return scoped_items(items, question, top_k=config.evidence_top_k,

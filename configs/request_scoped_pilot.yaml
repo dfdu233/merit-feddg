@@ -1,0 +1,82 @@
+# Preserve the generalist and expert registry. Only the pilot bridge changes.
+base_config: configs/llava_med_capabilities.yaml
+expert_overrides:
+  cxr_anatomy:
+    request_contract:
+      mode: named_concepts
+      concept_aliases:
+        Left Lung: [left lung, lungs, lung fields]
+        Right Lung: [right lung, lungs, lung fields]
+        Heart: [heart, cardiac silhouette]
+  cxr_findings:
+    request_contract:
+      mode: named_concepts
+      concept_aliases:
+        Cardiomegaly: [cardiomegaly, enlarged heart, heart enlargement]
+        Atelectasis: [atelectasis]
+        Consolidation: [consolidation]
+        Edema: [edema, pulmonary oedema]
+        Effusion: [effusion, pleural fluid]
+        Pneumothorax: [pneumothorax]
+        Lung Opacity: [opacity, opacities]
+        Infiltration: [infiltration]
+  conch_tissue:
+    request_contract:
+      mode: named_concepts
+      concept_aliases:
+        glandular epithelium: [glandular epithelium]
+        squamous epithelium: [squamous epithelium]
+        connective tissue: [connective tissue]
+        adipose tissue: [adipose tissue]
+        smooth muscle: [smooth muscle]
+        skeletal muscle: [skeletal muscle]
+        lymphoid tissue: [lymphoid tissue]
+        neural tissue: [neural tissue]
+        blood vessels: [blood vessels]
+        necrotic tissue: [necrotic tissue]
+  biomed_anatomy:
+    # An unrestricted "which organ" request exceeds the non-exhaustive catalog.
+    request_contract:
+      mode: named_concepts
+      concept_aliases:
+        brain: [brain]
+        lung: [lung, lungs]
+        heart: [heart]
+        liver: [liver]
+        kidney: [kidney, kidneys]
+        spleen: [spleen]
+        pancreas: [pancreas]
+        stomach: [stomach]
+        intestine: [intestine]
+        thyroid: [thyroid]
+        skin: [skin]
+        bone: [bone]
+        breast: [breast, breasts]
+        uterus: [uterus]
+        testis: [testis, testicle]
+  source_cases:
+    request_contract: {mode: free_query}
+  chexagent_description:
+    request_contract: {mode: free_query}
+capability_value:
+  generation:
+    max_new_tokens: 32
+    block_tokens: 8
+    max_expert_calls: 2
+    max_decisions: 3
+    controller_tokens: 48
+    max_evidence_chars: 1200
+    visual_views: 0
+    request_scope_check: true
+    evidence_style: focused
+    request_style: need
+    evidence_top_k: 2
+    retrieval_answer_context: false
+    behavior_probe: off
+  quality: {name: token_f1}
+capability_diagnostics:
+  pairs: []
+  continuations: false
+  evidence_operators: false
+  spatial_diagnostics: false
+  contract_comparison: true

@@ -1,5 +1,19 @@
 # Current status
 
+## Request-scope repair after negative canary (implementation; GPU pending)
+
+- Reviewed the synchronized `4d05a4a` negative source report and new shared discussion.
+  No new clinical performance claim: panel transport, finite task coverage and
+  domain risk are separate issues. Existing remote LLaVA compatibility fixes stay.
+- Added opt-in question-only request contracts and focused native evidence with no
+  unrelated top-score fallback. Source replay compares the same raw expert output.
+- New pilot keeps the original single image, disables panel diagnostics/probes and
+  leaves existing domain-neighborhood gating unchanged. No KV or parameter edits.
+- Read docs/RESEARCH_REASSESSMENT_20260908.md for checked literature, limitations
+  and the fixed-cohort server task. configs/request_scoped_pilot.yaml is the new pilot.
+- Finite lexical coverage is explicit; this does not fix image routing or establish
+  correctness. Domain-risk calibration still needs actual source support.
+
 ## Evidence-operator source canary (2026-09-08; negative medical result)
 
 - Safely fast-forwarded `main` from `11061d4` to requested commit `e2c99c4` while

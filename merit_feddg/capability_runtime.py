@@ -42,8 +42,11 @@ class ValueGenerationConfig:
     visual_mode: str = "overlay"
     behavior_probe: str = "off"
     behavior_max_sensitivity: float | None = None
+    request_scope_check: bool = False
 
     def __post_init__(self):
+        if type(self.request_scope_check) is not bool:
+            raise ValueError("request_scope_check must be boolean")
         if self.visual_mode not in {"overlay", "crop", "control_crop"}:
             raise ValueError("visual_mode must be overlay, crop or control_crop")
         if self.behavior_probe not in {"off", "audit", "reject"}:
@@ -59,7 +62,7 @@ class ValueGenerationConfig:
             self.max_decisions, self.controller_tokens, self.max_evidence_chars,
         )) or self.visual_views not in (0, 1) or self.max_evidence_chars < 2:
             raise ValueError("positive integer budgets and visual_views=0/1 are required")
-        if (self.evidence_style not in {"native", "scoped", "graph"}
+        if (self.evidence_style not in {"native", "scoped", "graph", "focused"}
                 or self.request_style not in {"question", "need"}
                 or type(self.evidence_top_k) is not int or self.evidence_top_k < 1
                 or type(self.retrieval_answer_context) is not bool):
@@ -163,8 +166,18 @@ class CapabilityRuntime:
             return []
         # Prompted ROI adapters require a region-producing action contract. Do
         # not invent a whole-image ROI merely to claim universal tool coverage.
-        return [d for d in tool_descriptors(self.specs, self.row)
-                if not d["requires_region"] and action_key(self.row, d) not in state.history]
+        return [d for d, audit in self.descriptor_audits(state) if audit["allowed"]]
+
+    def descriptor_audits(self, state):
+        from .request_scope import assess_request
+
+        if state.finished or len(state.history) >= self.config.max_expert_calls:
+            return []
+        candidates = [d for d in tool_descriptors(self.specs, self.row)
+                      if not d["requires_region"] and action_key(self.row, d) not in state.history]
+        return [(d, assess_request(self.row["question"], self.specs[d["expert"]], d["capability"])
+                 if self.config.request_scope_check else {"allowed": True, "reason": "disabled"})
+                for d in candidates]
 
     def candidates(self, state, descriptors):
         if self.encoder is None:
@@ -201,6 +214,13 @@ class CapabilityRuntime:
                 self.pool.infer(descriptor["expert"], request), descriptor["expert"], request
             )
             trace["executed"] = True
+            if self.config.request_scope_check:
+                from .request_scope import assess_request, bind_request
+
+                audit = assess_request(self.row["question"], self.specs[descriptor["expert"]],
+                                       descriptor["capability"])
+                result = replace(result, items=bind_request(result.items, audit))
+                trace["request_scope"] = audit
             if self.config.behavior_probe != "off":
                 audit = self.pool.behavior_probe(descriptor["expert"], request)
                 trace["behavior_probe"] = audit
@@ -274,6 +294,10 @@ class CapabilityRuntime:
                     "controller_output_tokens": 0, "trace": [], "evidence": [],
                     "adopted_evidence_count": 0, "seconds": perf_counter() - started}
         while not state.finished and len(state.prefix) < self.config.max_new_tokens:
+            if self.config.request_scope_check:
+                for descriptor, audit in self.descriptor_audits(state):
+                    trace.append({"event": "request_scope", "expert": descriptor["expert"],
+                                  "token_start": len(state.prefix), **audit})
             descriptors = self.descriptors(state)
             if forced_expert is not None:
                 descriptors = [d for d in descriptors if d["expert"] == forced_expert]

@@ -18,7 +18,7 @@ from .capability_runtime import CapabilityRuntime, NativeSession, NativeState, V
 from .capability_study import _filter_optional_experts, _route_records, capability_summary
 from .capability_value_study import InterventionScorer
 from .generalist_factory import generalist_provenance, load_generalist, resolve_generalist_spec
-from .io import load_yaml
+from .io import load_experiment_yaml
 from .open_data import audit_open_split, pixel_digest, read_manifest
 from .open_study import atomic_json, fingerprint, model_provenance
 
@@ -55,11 +55,7 @@ def main():
         parser.error("collect accepts source only, no query or old memory")
     if args.stage == "evaluate" and (not args.memory or args.native_losses):
         parser.error("evaluate requires frozen --memory; native losses are collect-only")
-    config = load_yaml(args.config)
-    if "base_config" in config:
-        base = load_yaml(config.pop("base_config"))
-        base.update(config)
-        config = base
+    config = load_experiment_yaml(args.config)
     spec = resolve_generalist_spec(config["generalist"])
     for name, field in (("model_path", "checkpoint_path"), ("llava_source", "source_path"),
                         ("vision_tower_path", "vision_tower_path")):

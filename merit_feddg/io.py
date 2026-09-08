@@ -14,6 +14,25 @@ def load_yaml(path: str | Path) -> dict:
         return yaml.safe_load(handle)
 
 
+def load_experiment_yaml(path):
+    """One-level base and explicit per-expert overrides; paths are repo-relative."""
+    config = load_yaml(path)
+    if "base_config" in config:
+        base = load_yaml(config.pop("base_config"))
+        if "base_config" in base:
+            raise ValueError("nested experiment inheritance is unsupported")
+        base.update(config)
+        config = base
+    overrides = config.pop("expert_overrides", {})
+    if not isinstance(overrides, dict) or set(overrides) - set(config.get("experts", {})):
+        raise ValueError("expert_overrides must name existing experts")
+    for name, update in overrides.items():
+        if not isinstance(update, dict):
+            raise TypeError("expert override must be a dictionary")
+        config["experts"][name].update(update)
+    return config
+
+
 def save_json(path: str | Path, payload: object) -> None:
     output = Path(path)
     output.parent.mkdir(parents=True, exist_ok=True)

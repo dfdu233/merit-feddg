@@ -1,5 +1,9 @@
 # Med-DEFER / MERIT-FedDG
 
+2026-09-08 负面 canary 后的增量修复：问题范围契约、无无关最高分回退的证据选择、
+原图单输入对照；域门控仍是独立的专家适用性层。未新增 GPU 效果结论。
+文献复核、失败归因及服务器命令见 [研究复盘](docs/RESEARCH_REASSESSMENT_20260908.md)。
+
 新增可选的 **原生证据通道对照与 XRV 行为敏感性诊断**，不改变既有协作主框架。
 同一次专家输出比较文本、叠加图、裁剪与位置对照；探针不把稳定性冒充正确率。
 服务器 source-only 命令见 [执行文档](docs/DOMAIN_AWARE_EVIDENCE_OPERATORS.md)。

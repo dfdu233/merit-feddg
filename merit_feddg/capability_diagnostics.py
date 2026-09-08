@@ -33,9 +33,11 @@ class _DuplicateSession(NativeSession):
 
 
 def _variant_runtime(runtime, *, style="native", query="question", views=0,
-                     duplicate=False, answers=False, visual_mode="overlay"):
+                     duplicate=False, answers=False, visual_mode="overlay", scope_check=None):
     config = replace(runtime.config, evidence_style=style, request_style=query,
                      visual_views=views, retrieval_answer_context=answers, visual_mode=visual_mode)
+    if scope_check is not None:
+        config = replace(config, request_scope_check=scope_check)
     session_class = _DuplicateSession if duplicate else NativeSession
     old = runtime.session
     session = session_class(old.probe, old.image, old.prompt, old.question, config)
@@ -50,7 +52,8 @@ def _raw_state(after, event, previous):
 
 
 def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuations=True,
-                            evidence_operators=False):
+                            evidence_operators=False, contract_comparison=False,
+                            spatial_diagnostics=True):
     if runtime.row["role"] != "source":
         raise ValueError("diagnostics may only run on source cases")
     if runtime.config.behavior_probe == "reject":
@@ -65,7 +68,7 @@ def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuati
         raise ValueError("duplicate pair declarations")
     if pairs and runtime.config.max_expert_calls < 2:
         raise ValueError("pair diagnostics require a two-call budget")
-    plain = _variant_runtime(runtime)
+    plain = _variant_runtime(runtime, scope_check=False if contract_comparison else None)
     initial = NativeState()
     baseline = plain.complete(initial)
     blocked = plain.run("block_none")
@@ -89,7 +92,8 @@ def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuati
         def execute(start, descriptor, query, executed=executed):
             key = (fingerprint(asdict(start)), action_key(runtime.row, descriptor), query)
             if key not in executed:
-                engine = _variant_runtime(runtime, query=query)
+                engine = _variant_runtime(runtime, query=query,
+                                          scope_check=False if contract_comparison else None)
                 after, event = engine.execute(start, descriptor)
                 if str(event.get("reason", "")).startswith("runtime_error:"):
                     raise RuntimeError(f"Source diagnostic tool failed: {event['reason']}")
@@ -126,7 +130,8 @@ def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuati
             outputs[name] = branch
             return branch
 
-        observe("format:duplicate_original", state, duplicate=True)
+        if spatial_diagnostics:
+            observe("format:duplicate_original", state, duplicate=True)
         for descriptor in descriptors:
             name, capability = descriptor["expert"], descriptor["capability"]
             # Only generative adapters get a changed query. Fixed-catalog tools
@@ -138,9 +143,20 @@ def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuati
                 common = {"query": query, "tools": (name,), "tool_events": (event,)}
                 observe(stem + ":native_text", after, **common)
                 observe(stem + ":scoped_text", after, style="scoped", **common)
+                if contract_comparison:
+                    from .request_scope import assess_request, bind_request
+
+                    audit = assess_request(runtime.row["question"], runtime.specs[name], capability)
+                    focused = replace(after, items=bind_request(after.items, audit))
+                    branch = observe(stem + ":focused_text", focused, style="focused", **common)
+                    branch["request_scope"] = audit
+                    branch["counterfactual_note"] = (
+                        "Raw tool already executed for paired diagnostic; deployed scope rejection "
+                        "precedes tool execution. No cost-saving claim from replay."
+                    )
                 if capability == "retrieval":
                     observe(stem + ":scoped_text_answers", after, style="scoped", answers=True, **common)
-                if capability in {"segmentation", "detection"}:
+                if spatial_diagnostics and capability in {"segmentation", "detection"}:
                     if evidence_operators:
                         for visual_mode in ("crop", "control_crop"):
                             observe(stem + ":scoped_" + visual_mode, after, style="scoped",
@@ -216,6 +232,11 @@ def diagnostic_summary(cases):
             result[key] = float(means([(g, p[key]) for g, p in entries]).mean())
         pair_rows.append(result)
     return {"presentation_by_domain": rows, "pairs_by_domain": pair_rows,
+            "request_coverage": [
+                {"sample_id": case["sample_id"], "branch": branch["name"],
+                 "state_kind": branch["state_kind"], **branch["request_scope"]}
+                for case in cases for branch in case["branches"] if "request_scope" in branch
+            ],
             "behavior_probes": [
                 {"sample_id": case["sample_id"], "expert": event["expert"],
                  "token_start": event["token_start"], **event["behavior_probe"]}

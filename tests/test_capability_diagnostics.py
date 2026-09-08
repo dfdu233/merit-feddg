@@ -59,6 +59,18 @@ def test_operator_pilot_inherits_models_and_is_audit_only():
     assert config["capability_diagnostics"]["evidence_operators"] is True
 
 
+def test_contract_comparison_uses_one_tool_and_no_panel(setup):
+    runtime, probe, pool = source_runtime(setup, {"A": spec("segmentation", request_contract={
+        "mode": "named_concepts", "concept_aliases": {"Heart": []}})},
+        request_scope_check=True, evidence_style="focused", visual_views=0)
+    result = collect(runtime, continuations=False, contract_comparison=True, spatial_diagnostics=False)
+    branch = next(b for b in result["branches"] if b["name"].endswith(":focused_text"))
+    assert branch["request_scope"]["allowed"] is False
+    assert branch["with"]["token_ids"] == result["baseline"]["token_ids"]
+    assert len(pool.calls) == 1
+    assert not any(isinstance(images, list) for images, _ in probe.contexts)
+
+
 def test_scope_compiler_preserves_native_scores_and_raw_items():
     raw = EvidenceItem("a", "conch", "classification", "tissue", {
         "catalog": [{"concept": "lung", "similarity": 0.8},

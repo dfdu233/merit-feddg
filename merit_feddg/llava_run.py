@@ -45,13 +45,9 @@ def parser():
 
 def experiment_config(args):
     from .generalist_factory import resolve_generalist_spec
-    from .io import load_yaml
+    from .io import load_experiment_yaml
 
-    config = load_yaml(args.config)
-    if "base_config" in config:
-        base = load_yaml(config.pop("base_config"))
-        base.update(config)
-        config = base
+    config = load_experiment_yaml(args.config)
     if args.generalist == "openmed":
         config["generalist"] = {
             "backend": "qwen", "id": "OpenMed/Qwen2.5-3B-MedVL",
