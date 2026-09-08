@@ -159,7 +159,7 @@ def test_duplicate_control_has_identical_pixels_and_honest_label(setup):
                                 replace(runtime.config, visual_views=0))
     images, prompt = session.context(NativeState())
     assert images[0].tobytes() == images[1].tobytes()
-    assert "identical copy" in prompt and "PREDICTED tool overlay" not in prompt
+    assert "identical copies" in prompt and "model-predicted anatomical regions" not in prompt
 
 
 def test_pairs_measure_joint_and_conditional_gain_without_claiming_roi_transfer(setup):

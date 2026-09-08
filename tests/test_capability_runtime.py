@@ -196,7 +196,7 @@ def test_predicted_native_mask_becomes_additional_view_not_replacement(setup):
     assert isinstance(images, list) and len(images) == 2
     assert images[0] is original and images[0].tobytes() == before
     assert images[1].tobytes() != before
-    assert "PREDICTED tool overlay" in prompt and "not a second patient" in prompt
+    assert "model-predicted anatomical regions" in prompt and "same image" in prompt
     assert runtime.session.view_metadata[0]["sources"][0]["expert_id"] == "segment"
     assert state.items[0].payload["mask"]["counts"]  # Raw native geometry survives.
 
@@ -209,7 +209,7 @@ def test_visual_only_mask_is_adopted_when_text_budget_omits_its_record(setup):
     runtime.complete(state)
     images, prompt = probe.contexts[-1]
     assert len(images) == 2 and images[0] is original
-    assert "PREDICTED tool overlay" in prompt
+    assert "model-predicted anatomical regions" in prompt
     assert runtime.session.view_metadata[0]["sources"][0]["expert_id"] == "segment"
 
 
@@ -370,7 +370,7 @@ def make_multiimage_backend():
     torch = pytest.importorskip("torch")
     backend = object.__new__(LlavaMedGeneralist)
     backend.torch, backend.tokenizer, backend.conv_mode = torch, Tokenizer(), "test"
-    backend.image_processor = object()
+    backend.image_processor = SimpleNamespace(image_mean=(0.5, 0.5, 0.5))
     captured = {}
 
     class Conversation:
@@ -407,23 +407,40 @@ def make_multiimage_backend():
     return backend, captured
 
 
-def test_llava_two_native_images_have_two_tokens_preserved_order_and_sizes():
+def test_llava_two_native_images_use_a_pixel_preserving_panel():
     backend, captured = make_multiimage_backend()
     original, overlay = Image.new("RGB", (20, 10), "gray"), Image.new("RGB", (20, 10), "yellow")
     single = backend._inputs(original, "<image> What organ?")
     assert captured["prompt"] == "<image>\nWhat organ?"
     assert single["images"].shape[0] == 1
     inputs = backend._inputs([original, overlay], "What organ?")
-    assert captured["prompt"] == "<image>\n<image>\nWhat organ?"
-    assert inputs["images"].shape[0] == 2
-    assert int((inputs["inputs"] == -200).sum()) == 2
-    assert inputs["image_sizes"] == [original.size, overlay.size]
-    assert captured["images"][0].tobytes() == original.tobytes()
-    assert captured["images"][1].tobytes() == overlay.tobytes()
-    backend.model.config.max_position_embeddings = 12
-    with pytest.raises(ValueError, match="exceed"):
-        backend._validate_context(inputs, max_new_tokens=3)
+    assert captured["prompt"] == "<image>\nWhat organ?"
+    assert inputs["images"].shape[0] == 1
+    assert int((inputs["inputs"] == -200).sum()) == 1
+    assert inputs["image_sizes"] == [(40, 10)]
+    panel = captured["images"][0]
+    assert panel.crop((0, 0, 20, 10)).tobytes() == original.tobytes()
+    assert panel.crop((20, 0, 40, 10)).tobytes() == overlay.tobytes()
+    backend._validate_context(inputs, max_new_tokens=3)
     backend._validate_context(single, max_new_tokens=3)
+
+
+def test_llava_two_image_panel_survives_deterministic_padding():
+    backend, captured = make_multiimage_backend()
+    backend.deterministic_image_padding = True
+    backend.model.config.image_aspect_ratio = "pad"
+    original = Image.new("RGB", (20, 10), "gray")
+    overlay = Image.new("RGB", (20, 10), "yellow")
+
+    inputs = backend._inputs([original, overlay], "What organ?")
+
+    assert inputs["images"].shape[0] == 1
+    assert int((inputs["inputs"] == -200).sum()) == 1
+    assert inputs["image_sizes"] == [(40, 10)]
+    padded = captured["images"][0]
+    assert padded.size == (40, 40)
+    assert padded.crop((0, 15, 20, 25)).tobytes() == original.tobytes()
+    assert padded.crop((20, 15, 40, 25)).tobytes() == overlay.tobytes()
 
 
 @pytest.mark.parametrize("views", [[], [1, 2, 3]])

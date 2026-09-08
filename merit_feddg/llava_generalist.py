@@ -255,6 +255,25 @@ class LlavaMedGeneralist:
         if not 1 <= len(views) <= 2:
             raise ValueError("Use one original image and at most one predicted evidence view")
         native = [load_rgb(view) for view in views]
+        model_views = native
+        two_panel = len(native) == 2
+        if two_panel:
+            # The released LLaVA-Med checkpoint accepts multiple image tokens
+            # structurally, but real two-token prompts collapse to blank/EOS on
+            # this diagnostic. Preserve both source images pixel-for-pixel on a
+            # single canvas so the frozen vision tower receives the evidence
+            # without pretending that native multi-image behavior is reliable.
+            background = tuple(
+                int(value * 255)
+                for value in getattr(self.image_processor, "image_mean", (0, 0, 0))
+            )
+            height = max(view.height for view in native)
+            canvas = Image.new("RGB", (sum(view.width for view in native), height), background)
+            left = 0
+            for view in native:
+                canvas.paste(view, (left, (height - view.height) // 2))
+                left += view.width
+            model_views = [canvas]
         constants = self.runtime.constants
         # One token per image. The single-image baseline retains its exact prompt.
         question = str(prompt).replace(constants.DEFAULT_IMAGE_TOKEN, "").strip()
@@ -264,9 +283,11 @@ class LlavaMedGeneralist:
                 constants.DEFAULT_IM_START_TOKEN + image_token + constants.DEFAULT_IM_END_TOKEN
             )
         conversation = self.runtime.conv_templates[self.conv_mode].copy()
-        conversation.append_message(
-            conversation.roles[0], (image_token + "\n") * len(native) + question
-        )
+        # The caller owns the clinical semantics of each panel (overlay, crop,
+        # or format control). Adding another generic Image-1/Image-2 sentence
+        # here duplicates that instruction and makes the frozen checkpoint emit
+        # EOS for otherwise valid single-token panel inputs.
+        conversation.append_message(conversation.roles[0], image_token + "\n" + question)
         conversation.append_message(conversation.roles[1], None)
         device = self.model.get_input_embeddings().weight.device
         ids = (
@@ -279,14 +300,14 @@ class LlavaMedGeneralist:
             .unsqueeze(0)
             .to(device)
         )
-        pixels = native
+        pixels = model_views
         if (getattr(self, "deterministic_image_padding", False)
                 and getattr(self.model.config, "image_aspect_ratio", None) == "pad"):
             # Official expand2square can randomly jitter nonsquare images by a
             # pixel. Fix this before source paired interventions; no RNG change.
             background = tuple(int(value * 255) for value in self.image_processor.image_mean)
             pixels = []
-            for view in native:
+            for view in model_views:
                 side = max(view.size)
                 canvas = Image.new("RGB", (side, side), background)
                 canvas.paste(view, ((side - view.width) // 2, (side - view.height) // 2))
@@ -301,7 +322,7 @@ class LlavaMedGeneralist:
             "inputs": ids,
             "attention_mask": self.torch.ones_like(ids),
             "images": images,
-            "image_sizes": [view.size for view in native],
+            "image_sizes": [view.size for view in model_views],
         }
 
     def new_answer_session(self, image, prompt):

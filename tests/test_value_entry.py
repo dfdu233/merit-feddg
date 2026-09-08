@@ -20,7 +20,7 @@ def test_value_profile_is_additive_and_uses_existing_models():
     assert new["capability_value"]["quality"]["name"] == "token_f1"
 
 
-def test_deterministic_multiview_padding_keeps_original_geometry_and_rng():
+def test_deterministic_panel_padding_keeps_original_pixels_and_rng():
     backend, logs = make_multiimage_backend()
     backend.deterministic_image_padding = True
     backend.model.config.image_aspect_ratio = "pad"
@@ -34,11 +34,11 @@ def test_deterministic_multiview_padding_keeps_original_geometry_and_rng():
     backend._inputs([original, overlay], "question")
     assert [v.tobytes() for v in captured] == [v.tobytes() for v in logs["images"]]
     assert random.getstate() == before
-    assert first["image_sizes"] == [(7, 4), (7, 4)]
-    assert captured[0].size == captured[1].size == (7, 7)
+    assert first["image_sizes"] == [(14, 4)]
+    assert len(captured) == 1 and captured[0].size == (14, 14)
     assert captured[0].getpixel((0, 0)) == (127, 127, 127)
-    assert captured[0].getpixel((0, 1)) == (255, 0, 0)
-    assert captured[1].getpixel((2, 2)) == (0, 255, 0)
+    assert captured[0].getpixel((0, 5)) == (255, 0, 0)
+    assert captured[0].getpixel((9, 6)) == (0, 255, 0)
     assert original.size == (7, 4) and original.getpixel((2, 1)) == (255, 0, 0)
 
 

@@ -1,6 +1,71 @@
 # Current status
 
-## Typed behavior probes and evidence operators (remote GPU pending)
+## Evidence-operator source canary (2026-09-08; negative medical result)
+
+- Safely fast-forwarded `main` from `11061d4` to requested commit `e2c99c4` while
+  preserving the two pre-existing untracked weekly-report files. Reused the existing
+  huatuo environment (Torch 2.0.1, Transformers 4.37.2, XRV 1.5.4), LLaVA-Med,
+  CLIP and expert weights with all Hugging Face/dataset offline flags set. No package
+  was installed/upgraded and no model/data was downloaded.
+- Ran the fixed 6-case source-only pilot from `configs/evidence_operators_pilot.yaml`.
+  The final repaired run is
+  `runs/evidence-operators-source-final2/llava/12a7597d747e9f7a`; the earlier native
+  two-token and intermediate compatibility failures remain under
+  `runs/evidence-operators-source`, `runs/evidence-operators-source-fixed`,
+  `runs/evidence-operators-source-panel`, `runs/evidence-operators-source-panel-padfix`
+  and `runs/evidence-operators-source-final`. Every final case had exact
+  baseline/Block-NONE token parity. Source cases were 6, target generations exactly
+  0, policy fitting false, and every observed domain kind `proxy`.
+- The released LLaVA-Med path accepted two image tokens structurally but generated
+  blank/whitespace plus EOS for all initial two-image branches. The necessary repair
+  makes a pixel-preserving left/right panel before deterministic padding, uses one
+  image token, and places the concise panel-source statement before the medical
+  question. The final run produced nonempty output for 6/6 duplicate controls and
+  all five anatomy spatial arms. This proves transport into generation, not benefit
+  or native multi-image support. Duplicate formatting itself changed answers: the
+  already-correct MRI `axial` answer became `coronal`, the CT artery changed, and one
+  CXR diagnosis changed from effusion to pneumothorax.
+- Real XRV anatomy segmentation produced nonempty 512x512 masks for Left Lung,
+  Right Lung and Heart, with foreground fractions 0.22076, 0.23244 and 0.06831.
+  Their original-image normalized boxes were respectively
+  `[0.5488,0.0892,0.9336,0.7038]`, `[0.0898,0.0892,0.5137,0.7199]` and
+  `[0.4238,0.3957,0.7070,0.6444]`. The selected left-lung crop was
+  `[541,107,921,846]`; its equal-size control `[0,461,380,1200]` had zero pixel-box
+  overlap. Crop, control and overlays had distinct recorded pixel digests. These are
+  predicted thoracic anatomy masks, not lesion masks or anatomical ground truth.
+- Spatial evidence did not provide medical benefit. For the anatomy question whose
+  reference is `breasts`, baseline/duplicate said `liver`, crop and matched control
+  both said `heart`, while overlays mostly described the left lung or overlaid regions
+  instead of answering the organ. Thus neither the zero Token-F1 gains nor nonempty
+  calls are successes; crop equaling control gives no localization-specific gain.
+- Other evidence channels were also negative on this canary. For the left
+  retrocardiac-opacity case, XRV led to `atelectasis` and CheXagent to
+  `consolidation`; both were directionally related but failed left-retrocardiac
+  localization and all reported Token-F1 gains were negative. For the cardiomegaly
+  case, XRV emphasized infiltration/lung opacity and CheXagent answered enlarged
+  pulmonary artery, so neither established the reference. MRI and CT retrievals were
+  empty/unusable. CONCH ranked connective tissue/smooth muscle on a gross specimen
+  and did not answer `prostate`; this is a scope mismatch, not a pathology success.
+- Photometric probes executed 9 additional real XRV forwards. Anatomy sensitivity
+  was 0.0118836 (mean probability change 0.0009385; 0 empty channels; 0.191 s for
+  three forwards). Findings sensitivities were 0.0086983 and 0.0180077 (0.063 s and
+  0.073 s for three forwards each). They measure gamma-0.95/1.05 response changes,
+  not correctness, applicability or verified clinical invariance; the audit threshold
+  was not changed and the audit did not alter adoption.
+- Final source diagnostic replay totaled 50.42 s (2.47--20.13 s/case) with maximum
+  PyTorch allocation 23.47 GiB. Recorded tool-event time was 12.29 s: Biomed anatomy
+  2.01 s, retrieval 0.070 s, XRV anatomy 0.750 s, XRV findings 0.285 s, CheXagent
+  6.49 s (including a 5.61 s first-load call), and CONCH 2.68 s. Presentation replays
+  reused tool output and are not online end-to-end latency; individual spatial answer
+  generations were 0.56 s crop/control and 0.96--1.00 s overlays versus 0.385 s for
+  that case's baseline replay.
+- Engineering transport now works, but the scientific result is negative. No target
+  run, threshold relaxation, sample expansion, clinical-benefit claim or DG claim was
+  made. The fixed cohort remains too small and proxy-only for statistical conclusions.
+  Full verification passed 541 tests with 2 skips (543 collected); Ruff checks and
+  `git diff --check` passed.
+
+## Typed behavior probes and evidence operators (implementation)
 
 - Added opt-in source diagnostics sharing native tool outputs across text, overlay,
   region crop and equal-area location control. Existing dynamic framework stays intact.

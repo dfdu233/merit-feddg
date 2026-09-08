@@ -102,15 +102,17 @@ class NativeSession:
         if memory or views:
             prompt = native_observation_prompt(prompt, memory)
         if views:
-            prompt += (
-                "\nImage 1 is the unchanged original. Image 2 is a PREDICTED tool overlay "
-                "of that same image, not a second patient or ground truth. Its labels name "
-                "predicted regions, not diagnoses."
+            panel_context = (
+                "The left panel is the original image. The right panel shows "
+                "model-predicted anatomical regions on the same image."
             ) if self.config.visual_mode == "overlay" else (
-                "\nImage 1 is the unchanged original. Image 2 is an auxiliary crop from "
-                "that same image, not another patient. A crop is not a diagnosis. "
-                "Use Image 1 for orientation and global context."
+                "The left panel is the original image. The right panel is a "
+                "model-selected crop from the same image."
             )
+            # Keep the medical question/evidence request at the end of the user
+            # turn. LLaVA-Med otherwise treats a trailing panel description as
+            # the completed response and often emits EOS immediately.
+            prompt = panel_context + "\n" + prompt
         self.view_metadata = metadata
         return ([self.image, *views] if views else self.image), prompt
 

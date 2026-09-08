@@ -26,8 +26,7 @@ class _DuplicateSession(NativeSession):
     def context(self, state):
         _, prompt = super().context(state)
         image = load_rgb(self.image)
-        prompt += ("\nImage 1 is the unchanged original. Image 2 is an identical copy of "
-                   "Image 1 for a format control; it supplies no additional medical evidence.")
+        prompt = "Both panels are identical copies of the same original image.\n" + prompt
         self.view_metadata = [{"view_kind": "duplicate_original_control", "sources": [],
                                "ground_truth": False}]
         return [self.image, image.copy()], prompt
