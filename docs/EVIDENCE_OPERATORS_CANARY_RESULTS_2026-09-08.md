@@ -3,6 +3,11 @@
 日期：2026-09-08
 性质：固定 6 例 source-only 工程 canary，不是临床评测或域泛化证明。
 
+服务器上的带图中间过程报告：
+`/home/dbw/merit-feddg/runs/evidence-operators-source-final2/llava/12a7597d747e9f7a/diagnostics/VISUAL_REPORT.md`。
+对应图片位于同目录的 `figures/`。`runs/` 被 Git 忽略，因此医学原图和派生图
+只保存在服务器，不随本文推送 GitHub。
+
 ## 一句话结论
 
 空间证据已经能够真正送进 LLaVA-Med 并影响输出，但当前没有观察到医学收益；
@@ -70,9 +75,9 @@ presentation 分支复用了同一次专家输出，因此这些回放时间不�
 
 ## 原始输出
 
-- `runs/evidence-operators-source-final2/llava/12a7597d747e9f7a/diagnostics/source-diagnostics.json`
-- `runs/evidence-operators-source-final2/llava/12a7597d747e9f7a/diagnostics/diagnostic-summary.json`
-- `runs/evidence-operators-source-final2/llava/12a7597d747e9f7a/diagnostics/evidence-audit.json`
-- `runs/evidence-operators-source-final2/llava/12a7597d747e9f7a/provenance.json`
+- `/home/dbw/merit-feddg/runs/evidence-operators-source-final2/llava/12a7597d747e9f7a/diagnostics/source-diagnostics.json`
+- `/home/dbw/merit-feddg/runs/evidence-operators-source-final2/llava/12a7597d747e9f7a/diagnostics/diagnostic-summary.json`
+- `/home/dbw/merit-feddg/runs/evidence-operators-source-final2/llava/12a7597d747e9f7a/diagnostics/evidence-audit.json`
+- `/home/dbw/merit-feddg/runs/evidence-operators-source-final2/llava/12a7597d747e9f7a/provenance.json`
 
 完整执行结论及失败修复历史见 `STATUS.md`。
