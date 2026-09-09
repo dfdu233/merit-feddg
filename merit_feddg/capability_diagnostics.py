@@ -54,6 +54,8 @@ def _raw_state(after, event, previous):
 def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuations=True,
                             evidence_operators=False, contract_comparison=False,
                             spatial_diagnostics=True):
+    if runtime.config.evidence_style == "tensor":
+        raise ValueError("text channel diagnostics cannot evaluate tensor mode; use NativeSession/value study")
     if runtime.row["role"] != "source":
         raise ValueError("diagnostics may only run on source cases")
     if runtime.config.behavior_probe == "reject":
@@ -143,6 +145,13 @@ def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuati
                 common = {"query": query, "tools": (name,), "tool_events": (event,)}
                 observe(stem + ":native_text", after, **common)
                 observe(stem + ":scoped_text", after, style="scoped", **common)
+                if runtime.config.evidence_style == "uncertainty":
+                    observe(stem + ":typed_text", after, style="graph", **common)
+                    point = replace(after, items=tuple(replace(v, payload={
+                        k: value for k, value in v.payload.items() if k != "native_uncertainty"
+                    }) for v in after.items))
+                    observe(stem + ":uncertainty_point", point, style="uncertainty", **common)
+                    observe(stem + ":uncertainty_text", after, style="uncertainty", **common)
                 if contract_comparison:
                     from .request_scope import assess_request, bind_request
 

@@ -1,5 +1,31 @@
 # Current status
 
+## Native tensor bridge patch integration (2026-09-09; no medical GPU result)
+
+- Applied the supplied non-text bridge patch while preserving the pending
+  uncertainty pilot. Tensor mode is a separately trained, opt-in experiment, NOT
+  a replacement for the training-free framework or a learned DG certificate.
+- Added base-model provenance checks on production checkpoint loading; rejected
+  silent tensor-to-text diagnostics and unsupported uncertainty/tensor mixing.
+- Patch-author benchmark/test statements are not new local results. See
+  docs/NATIVE_TENSOR_BRIDGE.md for scope, training requirements and review limits.
+- Integration verification: 591 passed in 66.88 s; full Ruff and diff checks passed.
+  tensor_train --help also passed. These are CPU/protocol checks, not real medical inference.
+
+## Uncertainty-preserving interface pilot (local implementation; GPU pending)
+
+- Optional finite native-observation envelopes now reach NativeSession; the original
+  observation always participates, numeric ranges widen, and unsupported semantic
+  intersections are omitted. No disease threshold, alias repair or training added.
+- Real XRV classification audit outputs can populate envelopes. Other capabilities
+  remain explicitly unknown unless their adapter supplies alternatives; this is NOT
+  native-task calibration, a truth certificate or a completed DG algorithm.
+- Existing domain gate and default generation behavior remain unchanged. New pilot
+  uses one original image and no keyword request contracts. See
+  docs/UNCERTAINTY_PILOT_RUNBOOK.md for source-only execution and remaining limitations.
+- No new GPU/medical benefit result. Previous lexical request-scope repair remains
+  a diagnostic baseline, not the proposed general method.
+
 ## Request-scope repair after negative canary (implementation; GPU pending)
 
 - Reviewed the synchronized `4d05a4a` negative source report and new shared discussion.

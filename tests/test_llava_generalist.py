@@ -235,6 +235,52 @@ def test_constructor_uses_explicit_offline_model_and_visual_paths(fake_backend):
     assert backend.processor.tokenizer is backend.tokenizer
 
 
+def test_native_tensor_generation_uses_projector_and_keeps_exact_prefix(fake_backend):
+    from merit_feddg.capabilities import EvidenceItem
+    from merit_feddg.tensor_bridge import NativeTensorBridge
+    from merit_feddg.tensor_evidence import TensorContract
+
+    backend, logs, _ = fake_backend
+    torch = backend.torch
+    contract = TensorContract(("lung",), ("chest",), ({
+        "expert": "test", "scope": "cxr", "label": "lung", "concept": "lung", "scope_id": "chest",
+    },), grid_size=2)
+    backend.tensor_bridge = NativeTensorBridge(contract, 8, width=8, queries=2, heads=2).eval()
+    with torch.no_grad():
+        backend.tensor_bridge.gate.fill_(0.5)
+    backend.deterministic_image_padding = True
+    backend.model.config.image_aspect_ratio = "pad"
+    backend.model.config.hidden_size = 8
+    backend.model.tower.select_feature = "patch"
+    backend.model.tower.num_patches = 4
+    backend.image_processor = SimpleNamespace(
+        image_mean=(0.5, 0.5, 0.5), crop_size={"height": 4, "width": 4},
+        size={"shortest_edge": 4}, do_center_crop=True, do_resize=True,
+    )
+    projector = torch.nn.Identity()
+    backend.model.get_model = lambda: SimpleNamespace(mm_projector=projector)
+    generate = backend.model.generate
+    features = torch.ones(1, 4, 8)
+    seen = []
+
+    def generation(**kwargs):
+        seen.append(projector(features).clone())
+        return generate(**kwargs)
+
+    backend.model.generate = generation
+    item = EvidenceItem("c", "test", "classification", "cxr", {
+        "catalog": [{"concept": "lung", "similarity": 0.8}], "score_semantics": "relative_similarity",
+    })
+    image = Image.new("RGB", (4, 2))
+    session = backend.new_tensor_answer_session(image, "Which organ?", (item,))
+    session.propose((8, 11), 1, 2)
+    assert not torch.equal(seen[-1], features)
+    assert logs["generation"][-1]["inputs"][0, -2:].tolist() == [8, 11]
+    assert "TOOL OBSERVATIONS" not in logs["tokenize"][-1]
+    backend.new_answer_session(image, "Which organ?").propose((), 1, 2)
+    assert torch.equal(seen[-1], features) and not projector._forward_hooks
+
+
 def test_generated_only_output_is_not_sliced_by_input_length(fake_backend):
     backend, logs, _ = fake_backend
     result = backend.generate_with_usage(Image.new("RGB", (16, 12)), "<image> What organ?", 8)

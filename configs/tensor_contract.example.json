@@ -1,0 +1,13 @@
+{
+  "concepts": ["anatomy:left_lung", "anatomy:right_lung", "anatomy:heart", "finding:lung_opacity", "finding:cardiomegaly"],
+  "scopes": ["cxr:anatomy", "cxr:findings"],
+  "grid_size": 24,
+  "max_records": 64,
+  "bindings": [
+    {"expert": "cxr_anatomy", "scope": "thoracic_anatomy", "label": "Left Lung", "concept": "anatomy:left_lung", "scope_id": "cxr:anatomy"},
+    {"expert": "cxr_anatomy", "scope": "thoracic_anatomy", "label": "Right Lung", "concept": "anatomy:right_lung", "scope_id": "cxr:anatomy"},
+    {"expert": "cxr_anatomy", "scope": "thoracic_anatomy", "label": "Heart", "concept": "anatomy:heart", "scope_id": "cxr:anatomy"},
+    {"expert": "cxr_findings", "scope": "cxr_findings", "label": "Lung Opacity", "concept": "finding:lung_opacity", "scope_id": "cxr:findings"},
+    {"expert": "cxr_findings", "scope": "cxr_findings", "label": "Cardiomegaly", "concept": "finding:cardiomegaly", "scope_id": "cxr:findings"}
+  ]
+}

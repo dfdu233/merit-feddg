@@ -1,0 +1,23 @@
+# Interface/communication diagnostic, not calibrated DG or a performance claim.
+base_config: configs/llava_med_capabilities.yaml
+capability_value:
+  generation:
+    max_new_tokens: 32
+    block_tokens: 8
+    max_expert_calls: 2
+    max_decisions: 3
+    controller_tokens: 48
+    max_evidence_chars: 4000
+    visual_views: 0
+    evidence_style: uncertainty
+    request_style: need
+    request_scope_check: false
+    retrieval_answer_context: false
+    behavior_probe: audit
+    uncertainty_from_probe: true
+capability_diagnostics:
+  pairs: []
+  continuations: false
+  spatial_diagnostics: false
+  contract_comparison: false
+  evidence_operators: false

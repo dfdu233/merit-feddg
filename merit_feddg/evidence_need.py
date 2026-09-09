@@ -85,6 +85,15 @@ def scoped_items(items, question, *, top_k=2, retrieval_answers=False):
 
 
 def presentation_items(items, question, config):
+    if config.evidence_style == "tensor":
+        if config.request_scope_check:
+            from .request_scope import focused_items
+
+            return focused_items(items)
+        return tuple(items)
+    if config.evidence_style == "uncertainty":
+        # Do not top-k prune hypotheses before calculating their shared content.
+        return tuple(items)
     if config.evidence_style == "focused":
         from .request_scope import focused_items
 
@@ -96,7 +105,13 @@ def presentation_items(items, question, config):
 
 
 def evidence_memory(items, question, config):
+    if config.evidence_style == "tensor":
+        return []
     presented = presentation_items(items, question, config)
+    if config.evidence_style == "uncertainty":
+        from .uncertain_evidence import compile_uncertain_evidence
+
+        return compile_uncertain_evidence(presented, question, config.max_evidence_chars)
     if config.evidence_style == "graph":
         from .structured_evidence import compile_typed_evidence
 

@@ -22,6 +22,8 @@ class FormatControlNativeSession(NativeSession):
     """Direct-context null arm with the same tool envelope and no medical content."""
 
     def __init__(self, probe, image, prompt, question, config):
+        if config.evidence_style == "tensor":
+            raise ValueError("text format controls do not apply to the tensor evidence channel")
         if config.visual_views != 0 or isinstance(image, (tuple, list)):
             raise ValueError("format control requires exactly one original image")
         super().__init__(probe, image, prompt, question, config)
@@ -37,6 +39,8 @@ class FormatControlNativeSession(NativeSession):
 
 class BoundedNativeSession(NativeSession):
     def __init__(self, probe, image, prompt, question, config, guidance=None):
+        if config.evidence_style == "tensor":
+            raise ValueError("bounded text evidence decoding does not support tensor mode yet")
         if config.visual_views != 0 or isinstance(image, (tuple, list)):
             raise ValueError("bounded evidence decoding requires exactly one original image")
         if not hasattr(probe, "new_answer_session"):

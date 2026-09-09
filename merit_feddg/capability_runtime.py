@@ -43,8 +43,13 @@ class ValueGenerationConfig:
     behavior_probe: str = "off"
     behavior_max_sensitivity: float | None = None
     request_scope_check: bool = False
+    uncertainty_from_probe: bool = False
 
     def __post_init__(self):
+        if type(self.uncertainty_from_probe) is not bool:
+            raise ValueError("uncertainty_from_probe must be boolean")
+        if self.uncertainty_from_probe and self.behavior_probe != "audit":
+            raise ValueError("uncertainty_from_probe requires audit probes")
         if type(self.request_scope_check) is not bool:
             raise ValueError("request_scope_check must be boolean")
         if self.visual_mode not in {"overlay", "crop", "control_crop"}:
@@ -62,7 +67,13 @@ class ValueGenerationConfig:
             self.max_decisions, self.controller_tokens, self.max_evidence_chars,
         )) or self.visual_views not in (0, 1) or self.max_evidence_chars < 2:
             raise ValueError("positive integer budgets and visual_views=0/1 are required")
-        if (self.evidence_style not in {"native", "scoped", "graph", "focused"}
+        if self.evidence_style == "uncertainty" and self.visual_views:
+            raise ValueError("uncertainty bridge requires visual_views=0; no raw-mask bypass")
+        if self.evidence_style == "tensor" and self.visual_views:
+            raise ValueError("tensor evidence requires visual_views=0")
+        if self.evidence_style == "tensor" and self.uncertainty_from_probe:
+            raise ValueError("tensor bridge does not consume native uncertainty envelopes")
+        if (self.evidence_style not in {"native", "scoped", "graph", "focused", "uncertainty", "tensor"}
                 or self.request_style not in {"question", "need"}
                 or type(self.evidence_top_k) is not int or self.evidence_top_k < 1
                 or type(self.retrieval_answer_context) is not bool):
@@ -90,11 +101,18 @@ class NativeSession:
         self.config = config
         self._key, self._session = None, None
         self.view_metadata = []
+        if config.evidence_style == "tensor" and (
+            not hasattr(probe, "new_tensor_answer_session") or not hasattr(probe, "tensor_bridge")
+        ):
+            raise ValueError("tensor mode needs a supported backend and trained bridge")
 
     def decode(self, tokens):
         return self.probe.processor.tokenizer.decode(tokens, skip_special_tokens=True)
 
     def context(self, state):
+        if self.config.evidence_style == "tensor":
+            self.view_metadata = []
+            return self.image, self.prompt
         memory = evidence_memory(state.items, self.question, self.config)
         presented_items = presentation_items(state.items, self.question, self.config)
         views, metadata = make_visual_evidence(
@@ -124,6 +142,9 @@ class NativeSession:
         if key != self._key:
             images, prompt = self.context(state)
             self._session = (
+                self.probe.new_tensor_answer_session(
+                    images, prompt, presentation_items(state.items, self.question, self.config))
+                if self.config.evidence_style == "tensor" else
                 self.probe.new_answer_session(images, prompt)
                 if hasattr(self.probe, "new_answer_session")
                 else QwenBlockSession(self.probe, images, prompt)
@@ -175,6 +196,10 @@ class CapabilityRuntime:
             return []
         candidates = [d for d in tool_descriptors(self.specs, self.row)
                       if not d["requires_region"] and action_key(self.row, d) not in state.history]
+        if self.config.evidence_style == "tensor":
+            candidates = [d for d in candidates if d["capability"] in {
+                "classification", "segmentation", "detection"
+            }]
         return [(d, assess_request(self.row["question"], self.specs[d["expert"]], d["capability"])
                  if self.config.request_scope_check else {"allowed": True, "reason": "disabled"})
                 for d in candidates]
@@ -224,6 +249,13 @@ class CapabilityRuntime:
             if self.config.behavior_probe != "off":
                 audit = self.pool.behavior_probe(descriptor["expert"], request)
                 trace["behavior_probe"] = audit
+                if self.config.uncertainty_from_probe and audit.get("native_alternatives"):
+                    from .uncertain_evidence import attach_alternatives
+
+                    result = replace(result, items=tuple(
+                        attach_alternatives(v, audit["native_alternatives"])
+                        for v in result.items
+                    ))
                 if self.config.behavior_probe == "reject" and (
                     not audit.get("informative") or audit.get("sensitivity") is None
                     or audit["sensitivity"] > self.config.behavior_max_sensitivity
@@ -234,8 +266,14 @@ class CapabilityRuntime:
             # Native payload is immutable. Only evidence visible to the VLM is
             # counted as adopted; empty generated_text is not an intervention.
             proposed = tuple(result.items) + state.items
-            presented = evidence_memory(proposed, self.row["question"], self.config)
-            visible = {(v["expert_id"], v["evidence_id"]) for v in presented}
+            if self.config.evidence_style == "tensor":
+                packet = self.session.probe.tensor_packet(
+                    presentation_items(proposed, self.row["question"], self.config), self.row["image"])
+                visible = set(packet.sources)
+                trace["tensor_packet"] = {"records": len(packet), "rejected": list(packet.rejected)}
+            else:
+                presented = evidence_memory(proposed, self.row["question"], self.config)
+                visible = {(v["expert_id"], v["evidence_id"]) for v in presented}
             if self.config.visual_views:
                 _, view_meta = make_visual_evidence(
                     self.row["image"], presentation_items(proposed, self.row["question"], self.config),

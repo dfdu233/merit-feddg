@@ -11,7 +11,7 @@ from .extract import _local_or_remote
 
 def resolve_generalist_spec(spec):
     result = dict(spec)
-    for key in ("checkpoint_path", "source_path", "vision_tower_path"):
+    for key in ("checkpoint_path", "source_path", "vision_tower_path", "tensor_bridge_checkpoint"):
         if result.get(key):
             result[key] = os.path.expanduser(os.path.expandvars(result[key]))
             if "$" in result[key]:
@@ -26,13 +26,23 @@ def load_generalist(spec, artifacts=None):
     if backend == "llava_med":
         from .llava_generalist import LlavaMedGeneralist
 
-        return LlavaMedGeneralist(
+        probe = LlavaMedGeneralist(
             model_path, source_path=spec.get("source_path"),
             vision_tower_path=spec.get("vision_tower_path"),
             dtype=spec.get("dtype", "float16"), device_map=spec.get("device_map", "auto"),
             local_files_only=True,
             deterministic_image_padding=spec.get("deterministic_image_padding", False),
         )
+        if spec.get("tensor_bridge_checkpoint"):
+            from .open_study import fingerprint
+
+            base_spec = {k: v for k, v in spec.items() if k != "tensor_bridge_checkpoint"}
+            probe.load_tensor_bridge(spec["tensor_bridge_checkpoint"],
+                                     expected_base_identity=fingerprint(
+                                         generalist_provenance(base_spec, artifacts)))
+        return probe
+    if spec.get("tensor_bridge_checkpoint"):
+        raise ValueError("tensor bridge currently supports only llava_med")
     if backend != "qwen":
         raise ValueError(f"unsupported medical generalist backend: {backend}")
     from .generalist import QwenLayerProbe
@@ -58,6 +68,9 @@ def generalist_provenance(spec, artifacts):
 
     spec = resolve_generalist_spec(spec)
     result = model_provenance(spec, artifacts)
+    if spec.get("tensor_bridge_checkpoint"):
+        checkpoint = Path(spec["tensor_bridge_checkpoint"])
+        result["tensor_bridge_sha256"] = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
     if spec.get("backend") != "llava_med":
         return result
     from .llava_generalist import inspect_llava_checkpoint

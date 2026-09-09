@@ -75,7 +75,16 @@ def probe_xrv(model, image, capability, structures=None, threshold=0.5):
                 raise ValueError("probe structures must be nonempty and unique")
             values = values[[labels.index(label) for label in structures]]
         outputs.append(values)
+    native_alternatives = []
+    if capability == "classification":
+        native_alternatives = [
+            {"findings": [{"finding": label, "score": float(score)}
+                          for label, score in zip(structures or labels, values)],
+             "score_semantics": "uncalibrated_independent_sigmoid"}
+            for values in outputs
+        ]
     return {**summarize_outputs(outputs, capability, threshold),
+            "native_alternatives": native_alternatives,
             "status": "measured", "labels": list(structures or labels),
             "views": [name for name, _ in views], "extra_model_calls": len(views),
             "seconds": perf_counter() - started,

@@ -12,6 +12,7 @@ from __future__ import annotations
 import importlib
 import json
 import sys
+from contextlib import nullcontext
 from pathlib import Path, PurePosixPath
 from types import SimpleNamespace
 
@@ -328,6 +329,28 @@ class LlavaMedGeneralist:
     def new_answer_session(self, image, prompt):
         return LlavaMedAnswerSession(self, image, prompt)
 
+    def load_tensor_bridge(self, path, *, expected_base_identity=None):
+        from .tensor_bridge import NativeTensorBridge, validate_tensor_backend
+
+        bridge = NativeTensorBridge.load(path)
+        if expected_base_identity is None or bridge.base_identity != expected_base_identity:
+            raise ValueError("tensor bridge missing or mismatched base-model provenance")
+        validate_tensor_backend(self, bridge)
+        device = self.model.get_input_embeddings().weight.device
+        self.tensor_bridge = bridge.to(device=device)
+
+    def tensor_packet(self, items, image):
+        from .tensor_evidence import compile_tensor_evidence
+
+        if not hasattr(self, "tensor_bridge"):
+            raise ValueError("tensor evidence requires a trained tensor_bridge_checkpoint")
+        if isinstance(image, (list, tuple)):
+            raise TypeError("tensor evidence accepts one original image")
+        return compile_tensor_evidence(items, load_rgb(image).size, self.tensor_bridge.contract)
+
+    def new_tensor_answer_session(self, image, prompt, items):
+        return LlavaMedAnswerSession(self, image, prompt, self.tensor_packet(items, image))
+
     def _validate_context(self, inputs, max_new_tokens):
         """Do not let the official multimodal helper silently truncate evidence/prefix."""
         config = self.model.config
@@ -402,9 +425,17 @@ class LlavaMedGeneralist:
 class LlavaMedAnswerSession:
     """Re-prefill image + prompt + exact committed IDs after an evidence update."""
 
-    def __init__(self, generalist, image, prompt):
+    def __init__(self, generalist, image, prompt, tensor_packet=None):
         self.generalist = generalist
         self.inputs = generalist._inputs(image, prompt)
+        self.tensor_packet = tensor_packet
+
+    def _evidence_context(self):
+        if self.tensor_packet is None:
+            return nullcontext()
+        from .tensor_bridge import tensor_projector_context
+
+        return tensor_projector_context(self.generalist, self.tensor_packet)
 
     def decode(self, tokens):
         return self.generalist.tokenizer.decode(tokens, skip_special_tokens=True)
@@ -449,7 +480,7 @@ class LlavaMedAnswerSession:
                 calls += 1
                 return allowed
 
-            with self.generalist.torch.inference_mode():
+            with self.generalist.torch.inference_mode(), self._evidence_context():
                 output = self.generalist.model.generate(
                     **self.inputs, max_new_tokens=len(prefix) + 1, do_sample=False,
                     use_cache=True, return_dict_in_generate=True, output_scores=True,
@@ -473,7 +504,7 @@ class LlavaMedAnswerSession:
                 (inputs["attention_mask"], torch.ones_like(extra)), dim=1
             )
         self.generalist._validate_context(inputs, length)
-        with torch.inference_mode():
+        with torch.inference_mode(), self._evidence_context():
             return model.generate(
                 **inputs, max_new_tokens=length, do_sample=False, use_cache=True,
                 return_dict_in_generate=True, output_scores=True,
