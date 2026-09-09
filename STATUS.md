@@ -12,19 +12,45 @@
 - Integration verification: 591 passed in 66.88 s; full Ruff and diff checks passed.
   tensor_train --help also passed. These are CPU/protocol checks, not real medical inference.
 
-## Uncertainty-preserving interface pilot (local implementation; GPU pending)
+## Uncertainty-preserving interface source canary (2026-09-09; negative medical result)
 
 - Optional finite native-observation envelopes now reach NativeSession; the original
   observation always participates, numeric ranges widen, and unsupported semantic
   intersections are omitted. No disease threshold, alias repair or training added.
-- Real XRV classification audit outputs can populate envelopes. Other capabilities
-  remain explicitly unknown unless their adapter supplies alternatives; this is NOT
-  native-task calibration, a truth certificate or a completed DG algorithm.
+- Ran the fixed previous 6-case source-only compatibility cohort with existing huatuo,
+  LLaVA-Med and expert weights, fully offline. The final run is
+  `runs/uncertainty-source-pilot/llava/a726dadab20bfb9a`: source cases 6,
+  target generations 0, policy fitted false, all domains proxy, and baseline/Block-NONE
+  parity held. This reused cohort is a plumbing canary, not the separately frozen
+  confirmation set required for a performance claim.
+- The first attempt exposed that private `native_uncertainty` alternatives leaked into
+  legacy text controls and exceeded the 2048-token LLaVA context. Controls now receive
+  only the original point observation. A second attempt showed that repeated typed
+  fields made a complete 18-label packet exceed the character/context budgets. The
+  repaired schema factors shared semantics and uses a label-keyed value/range table;
+  all labels and exact native float values remain present. Full verification collected
+  593 tests: 591 passed and 2 skipped; Ruff lint and diff checks passed.
+- Real XRV classification audit outputs populated 2/2 empirical packets with all 18
+  labels, four observations each (the original tool output plus three probe forwards).
+  Other capabilities remained explicitly `unknown`; empty retrievals stayed empty.
+  This is NOT native-task calibration, a truth certificate or a completed DG algorithm.
+- Medical evidence was negative. On the left-retrocardiac-opacity case, both the point
+  and range presentations answered a `right lower lobe ... mass`; Token-F1 rose from
+  0.1333 to 0.1818 only through lexical overlap, while the finding and laterality were
+  wrong. On the cardiomegaly case, the range changed a generic point response into an
+  unsupported right-lower-lobe mass; both scored zero. Thus 0/2 cases showed a
+  range-specific medical benefit and 1/2 showed a medically adverse semantic change.
+- The nine real XRV probe forwards took 0.450 s total; sensitivities were 0.0118836 for
+  anatomy (reported only, no spatial envelope), 0.0086983 and 0.0180077 for findings.
+  Six-case replay generation time was 85.81 s, recorded tool-event time 19.21 s, and
+  peak PyTorch allocation 23.71 GiB. Sensitivity is photometric response variation,
+  not correctness or domain applicability.
 - Existing domain gate and default generation behavior remain unchanged. New pilot
   uses one original image and no keyword request contracts. See
-  docs/UNCERTAINTY_PILOT_RUNBOOK.md for source-only execution and remaining limitations.
-- No new GPU/medical benefit result. Previous lexical request-scope repair remains
-  a diagnostic baseline, not the proposed general method.
+  docs/UNCERTAINTY_PILOT_RESULTS_2026-09-09.md for examples and artifact paths.
+- Previous lexical request-scope repair remains a diagnostic baseline, not the proposed
+  general method. No threshold was relaxed, no target was run and no zero/lexical-only
+  change is counted as success.
 
 ## Request-scope repair after negative canary (implementation; GPU pending)
 

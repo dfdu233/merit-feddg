@@ -14,6 +14,7 @@ from .structured_evidence import _typed_record
 
 _KEY = "native_uncertainty"
 _NUMERIC = {"value", "similarity", "foreground_fraction", "bbox_xyxy_normalized"}
+_SHARED_OBSERVATION_FIELDS = ("kind", "polarity", "spatial_scope", "score_semantics")
 
 
 def attach_alternatives(item, alternatives, *, origin="observed_variation"):
@@ -85,6 +86,36 @@ def shared_observations(node_sets):
     return output
 
 
+def _factor_shared_fields(nodes):
+    """Remove repeated semantics without dropping or approximating observations."""
+    if len(nodes) < 2:
+        return {}, nodes
+    shared = {}
+    for field in _SHARED_OBSERVATION_FIELDS:
+        values = [node.get(field) for node in nodes]
+        if values[0] is not None and all(value == values[0] for value in values[1:]):
+            shared[field] = values[0]
+    if not shared:
+        return {}, nodes
+    return shared, [{key: value for key, value in node.items() if key not in shared} for node in nodes]
+
+
+def _classification_table(shared, nodes):
+    """Use a label-keyed table so a full fixed catalog fits the VLM context."""
+    if shared.get("kind") not in {"finding_score", "visual_match"}:
+        return None, None
+    if all(set(node) == {"observation", "value"} for node in nodes):
+        return "observation_values", {node["observation"]: node["value"] for node in nodes}
+    if all(set(node) == {"observation", "observed_value_ranges"}
+           and set(node["observed_value_ranges"]) == {"value"} for node in nodes):
+        return "observation_value_ranges", {
+            node["observation"]: [node["observed_value_ranges"]["value"]["lower"],
+                                  node["observed_value_ranges"]["value"]["upper"]]
+            for node in nodes
+        }
+    return None, None
+
+
 def compile_uncertain_evidence(items, question, max_chars):
     """Compile whole packets; never silently truncate an uncertainty envelope.
 
@@ -107,9 +138,11 @@ def compile_uncertain_evidence(items, question, max_chars):
         if not nodes:
             continue
         record = copy.deepcopy(records[0])
+        shared, nodes = _factor_shared_fields(nodes)
+        table_key, table = _classification_table(shared, nodes)
+        record["payload"].pop("observations", None)
         record["payload"].update({
             "schema": "uncertainty-preserving-observation-v1",
-            "observations": nodes,
             "uncertainty": {
                 "status": "empirical_only" if envelope else "unknown",
                 "origin": envelope["origin"] if envelope else "single_native_output",
@@ -118,6 +151,9 @@ def compile_uncertain_evidence(items, question, max_chars):
                 "domain_applicability_certified": False,
             },
         })
+        record["payload"][table_key or "observations"] = table if table_key else nodes
+        if shared:
+            record["payload"]["shared_observation_fields"] = shared
         # One scalar confidence must not override a set-valued observation.
         record["payload"].pop("native_confidence", None)
         record["payload"].pop("confidence_is_calibrated", None)

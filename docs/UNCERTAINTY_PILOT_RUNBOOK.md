@@ -12,6 +12,8 @@
   空间探针暂只报告敏感性，不伪造校准掩码集合。其他专家没有集合时显示 unknown。
 - 源域 diagnose 新增 typed_text 和 uncertainty_text 对照，共享原始工具输出。
 - uncertainty_point 使用同一编译器和预算，但移除替代观察，作为点观察对照。
+- 固定目录分类输出使用 label-keyed value/range 表，共同的类型、极性、空间范围和
+  分数语义只记录一次；这是无损结构压缩，不删类别、不改原始浮点值。
 - 范围是观测到的数值范围，不是医学置信区间；共同观察不是共同真相。
 
 不采用候选答案二值估计，不把原生分数转成临床阳性，不按问题词表筛标签。
@@ -55,3 +57,6 @@ typed_text 使用既有 graph/top-k 实现，uncertainty_text 不裁剪集合，
 
 报告全体病例的正确性、完整性、超范围属性、长度、调用和延迟；Token-F1 仅作辅助。
 不因负面结果扩展别名、挑掉困难病例或修改 target。若无正向机制信号，保留结果并停机。
+
+2026-09-09 的 6 例兼容 canary、必要上下文修复和负面医学结果见
+[UNCERTAINTY_PILOT_RESULTS_2026-09-09.md](UNCERTAINTY_PILOT_RESULTS_2026-09-09.md)。

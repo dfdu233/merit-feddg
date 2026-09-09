@@ -95,6 +95,24 @@ def test_budget_is_whole_packet_not_truncated_range():
     assert json.loads(json.dumps(packet(e))) == packet(e)
 
 
+def test_repeated_classification_semantics_are_factored_without_dropping_labels():
+    original = item({
+        "findings": [{"finding": "a", "score": .8}, {"finding": "b", "score": .4}],
+        "score_semantics": "uncalibrated_independent_sigmoid",
+    })
+    alternative = {
+        "findings": [{"finding": "a", "score": .7}, {"finding": "b", "score": .3}],
+        "score_semantics": "uncalibrated_independent_sigmoid",
+    }
+    payload = packet(attach_alternatives(original, [alternative]))[0]["payload"]
+    assert payload["shared_observation_fields"] == {
+        "kind": "finding_score", "polarity": "unknown", "spatial_scope": "whole_image",
+        "score_semantics": "uncalibrated_independent_sigmoid",
+    }
+    assert payload["observation_value_ranges"] == {"a": [.7, .8], "b": [.3, .4]}
+    assert "observations" not in payload
+
+
 def test_context_path_and_no_visual_bypass():
     config = ValueGenerationConfig(evidence_style="uncertainty", visual_views=0,
                                    max_evidence_chars=10000)
@@ -134,3 +152,33 @@ def test_real_probe_api_exports_outputs_without_claiming_calibration():
 def test_probe_attachment_requires_explicit_audit():
     with pytest.raises(ValueError, match="audit"):
         ValueGenerationConfig(uncertainty_from_probe=True)
+
+
+def test_diagnostic_controls_do_not_receive_private_alternative_payloads(tmp_path):
+    from test_capability_diagnostics import collect, source_runtime
+    from test_capability_runtime import setup as runtime_setup
+
+    build, _, _ = runtime_setup.__wrapped__(tmp_path)
+    runtime, _, pool = source_runtime(
+        (build, None, None), evidence_style="uncertainty", visual_views=0,
+        max_evidence_chars=10000,
+    )
+    original_infer = pool.infer
+
+    def infer(name, request):
+        result = original_infer(name, request)
+        evidence = attach_alternatives(result.items[0], [{
+            "catalog": [{"concept": "lung", "similarity": .2}],
+            "score_semantics": "relative_similarity",
+            "catalog_exhaustive": False,
+        }])
+        return replace(result, items=(evidence,))
+
+    pool.infer = infer
+    branches = {
+        branch["name"].rsplit(":", 1)[-1]: branch
+        for branch in collect(runtime, continuations=False)["branches"]
+    }
+    for name in ("native_text", "scoped_text", "typed_text", "uncertainty_point"):
+        assert "native_uncertainty" not in json.dumps(branches[name]["presented_memory"])
+    assert "observed_value_ranges" in json.dumps(branches["uncertainty_text"]["presented_memory"])

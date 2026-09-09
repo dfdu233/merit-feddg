@@ -143,15 +143,21 @@ def collect_diagnostic_case(runtime, references, scorer, *, pairs=(), continuati
                 after, event = execute(state, descriptor, query)
                 stem = f"single:{name}:{query}"
                 common = {"query": query, "tools": (name,), "tool_events": (event,)}
-                observe(stem + ":native_text", after, **common)
-                observe(stem + ":scoped_text", after, style="scoped", **common)
                 if runtime.config.evidence_style == "uncertainty":
-                    observe(stem + ":typed_text", after, style="graph", **common)
                     point = replace(after, items=tuple(replace(v, payload={
                         k: value for k, value in v.payload.items() if k != "native_uncertainty"
                     }) for v in after.items))
+                    # Legacy controls receive the original point observation only.
+                    # Passing the private alternative payloads through their generic
+                    # JSON compiler both changes the control and can exhaust context.
+                    observe(stem + ":native_text", point, **common)
+                    observe(stem + ":scoped_text", point, style="scoped", **common)
+                    observe(stem + ":typed_text", point, style="graph", **common)
                     observe(stem + ":uncertainty_point", point, style="uncertainty", **common)
                     observe(stem + ":uncertainty_text", after, style="uncertainty", **common)
+                else:
+                    observe(stem + ":native_text", after, **common)
+                    observe(stem + ":scoped_text", after, style="scoped", **common)
                 if contract_comparison:
                     from .request_scope import assess_request, bind_request
 
