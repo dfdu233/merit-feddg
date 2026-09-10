@@ -40,17 +40,32 @@ class NativeTensorBridge(nn.Module):
         self.gate = nn.Parameter(torch.zeros(()))
 
     def forward(self, visual, packet):
+        """Learned fusion strength is distinct from runtime evidence admission."""
+        self._validate_visual(visual)
+        if not len(packet):
+            return visual
+        if not self.training and self.gate.detach().item() == 0:
+            return visual
+        evidence = self.encode_evidence(visual, packet)
+        return self.fuse_evidence(visual, evidence)
+
+    def _validate_visual(self, visual):
         if visual.ndim != 3 or visual.shape != (
             1, self.contract.grid_size**2, self.config["visual_dim"]
         ):
             raise ValueError("tensor bridge requires one square patch-only image grid")
-        if not len(packet):
-            return visual
-        # This exact inference bypass avoids numerical drift at zero contribution.
-        # During training retain the gate gradient so zero initialization can learn.
-        if not self.training and self.gate.detach().item() == 0:
-            return visual
+
+    def encode_evidence(self, visual, packet):
+        """Unified [1, records, width] interface for typed native observations.
+
+        No expert-specific hidden vectors or generated report text are required.
+        The returned vectors require this trained bridge's weights and contract.
+        Source identity remains in packet.sources for audit, not embeddings.
+        """
+        self._validate_visual(visual)
         device, dtype = self.gate.device, self.gate.dtype
+        if not len(packet):
+            return torch.empty((1, 0, self.config["width"]), device=device, dtype=dtype)
         values = torch.as_tensor(packet.numeric, device=device, dtype=dtype)
         regions = torch.as_tensor(packet.regions, device=device, dtype=dtype)
         ids = [torch.as_tensor(x, device=device, dtype=torch.long) for x in (
@@ -64,7 +79,16 @@ class NativeTensorBridge(nn.Module):
         encoded = encoded[ids[0], torch.arange(len(packet), device=device)]
         encoded = (encoded + self.concepts(ids[1]) + self.scopes(ids[2])
                    + self.semantics(ids[3]) + self.shapes(regions) + pooled)
-        evidence = self.norm(encoded).unsqueeze(0)
+        return self.norm(encoded).unsqueeze(0)
+
+    def fuse_evidence(self, visual, evidence):
+        """Fuse only admitted vectors; an empty set is an exact identity."""
+        self._validate_visual(visual)
+        if evidence.ndim != 3 or evidence.shape[0] != 1 or evidence.shape[2] != self.config["width"]:
+            raise ValueError("evidence must have shape [1, records, bridge width]")
+        if not evidence.shape[1]:
+            return visual
+        h = self.visual(visual.to(device=self.gate.device, dtype=self.gate.dtype))
         z, _ = self.reader(self.queries, evidence, evidence, need_weights=False)
         delta, _ = self.inject(h, z, z, need_weights=False)
         residual = self.gate.tanh() * self.output(delta)

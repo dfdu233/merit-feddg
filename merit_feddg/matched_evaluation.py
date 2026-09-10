@@ -81,7 +81,27 @@ class SharedExpertPool:
         return value
 
 
-def run(manifest, config_path, output_dir, *, artifacts="artifacts"):
+def experiment_arms(decoder, protocol):
+    """Declare matched arms without consulting case metadata or answer types."""
+    if protocol == "vector":
+        if decoder.evidence_style != "tensor" or decoder.token_budgeted_evidence or decoder.visual_views:
+            raise ValueError("vector protocol requires tensor style, no text evidence, and no visual panels")
+        names = {"generalist": "off", "tensor_all": "off", "tensor_gate": "visual_contrast"}
+        return {name: replace(decoder, vector_gate=gate, block_tokens=decoder.max_new_tokens,
+                              behavior_probe="off", uncertainty_from_probe=False)
+                for name, gate in names.items()}
+    if protocol != "text" or not decoder.token_budgeted_evidence or decoder.visual_views:
+        raise ValueError("text protocol requires audited token-budgeted single-image evidence")
+    methods = {"generalist": "uncertainty", "point": "scoped",
+               "uncertainty": "uncertainty", "permissions": "permissions"}
+    return {name: replace(decoder, evidence_style=style, evidence_top_k=10000,
+                          block_tokens=decoder.max_new_tokens, vector_gate="off",
+                          uncertainty_from_probe=name in {"uncertainty", "permissions"},
+                          behavior_probe="audit" if name in {"uncertainty", "permissions"} else "off")
+            for name, style in methods.items()}
+
+
+def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="text"):
     from .capability_experts import CapabilityPool
     from .capability_runtime import CapabilityRuntime
     from .capability_study import _filter_optional_experts, _route_records
@@ -92,12 +112,21 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts"):
     config["generalist"] = resolve_generalist_spec(config["generalist"])
     config["generalist"]["deterministic_image_padding"] = True
     decoder = ValueGenerationConfig(**config["capability_value"]["generation"])
-    if not decoder.token_budgeted_evidence or decoder.visual_views:
-        raise ValueError("matched runner requires audited token-budgeted single-image evidence")
-    methods = {"generalist": "uncertainty", "point": "scoped",
-               "uncertainty": "uncertainty", "permissions": "permissions"}
+    arms = experiment_arms(decoder, protocol)
+    methods = {name: asdict(arm) for name, arm in arms.items()}
+    if protocol == "vector" and not config["generalist"].get("tensor_bridge_checkpoint"):
+        raise ValueError("vector experiment requires a trained, base-matched tensor_bridge_checkpoint")
     specs, excluded = _filter_optional_experts(config["experts"], artifacts)
     specs.pop("source_cases", None)
+    if protocol == "vector":
+        for name, spec in list(specs.items()):
+            supported = [v for v in spec.get("capabilities", [])
+                         if v in {"classification", "segmentation", "detection"}]
+            if supported:
+                specs[name] = {**spec, "capabilities": supported}
+            else:
+                excluded[name] = {"reason": "unsupported_nontext_output_type"}
+                del specs[name]
     if any(spec.get("native_precision_card") for spec in specs.values()):
         raise ValueError("this no-calibration benchmark does not enable domain precision cards")
     model_id = generalist_provenance(config["generalist"], artifacts)
@@ -111,6 +140,13 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts"):
     root = Path(output_dir) / identity
     root.mkdir(parents=True, exist_ok=True)
     probe = load_generalist(config["generalist"], artifacts)
+    if protocol == "vector":
+        bridge = probe.tensor_bridge
+        bridge.eval().requires_grad_(False)
+        if bridge.gate.detach().item() == 0:
+            raise ValueError("trained bridge has zero fusion strength; vector experiment would be a null intervention")
+        if not set(specs).intersection(b["expert"] for b in bridge.contract.bindings):
+            raise ValueError("no active expert has a registered native-output binding in the trained bridge")
     rows = [{"id": r["id"], "image": r["image"], "question": r["question"], "modality": "mixed",
              "capability": "classification", "task": "open_vqa", "domain": "official-test",
              "domain_kind": "official_dataset_split", "role": "target",
@@ -125,14 +161,10 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts"):
             # Reuse actual specialist predictions across all evidence arms.
             pool.reset_case()
             shared_pool = SharedExpertPool(pool, root / "expert-cache" / fingerprint(row["id"]), identity)
-            for method, style in methods.items():
+            for method, arm in arms.items():
                 path = root / "case-cache" / method / f"{fingerprint(row['id'])}.json"
                 cached = load_cached(path, identity)
                 if cached is None:
-                    arm = replace(decoder, evidence_style=style,
-                                  evidence_top_k=10000, block_tokens=decoder.max_new_tokens,
-                                  uncertainty_from_probe=method in {"uncertainty", "permissions"},
-                                  behavior_probe="audit" if method in {"uncertainty", "permissions"} else "off")
                     prompt = row["question"] + "\n" + config.get("prompt_suffix", "Answer concisely from the image.")
                     session = NativeSession(probe, row["image"], prompt, row["question"], arm)
                     engine = CapabilityRuntime(session, shared_pool, row, specs, arm, None)
@@ -145,6 +177,10 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts"):
             atomic_json(root / f"{method}.json", result)
         atomic_json(root / "protocol.json", {
             "identity": identity, "n": len(rows), "methods": list(methods), "config": config,
+            "experiment_protocol": protocol, "arm_configs": methods,
+            "bridge_requires_pretraining": protocol == "vector", "gate_fitted": False,
+            "vector_gate_unit": "acquired_expert_result" if protocol == "vector" else None,
+            "vector_gate_control": "same_size_image_channel_mean" if protocol == "vector" else None,
             "excluded": excluded, "baseline_regenerated": True, "dataset_partitioned": False,
             "references_loaded_for_generation": False, "calibration_or_policy_fitted": False,
             "answer_type_used_for_generation": False, "output_grammar": "unconstrained_for_all_questions",
@@ -162,8 +198,9 @@ def main():
     parser.add_argument("--config", default="configs/matched_permissions.yaml")
     parser.add_argument("--output", default="runs/matched-permissions")
     parser.add_argument("--artifacts", default="artifacts")
+    parser.add_argument("--protocol", choices=("text", "vector"), default="text")
     args = parser.parse_args()
-    print(run(args.manifest, args.config, args.output, artifacts=args.artifacts))
+    print(run(args.manifest, args.config, args.output, artifacts=args.artifacts, protocol=args.protocol))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,24 @@
+# Same complete manifest in all arms. Only the admission gate is training-free.
+base_config: configs/llava_med_capabilities.yaml
+generalist:
+  tensor_bridge_checkpoint: ${MERIT_TENSOR_BRIDGE}
+  deterministic_image_padding: true
+capability_value:
+  generation:
+    max_new_tokens: 64
+    block_tokens: 64
+    max_expert_calls: 2
+    max_decisions: 3
+    max_evidence_chars: 10000
+    visual_views: 0
+    evidence_style: tensor
+    evidence_order: acquisition
+    token_budgeted_evidence: false
+    request_style: need
+    request_scope_check: false
+    retrieval_answer_context: false
+    behavior_probe: "off"
+    uncertainty_from_probe: false
+    vector_gate: visual_contrast
+    vector_gate_probe_tokens: 8
+    vector_gate_min_gain: 0.000001

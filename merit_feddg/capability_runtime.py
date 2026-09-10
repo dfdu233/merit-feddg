@@ -46,8 +46,18 @@ class ValueGenerationConfig:
     uncertainty_from_probe: bool = False
     token_budgeted_evidence: bool = False
     evidence_order: str = "recent"
+    vector_gate: str = "off"
+    vector_gate_probe_tokens: int = 8
+    vector_gate_min_gain: float = 1e-6
 
     def __post_init__(self):
+        from .vector_gate import VectorGateConfig
+
+        VectorGateConfig(self.vector_gate_probe_tokens, self.vector_gate_min_gain)
+        if self.vector_gate not in {"off", "visual_contrast"}:
+            raise ValueError("vector_gate must be off or visual_contrast")
+        if self.vector_gate != "off" and self.evidence_style != "tensor":
+            raise ValueError("dynamic vector gate requires the non-text tensor channel")
         if type(self.token_budgeted_evidence) is not bool or self.evidence_order not in {"recent", "acquisition"}:
             raise ValueError("invalid evidence transport configuration")
         if self.token_budgeted_evidence and (self.visual_views or self.evidence_style == "tensor"):
@@ -118,13 +128,30 @@ class NativeSession:
     def decode(self, tokens):
         return self.probe.processor.tokenizer.decode(tokens, skip_special_tokens=True)
 
+    def assess_vector_evidence(self, state, proposed):
+        from .vector_gate import VectorGateConfig, assess_visual_contrast, mean_color_control
+
+        if self.config.vector_gate != "visual_contrast":
+            raise ValueError("visual-contrast gate is not enabled")
+        # Local sessions cannot commit candidate tokens or mutate the live decoder.
+        base = self.probe.new_tensor_answer_session(
+            self.image, self.prompt, presentation_items(state.items, self.question, self.config))
+        candidate = self.probe.new_tensor_answer_session(
+            self.image, self.prompt, presentation_items(proposed, self.question, self.config))
+        verifier = self.probe.new_answer_session(self.image, self.prompt)
+        control = self.probe.new_answer_session(mean_color_control(self.image), self.prompt)
+        return assess_visual_contrast(
+            base, candidate, verifier, control, state.prefix,
+            config=VectorGateConfig(self.config.vector_gate_probe_tokens, self.config.vector_gate_min_gain),
+            remaining_tokens=self.config.max_new_tokens - len(state.prefix))
+
     def context(self, state):
         if self.config.evidence_style == "tensor":
             self.view_metadata = []
             if hasattr(self.probe, "tensor_packet"):
                 packet = self.probe.tensor_packet(presentation_items(state.items, self.question, self.config), self.image)
                 self.last_transport = {"schema": "evidence-transport-v1", "channel": "tensor",
-                                       "presented": [{"expert_id": a, "evidence_id": b} for a, b in set(packet.sources)],
+                                       "presented": [{"expert_id": a, "evidence_id": b} for a, b in sorted(set(packet.sources))],
                                        "omitted": list(packet.rejected), "presentation_is_not_causal_usage": True}
             return self.image, self.prompt
         if self.config.token_budgeted_evidence:
@@ -361,12 +388,29 @@ class CapabilityRuntime:
                 visible.update((v["expert_id"], v["evidence_id"])
                                for view in view_meta for v in view.get("sources", []))
             accepted = [v for v in result.items if (v.expert_id, v.evidence_id) in visible]
+            if accepted and self.config.vector_gate != "off":
+                from .tensor_evidence import preserves_tensor_records
+
+                before = self.session.probe.tensor_packet(
+                    presentation_items(state.items, self.row["question"], self.config), self.row["image"])
+                candidate_items = (state.items + tuple(accepted) if self.config.evidence_order == "acquisition"
+                                   else tuple(accepted) + state.items)
+                after = self.session.probe.tensor_packet(
+                    presentation_items(candidate_items, self.row["question"], self.config), self.row["image"])
+                if not preserves_tensor_records(before, after):
+                    trace["vector_gate"] = {"accepted": False, "reason": "would_evict_existing_tensor_records"}
+                else:
+                    trace["vector_gate"] = self.session.assess_vector_evidence(state, candidate_items)
+                if not trace["vector_gate"]["accepted"]:
+                    accepted = []
             items = tuple(accepted)
             if hasattr(self.session, "guidance"):
                 items = tuple(replace(v, provenance={**v.provenance,
                               "merit_acquired_token": len(state.prefix)}) for v in items)
             trace.update(reason=result.reason if items else "empty_or_unusable_evidence",
                          adopted=bool(items), native_evidence=[asdict(v) for v in result.items])
+            if "vector_gate" in trace and not items:
+                trace["reason"] = "vector_gate_rejected:" + trace["vector_gate"]["reason"]
         except (ValueError, TypeError, FileNotFoundError, ImportError) as exc:
             trace["reason"] = f"runtime_error:{type(exc).__name__}:{exc}"
         trace["seconds"] = perf_counter() - started
@@ -469,6 +513,10 @@ class CapabilityRuntime:
                           "guidance_trace": getattr(self.session, "last_guidance_trace", [])})
         return {
             "text": self.session.decode(state.prefix).strip(), "token_ids": list(state.prefix),
+            "vector_gate_seconds": sum(e.get("vector_gate", {}).get("seconds", 0) for e in trace),
+            "vector_gate_verifier_queries": sum(e.get("vector_gate", {}).get("verifier_queries", 0) for e in trace),
+            "vector_gate_candidate_tokens": sum(e.get("vector_gate", {}).get("candidate_generated_tokens", 0)
+                                                for e in trace),
             "expert_calls": len(state.history), "controller_calls": controls,
             "probe_model_calls": sum(e.get("behavior_probe", {}).get("extra_model_calls", 0)
                                      for e in trace),

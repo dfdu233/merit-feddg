@@ -1,5 +1,10 @@
 # Med-DEFER / MERIT-FedDG
 
+论文主线入口：[统一向量接口与 training-free 动态 gate](docs/VECTOR_GATE.md)。
+`--protocol vector` 在同一完整清单上比较 generalist、tensor_all、tensor_gate；
+桥接需要预训练，采用 gate 无训练参数，按当前问题和证据干预进行逐次判断。
+本轮只验证实现机制，未运行真实医学权重，也不以此前文本实验代替向量实验结果。
+
 2026-09-10：新增 [通用证据权限与传输复核](docs/GENERIC_EVIDENCE_REVIEW_2026-09-10.md)
 及 [完整清单匹配实验入口](docs/GENERIC_EVIDENCE_RUNBOOK.md)。不新增数据划分，
 所有题目统一自由生成，CE/OE 标签不进入推理；按实际上下文预算打包并审计证据。

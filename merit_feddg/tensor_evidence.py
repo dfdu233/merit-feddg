@@ -187,3 +187,15 @@ def compile_tensor_evidence(items, image_size, contract):
         np.asarray([r[5] for r in records], dtype=np.float32).reshape(-1, grid * grid),
         tuple(r[6] for r in records), tuple(rejected),
     )
+
+
+def preserves_tensor_records(before, after):
+    """Admission cannot silently replace an already accepted native record."""
+    from collections import Counter
+
+    def identities(packet):
+        return Counter((int(packet.kind[i]), int(packet.concept[i]), int(packet.scope[i]),
+                        int(packet.semantics[i]), packet.numeric[i].tobytes(),
+                        packet.regions[i].tobytes(), packet.sources[i]) for i in range(len(packet)))
+
+    return not (identities(before) - identities(after))
