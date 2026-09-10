@@ -294,16 +294,21 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
         # shards_complete field; their final protocol.json is emitted only
         # after all rows are finalized.  A present field must still be true.
         donor_complete = donor_protocol.get("shards_complete", donor_protocol.get("shards") is None)
+        route_groups = [donor_routes[row["id"]].get("group_id") for row in original]
+        routes_bind_groups = all(value is not None for value in route_groups)
         if (not donor_complete
                 or donor_protocol.get("n") != len(original)
                 or set(donor_routes) != expected_ids
                 or donor_ids != expert_ids or donor_excluded != excluded
-                or any(donor_routes[row["id"]].get("group_id") != row["image_sha256"] for row in original)):
+                or (any(value is not None for value in route_groups) and not routes_bind_groups)
+                or (routes_bind_groups and any(value != row["image_sha256"]
+                                                for value, row in zip(route_groups, original)))):
             raise ValueError("reused expert run does not match full manifest/routes/expert weights")
         fallback_expert_root = donor_root / "expert-cache"
         reuse_expert_audit = {"path": str(donor_root.resolve()), "identity": donor_protocol["identity"],
             "protocol_sha256": hashlib.sha256(donor_protocol_path.read_bytes()).hexdigest(),
-            "native_requests_keyed": True, "expert_provenance_equal": True}
+            "native_requests_keyed": True, "expert_provenance_equal": True,
+            "route_group_hashes_available": routes_bind_groups}
         reused_routes = donor_routes
     # Bind cached predictions to actual bytes, not just caller-supplied image IDs.
     image_files = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
