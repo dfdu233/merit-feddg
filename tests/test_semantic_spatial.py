@@ -1,3 +1,4 @@
+import json
 from dataclasses import replace
 from types import SimpleNamespace
 
@@ -10,7 +11,12 @@ from test_vector_gate import Candidate, Verifier
 from merit_feddg.capabilities import EvidenceItem
 from merit_feddg.capability_runtime import NativeSession, NativeState, ValueGenerationConfig
 from merit_feddg.io import load_experiment_yaml
-from merit_feddg.matched_evaluation import experiment_arms
+from merit_feddg.matched_evaluation import (
+    _finalize_shards,
+    experiment_arms,
+    generation_prompt,
+    load_manifest,
+)
 from merit_feddg.semantic_evidence import semantic_records, semantic_prompt
 from merit_feddg.spatial_evidence import encode_soft_mask
 from merit_feddg.vector_gate import VectorGateConfig, assess_visual_contrast
@@ -73,7 +79,7 @@ def test_semantic_redundancy_skips_expensive_likelihood_scoring():
     assert not sessions[2].calls
 
 
-def test_five_arms_use_one_unconstrained_protocol_and_no_new_trainable_bridge():
+def test_five_arms_use_one_matched_protocol_and_no_new_trainable_bridge():
     config = load_experiment_yaml("configs/matched_semantic_spatial.yaml")
     decoder = ValueGenerationConfig(**config["capability_value"]["generation"])
     arms = experiment_arms(decoder, "semantic_spatial")
@@ -82,6 +88,30 @@ def test_five_arms_use_one_unconstrained_protocol_and_no_new_trainable_bridge():
     assert all(a.evidence_style == "semantic" and not a.request_scope_check for a in arms.values())
     assert replace(arms["hybrid_all"], semantic_spatial=False) == arms["semantic_all"]
     assert config["generalist"]["training_free_spatial"]
+
+
+def test_anchor_prompt_contract_uses_only_answer_blind_task_type(tmp_path):
+    config = {"prompt_contract": "anchor-ce-v1"}
+    assert generation_prompt({"question": "Finding?", "answer_type": "closed"}, config) == (
+        "Finding? Please answer Yes or No.")
+    assert generation_prompt({"question": "Finding?", "answer_type": "open"}, config) == (
+        "Finding?\nGive only the short answer. Do not explain.")
+    manifest = tmp_path / "manifest.jsonl"
+    manifest.write_text('{"id":"x","image":"i","question":"q","image_sha256":"h",'
+                        '"answer_type":"closed"}\n')
+    assert load_manifest(manifest)[0]["answer_type"] == "closed"
+
+
+def test_complete_disjoint_shards_are_merged_in_manifest_order(tmp_path):
+    rows = [{"id": "a"}, {"id": "b"}, {"id": "c"}]
+    for index, ids in enumerate((("a", "c"), ("b",))):
+        root = tmp_path / "shards" / f"{index:04d}-of-0002"
+        root.mkdir(parents=True)
+        (root / "generalist.json").write_text(json.dumps({key: index for key in ids}))
+        (root / "routing.json").write_text(json.dumps({key: index for key in ids}))
+    assert _finalize_shards(tmp_path, rows, ["generalist"], {"identity": "x"}, 2)
+    assert list(json.loads((tmp_path / "generalist.json").read_text())) == ["a", "b", "c"]
+    assert json.loads((tmp_path / "protocol.json").read_text())["shards_complete"]
 
 
 @pytest.mark.parametrize("relevant", [False, True])

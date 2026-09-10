@@ -1,5 +1,32 @@
 # Current status
 
+## ANCHOR-aligned semantic-spatial rerun (2026-09-10; ready to launch)
+
+- The matched runner now renders the frozen `anchor-ce-v1` contract used by the
+  dedicated paper baseline: closed questions append `Please answer Yes or No.`
+  and open questions append `Give only the short answer. Do not explain.` All
+  five arms receive the identical per-case prompt and 64-token budget. Only the
+  answer-blind `closed`/`open` task type selects the template; the runtime still
+  rejects labels and references, and the type is removed before routing, expert
+  selection and generation.
+- A real two-case GPU preflight (one closed and one open VQA-RAD case) reproduced
+  the dedicated LLaVA-Med baseline exactly, character for character: `No, there
+  is no evidence of an aortic aneurysm in the chest X-ray image.` and `The right
+  side of the heart border is obscured in the chest X-ray.` This establishes
+  prompt/backend alignment before the full rerun; complete 451-case equality
+  remains a post-run acceptance check.
+- The runner supports deterministic strided case sharding. Two workers share one
+  scientific identity but write disjoint shard artifacts and case caches; an
+  advisory lock merges all five arms and routing records in original manifest
+  order only after every shard is complete. This changes scheduling, not the
+  experiment definition. Full regression passed 659 tests with two optional
+  skips; the focused semantic-spatial suite passed 10 tests.
+- The current container exposes only GPU 0, despite the host having two cards.
+  Launch the two detached workers from the host with `CUDA_VISIBLE_DEVICES=0`
+  and `CUDA_VISIBLE_DEVICES=1`, `--shard-index 0/1 --shard-count 2`. Existing
+  environments and local weights are reused offline; no dependency upgrade,
+  download, target split or threshold change is authorized.
+
 ## Detailed diagnosis and experimental successor (2026-09-10)
 
 - Final reporting is frozen to the paper-baseline evaluation provenance in

@@ -169,15 +169,15 @@ def test_cache_binds_final_generation_settings_and_full_manifest(tmp_path):
         load_cached(path, "other")
 
 
-def test_full_manifest_kept_intact_and_references_never_loaded(tmp_path):
+def test_full_manifest_kept_intact_and_only_answer_blind_task_type_loaded(tmp_path):
     rows = [{"id": str(i), "image": "x.png", "question": "q", "image_sha256": "image",
              "answer_type": "closed"} for i in range(7)]
     path = tmp_path / "manifest.jsonl"
     path.write_text("\n".join(json.dumps(r) for r in rows))
-    assert load_manifest(path) == [{k: v for k, v in r.items() if k != "answer_type"} for r in rows]
+    assert load_manifest(path) == rows
     altered = [{**r, "answer_type": "open"} for r in rows]
     path.write_text("\n".join(json.dumps(r) for r in altered))
-    assert load_manifest(path) == [{k: v for k, v in r.items() if k != "answer_type"} for r in rows]
+    assert load_manifest(path) == altered
     rows[0]["answer"] = "no"
     path.write_text("\n".join(json.dumps(r) for r in rows))
     with pytest.raises(ValueError, match="labels"):
