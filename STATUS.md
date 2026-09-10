@@ -1,5 +1,45 @@
 # Current status
 
+## Matched permissions full evaluation (2026-09-10; complete, do not scale)
+
+- Ran the complete 451-question official VQA-RAD test manifest under the new
+  matched four-arm protocol at commit `bc530bd`. Generalist, point, uncertainty
+  and permissions used the same prompt and unconstrained 64-token generation;
+  no split, calibration, policy fit or label access occurred during generation.
+  The detached job completed 451/451 per arm without OOM, empty output or tool
+  runtime error in 1,340 s, then released the GPU.
+- Frozen strict mixed scores were generalist 0.2945, point 0.2158, uncertainty
+  0.2152 and permissions 0.2274. Strict closed parsing is a major confound: only
+  119/251 generalist and 57/251 permissions answers began with explicit yes/no.
+- A target-blind content-aware diagnostic scored generalist 0.4320, point 0.4375,
+  uncertainty 0.3948 and permissions 0.4580. Permissions was +0.0261 versus the
+  matched generalist (38 improved, 25 harmed, 388 tied by that evaluator), while
+  generic Token-F1 decreased from 0.0752 to 0.0682. These are not clinician-
+  adjudicated medical-benefit counts.
+- Null integrity passed: all 273 no-tool cases had exactly identical text in all
+  four arms. Every evidence arm attempted 352 calls on 178 cases, and rejected
+  packets were no longer silently marked adopted.
+- The intended relation mechanism was not exercised. Permissions presented
+  CheXagent on 172 cases, XRV anatomy on 31 and Biomed anatomy on 6, but XRV
+  findings on 0/141 because all permission packets exceeded the real token budget.
+  Although pre-packing audits constructed 1,128 finite relations, exactly zero
+  relations entered a final prompt. The apparent gain therefore reflects packet/
+  channel selection, principally CheXagent replacing XRV, not validated finite-
+  relation reasoning.
+- Clear reference-aligned corrections coexist with clear harms: cardiomegaly,
+  pneumothorax and mediastinal-shift errors were sometimes corrected, while heart-
+  border laterality, cardiac-contour narrowing, cardiomegaly, organ-system and ECG-
+  lead answers were also made wrong. No lexical or zero-call improvement is counted
+  as medical success.
+- The shared perturbation cache executed 522 extra XRV forwards in 16.75 s. These
+  are response-variation audits, not correctness or domain guarantees. Sequential
+  per-arm times are warm/cache-order dependent and not a latency comparison.
+- Do not scale or relax thresholds. A future source-designed ablation must make
+  finite relations actually fit and isolate packet length, expert selection and
+  relation content without tuning on these official-test answers. Full results,
+  examples and raw artifact hashes are in
+  `docs/MATCHED_PERMISSIONS_RESULTS_2026-09-10.md`.
+
 ## Generic evidence patch integration (2026-09-10; GPU not run)
 
 - Integrated supplied 4ce0538 patch after fast-forwarding to 065a03d, preserving
