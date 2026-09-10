@@ -111,7 +111,9 @@ def main():
                     expert = event["expert"]
                     calls[expert] += 1
                     adopted[expert] += int(bool(event.get("adopted")))
-                    if name == all_name:
+                    # Channel effects describe cases where that channel actually
+                    # entered generation, not applicability-rejected tool calls.
+                    if name == all_name and event.get("adopted"):
                         channel_cases.setdefault(expert, set()).add(sample_id)
                     if event.get("reason", "").startswith("runtime_error:"):
                         runtime_errors.append({"id": sample_id, "expert": expert,

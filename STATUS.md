@@ -1,6 +1,6 @@
 # Current status
 
-## Active full VQA-RAD spatial run (2026-09-10; results pending)
+## Full VQA-RAD training-free spatial run (2026-09-10; complete, do not scale)
 
 - The first detached run was stopped at 61/451 because the optional BiomedParse
   assets were absent; its partial run `bf41177c...` is retained but is not a
@@ -19,11 +19,38 @@
   returned 1024x1024 left/right lung soft masks with nonzero foreground. The
   focused regression suite passed 100 tests with one optional skip. Formal run
   `f42e591e4c92265c1c3d1827ac0378167285a353b143079d2657e8714d794b4b`
-  is now detached (PID recorded in `runs/matched-spatial.pid`) on the complete
-  451-question official test. Accuracy, perturbation sensitivity, gate benefit
-  and wall-time remain pending; nonzero calls alone are not success.
+  completed all four arms on all 451 official test questions without runtime
+  error or empty output. Its regenerated baseline is exactly identical on
+  451/451 texts and token sequences to the preceding matched vector run.
+- Fixed-reference scores are negative versus the generalist. Strict mixed is
+  0.2945 generalist, 0.2885 spatial_equal, 0.2885 spatial_weighted and 0.2923
+  spatial_gate. Target-blind content-aware mixed is respectively 0.4364,
+  0.4193, 0.4193 and 0.4320. Ungated strict pairing has zero improvements and
+  four harms; gated pairing has zero improvements and one harm. The content
+  diagnostic counts 1/10 improve/harm for ungated and 1/3 for gate, but its
+  apparent gate improvement is the medically false statement that chest X-ray
+  is safe in pregnancy because it does not use ionizing radiation, so it is not
+  evidence of clinical gain.
+- Spatial evidence genuinely entered generation in 229 cases and changed 46--47
+  texts. The channel diagnostics are all negative: XRV findings n=141,
+  mean content delta -0.0440 (1 improve, 8 harm); XRV anatomy n=33, -0.0455
+  (0/2); adopted BiomedParse n=229, -0.0336 (1/10). Equal and lexical-weighted
+  arms have identical aggregate scores and differ in only three texts, so the
+  relevance weighting shows no measurable benefit.
+- Gate accepted 12/403 usable-evidence events (2.98%), rejected 51 negative
+  visual-contrast gains and saw 340 unchanged candidate pairs. It reduced harm
+  but accepted concrete reversals including right-to-left heart border,
+  no-pneumothorax to pneumothorax and no-free-air to free air. Gate cost was
+  437.3 s, 17,618 candidate tokens and 252 verifier forwards. Mean engine time
+  rose from 0.528 s generalist to 0.843 s spatial_equal and 1.661 s gate; the
+  latter is 3.14x baseline even with shared expert caches. Do not scale this
+  method without a stronger task-relevance/reliability mechanism.
+- Final files are `spatial-audit.json` and `evaluation-summary.json` in the run
+  directory. The evaluator was repaired so per-expert channel subsets include
+  only adopted evidence, not applicability-rejected calls; generation outputs
+  and global scores were unchanged.
 
-## Strict training-free replacement (implementation, medical results pending)
+## Strict training-free replacement (implementation summary; evaluated above)
 
 - Current method: [training-free spatial collaboration](docs/TRAINING_FREE_SPATIAL.md).
   Supersedes the source-training recommendation in the historical null report below.
@@ -36,10 +63,10 @@
 - New four-arm full-manifest runner: generalist / spatial_equal /
   spatial_weighted / spatial_gate. Gate probes the full answer budget and uses
   evidence-free sequence teacher forcing (four verifier forwards for differing pairs).
-- Final validation: 634 tests passed, 17 optional-dependency tests skipped; Ruff
-  and launcher syntax checks passed. Official medical checkpoint execution,
-  CUDA resource use, runtime improvements and clinical accuracy are not validated.
-  Nonzero token changes and zero acceptance are not counted as medical success.
+- Pre-run validation: 634 tests passed, 17 optional-dependency tests skipped;
+  Ruff and launcher syntax checks passed. Official checkpoint execution and
+  clinical evaluation are reported above. Nonzero token changes and nonzero
+  gate acceptance were not counted as medical success.
 
 ## Matched vector-gate full evaluation (2026-09-10; complete, null result, do not scale)
 
