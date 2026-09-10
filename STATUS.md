@@ -31,7 +31,13 @@
   mapped to host GPU 1) is now running shard 0/2 as detached PID `2501208`;
   host GPU 0 should run shard 1/2. Both current shards use identity
   `edcf48420dd394d764533ec9cc24be2e555887d916adc7fa29a9d74181ac603d`
-  and the existing offline weights. Logs are
+  and the existing offline weights. Because container `/root` is not visible
+  on the host, the already-cached 2.5 GB XraySigLIP dependency and 196 KB
+  CheXagent dynamic module were copied without downloading to the shared
+  `/home/dbw/hf-shared` cache. Its XraySigLIP config checksum matches the
+  container source and resolves successfully in strict offline mode. Host
+  shard 1 must set `HF_HOME`, `HF_HUB_CACHE` and `HF_MODULES_CACHE` to this
+  shared tree. Logs are
   `runs/matched-native-claims-anchor/shard-0.log` and
   `runs/matched-native-claims-anchor/shard-1-host.log`. No dependency upgrade,
   download, threshold change, target run or result-based protocol change was made.
