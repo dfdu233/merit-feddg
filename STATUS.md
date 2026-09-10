@@ -1,12 +1,32 @@
 # Current status
 
-## Native-entry protocol implementation (2026-09-10; GPU evaluation pending)
+## ANCHOR-aligned native-entry evaluation (2026-09-10; full GPU run active)
 
 - Added an independent, strictly training-free `native_claims` protocol; see [implementation and runbook](docs/NATIVE_CLAIMS.md). Six arms isolate native-entry packing, cheap attribute checks, spatial delivery and paired local-removal gating.
-- The new protocol uses the complete manifest and one unrestricted answer prompt; it rejects CE/OE-specific prompt contracts and sharding. Existing upstream experiment records below remain historical records.
+- The new protocol now uses the exact paper-baseline generation boundary from
+  Codex conversation `01a05d29-9d0b-7121-8a53-488b8cd1a125`: the complete 451
+  VQA-RAD manifest, frozen `anchor-ce-v1` closed/open prompts, deterministic
+  64-token generation, the same images and no target subset. `answer_type` only
+  selects the two fixed prompt suffixes and is removed before routing, expert
+  selection, Gate and runtime generation. Final scoring uses ANCHOR
+  `mixed-medical-vqa-table-v2-source-typed-primary` and decoder v11, with
+  regenerated Generalist required to match the dedicated Greedy answers on
+  451/451 cases.
 - Local checks are bounded per case. Unverified semantic fallback is recorded separately and cannot bypass the spatial gate after its budget is exhausted. No fitted confidence weights, calibration cards or learned bridge are introduced.
-- Validation: 665 tests passed, 17 optional tests skipped; changed implementation files pass Ruff and `git diff --check`.
-- This is an implementation update, not a new medical efficacy result. Full real-model inference has not run in this workspace.
+- Validation: 680 tests passed and two optional tests skipped; the focused
+  native/semantic suite passed 31 tests and `git diff --check` passed. A real
+  closed/open two-case smoke reproduced both paper Greedy answers exactly in
+  the regenerated Generalist. It also exposed a genuine bad case: on
+  `vqarad-official-test-0003`, Generalist and semantic arms retained the correct
+  `right` heart border, while `hybrid_all` and `hybrid_gate` changed it to
+  `left`. Gate execution is therefore not being treated as medical success.
+- Host physical GPU 0 remains unavailable from this container and is no longer
+  a launch dependency. The only visible device (container GPU 0, previously
+  mapped to host GPU 1) is healthy and is running the complete unsharded job as
+  detached PID `2495870` from commit `fe9927c`. It reuses existing offline
+  weights and environments. Log: `runs/matched-native-claims-anchor/background.log`;
+  output root: `runs/matched-native-claims-anchor`. No dependency upgrade,
+  download, threshold change, target run or result-based protocol change was made.
 
 ## ANCHOR-aligned semantic-spatial rerun (2026-09-10; shard 0 complete, shard 1 recovery required)
 
