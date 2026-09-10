@@ -25,10 +25,12 @@
   scheduling-only sharding for `native_claims`; the two shard unions must still
   cover the complete 451 cases before finalization, and `dataset_partitioned`
   remains false. The initial unsharded PID `2495870` was stopped after 12/451
-  complete cases, preserving 77 atomic per-arm cache files. Container GPU 0
-  (previously mapped to host GPU 1) is now running shard 0/2 as detached PID
-  `2501208`; host GPU 0 should run shard 1/2. Both reuse identity
-  `69f772c3547bc6a3a77c14d0e34139bae518b69383ad73096acd726c70936582`
+  complete cases; its 77 atomic per-arm cache files are retained as an
+  incomplete historical run but are not reused because the cache identity
+  intentionally binds implementation bytes. Container GPU 0 (previously
+  mapped to host GPU 1) is now running shard 0/2 as detached PID `2501208`;
+  host GPU 0 should run shard 1/2. Both current shards use identity
+  `edcf48420dd394d764533ec9cc24be2e555887d916adc7fa29a9d74181ac603d`
   and the existing offline weights. Logs are
   `runs/matched-native-claims-anchor/shard-0.log` and
   `runs/matched-native-claims-anchor/shard-1-host.log`. No dependency upgrade,
