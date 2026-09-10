@@ -361,6 +361,18 @@ def test_context_overflow_never_silently_truncates_committed_prefix(fake_backend
     assert not logs["generation"]
 
 
+def test_context_budget_counts_visual_expansion_and_full_answer_reserve(fake_backend):
+    backend, logs, _ = fake_backend
+    backend.model.config.tokenizer_model_max_length = 12
+    backend.model.config.max_position_embeddings = 16
+    backend.model.tower.num_patches = 4
+    usage = backend.context_token_budget(Image.new("RGB", (4, 4)), "Question", 4)
+    assert usage == {"input_tokens": 8, "reserved_tokens": 4, "context_limit": 12,
+                     "remaining_tokens": 0, "fits": True}
+    assert not backend.context_token_budget(Image.new("RGB", (4, 4)), "Question", 5)["fits"]
+    assert not logs["generation"]
+
+
 def test_real_tiny_mistral_inputs_embeds_continuation_has_visual_context():
     torch = pytest.importorskip("torch")
     transformers = pytest.importorskip("transformers")

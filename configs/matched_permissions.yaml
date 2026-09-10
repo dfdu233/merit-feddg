@@ -1,0 +1,18 @@
+# One complete official manifest in every arm. No new data partitions or fitting.
+base_config: configs/llava_med_capabilities.yaml
+capability_value:
+  generation:
+    max_new_tokens: 64
+    block_tokens: 64
+    max_expert_calls: 2
+    max_decisions: 3
+    max_evidence_chars: 10000
+    visual_views: 0
+    evidence_style: permissions
+    evidence_order: acquisition
+    token_budgeted_evidence: true
+    request_style: need
+    request_scope_check: false
+    retrieval_answer_context: false
+    behavior_probe: audit
+    uncertainty_from_probe: true

@@ -1,5 +1,20 @@
 # Current status
 
+## Generic evidence patch integration (2026-09-10; GPU not run)
+
+- Integrated supplied 4ce0538 patch after fast-forwarding to 065a03d, preserving
+  the server's latest reports and uncertainty transport fixes.
+- Added optional measurement permissions, native precision API, actual-context
+  evidence packing and a four-arm full-manifest generation entry point. No new
+  clinical benefit or arbitrary-domain guarantee is claimed.
+- Integration fix: matched-evaluation caches now include expert provenance and
+  recursively hashed adapter code; JSON manifest/cache reads use UTF-8.
+- Full patch regression: 614 passed in 96.07 s. After cache hardening, all 21
+  permissions/transport targeted tests passed, including the new cache regression.
+  Ruff, CLI --help and diff checks passed. No GPU experiment or calibration ran.
+- Input patch SHA256: 5471e0bace39e694977079fd96a60ee7c3295e0603d010a37e6eae16236bcd4c.
+- See docs/GENERIC_EVIDENCE_RUNBOOK.md for server execution and evaluation limits.
+
 ## Full official VQA-RAD new-method evaluation (2026-09-10; negative, do not scale)
 
 - Completed all 451 official test questions (251 closed, 200 open; no custom

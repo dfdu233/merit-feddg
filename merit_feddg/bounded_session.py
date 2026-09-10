@@ -22,6 +22,8 @@ class FormatControlNativeSession(NativeSession):
     """Direct-context null arm with the same tool envelope and no medical content."""
 
     def __init__(self, probe, image, prompt, question, config):
+        if config.token_budgeted_evidence:
+            raise ValueError("token-budgeted transport uses NativeSession; text controls need matched packing")
         if config.evidence_style == "tensor":
             raise ValueError("text format controls do not apply to the tensor evidence channel")
         if config.visual_views != 0 or isinstance(image, (tuple, list)):
@@ -39,6 +41,8 @@ class FormatControlNativeSession(NativeSession):
 
 class BoundedNativeSession(NativeSession):
     def __init__(self, probe, image, prompt, question, config, guidance=None):
+        if config.token_budgeted_evidence:
+            raise ValueError("bounded decoding requires its own per-token packet transport audit")
         if config.evidence_style == "tensor":
             raise ValueError("bounded text evidence decoding does not support tensor mode yet")
         if config.visual_views != 0 or isinstance(image, (tuple, list)):

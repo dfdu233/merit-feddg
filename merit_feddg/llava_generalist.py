@@ -370,6 +370,30 @@ class LlavaMedGeneralist:
         if position_limit is not None and expanded + max_new_tokens > int(position_limit):
             raise ValueError("LLaVA-Med image, evidence and answer exceed max_position_embeddings")
 
+    def context_token_budget(self, image, prompt, reserve_tokens):
+        """Measure the same conversation/image expansion used by generation.
+
+        Runs preprocessing/tokenization, never a model forward. Reserve includes
+        the committed prefix and remaining answer, not just a single next block.
+        """
+        if type(reserve_tokens) is not int or reserve_tokens < 0:
+            raise ValueError("reserve_tokens must be a nonnegative integer")
+        inputs = self._inputs(image, prompt)
+        tower, config = self.model.get_vision_tower(), self.model.config
+        patches = int(tower.num_patches) + int(getattr(tower, "select_feature", "patch") == "cls_patch")
+        images = int((inputs["inputs"] == self.runtime.constants.IMAGE_TOKEN_INDEX).sum())
+        count = int(inputs["inputs"].shape[1]) + images * (patches - 1)
+        position = getattr(config, "max_position_embeddings", None)
+        token_limit = getattr(config, "tokenizer_model_max_length", None)
+        limits = [int(v) for v in (position, token_limit) if v is not None]
+        if not limits:
+            raise ValueError("token-aware packing requires explicit model context limits")
+        # Conservative: replayed prefixes also pass through multimodal preparation.
+        limit = min(limits)
+        return {"input_tokens": count, "reserved_tokens": reserve_tokens,
+                "context_limit": limit, "remaining_tokens": limit - count - reserve_tokens,
+                "fits": count + reserve_tokens <= limit}
+
     def generate(
         self, image, prompt, max_new_tokens=64, logits_processor=None, *, allowed_texts=None
     ):

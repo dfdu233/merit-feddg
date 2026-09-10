@@ -1,5 +1,10 @@
 # Med-DEFER / MERIT-FedDG
 
+2026-09-10：新增 [通用证据权限与传输复核](docs/GENERIC_EVIDENCE_REVIEW_2026-09-10.md)
+及 [完整清单匹配实验入口](docs/GENERIC_EVIDENCE_RUNBOOK.md)。不新增数据划分，
+所有题目统一自由生成，CE/OE 标签不进入推理；按实际上下文预算打包并审计证据。
+本轮机制测试通过，真实医学效果待运行。
+
 新增可训练的 [原生非文本证据桥接实验](docs/NATIVE_TENSOR_BRIDGE.md)：分类分数、
 2D 掩码和检测框按类型编码，经共享读取器与门控视觉残差接入 LLaVA-Med。
 包含源域训练入口、检查点加载与契约审计；默认关闭，真实医学 GPU 效果尚未验证。

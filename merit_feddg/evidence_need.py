@@ -85,13 +85,30 @@ def scoped_items(items, question, *, top_k=2, retrieval_answers=False):
 
 
 def presentation_items(items, question, config):
+    if not config.retrieval_answer_context:
+        # A content policy, not a display-style option. Apply it to the original
+        # output AND uncertainty alternatives before any compiler sees them.
+        answer_keys = {"source_reference", "source_answer", "source_answers", "answer",
+                       "answers", "reference", "references_text"}
+
+        def hide_answers(value):
+            if isinstance(value, dict):
+                return {key: hide_answers(entry) for key, entry in value.items()
+                        if key not in answer_keys}
+            if isinstance(value, (list, tuple)):
+                return [hide_answers(entry) for entry in value]
+            return value
+
+        items = tuple(replace(item, payload={**hide_answers(item.payload),
+                                            "source_answers_included": False}, summary="")
+                      if item.capability == "retrieval" else item for item in items)
     if config.evidence_style == "tensor":
         if config.request_scope_check:
             from .request_scope import focused_items
 
             return focused_items(items)
         return tuple(items)
-    if config.evidence_style == "uncertainty":
+    if config.evidence_style in {"uncertainty", "permissions"}:
         # Do not top-k prune hypotheses before calculating their shared content.
         return tuple(items)
     if config.evidence_style == "focused":
@@ -108,6 +125,10 @@ def evidence_memory(items, question, config):
     if config.evidence_style == "tensor":
         return []
     presented = presentation_items(items, question, config)
+    if config.evidence_style == "permissions":
+        from .evidence_permissions import compile_permission_evidence
+
+        return compile_permission_evidence(presented, question, config.max_evidence_chars)
     if config.evidence_style == "uncertainty":
         from .uncertain_evidence import compile_uncertain_evidence
 

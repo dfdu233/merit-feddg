@@ -1,0 +1,138 @@
+{
+  "date": "2026-09-10",
+  "sources": [
+    {
+      "repository": "CircleRadon/Osprey",
+      "commit": "be8f465df412ebfd29841452c75cad3d4c56f35b",
+      "license_metadata": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "locally_read_files": [
+        "osprey_model_layer.py"
+      ],
+      "verification": "file audit only where locally_read_files is nonempty; otherwise repository metadata/tree only"
+    },
+    {
+      "repository": "EavnJeong/Draft-and-Refine-with-Visual-Experts",
+      "commit": "d72196b1b498e982ecf6eb94e91724707c15ebf2",
+      "license_metadata": null,
+      "locally_read_files": [
+        "main.py"
+      ],
+      "verification": "file audit only where locally_read_files is nonempty; otherwise repository metadata/tree only"
+    },
+    {
+      "repository": "NVlabs/prismer",
+      "commit": "4f27ab37e8ff5436707c5badd0ec744980608edd",
+      "license_metadata": {
+        "key": "other",
+        "name": "Other",
+        "spdx_id": "NOASSERTION",
+        "url": null,
+        "node_id": "MDc6TGljZW5zZTA="
+      },
+      "locally_read_files": [
+        "model_modules_resampler.py"
+      ],
+      "verification": "file audit only where locally_read_files is nonempty; otherwise repository metadata/tree only"
+    },
+    {
+      "repository": "Project-MONAI/VLM-Radiology-Agent-Framework",
+      "commit": "fc8c5a701c14bfe75622c926eb014c8d83459c89",
+      "license_metadata": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "locally_read_files": [
+        "m3_README.md",
+        "m3_data_prepare_experts_expert_train_data_cxr.py",
+        "m3_data_prepare_experts_expert_utils.py",
+        "m3_demo_experts_expert_torchxrayvision.py"
+      ],
+      "verification": "file audit only where locally_read_files is nonempty; otherwise repository metadata/tree only"
+    },
+    {
+      "repository": "Wangyixinxin/MMedAgent",
+      "commit": "d5ae05c4d4351253d6c464a704dcb71caa461acb",
+      "license_metadata": null,
+      "locally_read_files": [],
+      "verification": "file audit only where locally_read_files is nonempty; otherwise repository metadata/tree only"
+    },
+    {
+      "repository": "aangelopoulos/conformal-risk",
+      "commit": "3eff946390a8f188b1e5ab700fce21a66a215e7c",
+      "license_metadata": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "locally_read_files": [
+        "README.md",
+        "core_get_lhat.py",
+        "hierarchical_imagenet_risk_histogram.py",
+        "polyps_risk_histogram.py"
+      ],
+      "verification": "file audit only where locally_read_files is nonempty; otherwise repository metadata/tree only"
+    },
+    {
+      "repository": "aangelopoulos/ltt",
+      "commit": "3ad7a64adad9f356e29f40e73935a6114f896396",
+      "license_metadata": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "locally_read_files": [
+        "README.md",
+        "core_bounds.py",
+        "core_pfdr.py"
+      ],
+      "verification": "file audit only where locally_read_files is nonempty; otherwise repository metadata/tree only"
+    },
+    {
+      "repository": "bowang-lab/MedRAX",
+      "commit": "dae30e2f136ef0b2a40885a4c335386e9ffad052",
+      "license_metadata": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "locally_read_files": [
+        "README.md",
+        "medrax_agent_agent.py"
+      ],
+      "verification": "file audit only where locally_read_files is nonempty; otherwise repository metadata/tree only"
+    },
+    {
+      "repository": "hiker-lw/VEP",
+      "commit": "d46295d56186efb77bf3c589d58ecce3523ed104",
+      "license_metadata": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "locally_read_files": [],
+      "verification": "file audit only where locally_read_files is nonempty; otherwise repository metadata/tree only"
+    }
+  ],
+  "additional_reads": [
+    "Draft-and-Refine Readme.md",
+    "Nature Biomedical Engineering abstract and code-availability HTML; full methods not accessible"
+  ],
+  "note": "VEP and MedDr implementation downloads were not completed. No claim of reproducing upstream experiments."
+}

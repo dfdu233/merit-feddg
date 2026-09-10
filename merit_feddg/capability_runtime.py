@@ -44,8 +44,14 @@ class ValueGenerationConfig:
     behavior_max_sensitivity: float | None = None
     request_scope_check: bool = False
     uncertainty_from_probe: bool = False
+    token_budgeted_evidence: bool = False
+    evidence_order: str = "recent"
 
     def __post_init__(self):
+        if type(self.token_budgeted_evidence) is not bool or self.evidence_order not in {"recent", "acquisition"}:
+            raise ValueError("invalid evidence transport configuration")
+        if self.token_budgeted_evidence and (self.visual_views or self.evidence_style == "tensor"):
+            raise ValueError("token-budgeted text evidence requires visual_views=0 and a text style")
         if type(self.uncertainty_from_probe) is not bool:
             raise ValueError("uncertainty_from_probe must be boolean")
         if self.uncertainty_from_probe and self.behavior_probe != "audit":
@@ -67,13 +73,13 @@ class ValueGenerationConfig:
             self.max_decisions, self.controller_tokens, self.max_evidence_chars,
         )) or self.visual_views not in (0, 1) or self.max_evidence_chars < 2:
             raise ValueError("positive integer budgets and visual_views=0/1 are required")
-        if self.evidence_style == "uncertainty" and self.visual_views:
+        if self.evidence_style in {"uncertainty", "permissions"} and self.visual_views:
             raise ValueError("uncertainty bridge requires visual_views=0; no raw-mask bypass")
         if self.evidence_style == "tensor" and self.visual_views:
             raise ValueError("tensor evidence requires visual_views=0")
         if self.evidence_style == "tensor" and self.uncertainty_from_probe:
             raise ValueError("tensor bridge does not consume native uncertainty envelopes")
-        if (self.evidence_style not in {"native", "scoped", "graph", "focused", "uncertainty", "tensor"}
+        if (self.evidence_style not in {"native", "scoped", "graph", "focused", "uncertainty", "permissions", "tensor"}
                 or self.request_style not in {"question", "need"}
                 or type(self.evidence_top_k) is not int or self.evidence_top_k < 1
                 or type(self.retrieval_answer_context) is not bool):
@@ -101,6 +107,9 @@ class NativeSession:
         self.config = config
         self._key, self._session = None, None
         self.view_metadata = []
+        self.last_transport = {}
+        if config.token_budgeted_evidence and not hasattr(probe, "context_token_budget"):
+            raise ValueError("backend must implement actual context_token_budget")
         if config.evidence_style == "tensor" and (
             not hasattr(probe, "new_tensor_answer_session") or not hasattr(probe, "tensor_bridge")
         ):
@@ -112,7 +121,31 @@ class NativeSession:
     def context(self, state):
         if self.config.evidence_style == "tensor":
             self.view_metadata = []
+            if hasattr(self.probe, "tensor_packet"):
+                packet = self.probe.tensor_packet(presentation_items(state.items, self.question, self.config), self.image)
+                self.last_transport = {"schema": "evidence-transport-v1", "channel": "tensor",
+                                       "presented": [{"expert_id": a, "evidence_id": b} for a, b in set(packet.sources)],
+                                       "omitted": list(packet.rejected), "presentation_is_not_causal_usage": True}
             return self.image, self.prompt
+        if self.config.token_budgeted_evidence:
+            from .evidence_transport import pack_records
+
+            # Compile independently of the joint character budget, so omitted
+            # packets have explicit reasons rather than disappearing upstream.
+            unbounded = replace(self.config, max_evidence_chars=10_000_000)
+            records = evidence_memory(state.items, self.question, unbounded)
+            render = lambda memory: native_observation_prompt(self.prompt, memory) if memory else self.prompt
+            memory, self.last_transport = pack_records(
+                records, render,
+                lambda prompt, reserve: self.probe.context_token_budget(self.image, prompt, reserve),
+                max_chars=self.config.max_evidence_chars, reserve_tokens=self.config.max_new_tokens,
+            )
+            represented = {(v["expert_id"], v["evidence_id"]) for v in records}
+            self.last_transport["omitted"].extend(
+                {"expert_id": v.expert_id, "evidence_id": v.evidence_id, "reason": "no_supported_content"}
+                for v in state.items if (v.expert_id, v.evidence_id) not in represented)
+            self.view_metadata = []
+            return self.image, render(memory)
         memory = evidence_memory(state.items, self.question, self.config)
         presented_items = presentation_items(state.items, self.question, self.config)
         views, metadata = make_visual_evidence(
@@ -135,6 +168,12 @@ class NativeSession:
             # the completed response and often emits EOS immediately.
             prompt = panel_context + "\n" + prompt
         self.view_metadata = metadata
+        self.last_transport = {
+            "schema": "evidence-transport-v1",
+            "presented": [{"expert_id": v["expert_id"], "evidence_id": v["evidence_id"]} for v in memory],
+            "visual_sources": [source for view in metadata for source in view.get("sources", [])],
+            "prompt_sha256": fingerprint(prompt), "presentation_is_not_causal_usage": True,
+        }
         return ([self.image, *views] if views else self.image), prompt
 
     def propose(self, state, length):
@@ -200,9 +239,26 @@ class CapabilityRuntime:
             candidates = [d for d in candidates if d["capability"] in {
                 "classification", "segmentation", "detection"
             }]
-        return [(d, assess_request(self.row["question"], self.specs[d["expert"]], d["capability"])
-                 if self.config.request_scope_check else {"allowed": True, "reason": "disabled"})
-                for d in candidates]
+        audits = [(d, assess_request(self.row["question"], self.specs[d["expert"]], d["capability"])
+                   if self.config.request_scope_check else {"allowed": True, "reason": "disabled"})
+                  for d in candidates]
+        if self.config.token_budgeted_evidence and any(
+            self.specs[d["expert"]].get("minimum_evidence_tokens") is not None for d in candidates
+        ):
+            self.session.context(state)
+            remaining = self.session.last_transport["context"]["remaining_tokens"]
+            checked = []
+            for descriptor, audit in audits:
+                minimum = self.specs[descriptor["expert"]].get("minimum_evidence_tokens")
+                if minimum is not None:
+                    if type(minimum) is not int or minimum < 1:
+                        raise ValueError("minimum_evidence_tokens must be a positive declared interface bound")
+                    if minimum > remaining:
+                        audit = {**audit, "allowed": False, "reason": "declared_packet_cannot_fit",
+                                 "minimum_evidence_tokens": minimum, "remaining_tokens": remaining}
+                checked.append((descriptor, audit))
+            audits = checked
+        return audits
 
     def candidates(self, state, descriptors):
         if self.encoder is None:
@@ -239,6 +295,7 @@ class CapabilityRuntime:
                 self.pool.infer(descriptor["expert"], request), descriptor["expert"], request
             )
             trace["executed"] = True
+            trace["native_result_origin"] = getattr(self.pool, "last_origin", "live_native_output")
             if self.config.request_scope_check:
                 from .request_scope import assess_request, bind_request
 
@@ -265,8 +322,28 @@ class CapabilityRuntime:
                     return replace(state, history=(*state.history, key)), trace
             # Native payload is immutable. Only evidence visible to the VLM is
             # counted as adopted; empty generated_text is not an intervention.
-            proposed = tuple(result.items) + state.items
-            if self.config.evidence_style == "tensor":
+            proposed = (state.items + tuple(result.items) if self.config.evidence_order == "acquisition"
+                        else tuple(result.items) + state.items)
+            if self.config.evidence_style == "permissions":
+                from .evidence_permissions import permission_audit
+                from .native_precision import precision_for
+
+                card = self.specs[descriptor["expert"]].get("native_precision_card")
+                # Calibration status is experiment-owned, never asserted by a tool.
+                result = replace(result, items=tuple(replace(v, provenance={
+                    **{k: x for k, x in v.provenance.items() if k != "native_precision"},
+                    **({"native_precision": precision_for(card, v, self.row["domain"])} if card else {}),
+                }) for v in result.items))
+                proposed = (state.items + tuple(result.items) if self.config.evidence_order == "acquisition"
+                            else tuple(result.items) + state.items)
+                trace["permission_audit"] = [permission_audit(v, self.row["question"])
+                                             for v in result.items]
+            if self.config.token_budgeted_evidence:
+                self.session.context(replace(state, items=proposed))
+                transport = self.session.last_transport
+                visible = {(v["expert_id"], v["evidence_id"]) for v in transport["presented"]}
+                trace["packing_preview"] = transport
+            elif self.config.evidence_style == "tensor":
                 packet = self.session.probe.tensor_packet(
                     presentation_items(proposed, self.row["question"], self.config), self.row["image"])
                 visible = set(packet.sources)
@@ -293,7 +370,8 @@ class CapabilityRuntime:
         except (ValueError, TypeError, FileNotFoundError, ImportError) as exc:
             trace["reason"] = f"runtime_error:{type(exc).__name__}:{exc}"
         trace["seconds"] = perf_counter() - started
-        updated = replace(state, items=items + state.items, history=(*state.history, key))
+        updated = replace(state, items=(state.items + items if self.config.evidence_order == "acquisition"
+                                        else items + state.items), history=(*state.history, key))
         return updated, trace
 
     def advance(self, state, length):
@@ -317,6 +395,7 @@ class CapabilityRuntime:
             "visual_evidence": self.session.view_metadata,
             "guidance_trace": getattr(self.session, "last_guidance_trace", []),
             "guidance_spent": final.guidance_spent,
+            "evidence_transport": getattr(self.session, "last_transport", {}),
         }
 
     def run(self, mode, *, policy=None, forced_expert=None, applicability=None):
@@ -332,9 +411,10 @@ class CapabilityRuntime:
                     "controller_output_tokens": 0, "trace": [], "evidence": [],
                     "adopted_evidence_count": 0, "seconds": perf_counter() - started}
         while not state.finished and len(state.prefix) < self.config.max_new_tokens:
-            if self.config.request_scope_check:
+            if self.config.request_scope_check or self.config.token_budgeted_evidence:
                 for descriptor, audit in self.descriptor_audits(state):
-                    trace.append({"event": "request_scope", "expert": descriptor["expert"],
+                    trace.append({"event": "admission" if self.config.token_budgeted_evidence else "request_scope",
+                                  "expert": descriptor["expert"],
                                   "token_start": len(state.prefix), **audit})
             descriptors = self.descriptors(state)
             if forced_expert is not None:
@@ -385,6 +465,7 @@ class CapabilityRuntime:
             state = self.advance(state, length)
             trace.append({"event": "decode", "token_start": before, "token_end": len(state.prefix),
                           "visual_evidence": self.session.view_metadata,
+                          "evidence_transport": getattr(self.session, "last_transport", {}),
                           "guidance_trace": getattr(self.session, "last_guidance_trace", [])})
         return {
             "text": self.session.decode(state.prefix).strip(), "token_ids": list(state.prefix),
@@ -395,5 +476,8 @@ class CapabilityRuntime:
             "controller_output_tokens": control_tokens, "trace": trace,
             "evidence": [asdict(item) for item in state.items],
             "adopted_evidence_count": sum(e.get("adopted", False) for e in trace),
+            "presented_evidence_count": len({(v["expert_id"], v["evidence_id"])
+                for event in trace if event["event"] == "decode"
+                for v in event.get("evidence_transport", {}).get("presented", [])}),
             "seconds": perf_counter() - started,
         }
