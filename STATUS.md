@@ -1,5 +1,46 @@
 # Current status
 
+## Full official VQA-RAD new-method evaluation (2026-09-10; negative, do not scale)
+
+- Completed all 451 official test questions (251 closed, 200 open; no custom
+  split) in a detached `nohup`/`setsid` job using the existing huatuo environment,
+  LLaVA-Med and local expert weights. Only the new method was generated; the
+  existing same-row baseline was reused offline. No dependency/checkpoint was
+  downloaded or upgraded, and no train/test reference entered generation.
+- This was the training-free uncertainty-preserving `all_evidence` component,
+  not the full source-fitted value/DG policy: no source cohort means no fitted
+  gate or source retrieval. It cannot establish a domain-generalization claim.
+- Generic Token-F1 was 0.0694 overall (closed 0.0386, open 0.1080). Frozen ANCHOR
+  v9 mixed evaluation was 0.2163 versus the historical LLaVA-Med baseline 0.4825;
+  strict closed accuracy was 0.1355 versus 0.6096, heavily affected by 195/251
+  new answers violating the leading yes/no contract. A same-parser content-aware
+  diagnostic still decreased 0.0600 overall and 10.36 percentage points on closed
+  questions; it marked 48 rows improved, 73 harmed and 330 tied. Generation
+  protocol differences make this diagnostic rather than a clean causal ablation.
+- Evidence transport is a blocking failure. Of 352 executed/adopted expert calls,
+  only 178 case prompts contained compiled evidence: XRV findings 141/141, XRV
+  anatomy 31/33 and Biomed anatomy 6/6, but CheXagent 0/172. Whole CheXagent
+  packets were silently excluded by the 2,600-character packing budget after an
+  earlier packet, even though traces said adopted. Therefore no CheXagent benefit
+  can be claimed and 172 calls were wasted.
+- Real 512x512 XRV anatomy masks ran, but only structure names, boxes and foreground
+  fractions entered 31 prompts; `visual_views=0`, so mask pixels/overlays/crops did
+  not. This is serialized spatial evidence, not validation of the visual bridge.
+  Clear laterality/measurement harms include right-to-left heart-border and gastric-
+  bubble flips, plus a correct cardiac-silhouette relation changed to its negation.
+- Findings sensitivity over 141 audits was min/mean/max
+  0.00427/0.02131/0.08362; anatomy over 33 was
+  0.00728/0.01877/0.05243. The 522 extra probe forwards took 20.47 s. These are
+  photometric variations, not clinical correctness or domain certificates.
+- Total wall time was 408.01 s (6 min 48 s), mean 0.924 s/question, recorded expert
+  work 76.77 s and peak allocation 22.46 GiB. Cost is manageable at this size but
+  scientifically wasteful until presentation-aware calling is fixed.
+- Do not scale or run target on this result. Required next fixes are explicit
+  adopted-versus-presented tracing, budget-aware calls/packing, closed-answer format
+  enforcement and a matched same-generation baseline/evidence ablation without
+  tuning on test results. See `docs/VQARAD_OFFICIAL_NEW_METHOD_RESULTS_2026-09-10.md`
+  for examples, scorer caveats, hashes and raw local artifact paths.
+
 ## Independent uncertainty source confirmation (2026-09-10; do not scale)
 
 - Froze and ran a new 20-case VQA-RAD source-only cohort (seed 29, 10 cases per
