@@ -36,6 +36,14 @@ class BiomedParseCapabilityExpert:
         if self.model is not None:
             return
         import torch
+        from PIL import Image
+
+        # Detectron2 at the BiomedParse v1 revision still imports the historical
+        # Pillow interpolation alias, which was removed in newer Pillow builds.
+        # Keep the compatibility shim local to this optional expert instead of
+        # downgrading the shared LLaVA-Med environment.
+        if not hasattr(Image, "LINEAR"):
+            Image.LINEAR = Image.BILINEAR
 
         if not self.checkpoint.is_file():
             raise FileNotFoundError("BiomedParse requires an existing local v1 checkpoint file")

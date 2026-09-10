@@ -1,5 +1,28 @@
 # Current status
 
+## Active full VQA-RAD spatial run (2026-09-10; results pending)
+
+- The first detached run was stopped at 61/451 because the optional BiomedParse
+  assets were absent; its partial run `bf41177c...` is retained but is not a
+  result. After explicit download authorization, the official gated
+  `microsoft/BiomedParse` v1 checkpoint was installed locally (1,803,167,371
+  bytes, SHA-256 `66716517a59e5b8060dc87732a4d65fea1f699ecec3f6a8440749f3ea2b917dc`)
+  with clean source pinned to `db5c10782dab2377db4f68bbc03f71c54572e51b`.
+  Required BiomedBERT and CLIP tokenizer assets are cached for offline use.
+- The existing environment was retained. Missing v1 inference packages were
+  added without dependency upgrades; the required detectron2 fork was built
+  from `42121d75e10d9f858f3a91b6a39f5722c02868f0` as a CPU extension because
+  system NVCC 13.2 is incompatible with the existing PyTorch CUDA 11.7 build.
+  A local Pillow compatibility alias was necessary for the pinned detectron2
+  code; Torch, Transformers, Pillow and the LLaVA-Med weights were not changed.
+- A real VQA-RAD chest-radiograph probe loaded the frozen v1 checkpoint and
+  returned 1024x1024 left/right lung soft masks with nonzero foreground. The
+  focused regression suite passed 100 tests with one optional skip. Formal run
+  `f42e591e4c92265c1c3d1827ac0378167285a353b143079d2657e8714d794b4b`
+  is now detached (PID recorded in `runs/matched-spatial.pid`) on the complete
+  451-question official test. Accuracy, perturbation sensitivity, gate benefit
+  and wall-time remain pending; nonzero calls alone are not success.
+
 ## Strict training-free replacement (implementation, medical results pending)
 
 - Current method: [training-free spatial collaboration](docs/TRAINING_FREE_SPATIAL.md).
