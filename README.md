@@ -684,3 +684,7 @@ This is research software, not a medical device. It must not be used for clinica
 ### Native-entry training-free experiment
 
 See [the native-entry protocol](docs/NATIVE_CLAIMS.md) for the six-arm full-manifest experiment, literature lineage, local support diagnostic, and unresolved limitations. Start with `configs/matched_native_claims.yaml`; this protocol forbids CE/OE-specific prompts and training.
+
+### Complete packets and external answer verification
+
+The [verified-packets protocol](docs/VERIFIED_PACKETS.md) preserves full native score tables, matches evidence content across two layouts, and reuses candidates for frozen external image-text arbitration. It uses one full manifest and a uniform answer prompt; see `configs/matched_verified_packets.yaml`. No new training or efficacy claim is introduced.

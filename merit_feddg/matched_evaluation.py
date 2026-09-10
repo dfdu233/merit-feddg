@@ -9,6 +9,7 @@ import hashlib
 import json
 from dataclasses import asdict, replace
 from pathlib import Path
+from time import perf_counter
 
 from .capabilities import CapabilityResult, EvidenceItem, tool_descriptors
 from .capability_runtime import NativeSession, ValueGenerationConfig
@@ -104,6 +105,16 @@ class SharedExpertPool:
 
 def experiment_arms(decoder, protocol):
     """Declare matched arms without consulting case metadata or answer types."""
+    if protocol == "verified_packets":
+        if decoder.evidence_style != "semantic" or decoder.native_entry_transport or decoder.semantic_spatial:
+            raise ValueError("verified_packets requires intact semantic-only packets")
+        definitions = {"generalist": (False, True), "semantic_all": (False, True),
+                       "compact_rows": (True, False), "compact_all": (True, True),
+                       "compact_verified": (True, True)}
+        return {name: replace(decoder, compact_native=compact, compact_columns=columns,
+            block_tokens=decoder.max_new_tokens, vector_gate="off", behavior_probe="off",
+            claim_attribute_filter=False, uncertainty_from_probe=False)
+            for name, (compact, columns) in definitions.items()}
     if protocol == "native_claims":
         if decoder.evidence_style != "semantic" or not decoder.token_budgeted_evidence or decoder.visual_views:
             raise ValueError("native_claims requires token-budgeted semantic evidence")
@@ -196,13 +207,17 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     from .capability_study import _filter_optional_experts, _route_records
     from .generalist_factory import generalist_provenance, load_generalist, resolve_generalist_spec
 
-    original = load_manifest(manifest)
+    original = load_manifest(manifest, include_answer_type=protocol != "verified_packets")
     if shard_count < 1 or not 0 <= shard_index < shard_count:
         raise ValueError("shard_index must be in [0, shard_count)")
     config = load_experiment_yaml(config_path)
-    if protocol == "native_claims":
-        if config.get("prompt_contract") != "anchor-ce-v1":
-            raise ValueError("native_claims requires the frozen ANCHOR CE/OE prompt contract")
+    if protocol == "native_claims" and config.get("prompt_contract") != "anchor-ce-v1":
+        raise ValueError("native_claims requires the frozen ANCHOR CE/OE prompt contract")
+    if protocol == "verified_packets":
+        if config.get("prompt_contract", "legacy_suffix") != "legacy_suffix" or shard_count != 1:
+            raise ValueError("verified_packets requires one full manifest and a uniform answer prompt")
+        if not config.get("answer_verifiers"):
+            raise ValueError("verified_packets requires explicitly configured frozen verifiers")
     config["generalist"] = resolve_generalist_spec(config["generalist"])
     config["generalist"]["deterministic_image_padding"] = True
     decoder = ValueGenerationConfig(**config["capability_value"]["generation"])
@@ -232,11 +247,13 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     prompt_by_id = {row["id"]: generation_prompt(row, config) for row in original}
     model_id = generalist_provenance(config["generalist"], artifacts)
     expert_ids = {name: model_provenance(spec, artifacts) for name, spec in specs.items()}
+    verifier_specs = config.get("answer_verifiers", {}) if protocol == "verified_packets" else {}
+    verifier_provenance = {name: model_provenance(spec, artifacts) for name, spec in verifier_specs.items()}
     # Bind cached predictions to actual bytes, not just caller-supplied image IDs.
     image_files = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
                    for path in sorted({row["image"] for row in original})}
     identity = cache_identity({**config, "active_experts": specs, "methods": methods,
-                               "expert_provenance": expert_ids,
+                               "expert_provenance": expert_ids, "verifier_provenance": verifier_provenance,
                                "image_file_sha256": image_files}, original, model_id)
     root = Path(output_dir) / identity
     root.mkdir(parents=True, exist_ok=True)
@@ -259,6 +276,7 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     atomic_json(work_root / "routing.json", routes)
     pool = CapabilityPool(specs, artifacts, source_records=())
     outputs = {name: {} for name in methods}
+    verifiers = {}
     try:
         for index, row in enumerate(rows, 1):
             # Reuse actual specialist predictions across all evidence arms.
@@ -268,10 +286,34 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                 path = root / "case-cache" / method / f"{fingerprint(row['id'])}.json"
                 cached = load_cached(path, identity)
                 if cached is None:
-                    prompt = prompt_by_id[row["id"]]
-                    session = NativeSession(probe, row["image"], prompt, row["question"], arm)
-                    engine = CapabilityRuntime(session, shared_pool, row, specs, arm, None)
-                    cached = engine.run("generalist" if method == "generalist" else "all_evidence")
+                    if method == "compact_verified":
+                        from .answer_arbitration import arbitrate_output, load_verifier
+                        candidate = outputs["compact_all"][row["id"]]
+                        baseline = outputs["generalist"][row["id"]]
+                        eligible = [(name, spec) for name, spec in verifier_specs.items()
+                                    if row["modality"] in spec["modalities"]]
+                        if len(eligible) > 1:
+                            raise ValueError("declare one verifier per modality; no implicit selection")
+                        verifier = None
+                        verifier_load_seconds = 0.0
+                        if eligible and baseline["text"] != candidate["text"]:
+                            name, spec = eligible[0]
+                            if name not in verifiers:
+                                load_started = perf_counter()
+                                verifiers[name] = load_verifier(spec, artifacts)
+                                verifier_load_seconds = perf_counter() - load_started
+                            verifier = verifiers[name]
+                        sources = [specs[e["expert_id"]]["id"] for e in candidate.get("evidence", [])]
+                        cached = arbitrate_output(baseline, candidate, image=row["image"],
+                            question=row["question"], modality=row["modality"], verifier=verifier,
+                            generalist_id=config["generalist"]["id"], source_model_ids=sources)
+                        cached["verifier_initialization_seconds"] = verifier_load_seconds
+                        cached["seconds"] += verifier_load_seconds
+                    else:
+                        prompt = prompt_by_id[row["id"]]
+                        session = NativeSession(probe, row["image"], prompt, row["question"], arm)
+                        engine = CapabilityRuntime(session, shared_pool, row, specs, arm, None)
+                        cached = engine.run("generalist" if method == "generalist" else "all_evidence")
                     cached["generation_config"] = asdict(arm)
                     cached["input_modality"] = row["modality"]
                     cached["available_experts"] = sorted({d["expert"] for d in tool_descriptors(specs, row)})
@@ -284,7 +326,9 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             "identity": identity, "n": len(original), "methods": list(methods), "config": config,
             "experiment_protocol": protocol, "arm_configs": methods,
             "bridge_requires_pretraining": False, "gate_fitted": False,
-            "collaboration_training_free": frozen_spatial,
+            "collaboration_training_free": frozen_spatial or protocol == "verified_packets",
+            "answer_arbitration": "external_frozen_image_text" if verifier_specs else None,
+            "verifier_provenance": verifier_provenance,
             "vector_gate_unit": "native_entry" if protocol == "native_claims" else ("acquired_expert_result" if frozen_spatial else None),
             "vector_gate_control": "paired_local_blur_translation" if protocol == "native_claims" else ("same_size_image_channel_mean" if frozen_spatial else None),
             "semantic_channel": "existing_frozen_token_embeddings" if protocol in {"semantic_spatial", "native_claims"} else None,
@@ -315,7 +359,7 @@ def main():
     parser.add_argument("--config", default="configs/matched_vector_gate.yaml")
     parser.add_argument("--output", default="runs/matched-spatial")
     parser.add_argument("--artifacts", default="artifacts")
-    parser.add_argument("--protocol", choices=("text", "vector", "spatial", "semantic_spatial", "native_claims"), default="spatial")
+    parser.add_argument("--protocol", choices=("text", "vector", "spatial", "semantic_spatial", "native_claims", "verified_packets"), default="spatial")
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--shard-count", type=int, default=1)
     args = parser.parse_args()

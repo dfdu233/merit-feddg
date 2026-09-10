@@ -1,5 +1,12 @@
 # Current status
 
+## Complete packets and external answer verification (implementation; GPU evaluation pending)
+
+- Added `verified_packets`: complete native packets, shared-field compression, identical-content layout comparison, and frozen external answer arbitration. See [method, code lineage and experiments](docs/VERIFIED_PACKETS.md).
+- One full manifest and a uniform answer prompt; no CE/OE generation contract or training. The verifier margin is not a calibrated correctness probability. Unknown scope, same-model verification, truncation and inconsistent preferences abstain to exact baseline tokens.
+- Validation: 686 tests passed, 17 optional tests skipped; changed implementation files pass Ruff and the patch passes `git diff --check`.
+- The candidate is reused instead of generating per-entry probes. Real-model benefit and ICLR-level contribution remain hypotheses requiring the documented ablations. Published stopped-snapshot results below are unchanged.
+
 ## ANCHOR-aligned native-entry evaluation (2026-09-10; stopped at 362 common cases)
 
 - Added an independent, strictly training-free `native_claims` protocol; see [implementation and runbook](docs/NATIVE_CLAIMS.md). Six arms isolate native-entry packing, cheap attribute checks, spatial delivery and paired local-removal gating.

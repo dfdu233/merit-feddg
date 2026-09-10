@@ -40,8 +40,8 @@ def main():
     references = json.loads(args.references.read_text())
     protocol = json.loads((args.run / "protocol.json").read_text())
     names = tuple(protocol["methods"])
-    all_name = next((n for n in ("hybrid_all", "spatial_weighted", "tensor_all") if n in names), None)
-    gate_name = next((n for n in ("hybrid_gate", "spatial_gate", "tensor_gate") if n in names), None)
+    all_name = next((n for n in ("compact_all", "hybrid_all", "spatial_weighted", "tensor_all") if n in names), None)
+    gate_name = next((n for n in ("compact_verified", "hybrid_gate", "spatial_gate", "tensor_gate") if n in names), None)
     if not {"generalist", all_name, gate_name}.issubset(names):
         raise ValueError("unsupported matched evidence protocol")
     outputs = {name: json.loads((args.run / f"{name}.json").read_text()) for name in names}
@@ -178,6 +178,8 @@ def main():
                                                     for e in entry_events),
         "local_removal_gains": [e["local_removal_gain"] for e in entry_events if "local_removal_gain" in e]}
 
+    revision_events = [outputs[gate_name][i]["answer_arbitration"] for i in ids
+                       if "answer_arbitration" in outputs[gate_name][i]]
     no_tool = [i for i in ids if outputs[all_name][i]["expert_calls"] == 0]
     changed = [i for i in ids if outputs[all_name][i]["text"] !=
                outputs["generalist"][i]["text"]]
@@ -186,6 +188,11 @@ def main():
         "complete": True, "n": len(ids), "scores": evaluated, "paired_vs_generalist": paired,
         "transport": transport, "evidence_by_expert_content_diagnostic": channel_effects,
         "native_entry_gate": entry_audit,
+        "answer_arbitration": {"decisions": dict(Counter(e["decision"] for e in revision_events)),
+            "reasons": dict(Counter(e["reason"] for e in revision_events)),
+            "score_calls": sum(e["score_calls"] for e in revision_events),
+            "seconds": sum(e["seconds"] for e in revision_events),
+            "margins": [e["margins"] for e in revision_events if "margins" in e]},
         "intervention_diagnostics": intervention_diagnostics,
         "gate": {"calls": len(gate_events), "accepted": sum(e["accepted"] for e in gate_events),
                  "acceptance_rate": (statistics.mean(e["accepted"] for e in gate_events) if gate_events else 0.0),

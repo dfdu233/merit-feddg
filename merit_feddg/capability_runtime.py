@@ -51,6 +51,8 @@ class ValueGenerationConfig:
     vector_gate_probe_tokens: int = 8
     vector_gate_min_gain: float = 1e-6
     semantic_spatial: bool = False
+    compact_native: bool = False
+    compact_columns: bool = True
     native_entry_transport: bool = False
     claim_attribute_filter: bool = False
     claim_gate_max_checks: int = 2
@@ -58,6 +60,10 @@ class ValueGenerationConfig:
     def __post_init__(self):
         from .vector_gate import VectorGateConfig
 
+        if type(self.compact_native) is not bool or type(self.compact_columns) is not bool:
+            raise ValueError("compact options must be boolean")
+        if self.compact_native and (self.evidence_style != "semantic" or self.native_entry_transport):
+            raise ValueError("compact transport requires intact semantic packets")
         if self.spatial_weighting not in {"equal", "relevance"}:
             raise ValueError("spatial_weighting must be equal or relevance")
         VectorGateConfig(self.vector_gate_probe_tokens, self.vector_gate_min_gain)
@@ -249,11 +255,17 @@ class NativeSession:
             # Compile independently of the joint character budget, so omitted
             # packets have explicit reasons rather than disappearing upstream.
             unbounded = replace(self.config, max_evidence_chars=10_000_000)
+            companion_render = None
             if self.config.evidence_style == "semantic":
                 from .semantic_evidence import semantic_prompt, semantic_records
 
                 records = semantic_records(presentation_items(state.items, self.question, self.config))
                 render = lambda memory: semantic_prompt(self.prompt, memory)
+                if self.config.compact_native:
+                    from .compact_evidence import compact_prompt, compact_records
+                    records = compact_records(presentation_items(state.items, self.question, self.config))
+                    render = lambda memory: compact_prompt(self.prompt, memory, columns=self.config.compact_columns)
+                    companion_render = lambda memory: compact_prompt(self.prompt, memory, columns=not self.config.compact_columns)
             else:
                 records = evidence_memory(state.items, self.question, unbounded)
                 render = lambda memory: native_observation_prompt(self.prompt, memory) if memory else self.prompt
@@ -261,6 +273,7 @@ class NativeSession:
                 records, render,
                 lambda prompt, reserve: self.probe.context_token_budget(self.image, prompt, reserve),
                 max_chars=self.config.max_evidence_chars, reserve_tokens=self.config.max_new_tokens,
+                companion_render=companion_render,
             )
             represented = {(v["expert_id"], v["evidence_id"]) for v in records}
             self.last_transport["omitted"].extend(
@@ -383,7 +396,9 @@ class CapabilityRuntime:
             self.specs[d["expert"]].get("minimum_evidence_tokens") is not None for d in candidates
         ):
             self.session.context(state)
-            remaining = self.session.last_transport["context"]["remaining_tokens"]
+            remaining = self.session.last_transport.get("shared_remaining_tokens")
+            if remaining is None:
+                remaining = self.session.last_transport["context"]["remaining_tokens"]
             checked = []
             for descriptor, audit in audits:
                 minimum = self.specs[descriptor["expert"]].get("minimum_evidence_tokens")
