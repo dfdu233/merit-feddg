@@ -13,6 +13,20 @@
   regenerated Generalist required to match the dedicated Greedy answers on
   451/451 cases.
 - Local checks are bounded per case. Unverified semantic fallback is recorded separately and cannot bypass the spatial gate after its budget is exhausted. No fitted confidence weights, calibration cards or learned bridge are introduced.
+- A read-only interim snapshot at 314 six-arm-complete cases (173 closed,
+  141 open) is diagnostic only because sequential completion is not a fixed
+  evaluation subset. Under the frozen final evaluator, unified/CE/OE scores
+  are: Generalist 51.57/65.32/34.69, `semantic_all` 53.40/65.90/38.08,
+  `entry_all` 48.64/57.23/38.11, `entry_filtered` 48.64/57.23/38.11,
+  `hybrid_all` 48.32/57.23/37.40 and `hybrid_gate` 49.20/59.54/36.51
+  percent. Relative unified deltas show `semantic_all` +1.84 points over
+  Generalist, atomization -4.76 versus `semantic_all`, filtering exactly zero,
+  spatial transport -0.32 versus `entry_filtered`, and Gate +0.88 versus
+  `hybrid_all` but still -2.37 versus Generalist. Of 2,267 attribute checks,
+  only one was rejected; the filter is currently functionally inactive. Gate
+  accepted 205/342 native entries, including 127 unverified semantic entries,
+  and has no runtime errors. These values must not be cited as final results;
+  only the completed 451-case merged evaluation is admissible.
 - Validation: 680 tests passed and two optional tests skipped; the focused
   native/semantic suite passed 31 tests and `git diff --check` passed. A real
   closed/open two-case smoke reproduced both paper Greedy answers exactly in
