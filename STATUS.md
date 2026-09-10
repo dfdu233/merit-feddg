@@ -45,7 +45,12 @@
   cache while offline. The checkpoint is present and complete locally, so the
   recovery is to relaunch host GPU 0 with explicit `HF_HOME`, `HF_HUB_CACHE`
   and `HF_MODULES_CACHE`; no download or dependency change is needed. The
-  per-case cache makes this resumable. The failed log is
+  per-case cache makes this resumable. Because later commit `dcfed50` adds
+  default runtime fields and therefore changes the cache identity even though
+  its new branches are inactive for this protocol, the recovery worktree is
+  pinned at the shard-0 commit `8010604` in
+  `/home/dbw/merit-feddg-eval-8010604`; its output and artifact arguments point
+  back to the shared main workspace. The failed log is
   `runs/matched-semantic-spatial-anchor/shard-1.log`.
 - For the final apples-to-apples table, the frozen evaluator is
   `mixed-medical-vqa-table-v2-source-typed-primary` with current answer decoder
