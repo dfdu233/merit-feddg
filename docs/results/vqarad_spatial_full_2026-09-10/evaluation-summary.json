@@ -1,0 +1,749 @@
+{
+  "protocol_identity": "f42e591e4c92265c1c3d1827ac0378167285a353b143079d2657e8714d794b4b",
+  "complete": true,
+  "n": 451,
+  "scores": {
+    "generalist": {
+      "n": 451,
+      "generic_exact_match": 0.0,
+      "generic_token_f1": 0.07515446505958757,
+      "strict_mixed": 0.2944783597776946,
+      "strict_closed_accuracy": 0.2749003984063745,
+      "strict_closed_parseable": 119,
+      "open_answer_token_recall": 0.3190487012987013,
+      "content_aware_mixed_diagnostic": 0.4363852333918853,
+      "content_aware_closed_accuracy_diagnostic": 0.5298804780876494,
+      "empty_answers": 0,
+      "sum_engine_seconds": 238.212080741534,
+      "mean_engine_seconds": 0.5281864317994103
+    },
+    "spatial_equal": {
+      "n": 451,
+      "generic_exact_match": 0.0,
+      "generic_token_f1": 0.07363048549992607,
+      "strict_mixed": 0.28849166354709593,
+      "strict_closed_accuracy": 0.27091633466135456,
+      "strict_closed_parseable": 118,
+      "open_answer_token_recall": 0.3105487012987013,
+      "content_aware_mixed_diagnostic": 0.41931206266017795,
+      "content_aware_closed_accuracy_diagnostic": 0.5059760956175299,
+      "empty_answers": 0,
+      "sum_engine_seconds": 380.0789258631412,
+      "mean_engine_seconds": 0.8427470639980957
+    },
+    "spatial_weighted": {
+      "n": 451,
+      "generic_exact_match": 0.0,
+      "generic_token_f1": 0.07363048549992607,
+      "strict_mixed": 0.28849166354709593,
+      "strict_closed_accuracy": 0.27091633466135456,
+      "strict_closed_parseable": 118,
+      "open_answer_token_recall": 0.3105487012987013,
+      "content_aware_mixed_diagnostic": 0.41931206266017795,
+      "content_aware_closed_accuracy_diagnostic": 0.5059760956175299,
+      "empty_answers": 0,
+      "sum_engine_seconds": 303.9465365499491,
+      "mean_engine_seconds": 0.6739391054322597
+    },
+    "spatial_gate": {
+      "n": 451,
+      "generic_exact_match": 0.0,
+      "generic_token_f1": 0.07507924217948665,
+      "strict_mixed": 0.29226106487747283,
+      "strict_closed_accuracy": 0.2749003984063745,
+      "strict_closed_parseable": 119,
+      "open_answer_token_recall": 0.31404870129870127,
+      "content_aware_mixed_diagnostic": 0.4319506435914418,
+      "content_aware_closed_accuracy_diagnostic": 0.5258964143426295,
+      "empty_answers": 0,
+      "sum_engine_seconds": 749.0083696260117,
+      "mean_engine_seconds": 1.6607724381951479
+    }
+  },
+  "paired_vs_generalist": {
+    "strict": {
+      "spatial_equal": {
+        "mean_delta": -0.00598669623059867,
+        "improved": 0,
+        "harmed": 4,
+        "unchanged": 447,
+        "exact_text_same": 405
+      },
+      "spatial_weighted": {
+        "mean_delta": -0.00598669623059867,
+        "improved": 0,
+        "harmed": 4,
+        "unchanged": 447,
+        "exact_text_same": 404
+      },
+      "spatial_gate": {
+        "mean_delta": -0.0022172949002217295,
+        "improved": 0,
+        "harmed": 1,
+        "unchanged": 450,
+        "exact_text_same": 439
+      }
+    },
+    "content": {
+      "spatial_equal": {
+        "mean_delta": -0.01707317073170732,
+        "improved": 1,
+        "harmed": 10,
+        "unchanged": 440,
+        "exact_text_same": 405
+      },
+      "spatial_weighted": {
+        "mean_delta": -0.01707317073170732,
+        "improved": 1,
+        "harmed": 10,
+        "unchanged": 440,
+        "exact_text_same": 404
+      },
+      "spatial_gate": {
+        "mean_delta": -0.004434589800443459,
+        "improved": 1,
+        "harmed": 3,
+        "unchanged": 447,
+        "exact_text_same": 439
+      }
+    }
+  },
+  "transport": {
+    "generalist": {
+      "expert_calls": 0,
+      "calls_by_expert": {},
+      "adopted_by_expert": {},
+      "presented_cases_by_expert": {},
+      "cases_with_any_presented": 0,
+      "spatial_evidence_items_executed": 0,
+      "spatial_structures_executed": 0,
+      "runtime_errors": [],
+      "gate_reasons": {}
+    },
+    "spatial_equal": {
+      "expert_calls": 625,
+      "calls_by_expert": {
+        "cxr_findings": 141,
+        "biomedparse_objects": 451,
+        "cxr_anatomy": 33
+      },
+      "adopted_by_expert": {
+        "cxr_findings": 141,
+        "biomedparse_objects": 229,
+        "cxr_anatomy": 33
+      },
+      "presented_cases_by_expert": {
+        "biomedparse_objects": 229,
+        "cxr_findings": 141,
+        "cxr_anatomy": 33
+      },
+      "cases_with_any_presented": 229,
+      "spatial_evidence_items_executed": 33,
+      "spatial_structures_executed": 99,
+      "runtime_errors": [],
+      "gate_reasons": {}
+    },
+    "spatial_weighted": {
+      "expert_calls": 625,
+      "calls_by_expert": {
+        "cxr_findings": 141,
+        "biomedparse_objects": 451,
+        "cxr_anatomy": 33
+      },
+      "adopted_by_expert": {
+        "cxr_findings": 141,
+        "biomedparse_objects": 229,
+        "cxr_anatomy": 33
+      },
+      "presented_cases_by_expert": {
+        "biomedparse_objects": 229,
+        "cxr_findings": 141,
+        "cxr_anatomy": 33
+      },
+      "cases_with_any_presented": 229,
+      "spatial_evidence_items_executed": 33,
+      "spatial_structures_executed": 99,
+      "runtime_errors": [],
+      "gate_reasons": {}
+    },
+    "spatial_gate": {
+      "expert_calls": 625,
+      "calls_by_expert": {
+        "cxr_findings": 141,
+        "biomedparse_objects": 451,
+        "cxr_anatomy": 33
+      },
+      "adopted_by_expert": {
+        "cxr_findings": 3,
+        "biomedparse_objects": 8,
+        "cxr_anatomy": 1
+      },
+      "presented_cases_by_expert": {
+        "biomedparse_objects": 8,
+        "cxr_findings": 3,
+        "cxr_anatomy": 1
+      },
+      "cases_with_any_presented": 12,
+      "spatial_evidence_items_executed": 33,
+      "spatial_structures_executed": 99,
+      "runtime_errors": [],
+      "gate_reasons": {
+        "no_change_within_probe_horizon": 340,
+        "positive_visual_contrast_gain": 12,
+        "no_positive_visual_contrast_gain": 51
+      }
+    }
+  },
+  "evidence_by_expert_content_diagnostic": {
+    "cxr_findings": {
+      "n": 141,
+      "text_changed": 36,
+      "mean_content_delta": -0.04397163120567376,
+      "improved": 1,
+      "harmed": 8
+    },
+    "cxr_anatomy": {
+      "n": 33,
+      "text_changed": 9,
+      "mean_content_delta": -0.045454545454545456,
+      "improved": 0,
+      "harmed": 2
+    },
+    "biomed_anatomy": {
+      "n": 0,
+      "text_changed": 0,
+      "mean_content_delta": null,
+      "improved": 0,
+      "harmed": 0
+    },
+    "biomedparse_objects": {
+      "n": 229,
+      "text_changed": 47,
+      "mean_content_delta": -0.033624454148471615,
+      "improved": 1,
+      "harmed": 10
+    }
+  },
+  "gate": {
+    "calls": 403,
+    "accepted": 12,
+    "acceptance_rate": 0.02977667493796526,
+    "reasons": {
+      "no_change_within_probe_horizon": 340,
+      "positive_visual_contrast_gain": 12,
+      "no_positive_visual_contrast_gain": 51
+    },
+    "calls_reaching_visual_contrast": 63,
+    "finite_gains": [
+      0.012172654271125793,
+      0.07470530271530151,
+      -0.10542577505111694,
+      -0.21495069563388824,
+      0.02606785297393799,
+      -0.3149558752775192,
+      0.13975262641906738,
+      -0.17092624306678772,
+      0.021491587162017822,
+      -0.10472056269645691,
+      -0.17461204528808594,
+      -0.17461204528808594,
+      -0.0992131382226944,
+      -0.0992131382226944,
+      -0.03503181040287018,
+      -0.03503181040287018,
+      0.02848196029663086,
+      -0.12441118061542511,
+      -0.15224409103393555,
+      -0.15224409103393555,
+      0.023883536458015442,
+      -0.3565140962600708,
+      0.009604871273040771,
+      -0.12054109573364258,
+      -0.12054109573364258,
+      -0.02237972617149353,
+      -0.059823453426361084,
+      -0.04577203094959259,
+      -0.009708404541015625,
+      -0.009708404541015625,
+      -0.0676819384098053,
+      -0.007904052734375,
+      -0.1296396255493164,
+      0.010023772716522217,
+      -0.1681388020515442,
+      -0.24152852594852448,
+      -0.14880730211734772,
+      -0.2912972718477249,
+      -0.13257208466529846,
+      -0.09932482242584229,
+      -0.2422737181186676,
+      -0.02694639563560486,
+      -0.1098623275756836,
+      -0.08700081706047058,
+      -0.1624477654695511,
+      -0.06820063292980194,
+      -0.1170910969376564,
+      -0.005757838487625122,
+      -0.04986727237701416,
+      0.005319118499755859,
+      -0.01781204342842102,
+      -0.09858468174934387,
+      -0.0029462575912475586,
+      -0.0029462575912475586,
+      -0.057483404874801636,
+      0.04653617739677429,
+      -0.07443967461585999,
+      -0.029802769422531128,
+      0.025861233472824097,
+      -0.1691882461309433,
+      -0.02116110920906067,
+      -0.02116110920906067,
+      -0.11576774716377258
+    ],
+    "candidate_generated_tokens": 17618,
+    "verifier_queries": 252,
+    "sum_seconds": 437.31549468426965
+  },
+  "no_tool_parity": {
+    "no_tool_cases": 0,
+    "all_arms_exact_text_parity": 0
+  },
+  "changed_examples": [
+    {
+      "id": "vqarad-official-test-0003",
+      "reference": [
+        "right"
+      ],
+      "generalist": "The right side of the heart border is obscured in the chest X-ray.",
+      "spatial_weighted": "The left side of the heart border is obscured in the chest X-ray.",
+      "spatial_gate": "The left side of the heart border is obscured in the chest X-ray."
+    },
+    {
+      "id": "vqarad-official-test-0033",
+      "reference": [
+        "no"
+      ],
+      "generalist": "Yes, the image suggests that the modality is safe for pregnant women.",
+      "spatial_weighted": "The image is a chest X-ray, which is a common diagnostic imaging modality used to visualize the structures within the chest, including the lungs, heart, and bones of the chest and spine. It is generally considered safe for pregnant women, as it does not involve ionizing radiation like some other imaging",
+      "spatial_gate": "The image is a chest X-ray, which is a common diagnostic imaging modality used to visualize the structures within the chest, including the lungs, heart, and bones of the chest and spine. It is generally considered safe for pregnant women, as it does not involve ionizing radiation like some other imaging"
+    },
+    {
+      "id": "vqarad-official-test-0051",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "The image shows hilary lymphadenopathy, which refers to the enlargement of lymph nodes in the hilum region of the lung.",
+      "spatial_weighted": "The image shows hylar lymphadenopathy, which is an enlargement of the lymph nodes located in the hilum, the area where the bronchi, blood vessels, and nerves enter and exit the lungs.",
+      "spatial_gate": "The image shows hilary lymphadenopathy, which refers to the enlargement of lymph nodes in the hilum region of the lung."
+    },
+    {
+      "id": "vqarad-official-test-0052",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "The chest X-ray does not show any hilary lymphadenopathy.",
+      "spatial_weighted": "The chest X-ray does not show any hylar lymphadenopathy.",
+      "spatial_gate": "The chest X-ray does not show any hilary lymphadenopathy."
+    },
+    {
+      "id": "vqarad-official-test-0055",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "Yes, the chest X-ray shows cardiomegaly, which means the heart is enlarged.",
+      "spatial_weighted": "Yes, the chest X-ray shows an enlarged heart.",
+      "spatial_gate": "Yes, the chest X-ray shows an enlarged heart."
+    },
+    {
+      "id": "vqarad-official-test-0065",
+      "reference": [
+        "cardiomegaly with pulmonary edema"
+      ],
+      "generalist": "The image shows a right-sided pleural effusion.",
+      "spatial_weighted": "The image shows a right-sided pleural effusion. A pleural effusion is an abnormal accumulation of fluid in the pleural space, which is the area between the layers of tissue that line the lungs and the chest cavity.",
+      "spatial_gate": "The image shows a right-sided pleural effusion."
+    },
+    {
+      "id": "vqarad-official-test-0066",
+      "reference": [
+        "cardiomegaly with pulmonary edema"
+      ],
+      "generalist": "The image shows a pathology of a patient with COVID-19. However, without more specific information, it is difficult to provide a detailed explanation of the pathology. The image could be related to the patient's lung condition, which is often affected in COVID-19 cases.",
+      "spatial_weighted": "The image shows a pathology of a patient with a right-sided pleural effusion. A pleural effusion is an abnormal accumulation of fluid in the pleural space, which is the area between the layers of tissue that line the lungs and the chest cavity.",
+      "spatial_gate": "The image shows a pathology of a patient with a right-sided pleural effusion."
+    },
+    {
+      "id": "vqarad-official-test-0084",
+      "reference": [
+        "no"
+      ],
+      "generalist": "The chest X-ray does not show any signs of a pneumothorax.",
+      "spatial_weighted": "The chest X-ray shows a pneumothorax.",
+      "spatial_gate": "The chest X-ray shows a pneumothorax."
+    },
+    {
+      "id": "vqarad-official-test-0096",
+      "reference": [
+        "right"
+      ],
+      "generalist": "The right side of the diaphragm appears to be elevated in the chest X-ray.",
+      "spatial_weighted": "The image shows the right side of the diaphragm being elevated.",
+      "spatial_gate": "The right side of the diaphragm appears to be elevated in the chest X-ray."
+    },
+    {
+      "id": "vqarad-official-test-0105",
+      "reference": [
+        "right side"
+      ],
+      "generalist": "The chest X-ray shows evidence of a pleural effusion.",
+      "spatial_weighted": "The image shows evidence of a pleural effusion.",
+      "spatial_gate": "The chest X-ray shows evidence of a pleural effusion."
+    },
+    {
+      "id": "vqarad-official-test-0124",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "Yes, the cardiac silhouette appears to be less than half the diameter of the diaphragm in the chest X-ray.",
+      "spatial_weighted": "Yes, the cardiac silhouette appears to be less than half the diameter of the diaphragm in the image.",
+      "spatial_gate": "Yes, the cardiac silhouette appears to be less than half the diameter of the diaphragm in the chest X-ray."
+    },
+    {
+      "id": "vqarad-official-test-0126",
+      "reference": [
+        "3.4 cm"
+      ],
+      "generalist": "The mass in the right upper quadrant appears to be 3.5 cm in size.",
+      "spatial_weighted": "The mass in the right upper quadrant appears to be quite large. However, it is important to note that the actual size of the mass can vary depending on the size of the monitor or screen being used to view it, as well as other factors such as the size of the original sample and the imaging technique used",
+      "spatial_gate": "The mass in the right upper quadrant appears to be 3.5 cm in size."
+    },
+    {
+      "id": "vqarad-official-test-0129",
+      "reference": [
+        "no"
+      ],
+      "generalist": "Yes, the chest X-ray shows cardiomegaly, which means the heart is enlarged.",
+      "spatial_weighted": "Yes, the chest X-ray shows an enlarged heart.",
+      "spatial_gate": "Yes, the chest X-ray shows an enlarged heart."
+    },
+    {
+      "id": "vqarad-official-test-0131",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "Yes, the image is a chest X-ray.",
+      "spatial_weighted": "The image is a chest X-ray, which is a common diagnostic imaging technique used to visualize the structures within the chest, including the lungs, heart, and bones of the chest and spine.",
+      "spatial_gate": "Yes, the image is a chest X-ray."
+    },
+    {
+      "id": "vqarad-official-test-0135",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "Yes, the cardiac silhouette appears to be within normal size limits in the chest X-ray.",
+      "spatial_weighted": "Yes, the cardiac silhouette appears to be within normal size limits in the image.",
+      "spatial_gate": "Yes, the cardiac silhouette appears to be within normal size limits in the chest X-ray."
+    },
+    {
+      "id": "vqarad-official-test-0150",
+      "reference": [
+        "no"
+      ],
+      "generalist": "Yes, the chest X-ray shows cardiomegaly, which means the heart is enlarged.",
+      "spatial_weighted": "Yes, the chest X-ray shows an enlarged heart.",
+      "spatial_gate": "Yes, the chest X-ray shows an enlarged heart."
+    },
+    {
+      "id": "vqarad-official-test-0157",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "The chest X-ray shows a small/stretched cardiac silhouette.",
+      "spatial_weighted": "The cardiac silhouette appears to be small and stretched in the chest X-ray.",
+      "spatial_gate": "The chest X-ray shows a small/stretched cardiac silhouette."
+    },
+    {
+      "id": "vqarad-official-test-0177",
+      "reference": [
+        "the liver"
+      ],
+      "generalist": "The image shows a large, well-defined, homogenous opacity located immediately inferior to the right hemidiaphragm.",
+      "spatial_weighted": "The image shows a large, well-defined, homogenous, and hypodense mass located immediately inferior to the right hemidiaphragm.",
+      "spatial_gate": "The image shows a large, well-defined, homogenous opacity located immediately inferior to the right hemidiaphragm."
+    },
+    {
+      "id": "vqarad-official-test-0198",
+      "reference": [
+        "right vs left sided pathology"
+      ],
+      "generalist": "The image suggests that the right-sided pleural effusion is better identified on a PA (posteroanterior) chest X-ray (CXR) compared to a lateral CXR.",
+      "spatial_weighted": "The image suggests that the right lung nodule is better identified on a PA (posteroanterior) chest X-ray (CXR) compared to a lateral CXR.",
+      "spatial_gate": "The image suggests that the right-sided pleural effusion is better identified on a PA (posteroanterior) chest X-ray (CXR) compared to a lateral CXR."
+    },
+    {
+      "id": "vqarad-official-test-0207",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "The chest X-ray image shows clearly defined cardiac borders.",
+      "spatial_weighted": "The chest X-ray image does not show clearly defined cardiac borders.",
+      "spatial_gate": "The chest X-ray image shows clearly defined cardiac borders."
+    },
+    {
+      "id": "vqarad-official-test-0218",
+      "reference": [
+        "no"
+      ],
+      "generalist": "The chest x-ray appears to be normal, with no significant abnormalities detected.",
+      "spatial_weighted": "The chest x-ray appears to be normal, with no significant abnormalities detected in the lungs.",
+      "spatial_gate": "The chest x-ray appears to be normal, with no significant abnormalities detected."
+    },
+    {
+      "id": "vqarad-official-test-0227",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "Yes, the chest X-ray shows cardiomegaly, which is an enlargement of the heart.",
+      "spatial_weighted": "Yes, the image shows cardiomegaly, which is an enlargement of the heart.",
+      "spatial_gate": "Yes, the chest X-ray shows cardiomegaly, which is an enlargement of the heart."
+    },
+    {
+      "id": "vqarad-official-test-0252",
+      "reference": [
+        "diaphragm"
+      ],
+      "generalist": "The two humps at the base on the chest X-ray are likely referring to the presence of two prominent masses or abnormalities in the lower part of the lungs. These humps could be due to various reasons, such as infections, inflammation, or tumors. Further evaluation and tests would be",
+      "spatial_weighted": "The two humps at the base on the chest X-ray are likely referring to the presence of two prominent masses or abnormalities in the lower part of the lungs. These humps could be due to various reasons, such as infections, inflammation, or tumors. Further evaluation and clinical correlation are",
+      "spatial_gate": "The two humps at the base on the chest X-ray are likely referring to the presence of two prominent masses or abnormalities in the lower part of the lungs. These humps could be due to various reasons, such as infections, inflammation, or tumors. Further evaluation and tests would be"
+    },
+    {
+      "id": "vqarad-official-test-0257",
+      "reference": [
+        "no"
+      ],
+      "generalist": "Yes, the chest X-ray shows a shift of the midline of the mediastinum.",
+      "spatial_weighted": "Yes, the image shows a shift of the midline of the mediastinum.",
+      "spatial_gate": "Yes, the chest X-ray shows a shift of the midline of the mediastinum."
+    },
+    {
+      "id": "vqarad-official-test-0260",
+      "reference": [
+        "no"
+      ],
+      "generalist": "The chest X-ray does not show any free air under the diaphragm.",
+      "spatial_weighted": "Yes, the chest X-ray shows free air under the diaphragm.",
+      "spatial_gate": "Yes, the chest X-ray shows free air under the diaphragm."
+    },
+    {
+      "id": "vqarad-official-test-0267",
+      "reference": [
+        "no"
+      ],
+      "generalist": "The air under the diaphragm in the chest X-ray is not pathologic.",
+      "spatial_weighted": "The air under the diaphragm appears to be pathologic.",
+      "spatial_gate": "The air under the diaphragm in the chest X-ray is not pathologic."
+    },
+    {
+      "id": "vqarad-official-test-0268",
+      "reference": [
+        "no"
+      ],
+      "generalist": "Yes, there is a mediastinal shift in the chest X-ray.",
+      "spatial_weighted": "Yes, there is a mediastinal shift in the image.",
+      "spatial_gate": "Yes, there is a mediastinal shift in the chest X-ray."
+    },
+    {
+      "id": "vqarad-official-test-0269",
+      "reference": [
+        "no"
+      ],
+      "generalist": "Yes, the chest X-ray shows free air under the diaphragm.",
+      "spatial_weighted": "Yes, the image shows free air under the diaphragm.",
+      "spatial_gate": "Yes, the chest X-ray shows free air under the diaphragm."
+    },
+    {
+      "id": "vqarad-official-test-0277",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "The two small hyperintensities in the chest X-ray are consistent with pulmonary edema.",
+      "spatial_weighted": "The two small hyperintensities in the chest X-ray are consistent with pulmonary emboli. Pulmonary emboli are blood clots that have traveled to the lungs and become lodged in the pulmonary arteries, potentially obstructing blood flow and causing serious complications.",
+      "spatial_gate": "The two small hyperintensities in the chest X-ray are consistent with pulmonary edema."
+    },
+    {
+      "id": "vqarad-official-test-0286",
+      "reference": [
+        "mediport"
+      ],
+      "generalist": "The image shows a metallic implant on the anterior wall of the right chest.",
+      "spatial_weighted": "The image shows a right-sided pneumothorax.",
+      "spatial_gate": "The image shows a metallic implant on the anterior wall of the right chest."
+    },
+    {
+      "id": "vqarad-official-test-0294",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "Yes, the chest X-ray shows the presence of nodules in both lungs.",
+      "spatial_weighted": "Yes, the image shows the presence of nodules in both lungs.",
+      "spatial_gate": "Yes, the chest X-ray shows the presence of nodules in both lungs."
+    },
+    {
+      "id": "vqarad-official-test-0303",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "Yes, the nodules in the chest X-ray appear to be well circumscribed.",
+      "spatial_weighted": "Yes, the nodules in the image appear to be well circumscribed.",
+      "spatial_gate": "Yes, the nodules in the chest X-ray appear to be well circumscribed."
+    },
+    {
+      "id": "vqarad-official-test-0307",
+      "reference": [
+        "plain film"
+      ],
+      "generalist": "The image is a chest X-ray, which is a common modality used to visualize the structures within the chest, including the lungs, heart, and bones of the chest and spine.",
+      "spatial_weighted": "The image is a chest X-ray, which is a common imaging modality used to visualize the structures within the chest, including the lungs, heart, and bones of the chest and spine.",
+      "spatial_gate": "The image is a chest X-ray, which is a common modality used to visualize the structures within the chest, including the lungs, heart, and bones of the chest and spine."
+    },
+    {
+      "id": "vqarad-official-test-0323",
+      "reference": [
+        "pulmonary nodules"
+      ],
+      "generalist": "The chest X-ray shows bilateral patchy infiltrates, which are abnormal areas of increased density in both lungs.",
+      "spatial_weighted": "The image shows bilateral lung abnormalities, which means that there are issues affecting both lungs. However, without more specific information, it is difficult to provide further details about the nature of these abnormalities.",
+      "spatial_gate": "The chest X-ray shows bilateral patchy infiltrates, which are abnormal areas of increased density in both lungs."
+    },
+    {
+      "id": "vqarad-official-test-0339",
+      "reference": [
+        "bilateral"
+      ],
+      "generalist": "The chest X-ray shows bilateral pleural opacities.",
+      "spatial_weighted": "The chest X-ray shows bilateral pleural opacities, which means that there are areas of increased density or cloudiness in both the left and right pleural regions.",
+      "spatial_gate": "The chest X-ray shows bilateral pleural opacities."
+    },
+    {
+      "id": "vqarad-official-test-0357",
+      "reference": [
+        "free air"
+      ],
+      "generalist": "The abnormality by the right hemidiaphragm is a right-sided pleural effusion.",
+      "spatial_weighted": "The abnormality by the right hemidiaphragm is a diaphragmatic hernia.",
+      "spatial_gate": "The abnormality by the right hemidiaphragm is a right-sided pleural effusion."
+    },
+    {
+      "id": "vqarad-official-test-0365",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "Yes, the chest X-ray shows flattening of the left hemidiaphragm.",
+      "spatial_weighted": "Yes, the image shows flattening of the left hemidiaphragm.",
+      "spatial_gate": "Yes, the chest X-ray shows flattening of the left hemidiaphragm."
+    },
+    {
+      "id": "vqarad-official-test-0379",
+      "reference": [
+        "hypodense lesion"
+      ],
+      "generalist": "The spleen abnormality appears to be a splenic infarction.",
+      "spatial_weighted": "The spleen abnormality appears to be a splenic infarct.",
+      "spatial_gate": "The spleen abnormality appears to be a splenic infarction."
+    },
+    {
+      "id": "vqarad-official-test-0400",
+      "reference": [
+        "nodular opacities"
+      ],
+      "generalist": "The image shows bilateral pleural effusion, which means there is an accumulation of fluid in the pleural space surrounding both lungs.",
+      "spatial_weighted": "The image shows bilateral pleural effusion in the lung apices.",
+      "spatial_gate": "The image shows bilateral pleural effusion in the lung apices."
+    },
+    {
+      "id": "vqarad-official-test-0407",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "Yes, the image shows more than 12 ribs.",
+      "spatial_weighted": "Yes, the image shows the presence of more than 12 ribs.",
+      "spatial_gate": "Yes, the image shows more than 12 ribs."
+    },
+    {
+      "id": "vqarad-official-test-0409",
+      "reference": [
+        "middle mogul"
+      ],
+      "generalist": "The image shows a characteristic finding in the aortopulmonary window, which is a specific region of the chest X-ray that provides a clear view of the aorta and pulmonary arteries. However, without more information, it is difficult to determine the exact nature of the characteristic finding.",
+      "spatial_weighted": "The characteristic finding in the aortopulmonary window is a widened aortic arch.",
+      "spatial_gate": "The image shows a characteristic finding in the aortopulmonary window, which is a specific region of the chest X-ray that provides a clear view of the aorta and pulmonary arteries. However, without more information, it is difficult to determine the exact nature of the characteristic finding."
+    },
+    {
+      "id": "vqarad-official-test-0410",
+      "reference": [
+        "middle mogul"
+      ],
+      "generalist": "The image shows a \"water bottle\" sign in the aortopulmonary window.",
+      "spatial_weighted": "The image shows a prominent aortic knuckle, which is a sign that can be seen in the aortopulmonary window of a chest X-ray.",
+      "spatial_gate": "The image shows a \"water bottle\" sign in the aortopulmonary window."
+    },
+    {
+      "id": "vqarad-official-test-0416",
+      "reference": [
+        "no"
+      ],
+      "generalist": "The image is a chest x-ray, which is a common diagnostic imaging technique used to visualize the structures within the chest, including the lungs, heart, and bones of the chest and spine. It is not possible to determine if the chest x-ray is normal or abnormal without more information or context.",
+      "spatial_weighted": "The image is a normal chest x-ray.",
+      "spatial_gate": "The image is a chest x-ray, which is a common diagnostic imaging technique used to visualize the structures within the chest, including the lungs, heart, and bones of the chest and spine. It is not possible to determine if the chest x-ray is normal or abnormal without more information or context."
+    },
+    {
+      "id": "vqarad-official-test-0422",
+      "reference": [
+        "no"
+      ],
+      "generalist": "The image shows a normal fat surrounding the pancreas.",
+      "spatial_weighted": "The image shows normal fat surrounding the pancreas.",
+      "spatial_gate": "The image shows normal fat surrounding the pancreas."
+    },
+    {
+      "id": "vqarad-official-test-0423",
+      "reference": [
+        "yes"
+      ],
+      "generalist": "Yes, the chest X-ray shows lung markings present in the entire thoracic cavity.",
+      "spatial_weighted": "Yes, the image shows lung markings present in the entire thoracic cavity.",
+      "spatial_gate": "Yes, the chest X-ray shows lung markings present in the entire thoracic cavity."
+    },
+    {
+      "id": "vqarad-official-test-0428",
+      "reference": [
+        "left"
+      ],
+      "generalist": "The left side of the chest X-ray is more clearly visualized.",
+      "spatial_weighted": "The left side of the chest X-ray is more clearly visualized in the image.",
+      "spatial_gate": "The left side of the chest X-ray is more clearly visualized in the image."
+    },
+    {
+      "id": "vqarad-official-test-0445",
+      "reference": [
+        "on the right shoulder."
+      ],
+      "generalist": "The subcutaneous air collection is located in the right axilla, which is the area under the right arm.",
+      "spatial_weighted": "The subcutaneous air collection is located in the right axilla, which is the area under the right arm, near the armpit.",
+      "spatial_gate": "The subcutaneous air collection is located in the right axilla, which is the area under the right arm."
+    }
+  ],
+  "fixed_evaluator": {
+    "protocol": "medheval-decoded-eval-v11-explanatory-binary-source-audited",
+    "source_sha256": "47587c200cef7b6b182f6788b85c1c021d1cd83ad6878ffcdcd8f5ae3f14f7c3"
+  },
+  "inputs": {
+    "manifest_sha256": "c6dc0325ffca999369fbedd556c452810ddfc01a89932ca00cd7d1f63c49beb5",
+    "references_sha256": "290f459e1763de428e6df30d52b62c749b343d6053a6ec30e0719515206d4ad9"
+  },
+  "limitations": [
+    "Zero gate acceptance is a null intervention and cannot be counted as success.",
+    "Lexical and target-blind content-aware metrics are not clinician adjudication.",
+    "Per-expert subsets overlap and differ in difficulty; channel deltas are descriptive.",
+    "Sequential shared-cache engine seconds are not independent cold-start latency."
+  ]
+}

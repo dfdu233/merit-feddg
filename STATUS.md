@@ -45,10 +45,15 @@
   rose from 0.528 s generalist to 0.843 s spatial_equal and 1.661 s gate; the
   latter is 3.14x baseline even with shared expert caches. Do not scale this
   method without a stronger task-relevance/reliability mechanism.
-- Final files are `spatial-audit.json` and `evaluation-summary.json` in the run
-  directory. The evaluator was repaired so per-expert channel subsets include
-  only adopted evidence, not applicability-rejected calls; generation outputs
-  and global scores were unchanged.
+- The compact Git-tracked result bundle is
+  [`docs/results/vqarad_spatial_full_2026-09-10`](docs/results/vqarad_spatial_full_2026-09-10/README.md).
+  It includes aggregate metrics, protocol, spatial audit, routing and all 451
+  per-case four-arm outputs with expert/gate/timing traces. The approximately
+  18 GB base64 soft-mask values remain in the raw run directory; mask metadata
+  and explicit omission markers are retained in the bundle. The evaluator was
+  repaired so per-expert channel subsets include only adopted evidence, not
+  applicability-rejected calls; generation outputs and global scores were
+  unchanged.
 
 ## Strict training-free replacement (implementation summary; evaluated above)
 

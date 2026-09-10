@@ -1,0 +1,138 @@
+{
+  "n": 451,
+  "identity": "f42e591e4c92265c1c3d1827ac0378167285a353b143079d2657e8714d794b4b",
+  "excluded_experts": {
+    "conch_tissue": {
+      "reason": "classification_without_spatial_support"
+    },
+    "biomed_anatomy": {
+      "reason": "classification_without_spatial_support"
+    },
+    "chexagent_description": {
+      "reason": "unsupported_nontext_output_type"
+    }
+  },
+  "arms": {
+    "generalist": {
+      "calls": {},
+      "adopted": {},
+      "presented": {},
+      "reasons": {},
+      "modality_rows": {
+        "cxr": 174,
+        "ct": 172,
+        "mri": 105
+      },
+      "cases_with_nonzero_token_intervention": 0,
+      "text_changed_vs_generalist": 0,
+      "gate_calls": 0,
+      "gate_accepted": 0,
+      "gate_seconds": 0.0,
+      "verifier_forwards": 0,
+      "mean_engine_seconds": 0.5281864317994103
+    },
+    "spatial_equal": {
+      "calls": {
+        "cxr_findings": 141,
+        "biomedparse_objects": 451,
+        "cxr_anatomy": 33
+      },
+      "adopted": {
+        "cxr_findings": 141,
+        "biomedparse_objects": 229,
+        "cxr_anatomy": 33
+      },
+      "presented": {
+        "cxr_findings": 141,
+        "biomedparse_objects": 229,
+        "cxr_anatomy": 33
+      },
+      "reasons": {
+        "ok": 403,
+        "empty_or_unusable_evidence": 222
+      },
+      "modality_rows": {
+        "cxr": 174,
+        "ct": 172,
+        "mri": 105
+      },
+      "cases_with_nonzero_token_intervention": 229,
+      "text_changed_vs_generalist": 46,
+      "gate_calls": 0,
+      "gate_accepted": 0,
+      "gate_seconds": 0.0,
+      "verifier_forwards": 0,
+      "mean_engine_seconds": 0.8427470639980957
+    },
+    "spatial_weighted": {
+      "calls": {
+        "cxr_findings": 141,
+        "biomedparse_objects": 451,
+        "cxr_anatomy": 33
+      },
+      "adopted": {
+        "cxr_findings": 141,
+        "biomedparse_objects": 229,
+        "cxr_anatomy": 33
+      },
+      "presented": {
+        "cxr_findings": 141,
+        "biomedparse_objects": 229,
+        "cxr_anatomy": 33
+      },
+      "reasons": {
+        "ok": 403,
+        "empty_or_unusable_evidence": 222
+      },
+      "modality_rows": {
+        "cxr": 174,
+        "ct": 172,
+        "mri": 105
+      },
+      "cases_with_nonzero_token_intervention": 229,
+      "text_changed_vs_generalist": 47,
+      "gate_calls": 0,
+      "gate_accepted": 0,
+      "gate_seconds": 0.0,
+      "verifier_forwards": 0,
+      "mean_engine_seconds": 0.6739391054322597
+    },
+    "spatial_gate": {
+      "calls": {
+        "cxr_findings": 141,
+        "biomedparse_objects": 451,
+        "cxr_anatomy": 33
+      },
+      "adopted": {
+        "cxr_findings": 3,
+        "biomedparse_objects": 8,
+        "cxr_anatomy": 1
+      },
+      "presented": {
+        "biomedparse_objects": 8,
+        "cxr_findings": 3,
+        "cxr_anatomy": 1
+      },
+      "reasons": {
+        "vector_gate_rejected:no_change_within_probe_horizon": 340,
+        "ok": 12,
+        "empty_or_unusable_evidence": 222,
+        "vector_gate_rejected:no_positive_visual_contrast_gain": 51
+      },
+      "modality_rows": {
+        "cxr": 174,
+        "ct": 172,
+        "mri": 105
+      },
+      "cases_with_nonzero_token_intervention": 12,
+      "text_changed_vs_generalist": 12,
+      "gate_calls": 403,
+      "gate_accepted": 12,
+      "gate_seconds": 437.31549468426965,
+      "verifier_forwards": 252,
+      "mean_engine_seconds": 1.6607724381951479
+    }
+  },
+  "clinical_gain_measured": false,
+  "labels_loaded": false
+}

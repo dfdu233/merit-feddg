@@ -1,0 +1,552 @@
+{
+  "identity": "f42e591e4c92265c1c3d1827ac0378167285a353b143079d2657e8714d794b4b",
+  "n": 451,
+  "methods": [
+    "generalist",
+    "spatial_equal",
+    "spatial_weighted",
+    "spatial_gate"
+  ],
+  "config": {
+    "generalist": {
+      "backend": "llava_med",
+      "id": "microsoft/llava-med-v1.5-mistral-7b",
+      "checkpoint_path": "$ANCHOR/hf_cache/llava-med-v1.5-mistral-7b",
+      "source_path": "$ANCHOR/data/medheval/code/baselines/Med-LVLMs/llava-med-1.5",
+      "vision_tower_path": "$ANCHOR/hf_cache/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1",
+      "dtype": "float16",
+      "device_map": "auto",
+      "training_free_spatial": true,
+      "spatial_max_records": 64,
+      "deterministic_image_padding": true
+    },
+    "prompt_suffix": "Answer the original question briefly using only image-supported information. Give the requested name or finding, not a report, unless an explanation is explicitly requested.",
+    "routing": {
+      "enabled": true,
+      "override_dataset_modality": true
+    },
+    "capability_generation": {
+      "control_protocol": "action_id",
+      "max_new_tokens": 96,
+      "block_tokens": 16,
+      "max_calls": 3,
+      "max_controller_calls": 4,
+      "controller_tokens": 8,
+      "max_evidence_chars": 1600
+    },
+    "qualification": {
+      "min_per_domain": 8,
+      "min_domains": 2,
+      "penalty": 1.645
+    },
+    "evaluation": {
+      "single_tools": true,
+      "source_adaptive_audit": false
+    },
+    "experts": {
+      "conch_tissue": {
+        "id": "MahmoodLab/CONCH",
+        "revision": "f9ca9f877171a28ade80228fb195ac5d79003357",
+        "adapter": "conch",
+        "modalities": [
+          "pathology"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "classification"
+        ],
+        "scope": "tissue_appearance",
+        "prefix_invariant": true,
+        "excluded_question_types": [
+          "count",
+          "measurement",
+          "location"
+        ],
+        "description": "Compare microscopic histology against a fixed tissue-appearance catalog. No gross photographs, arbitrary diagnoses, cell counts or measurements.",
+        "catalog": [
+          {
+            "name": "glandular epithelium",
+            "prompt": "A histopathology image of glandular epithelial tissue."
+          },
+          {
+            "name": "squamous epithelium",
+            "prompt": "A histopathology image of squamous epithelial tissue."
+          },
+          {
+            "name": "connective tissue",
+            "prompt": "A histopathology image of connective tissue."
+          },
+          {
+            "name": "adipose tissue",
+            "prompt": "A histopathology image of adipose tissue."
+          },
+          {
+            "name": "smooth muscle",
+            "prompt": "A histopathology image of smooth muscle tissue."
+          },
+          {
+            "name": "skeletal muscle",
+            "prompt": "A histopathology image of skeletal muscle tissue."
+          },
+          {
+            "name": "lymphoid tissue",
+            "prompt": "A histopathology image of lymphoid tissue."
+          },
+          {
+            "name": "neural tissue",
+            "prompt": "A histopathology image of neural tissue."
+          },
+          {
+            "name": "blood vessels",
+            "prompt": "A histopathology image of blood vessels."
+          },
+          {
+            "name": "necrotic tissue",
+            "prompt": "A histopathology image of necrotic tissue."
+          }
+        ]
+      },
+      "biomed_anatomy": {
+        "id": "microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224",
+        "revision": "9f341de24bfb00180f1b847274256e9b65a3a32e",
+        "adapter": "contrastive_biomedclip",
+        "modalities": [
+          "cxr",
+          "xray",
+          "ct",
+          "mri",
+          "gross_pathology"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "classification"
+        ],
+        "scope": "major_anatomy",
+        "prefix_invariant": true,
+        "question_types": [
+          "anatomy"
+        ],
+        "description": "Compare this image against a non-exhaustive major-organ catalog. Only for organ identification, not disease diagnosis, location, counts or segmentation.",
+        "catalog": [
+          "brain",
+          "lung",
+          "heart",
+          "liver",
+          "kidney",
+          "spleen",
+          "pancreas",
+          "stomach",
+          "intestine",
+          "thyroid",
+          "skin",
+          "bone",
+          "breast",
+          "uterus",
+          "testis"
+        ]
+      },
+      "source_cases": {
+        "id": "microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224",
+        "revision": "9f341de24bfb00180f1b847274256e9b65a3a32e",
+        "adapter": "source_retrieval",
+        "encoder_adapter": "contrastive_biomedclip",
+        "modalities": [
+          "pathology",
+          "gross_pathology",
+          "cxr",
+          "xray",
+          "ct",
+          "mri",
+          "ultrasound",
+          "oct",
+          "fundus",
+          "dermatology",
+          "endoscopy",
+          "clinical_photo",
+          "diagram"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "retrieval"
+        ],
+        "scope": "related_source_qa",
+        "prefix_invariant": true,
+        "top_k": 1,
+        "question_weight": 0.5,
+        "include_source_answers": true,
+        "description": "Retrieve one source case matched by image AND question, from another source domain and same image type. Its answer belongs only to that different image; this is an analogy, not proof about the current image."
+      },
+      "cxr_findings": {
+        "id": "xrv/densenet121-res224-all",
+        "adapter": "xrv_classification",
+        "checkpoint_path": "artifacts/models/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt",
+        "weights": "densenet121-res224-all",
+        "modalities": [
+          "cxr"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "classification"
+        ],
+        "scope": "cxr_findings",
+        "prefix_invariant": true,
+        "excluded_question_types": [
+          "count",
+          "measurement",
+          "anatomy",
+          "location"
+        ],
+        "description": "Whole-chest-radiograph disease finding scores from a small chest X-ray classifier. Not calibrated probabilities, not CT/MRI and not lesion location.",
+        "spatial_support": true
+      },
+      "cxr_anatomy": {
+        "id": "xrv/pspnet-chestxray",
+        "adapter": "xrv_anatomy",
+        "checkpoint_path": "artifacts/models/xrv/pspnet_chestxray_best_model_4.pth",
+        "modalities": [
+          "cxr"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "segmentation"
+        ],
+        "scope": "thoracic_anatomy",
+        "requires_region": false,
+        "prefix_invariant": true,
+        "question_types": [
+          "anatomy",
+          "location",
+          "measurement",
+          "appearance"
+        ],
+        "description": "Segment lung and heart anatomy in a chest radiograph, return crop-aware masks and spatial measurements. No tumor detection, no physical size without image calibration."
+      },
+      "chexagent_description": {
+        "id": "StanfordAIMI/CheXagent-2-3b",
+        "checkpoint_path": "artifacts/models/StanfordAIMI--CheXagent-2-3b",
+        "optional": true,
+        "factory": "merit_feddg.experts.native_chexagent:CheXagentCapabilityExpert",
+        "factory_kwargs": {
+          "expert_id": "chexagent_description",
+          "scope": "cxr_description",
+          "dtype": "bfloat16",
+          "device_map": "cuda",
+          "max_new_tokens": 64
+        },
+        "modalities": [
+          "cxr"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "generation"
+        ],
+        "scope": "cxr_description",
+        "requires_region": false,
+        "description": "Ask an existing specialist chest X-ray VLM for a short visual description relevant to the question. Its generated observation can be wrong and is not a gold report."
+      },
+      "biomedparse_objects": {
+        "id": "microsoft/BiomedParse",
+        "checkpoint_path": "artifacts/models/BiomedParse/biomed_parse.pt",
+        "optional": true,
+        "adapter": "biomedparse_v1",
+        "factory": "merit_feddg.experts.native_biomedparse:BiomedParseCapabilityExpert",
+        "factory_kwargs": {
+          "expert_id": "biomedparse_objects",
+          "scope": "biomedical_objects",
+          "source_path": "upstream/BiomedParse-v1",
+          "max_prompts": 8,
+          "groups_by_modality": {
+            "ct": [
+              "CT-Abdomen",
+              "CT-Chest",
+              "CT-Liver"
+            ],
+            "mri": [
+              "MRI-Abdomen",
+              "MRI-Cardiac",
+              "MRI-FLAIR-Brain",
+              "MRI-T1-Gd-Brain"
+            ],
+            "cxr": [
+              "X-Ray-Chest"
+            ],
+            "pathology": [
+              "Pathology"
+            ],
+            "fundus": [
+              "Fundus"
+            ],
+            "dermatology": [
+              "Dermoscopy"
+            ],
+            "endoscopy": [
+              "Endoscopy"
+            ],
+            "oct": [
+              "OCT"
+            ],
+            "ultrasound": [
+              "Ultrasound-Cardiac"
+            ]
+          },
+          "group_requirements": {
+            "CT-Abdomen": [
+              [
+                "abdomen",
+                "abdominal",
+                "kidney",
+                "renal",
+                "liver",
+                "hepatic",
+                "spleen",
+                "pancreas",
+                "bowel"
+              ]
+            ],
+            "CT-Chest": [
+              [
+                "chest",
+                "lung",
+                "pulmonary",
+                "thorax",
+                "thoracic"
+              ]
+            ],
+            "CT-Liver": [
+              [
+                "liver",
+                "hepatic"
+              ]
+            ],
+            "MRI-Abdomen": [
+              [
+                "abdomen",
+                "abdominal",
+                "kidney",
+                "renal",
+                "liver",
+                "hepatic",
+                "spleen",
+                "pancreas"
+              ]
+            ],
+            "MRI-Cardiac": [
+              [
+                "heart",
+                "cardiac",
+                "ventricle",
+                "ventricular"
+              ]
+            ],
+            "MRI-FLAIR-Brain": [
+              [
+                "flair"
+              ]
+            ],
+            "MRI-T1-Gd-Brain": [
+              [
+                "t1"
+              ],
+              [
+                "contrast",
+                "gadolinium",
+                "gd"
+              ]
+            ],
+            "Ultrasound-Cardiac": [
+              [
+                "heart",
+                "cardiac",
+                "ventricle",
+                "ventricular",
+                "echocardiogram",
+                "echocardiography"
+              ]
+            ]
+          }
+        },
+        "modalities": [
+          "ct",
+          "mri",
+          "cxr",
+          "pathology",
+          "fundus",
+          "dermatology",
+          "endoscopy",
+          "oct",
+          "ultrasound"
+        ],
+        "tasks": [
+          "open_vqa"
+        ],
+        "capabilities": [
+          "segmentation"
+        ],
+        "scope": "biomedical_objects",
+        "prefix_invariant": true,
+        "requires_region": false,
+        "description": "Frozen BiomedParse v1 prompted soft masks within its published object groups; unknown anatomy or sequence is rejected where required. Not automatic diagnosis or confirmed object presence."
+      }
+    },
+    "capability_value": {
+      "generation": {
+        "max_new_tokens": 64,
+        "block_tokens": 64,
+        "max_expert_calls": 4,
+        "max_decisions": 5,
+        "max_evidence_chars": 10000,
+        "visual_views": 0,
+        "evidence_style": "tensor",
+        "evidence_order": "acquisition",
+        "token_budgeted_evidence": false,
+        "request_style": "need",
+        "request_scope_check": false,
+        "retrieval_answer_context": false,
+        "behavior_probe": "off",
+        "uncertainty_from_probe": false,
+        "vector_gate": "visual_contrast",
+        "vector_gate_probe_tokens": 64,
+        "spatial_weighting": "relevance",
+        "vector_gate_min_gain": 1e-06
+      }
+    }
+  },
+  "experiment_protocol": "spatial",
+  "arm_configs": {
+    "generalist": {
+      "max_new_tokens": 64,
+      "block_tokens": 64,
+      "max_expert_calls": 4,
+      "max_decisions": 5,
+      "controller_tokens": 48,
+      "max_evidence_chars": 10000,
+      "visual_views": 0,
+      "evidence_style": "tensor",
+      "request_style": "need",
+      "evidence_top_k": 2,
+      "retrieval_answer_context": false,
+      "visual_mode": "overlay",
+      "behavior_probe": "off",
+      "behavior_max_sensitivity": null,
+      "request_scope_check": false,
+      "uncertainty_from_probe": false,
+      "token_budgeted_evidence": false,
+      "evidence_order": "acquisition",
+      "spatial_weighting": "relevance",
+      "vector_gate": "off",
+      "vector_gate_probe_tokens": 64,
+      "vector_gate_min_gain": 1e-06
+    },
+    "spatial_equal": {
+      "max_new_tokens": 64,
+      "block_tokens": 64,
+      "max_expert_calls": 4,
+      "max_decisions": 5,
+      "controller_tokens": 48,
+      "max_evidence_chars": 10000,
+      "visual_views": 0,
+      "evidence_style": "tensor",
+      "request_style": "need",
+      "evidence_top_k": 2,
+      "retrieval_answer_context": false,
+      "visual_mode": "overlay",
+      "behavior_probe": "off",
+      "behavior_max_sensitivity": null,
+      "request_scope_check": false,
+      "uncertainty_from_probe": false,
+      "token_budgeted_evidence": false,
+      "evidence_order": "acquisition",
+      "spatial_weighting": "equal",
+      "vector_gate": "off",
+      "vector_gate_probe_tokens": 64,
+      "vector_gate_min_gain": 1e-06
+    },
+    "spatial_weighted": {
+      "max_new_tokens": 64,
+      "block_tokens": 64,
+      "max_expert_calls": 4,
+      "max_decisions": 5,
+      "controller_tokens": 48,
+      "max_evidence_chars": 10000,
+      "visual_views": 0,
+      "evidence_style": "tensor",
+      "request_style": "need",
+      "evidence_top_k": 2,
+      "retrieval_answer_context": false,
+      "visual_mode": "overlay",
+      "behavior_probe": "off",
+      "behavior_max_sensitivity": null,
+      "request_scope_check": false,
+      "uncertainty_from_probe": false,
+      "token_budgeted_evidence": false,
+      "evidence_order": "acquisition",
+      "spatial_weighting": "relevance",
+      "vector_gate": "off",
+      "vector_gate_probe_tokens": 64,
+      "vector_gate_min_gain": 1e-06
+    },
+    "spatial_gate": {
+      "max_new_tokens": 64,
+      "block_tokens": 64,
+      "max_expert_calls": 4,
+      "max_decisions": 5,
+      "controller_tokens": 48,
+      "max_evidence_chars": 10000,
+      "visual_views": 0,
+      "evidence_style": "tensor",
+      "request_style": "need",
+      "evidence_top_k": 2,
+      "retrieval_answer_context": false,
+      "visual_mode": "overlay",
+      "behavior_probe": "off",
+      "behavior_max_sensitivity": null,
+      "request_scope_check": false,
+      "uncertainty_from_probe": false,
+      "token_budgeted_evidence": false,
+      "evidence_order": "acquisition",
+      "spatial_weighting": "relevance",
+      "vector_gate": "visual_contrast",
+      "vector_gate_probe_tokens": 64,
+      "vector_gate_min_gain": 1e-06
+    }
+  },
+  "bridge_requires_pretraining": false,
+  "gate_fitted": false,
+  "collaboration_training_free": true,
+  "vector_gate_unit": "acquired_expert_result",
+  "vector_gate_control": "same_size_image_channel_mean",
+  "excluded": {
+    "conch_tissue": {
+      "reason": "classification_without_spatial_support"
+    },
+    "biomed_anatomy": {
+      "reason": "classification_without_spatial_support"
+    },
+    "chexagent_description": {
+      "reason": "unsupported_nontext_output_type"
+    }
+  },
+  "baseline_regenerated": true,
+  "dataset_partitioned": false,
+  "references_loaded_for_generation": false,
+  "calibration_or_policy_fitted": false,
+  "answer_type_used_for_generation": false,
+  "output_grammar": "unconstrained_for_all_questions",
+  "limitations": [
+    "No clinical efficacy claim until fixed reference evaluation.",
+    "Packing may change delivered subsets; compare transport before attributing channel effects.",
+    "Warm/cached expert timings are not comparable across sequential arms."
+  ]
+}
