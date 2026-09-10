@@ -20,12 +20,18 @@
   `vqarad-official-test-0003`, Generalist and semantic arms retained the correct
   `right` heart border, while `hybrid_all` and `hybrid_gate` changed it to
   `left`. Gate execution is therefore not being treated as medical success.
-- Host physical GPU 0 remains unavailable from this container and is no longer
-  a launch dependency. The only visible device (container GPU 0, previously
-  mapped to host GPU 1) is healthy and is running the complete unsharded job as
-  detached PID `2495870` from commit `fe9927c`. It reuses existing offline
-  weights and environments. Log: `runs/matched-native-claims-anchor/background.log`;
-  output root: `runs/matched-native-claims-anchor`. No dependency upgrade,
+- Host physical GPU 0 remains unavailable from this container. To use it
+  without duplicating the full run, commit `5346bb7` enables deterministic
+  scheduling-only sharding for `native_claims`; the two shard unions must still
+  cover the complete 451 cases before finalization, and `dataset_partitioned`
+  remains false. The initial unsharded PID `2495870` was stopped after 12/451
+  complete cases, preserving 77 atomic per-arm cache files. Container GPU 0
+  (previously mapped to host GPU 1) is now running shard 0/2 as detached PID
+  `2501208`; host GPU 0 should run shard 1/2. Both reuse identity
+  `69f772c3547bc6a3a77c14d0e34139bae518b69383ad73096acd726c70936582`
+  and the existing offline weights. Logs are
+  `runs/matched-native-claims-anchor/shard-0.log` and
+  `runs/matched-native-claims-anchor/shard-1-host.log`. No dependency upgrade,
   download, threshold change, target run or result-based protocol change was made.
 
 ## ANCHOR-aligned semantic-spatial rerun (2026-09-10; shard 0 complete, shard 1 recovery required)
