@@ -1,6 +1,6 @@
 # Current status
 
-## ANCHOR-aligned semantic-spatial rerun (2026-09-10; ready to launch)
+## ANCHOR-aligned semantic-spatial rerun (2026-09-10; shard 0 active)
 
 - The matched runner now renders the frozen `anchor-ce-v1` contract used by the
   dedicated paper baseline: closed questions append `Please answer Yes or No.`
@@ -22,10 +22,12 @@
   experiment definition. Full regression passed 659 tests with two optional
   skips; the focused semantic-spatial suite passed 10 tests.
 - The current container exposes only GPU 0, despite the host having two cards.
-  Launch the two detached workers from the host with `CUDA_VISIBLE_DEVICES=0`
-  and `CUDA_VISIBLE_DEVICES=1`, `--shard-index 0/1 --shard-count 2`. Existing
-  environments and local weights are reused offline; no dependency upgrade,
-  download, target split or threshold change is authorized.
+  Shard 0 is active as detached PID `2435636`, processing 226 even-indexed cases
+  under identity `e63b52e0...`; its log is
+  `runs/matched-semantic-spatial-anchor/shard-0.log`. Launch shard 1 from the
+  host on `CUDA_VISIBLE_DEVICES=1` with `--shard-index 1 --shard-count 2`.
+  Existing environments and local weights are reused offline; no dependency
+  upgrade, download, target split or threshold change is authorized.
 
 ## Detailed diagnosis and experimental successor (2026-09-10)
 
