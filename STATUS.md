@@ -1,5 +1,57 @@
 # Current status
 
+## Independent uncertainty source confirmation (2026-09-10; do not scale)
+
+- Froze and ran a new 20-case VQA-RAD source-only cohort (seed 29, 10 cases per
+  proxy group) with `configs/uncertainty_source_pilot.yaml`. It has zero sample,
+  group and pixel-hash overlap with the prior six-case canary. The final run is
+  `runs/uncertainty-source-confirm-seed29/llava/e48b658050cd0748`; source cases
+  were 20, target generations exactly 0, policy fitting false, Block-NONE parity
+  20/20 and all observed domains remained proxies. The source manifest SHA-256 is
+  `48ddc71ef063030eeebfa79c96cc29a8dd1bcc6163b0a202af6c5958361d8ef5`.
+- This confirms execution, not safety or domain generalization. A conservative
+  reference-aligned semantic review of the 20 `source_cases` uncertainty answers
+  found four clear corrections, two new wrong answers and fourteen without a
+  clear medical correction. Token-F1 instead marked eight improved, one harmed
+  and eleven unchanged, demonstrating that the lexical diagnostic misses harm
+  and overstates useful change. This review is not an independent clinician audit.
+- The four clear retrieval-assisted corrections were `vascular`, `axial`,
+  `T2-weighted MRI` and `left MCA`. The two clear harms were `psoas` changed to
+  `erector spinae`, and a correct `calcified` mass rim changed into a left-frontal
+  location answer. Related source answers are explicitly scoped to their original
+  images, but the generalist can still follow an irrelevant association.
+- Among the four CXR cases, CheXagent clearly corrected one right-lower-lobe
+  answer; the other three provided no clear new medical benefit. XRV findings
+  produced three nonempty 18-label outputs but 0/3 clear medical corrections.
+  The one real XRV anatomy segmentation produced nonempty 512x512 Left Lung,
+  Right Lung and Heart masks, but changed an already correct `right` answer to
+  the wrong `left lung`. Thus nonempty expert calls and visible serialized
+  evidence are not successes.
+- The segmentation branch transported structure names, mask-derived boxes and
+  foreground fractions into the text memory, but used zero visual views. It did
+  not pass a pixel mask/overlay/crop to LLaVA in this configuration. Consequently
+  this run tests serialized spatial evidence, not the visual spatial bridge.
+- Photometric sensitivity was measured for three XRV findings calls and one XRV
+  anatomy call: 12 additional forwards took 0.643 s; maximum changes were
+  0.0138248, 0.0145904 and 0.00316687 for findings and IoU distance 0.0201379 for
+  anatomy. These are response variations, not correctness or domain certificates.
+  Point and uncertainty-text answers were textually identical in 31/32 matched
+  arms; the remaining pair differed only by the word `image`, with no score or
+  medical change. There was therefore no range-specific medical benefit.
+- Diagnostic generation took 171.42 s and recorded expert events took 23.83 s
+  (retrieval 8.31 s, XRV findings 1.73 s, CheXagent 11.87 s, anatomy 1.92 s), for
+  195.25 s of summed measured work or 9.76 s/case across the full multi-arm
+  diagnostic. This is not production latency: 180 answer branches replayed shared
+  tool outputs, and cold starts dominate several expert totals. Peak PyTorch
+  allocation was 22.68 GiB.
+- No threshold was relaxed, no target case was generated, and no dependency or
+  checkpoint was downloaded or upgraded. No code repair was required. The result
+  does **not** support scale-up: proxy-only data, sparse per-expert counts, two
+  demonstrated harms, no range-specific effect and no pixel-level spatial arm
+  remain blocking scientific gaps. See
+  `docs/UNCERTAINTY_CONFIRM_RESULTS_2026-09-10.md` for the case-level interpretation
+  and raw artifact hashes.
+
 ## Native tensor bridge patch integration (2026-09-09; no medical GPU result)
 
 - Applied the supplied non-text bridge patch while preserving the pending
