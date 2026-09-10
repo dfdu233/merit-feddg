@@ -2,6 +2,16 @@
 
 ## Detailed diagnosis and experimental successor (2026-09-10)
 
+- Real-model validation at commit `e6ec0ed` passed 54 focused tests and a
+  one-case five-arm GPU smoke test. The final semantic context was bounded to
+  1,834 input tokens plus 64 reserved tokens under the 2,048-token limit;
+  CheXagent semantics and BiomedParse evidence were presented, and the hybrid
+  arm also built a spatial packet. The complete 451-case run is active as
+  detached PID `2270821`, output identity
+  `46662ead4eb2ebeb14ace380ea76a5179a7157e8e7f959a0f771422a09d477c6`
+  under `runs/matched-semantic-spatial`, with log
+  `runs/matched-semantic-spatial.background.log`. It uses the existing huatuo
+  environment and offline local weights; no dependency or threshold changed.
 - Read [results, research and method review](docs/RESULTS_AND_METHOD_REVIEW_2026-09-10.md)
   before launching another run. The 451-case bundle checksums pass. Nine of the
   twelve accepted gate interventions lower original-image likelihood; the old
