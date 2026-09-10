@@ -40,8 +40,8 @@ def main():
     references = json.loads(args.references.read_text())
     protocol = json.loads((args.run / "protocol.json").read_text())
     names = tuple(protocol["methods"])
-    all_name = "spatial_weighted" if "spatial_weighted" in names else "tensor_all"
-    gate_name = "spatial_gate" if "spatial_gate" in names else "tensor_gate"
+    all_name = next((n for n in ("hybrid_all", "spatial_weighted", "tensor_all") if n in names), None)
+    gate_name = next((n for n in ("hybrid_gate", "spatial_gate", "tensor_gate") if n in names), None)
     if not {"generalist", all_name, gate_name}.issubset(names):
         raise ValueError("unsupported matched evidence protocol")
     outputs = {name: json.loads((args.run / f"{name}.json").read_text()) for name in names}

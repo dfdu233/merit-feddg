@@ -20,8 +20,11 @@ from .open_study import fingerprint
 class VectorGateConfig:
     probe_tokens: int = 8
     min_gain: float = 1e-6  # Numerical tie tolerance; not a fitted medical threshold.
+    require_image_gain: bool = False
 
     def __post_init__(self):
+        if type(self.require_image_gain) is not bool:
+            raise ValueError("require_image_gain must be boolean")
         if type(self.probe_tokens) is not int or not 1 <= self.probe_tokens <= 64:
             raise ValueError("gate probe_tokens must be an integer in [1,64]")
         if type(self.min_gain) not in (int, float) or not math.isfinite(self.min_gain) or self.min_gain < 0:
@@ -48,7 +51,7 @@ def token_log_probability(scores, token):
 
 
 def assess_visual_contrast(base_session, evidence_session, image_session, control_session,
-                           prefix, *, config, remaining_tokens):
+                           prefix, *, config, remaining_tokens, semantic_check=None):
     """Compare two unrestricted candidates; verification contains NO tool input.
 
     Every distinct verifier prefix is replayed once per image. Forward-step
@@ -80,6 +83,11 @@ def assess_visual_contrast(base_session, evidence_session, image_session, contro
         if sequences[0] == sequences[1]:
             audit["reason"] = "no_change_within_probe_horizon"
             return audit
+        if semantic_check is not None:
+            audit["semantic_change"] = semantic_check(*sequences)
+            if not audit["semantic_change"]["passed"]:
+                audit["reason"] = "no_established_semantic_change"
+                return audit
         cache = {}
 
         def mean_logp(session, image_key, tokens):
@@ -108,9 +116,19 @@ def assess_visual_contrast(base_session, evidence_session, image_session, contro
             support.append({"image_mean_logp": real, "control_mean_logp": neutral,
                             "visual_support": real - neutral})
         gain = support[1]["visual_support"] - support[0]["visual_support"]
-        audit.update(support=support, gain=gain, accepted=gain > config.min_gain,
+        image_gain = support[1]["image_mean_logp"] - support[0]["image_mean_logp"]
+        audit.update(support=support, gain=gain, image_gain=image_gain,
+                     control_gain=support[1]["control_mean_logp"] - support[0]["control_mean_logp"],
+                     accepted=gain > config.min_gain,
                      reason="positive_visual_contrast_gain" if gain > config.min_gain
                      else "no_positive_visual_contrast_gain")
+        audit["dimensions"] = {
+            "original_image_gain": {"value": image_gain, "passed": image_gain > config.min_gain,
+                                    "required": config.require_image_gain},
+            "visual_contrast_gain": {"value": gain, "passed": gain > config.min_gain, "required": True},
+        }
+        if config.require_image_gain and image_gain <= config.min_gain:
+            audit.update(accepted=False, reason="no_positive_original_image_gain")
     except (ValueError, TypeError, FloatingPointError) as exc:
         audit.update(accepted=False, reason=f"gate_invalid:{type(exc).__name__}:{exc}")
     finally:

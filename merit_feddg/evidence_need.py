@@ -115,7 +115,7 @@ def presentation_items(items, question, config):
         from .request_scope import focused_items
 
         items = focused_items(items)
-    if config.evidence_style == "native":
+    if config.evidence_style in {"native", "semantic"}:
         return tuple(items)
     return scoped_items(items, question, top_k=config.evidence_top_k,
                         retrieval_answers=config.retrieval_answer_context)

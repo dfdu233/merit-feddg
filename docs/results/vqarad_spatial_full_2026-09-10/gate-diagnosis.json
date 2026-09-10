@@ -1,0 +1,188 @@
+{
+  "n": 451,
+  "bundle_verified": true,
+  "coverage_by_predicted_modality": {
+    "cxr": {
+      "cases": 174,
+      "cases_with_adopted_evidence": 174,
+      "answer_changed": 45
+    },
+    "ct": {
+      "cases": 172,
+      "cases_with_adopted_evidence": 51,
+      "answer_changed": 2
+    },
+    "mri": {
+      "cases": 105,
+      "cases_with_adopted_evidence": 4,
+      "answer_changed": 0
+    }
+  },
+  "gate_reasons": {
+    "no_change_within_probe_horizon": 340,
+    "positive_visual_contrast_gain": 12,
+    "no_positive_visual_contrast_gain": 51
+  },
+  "accepted_count": 12,
+  "accepted_with_original_image_score_decline": 9,
+  "equal_vs_weighted_text_differences": 3,
+  "accepted_cases": [
+    {
+      "id": "vqarad-official-test-0003",
+      "question": "which side of the heart border is obscured?",
+      "expert": "biomedparse_objects",
+      "references_for_offline_audit_only": [
+        "right"
+      ],
+      "baseline": "The right side of the heart border is obscured in the chest X-ray.",
+      "gated_answer": "The left side of the heart border is obscured in the chest X-ray.",
+      "image_gain": -0.0037942975759506226,
+      "visual_contrast_gain": 0.012172654271125793,
+      "control_gain": -0.015966951847076416
+    },
+    {
+      "id": "vqarad-official-test-0033",
+      "question": "is this modality safe for pregnant women?",
+      "expert": "biomedparse_objects",
+      "references_for_offline_audit_only": [
+        "no"
+      ],
+      "baseline": "Yes, the image suggests that the modality is safe for pregnant women.",
+      "gated_answer": "The image is a chest X-ray, which is a common diagnostic imaging modality used to visualize the structures within the chest, including the lungs, heart, and bones of the chest and spine. It is generally considered safe for pregnant women, as it does not involve ionizing radiation like some other imaging",
+      "image_gain": 0.2841448187828064,
+      "visual_contrast_gain": 0.07470530271530151,
+      "control_gain": 0.20943951606750488
+    },
+    {
+      "id": "vqarad-official-test-0055",
+      "question": "is the heart enlarged?",
+      "expert": "cxr_findings",
+      "references_for_offline_audit_only": [
+        "yes"
+      ],
+      "baseline": "Yes, the chest X-ray shows cardiomegaly, which means the heart is enlarged.",
+      "gated_answer": "Yes, the chest X-ray shows an enlarged heart.",
+      "image_gain": -0.049412816762924194,
+      "visual_contrast_gain": 0.02606785297393799,
+      "control_gain": -0.07548066973686218
+    },
+    {
+      "id": "vqarad-official-test-0066",
+      "question": "what is the pathology?",
+      "expert": "cxr_findings",
+      "references_for_offline_audit_only": [
+        "cardiomegaly with pulmonary edema"
+      ],
+      "baseline": "The image shows a pathology of a patient with COVID-19. However, without more specific information, it is difficult to provide a detailed explanation of the pathology. The image could be related to the patient's lung condition, which is often affected in COVID-19 cases.",
+      "gated_answer": "The image shows a pathology of a patient with a right-sided pleural effusion.",
+      "image_gain": -0.37689417600631714,
+      "visual_contrast_gain": 0.13975262641906738,
+      "control_gain": -0.5166468024253845
+    },
+    {
+      "id": "vqarad-official-test-0084",
+      "question": "does this patient have a pneumothorax?",
+      "expert": "cxr_findings",
+      "references_for_offline_audit_only": [
+        "no"
+      ],
+      "baseline": "The chest X-ray does not show any signs of a pneumothorax.",
+      "gated_answer": "The chest X-ray shows a pneumothorax.",
+      "image_gain": -0.16489943861961365,
+      "visual_contrast_gain": 0.021491587162017822,
+      "control_gain": -0.18639102578163147
+    },
+    {
+      "id": "vqarad-official-test-0129",
+      "question": "is the heart enlarged?",
+      "expert": "biomedparse_objects",
+      "references_for_offline_audit_only": [
+        "no"
+      ],
+      "baseline": "Yes, the chest X-ray shows cardiomegaly, which means the heart is enlarged.",
+      "gated_answer": "Yes, the chest X-ray shows an enlarged heart.",
+      "image_gain": -0.049643486738204956,
+      "visual_contrast_gain": 0.02848196029663086,
+      "control_gain": -0.07812544703483582
+    },
+    {
+      "id": "vqarad-official-test-0150",
+      "question": "is the heart enlarged?",
+      "expert": "biomedparse_objects",
+      "references_for_offline_audit_only": [
+        "no"
+      ],
+      "baseline": "Yes, the chest X-ray shows cardiomegaly, which means the heart is enlarged.",
+      "gated_answer": "Yes, the chest X-ray shows an enlarged heart.",
+      "image_gain": -0.05018146336078644,
+      "visual_contrast_gain": 0.023883536458015442,
+      "control_gain": -0.07406499981880188
+    },
+    {
+      "id": "vqarad-official-test-0172",
+      "question": "what is the patient's gender?",
+      "expert": "biomedparse_objects",
+      "references_for_offline_audit_only": [
+        "female"
+      ],
+      "baseline": "The patient is a 45-year-old female.",
+      "gated_answer": "The patient is a 25-year-old female.",
+      "image_gain": -0.007909566164016724,
+      "visual_contrast_gain": 0.009604871273040771,
+      "control_gain": -0.017514437437057495
+    },
+    {
+      "id": "vqarad-official-test-0260",
+      "question": "is there free air under the diaphragm?",
+      "expert": "biomedparse_objects",
+      "references_for_offline_audit_only": [
+        "no"
+      ],
+      "baseline": "The chest X-ray does not show any free air under the diaphragm.",
+      "gated_answer": "Yes, the chest X-ray shows free air under the diaphragm.",
+      "image_gain": -0.012272179126739502,
+      "visual_contrast_gain": 0.010023772716522217,
+      "control_gain": -0.02229595184326172
+    },
+    {
+      "id": "vqarad-official-test-0400",
+      "question": "what is seen in the lung apices?",
+      "expert": "biomedparse_objects",
+      "references_for_offline_audit_only": [
+        "nodular opacities"
+      ],
+      "baseline": "The image shows bilateral pleural effusion, which means there is an accumulation of fluid in the pleural space surrounding both lungs.",
+      "gated_answer": "The image shows bilateral pleural effusion in the lung apices.",
+      "image_gain": -0.16535580158233643,
+      "visual_contrast_gain": 0.005319118499755859,
+      "control_gain": -0.17067492008209229
+    },
+    {
+      "id": "vqarad-official-test-0422",
+      "question": "is the fat surrounding the pancreas normal?",
+      "expert": "biomedparse_objects",
+      "references_for_offline_audit_only": [
+        "no"
+      ],
+      "baseline": "The image shows a normal fat surrounding the pancreas.",
+      "gated_answer": "The image shows normal fat surrounding the pancreas.",
+      "image_gain": 0.08525139093399048,
+      "visual_contrast_gain": 0.04653617739677429,
+      "control_gain": 0.038715213537216187
+    },
+    {
+      "id": "vqarad-official-test-0428",
+      "question": "which side is more clearly visualized?",
+      "expert": "cxr_anatomy",
+      "references_for_offline_audit_only": [
+        "left"
+      ],
+      "baseline": "The left side of the chest X-ray is more clearly visualized.",
+      "gated_answer": "The left side of the chest X-ray is more clearly visualized in the image.",
+      "image_gain": 0.019678592681884766,
+      "visual_contrast_gain": 0.025861233472824097,
+      "control_gain": -0.006182640790939331
+    }
+  ],
+  "limitation": "Retrospective diagnostic, not a replay or new experiment; large raw masks omitted."
+}

@@ -1,5 +1,26 @@
 # Current status
 
+## Detailed diagnosis and experimental successor (2026-09-10)
+
+- Read [results, research and method review](docs/RESULTS_AND_METHOD_REVIEW_2026-09-10.md)
+  before launching another run. The 451-case bundle checksums pass. Nine of the
+  twelve accepted gate interventions lower original-image likelihood; the old
+  contrast gain can increase merely because the neutral-image score falls more.
+  CT receives evidence in 51/172 cases and MRI in 4/105, by predicted modality.
+- Added an opt-in `semantic_spatial` matched protocol and
+  `configs/matched_semantic_spatial.yaml`: semantic-only, hybrid ungated,
+  hybrid contrast and multidimensional hybrid gate, plus a regenerated baseline.
+  Scalar evidence uses existing frozen token embeddings; dense geometry uses
+  the existing parameter-free spatial operator. This is not arbitrary latent
+  alignment, and dense tensors are not transmitted losslessly.
+- Gate dimensions cover delivery, relevance, semantic redundancy, original-image
+  gain and visual-contrast gain. Uncalibrated reliability remains unknown;
+  perturbation stability is audited, not promoted to a correctness certificate.
+  Neither target answers nor CE/OE labels enter generation or gate decisions.
+- Local suite: 642 passed, 17 optional skips. No new real-model GPU outcomes yet.
+  Existing negative results remain the empirical evidence; the new configuration
+  is a hypothesis to test, not a performance claim.
+
 ## Full VQA-RAD training-free spatial run (2026-09-10; complete, do not scale)
 
 - The first detached run was stopped at 61/451 because the optional BiomedParse

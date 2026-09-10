@@ -1,0 +1,86 @@
+[
+  {
+    "repository": "mitmedialab/MDAgents",
+    "revision": "3adbd760ca809b4e7b0c1085d68314b6e7d91e1b",
+    "path": "utils.py",
+    "url": "https://github.com/mitmedialab/MDAgents/blob/3adbd760ca809b4e7b0c1085d68314b6e7d91e1b/utils.py",
+    "verified": "read_implementation_not_executed"
+  },
+  {
+    "repository": "bowang-lab/MedRAX",
+    "revision": "dae30e2f136ef0b2a40885a4c335386e9ffad052",
+    "path": "medrax/agent/agent.py",
+    "url": "https://github.com/bowang-lab/MedRAX/blob/dae30e2f136ef0b2a40885a4c335386e9ffad052/medrax/agent/agent.py",
+    "verified": "read_implementation_not_executed"
+  },
+  {
+    "repository": "composable-models/llm_multiagent_debate",
+    "revision": "9846749350eb917ae5bfaaff4c645fc705b8d3af",
+    "path": "gsm/gen_gsm.py",
+    "url": "https://github.com/composable-models/llm_multiagent_debate/blob/9846749350eb917ae5bfaaff4c645fc705b8d3af/gsm/gen_gsm.py",
+    "verified": "read_implementation_not_executed"
+  },
+  {
+    "repository": "microsoft/JARVIS",
+    "revision": "7624cf388b47334ff8a0868e7d862dde18cfda86",
+    "path": "hugginggpt/server/awesome_chat.py",
+    "url": "https://github.com/microsoft/JARVIS/blob/7624cf388b47334ff8a0868e7d862dde18cfda86/hugginggpt/server/awesome_chat.py",
+    "verified": "read_implementation_not_executed"
+  },
+  {
+    "repository": "lm-sys/RouteLLM",
+    "revision": "0b64fdafe049e596a3f5657c219329f24af24198",
+    "path": "routellm/routers/matrix_factorization/train_matrix_factorization.py",
+    "url": "https://github.com/lm-sys/RouteLLM/blob/0b64fdafe049e596a3f5657c219329f24af24198/routellm/routers/matrix_factorization/train_matrix_factorization.py",
+    "verified": "read_implementation_not_executed"
+  },
+  {
+    "repository": "XiangLi1999/ContrastiveDecoding",
+    "revision": "170e9142e92159c1237d731e240f5eb14aabf428",
+    "path": "text-generation/run_generation.py",
+    "url": "https://github.com/XiangLi1999/ContrastiveDecoding/blob/170e9142e92159c1237d731e240f5eb14aabf428/text-generation/run_generation.py",
+    "verified": "read_implementation_not_executed"
+  },
+  {
+    "repository": "potsawee/selfcheckgpt",
+    "revision": "19b492a2a380931bf1ed0ca94a9565c9aa7b03e1",
+    "path": "selfcheckgpt/modeling_selfcheck.py",
+    "url": "https://github.com/potsawee/selfcheckgpt/blob/19b492a2a380931bf1ed0ca94a9565c9aa7b03e1/selfcheckgpt/modeling_selfcheck.py",
+    "verified": "read_implementation_not_executed"
+  },
+  {
+    "repository": "kdiaaa/tda",
+    "revision": "e697fb0c8078cdeff93daa56bcf8860702542069",
+    "path": "tda_runner.py",
+    "url": "https://github.com/kdiaaa/tda/blob/e697fb0c8078cdeff93daa56bcf8860702542069/tda_runner.py",
+    "verified": "read_implementation_not_executed"
+  },
+  {
+    "repository": "facebookresearch/DomainBed",
+    "revision": "b93c22a1cfc3b2428398272c1a116c8de1f4139e",
+    "path": "domainbed/model_selection.py",
+    "url": "https://github.com/facebookresearch/DomainBed/blob/b93c22a1cfc3b2428398272c1a116c8de1f4139e/domainbed/model_selection.py",
+    "verified": "read_implementation_not_executed"
+  },
+  {
+    "repository": "azshue/TPT",
+    "revision": "63ecbace79694205d7884e63fdc3137a200f0b0e",
+    "path": "tpt_classification.py",
+    "url": "https://github.com/azshue/TPT/blob/63ecbace79694205d7884e63fdc3137a200f0b0e/tpt_classification.py",
+    "verified": "read_implementation_not_executed"
+  },
+  {
+    "repository": "DequanWang/tent",
+    "revision": "e9e926a668d85244c66a6d5c006efbd2b82e83e8",
+    "path": "tent.py",
+    "url": "https://github.com/DequanWang/tent/blob/e9e926a668d85244c66a6d5c006efbd2b82e83e8/tent.py",
+    "verified": "read_implementation_not_executed"
+  },
+  {
+    "repository": "jlko/semantic_uncertainty",
+    "revision": "a8d9aa8cecd5f3bec09b19ae38ab13552e0846f4",
+    "path": "semantic_uncertainty/uncertainty/uncertainty_measures/semantic_entropy.py",
+    "url": "https://github.com/jlko/semantic_uncertainty/blob/a8d9aa8cecd5f3bec09b19ae38ab13552e0846f4/semantic_uncertainty/uncertainty/uncertainty_measures/semantic_entropy.py",
+    "verified": "read_implementation_not_executed"
+  }
+]

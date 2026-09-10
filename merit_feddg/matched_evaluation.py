@@ -83,6 +83,18 @@ class SharedExpertPool:
 
 def experiment_arms(decoder, protocol):
     """Declare matched arms without consulting case metadata or answer types."""
+    if protocol == "semantic_spatial":
+        if decoder.evidence_style != "semantic" or not decoder.token_budgeted_evidence or decoder.visual_views:
+            raise ValueError("semantic_spatial protocol requires token-budgeted semantic evidence")
+        if decoder.vector_gate_probe_tokens != decoder.max_new_tokens:
+            raise ValueError("semantic_spatial requires full answer gate probes")
+        definitions = {"generalist": (False, "off"), "semantic_all": (False, "off"),
+                       "hybrid_all": (True, "off"), "hybrid_contrast": (True, "visual_contrast"),
+                       "hybrid_gate": (True, "multidimensional")}
+        return {name: replace(decoder, semantic_spatial=spatial, vector_gate=gate,
+                              block_tokens=decoder.max_new_tokens, uncertainty_from_probe=False,
+                              behavior_probe="audit" if name == "hybrid_gate" else "off")
+                for name, (spatial, gate) in definitions.items()}
     if protocol in {"vector", "spatial"}:
         if decoder.evidence_style != "tensor" or decoder.token_budgeted_evidence or decoder.visual_views:
             raise ValueError("vector protocol requires tensor style, no text evidence, and no visual panels")
@@ -122,7 +134,8 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     arms = experiment_arms(decoder, protocol)
     methods = {name: asdict(arm) for name, arm in arms.items()}
     vector = protocol in {"vector", "spatial"}
-    if vector and (not config["generalist"].get("training_free_spatial")
+    frozen_spatial = vector or protocol == "semantic_spatial"
+    if frozen_spatial and (not config["generalist"].get("training_free_spatial")
                    or config["generalist"].get("tensor_bridge_checkpoint")):
         raise ValueError("vector/spatial experiment requires training_free_spatial, never a trained bridge")
     specs, excluded = _filter_optional_experts(config["experts"], artifacts)
@@ -152,7 +165,7 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     root = Path(output_dir) / identity
     root.mkdir(parents=True, exist_ok=True)
     probe = load_generalist(config["generalist"], artifacts)
-    if vector:
+    if frozen_spatial:
         bridge = probe.tensor_bridge
         if not getattr(bridge, "training_free", False) or list(bridge.parameters()):
             raise ValueError("spatial experiment requires a parameter-free evidence operator")
@@ -190,9 +203,10 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             "identity": identity, "n": len(rows), "methods": list(methods), "config": config,
             "experiment_protocol": protocol, "arm_configs": methods,
             "bridge_requires_pretraining": False, "gate_fitted": False,
-            "collaboration_training_free": vector,
-            "vector_gate_unit": "acquired_expert_result" if vector else None,
-            "vector_gate_control": "same_size_image_channel_mean" if vector else None,
+            "collaboration_training_free": frozen_spatial,
+            "vector_gate_unit": "acquired_expert_result" if frozen_spatial else None,
+            "vector_gate_control": "same_size_image_channel_mean" if frozen_spatial else None,
+            "semantic_channel": "existing_frozen_token_embeddings" if protocol == "semantic_spatial" else None,
             "excluded": excluded, "baseline_regenerated": True, "dataset_partitioned": False,
             "references_loaded_for_generation": False, "calibration_or_policy_fitted": False,
             "answer_type_used_for_generation": False, "output_grammar": "unconstrained_for_all_questions",
@@ -210,7 +224,7 @@ def main():
     parser.add_argument("--config", default="configs/matched_vector_gate.yaml")
     parser.add_argument("--output", default="runs/matched-spatial")
     parser.add_argument("--artifacts", default="artifacts")
-    parser.add_argument("--protocol", choices=("text", "vector", "spatial"), default="spatial")
+    parser.add_argument("--protocol", choices=("text", "vector", "spatial", "semantic_spatial"), default="spatial")
     args = parser.parse_args()
     print(run(args.manifest, args.config, args.output, artifacts=args.artifacts, protocol=args.protocol))
 
