@@ -1,4 +1,6 @@
-"""Source-only teacher forcing for the optional LLaVA-Med native tensor bridge.
+"""ARCHIVED implementation for historical negative-result regression tests.
+
+The command-line training entrypoint is retired and is not part of the method.
 
 Input is JSONL of cached native predictions, never target labels/masks. Expert
 inference remains in CapabilityPool; this trainer does not retrain specialists.
@@ -6,19 +8,13 @@ inference remains in CapabilityPool; this trainer does not retrain specialists.
 
 from __future__ import annotations
 
-import argparse
-import hashlib
 import json
 from pathlib import Path
 
 import torch
-import yaml
 
 from .capabilities import EvidenceItem
-from .generalist_factory import generalist_provenance, load_generalist
-from .open_study import fingerprint
 from .tensor_bridge import NativeTensorBridge, tensor_projector_context, validate_tensor_backend
-from .tensor_evidence import TensorContract
 
 
 def source_rows(path):
@@ -94,32 +90,8 @@ def train(probe, rows, contract, *, epochs=1, learning_rate=1e-4, seed=0, width=
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--generalist", required=True, help="YAML with a generalist mapping")
-    parser.add_argument("--contract", required=True, help="JSON concept/scope registry")
-    parser.add_argument("--source", required=True, help="source-only JSONL native evidence cache")
-    parser.add_argument("--output", required=True)
-    parser.add_argument("--epochs", type=int, default=1)
-    parser.add_argument("--learning-rate", type=float, default=1e-4)
-    parser.add_argument("--seed", type=int, default=0)
-    args = parser.parse_args()
-    rows = source_rows(args.source)
-    contract = TensorContract.from_dict(json.loads(Path(args.contract).read_text(encoding="utf-8")))
-    spec = yaml.safe_load(Path(args.generalist).read_text(encoding="utf-8"))["generalist"]
-    if spec.get("backend") != "llava_med" or spec.get("tensor_bridge_checkpoint"):
-        raise ValueError("train from an explicit llava_med base config without a bridge checkpoint")
-    probe = load_generalist(spec)
-    bridge, losses = train(probe, rows, contract, epochs=args.epochs,
-                           learning_rate=args.learning_rate, seed=args.seed)
-    output = Path(args.output)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    bridge.save(output, training_steps=len(losses), source_domains=[r["domain"] for r in rows],
-                base_identity=fingerprint(generalist_provenance(spec, None)))
-    report = {"training_steps": len(losses), "losses": losses, "seed": args.seed,
-              "source_sha256": hashlib.sha256(Path(args.source).read_bytes()).hexdigest(),
-              "checkpoint_sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
-              "clinical_efficacy_evaluated": False}
-    output.with_suffix(".training.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    raise SystemExit("Retired training entrypoint. Use scripts/run_vqarad_vector_pipeline.sh "
+                     "with the original full test manifest; no source preparation or bridge training.")
 
 
 if __name__ == "__main__":

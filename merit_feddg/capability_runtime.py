@@ -46,6 +46,7 @@ class ValueGenerationConfig:
     uncertainty_from_probe: bool = False
     token_budgeted_evidence: bool = False
     evidence_order: str = "recent"
+    spatial_weighting: str = "relevance"
     vector_gate: str = "off"
     vector_gate_probe_tokens: int = 8
     vector_gate_min_gain: float = 1e-6
@@ -53,6 +54,8 @@ class ValueGenerationConfig:
     def __post_init__(self):
         from .vector_gate import VectorGateConfig
 
+        if self.spatial_weighting not in {"equal", "relevance"}:
+            raise ValueError("spatial_weighting must be equal or relevance")
         VectorGateConfig(self.vector_gate_probe_tokens, self.vector_gate_min_gain)
         if self.vector_gate not in {"off", "visual_contrast"}:
             raise ValueError("vector_gate must be off or visual_contrast")
@@ -123,10 +126,16 @@ class NativeSession:
         if config.evidence_style == "tensor" and (
             not hasattr(probe, "new_tensor_answer_session") or not hasattr(probe, "tensor_bridge")
         ):
-            raise ValueError("tensor mode needs a supported backend and trained bridge")
+            raise ValueError("tensor mode needs a supported backend and evidence bridge")
 
     def decode(self, tokens):
         return self.probe.processor.tokenizer.decode(tokens, skip_special_tokens=True)
+
+    def _tensor_session(self, items):
+        kwargs = {}
+        if getattr(self.probe.tensor_bridge, "training_free", False):
+            kwargs = {"question": self.question, "weighting": self.config.spatial_weighting}
+        return self.probe.new_tensor_answer_session(self.image, self.prompt, items, **kwargs)
 
     def assess_vector_evidence(self, state, proposed):
         from .vector_gate import VectorGateConfig, assess_visual_contrast, mean_color_control
@@ -134,10 +143,8 @@ class NativeSession:
         if self.config.vector_gate != "visual_contrast":
             raise ValueError("visual-contrast gate is not enabled")
         # Local sessions cannot commit candidate tokens or mutate the live decoder.
-        base = self.probe.new_tensor_answer_session(
-            self.image, self.prompt, presentation_items(state.items, self.question, self.config))
-        candidate = self.probe.new_tensor_answer_session(
-            self.image, self.prompt, presentation_items(proposed, self.question, self.config))
+        base = self._tensor_session(presentation_items(state.items, self.question, self.config))
+        candidate = self._tensor_session(presentation_items(proposed, self.question, self.config))
         verifier = self.probe.new_answer_session(self.image, self.prompt)
         control = self.probe.new_answer_session(mean_color_control(self.image), self.prompt)
         return assess_visual_contrast(
@@ -208,15 +215,17 @@ class NativeSession:
         if key != self._key:
             images, prompt = self.context(state)
             self._session = (
-                self.probe.new_tensor_answer_session(
-                    images, prompt, presentation_items(state.items, self.question, self.config))
+                self._tensor_session(presentation_items(state.items, self.question, self.config))
                 if self.config.evidence_style == "tensor" else
                 self.probe.new_answer_session(images, prompt)
                 if hasattr(self.probe, "new_answer_session")
                 else QwenBlockSession(self.probe, images, prompt)
             )
             self._key = key
-        return self._session.propose(state.prefix, count=1, length=length)[0]
+        block = self._session.propose(state.prefix, count=1, length=length)[0]
+        if getattr(getattr(self.probe, "tensor_bridge", None), "training_free", False):
+            self.last_transport["spatial_fusion"] = dict(self.probe.tensor_bridge.last_audit) if state.items else {}
+        return block
 
     def choose(self, state, descriptors):
         """Finite semantic actions: no generated JSON, mixed scope IDs or code."""

@@ -1,18 +1,20 @@
 # Med-DEFER / MERIT-FedDG
 
-论文主线入口：[统一向量接口与 training-free 动态 gate](docs/VECTOR_GATE.md)。
-`--protocol vector` 在同一完整清单上比较 generalist、tensor_all、tensor_gate；
-桥接需要预训练，采用 gate 无训练参数，按当前问题和证据干预进行逐次判断。
-本轮只验证实现机制，未运行真实医学权重，也不以此前文本实验代替向量实验结果。
+当前主线：[严格 training-free 的异构空间证据协作](docs/TRAINING_FREE_SPATIAL.md)。
+默认向量配置不再训练或加载 bridge；已有模型全部冻结，使用确定性区域运算、
+问题相关权重和可拒绝全部专家的 gate。`--protocol spatial` 在同一完整清单上
+比较 generalist、spatial_equal、spatial_weighted、spatial_gate；全部题目统一自由生成。
+新增 XRV CAM 与可选 BiomedParse v1 soft-mask 通路。CPU 机制测试通过，真实医学 GPU
+效果尚未验证。旧训练命令已停用，历史负结果保留；下方旧版本说明不代表当前方法。
 
 2026-09-10：新增 [通用证据权限与传输复核](docs/GENERIC_EVIDENCE_REVIEW_2026-09-10.md)
 及 [完整清单匹配实验入口](docs/GENERIC_EVIDENCE_RUNBOOK.md)。不新增数据划分，
 所有题目统一自由生成，CE/OE 标签不进入推理；按实际上下文预算打包并审计证据。
 本轮机制测试通过，真实医学效果待运行。
 
-新增可训练的 [原生非文本证据桥接实验](docs/NATIVE_TENSOR_BRIDGE.md)：分类分数、
+历史上尝试过可训练的 [原生非文本证据桥接实验](docs/NATIVE_TENSOR_BRIDGE.md)：分类分数、
 2D 掩码和检测框按类型编码，经共享读取器与门控视觉残差接入 LLaVA-Med。
-包含源域训练入口、检查点加载与契约审计；默认关闭，真实医学 GPU 效果尚未验证。
+该训练入口已停用；代码和已完成的负结果仅作历史记录，不属于当前方法。
 
 2026-09-08 负面 canary 后的增量修复：问题范围契约、无无关最高分回退的证据选择、
 原图单输入对照；域门控仍是独立的专家适用性层。未新增 GPU 效果结论。

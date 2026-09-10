@@ -15,8 +15,7 @@ from pathlib import Path
 from merit_feddg.contribution import answer_metrics
 from merit_feddg.open_study import atomic_json
 
-
-LEADING_BINARY = re.compile(r"^\s*[-*'\"`(\[]*\s*(?:answer\s*:\s*)?(yes|no)\b", re.I)
+LEADING_BINARY = re.compile(r"^\s*[-*'\"`(\[]*\s*(?:answer\s*:\s*)?(yes|no)\b", re.IGNORECASE)
 
 
 def file_sha256(path):
@@ -39,7 +38,12 @@ def main():
 
     manifest = [json.loads(line) for line in args.manifest.read_text().splitlines() if line.strip()]
     references = json.loads(args.references.read_text())
-    names = ("generalist", "tensor_all", "tensor_gate")
+    protocol = json.loads((args.run / "protocol.json").read_text())
+    names = tuple(protocol["methods"])
+    all_name = "spatial_weighted" if "spatial_weighted" in names else "tensor_all"
+    gate_name = "spatial_gate" if "spatial_gate" in names else "tensor_gate"
+    if not {"generalist", all_name, gate_name}.issubset(names):
+        raise ValueError("unsupported matched evidence protocol")
     outputs = {name: json.loads((args.run / f"{name}.json").read_text()) for name in names}
     ids = [row["id"] for row in manifest]
     if any(set(outputs[name]) != set(ids) for name in names) or set(references) != set(ids):
@@ -107,7 +111,7 @@ def main():
                     expert = event["expert"]
                     calls[expert] += 1
                     adopted[expert] += int(bool(event.get("adopted")))
-                    if name == "tensor_all":
+                    if name == all_name:
                         channel_cases.setdefault(expert, set()).add(sample_id)
                     if event.get("reason", "").startswith("runtime_error:"):
                         runtime_errors.append({"id": sample_id, "expert": expert,
@@ -136,28 +140,28 @@ def main():
     channel_effects = {}
     for expert, selected in channel_cases.items():
         selected = sorted(selected)
-        deltas = [per_case["tensor_all"]["content"][i] -
+        deltas = [per_case[all_name]["content"][i] -
                   per_case["generalist"]["content"][i] for i in selected]
         channel_effects[expert] = {"n": len(selected),
-                                   "text_changed": sum(outputs["tensor_all"][i]["text"] !=
+                                   "text_changed": sum(outputs[all_name][i]["text"] !=
                                                        outputs["generalist"][i]["text"] for i in selected),
                                    "mean_content_delta": statistics.mean(deltas) if deltas else None,
                                    "improved": sum(v > 0 for v in deltas),
                                    "harmed": sum(v < 0 for v in deltas)}
 
     gate_events = [event["vector_gate"] for sample_id in ids
-                   for event in outputs["tensor_gate"][sample_id]["trace"]
+                   for event in outputs[gate_name][sample_id]["trace"]
                    if event.get("event") == "tool" and event.get("vector_gate")]
     finite_gains = [event["gain"] for event in gate_events if "gain" in event]
-    no_tool = [i for i in ids if outputs["tensor_all"][i]["expert_calls"] == 0]
-    changed = [i for i in ids if outputs["tensor_all"][i]["text"] !=
+    no_tool = [i for i in ids if outputs[all_name][i]["expert_calls"] == 0]
+    changed = [i for i in ids if outputs[all_name][i]["text"] !=
                outputs["generalist"][i]["text"]]
     payload = {
         "protocol_identity": json.loads((args.run / "protocol.json").read_text())["identity"],
         "complete": True, "n": len(ids), "scores": evaluated, "paired_vs_generalist": paired,
-        "transport": transport, "tensor_all_by_expert_content_diagnostic": channel_effects,
+        "transport": transport, "evidence_by_expert_content_diagnostic": channel_effects,
         "gate": {"calls": len(gate_events), "accepted": sum(e["accepted"] for e in gate_events),
-                 "acceptance_rate": statistics.mean(e["accepted"] for e in gate_events),
+                 "acceptance_rate": (statistics.mean(e["accepted"] for e in gate_events) if gate_events else 0.0),
                  "reasons": dict(Counter(e["reason"] for e in gate_events)),
                  "calls_reaching_visual_contrast": len(finite_gains),
                  "finite_gains": finite_gains,
@@ -165,13 +169,13 @@ def main():
                  "verifier_queries": sum(e["verifier_queries"] for e in gate_events),
                  "sum_seconds": sum(e["seconds"] for e in gate_events)},
         "no_tool_parity": {"no_tool_cases": len(no_tool),
-                           "all_three_exact_text_parity": sum(all(outputs[name][i]["text"] ==
+                           "all_arms_exact_text_parity": sum(all(outputs[name][i]["text"] ==
                                                                   outputs["generalist"][i]["text"]
                                                                   for name in names) for i in no_tool)},
         "changed_examples": [{"id": i, "reference": references[i],
                               "generalist": outputs["generalist"][i]["text"],
-                              "tensor_all": outputs["tensor_all"][i]["text"],
-                              "tensor_gate": outputs["tensor_gate"][i]["text"]} for i in changed],
+                              all_name: outputs[all_name][i]["text"],
+                              gate_name: outputs[gate_name][i]["text"]} for i in changed],
         "fixed_evaluator": {"protocol": PROTOCOL_VERSION,
                             "source_sha256": file_sha256(args.anchor_root /
                                 "anchor/corrected_sgta/evaluate_medheval_answers.py")},

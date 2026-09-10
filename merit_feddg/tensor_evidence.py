@@ -103,7 +103,7 @@ def compile_tensor_evidence(items, image_size, contract):
         if item.capability == "classification":
             entries = payload.get("catalog", payload.get("findings", []))
         else:
-            entries = [payload] if "mask" in payload else []
+            entries = [payload] if "mask" in payload or "soft_mask" in payload else []
             for key in ("structures", "detections", "boxes", "objects"):
                 entries = [*entries, *payload.get(key, [])]
         if not entries:
@@ -138,7 +138,19 @@ def compile_tensor_evidence(items, image_size, contract):
             region = np.zeros((grid, grid), dtype=np.float32)
             box, area = [0.0] * 4, 0.0
             if spatial:
-                if "mask" in entry:
+                if "soft_mask" in entry:
+                    from .spatial_evidence import mapped_soft_mask
+
+                    try:
+                        mask = mapped_soft_mask(entry, payload, image_size)
+                    except (ValueError, TypeError, KeyError):
+                        reject("invalid_empty_or_unmapped_soft_mask")
+                        continue
+                    raw_box = mask.getbbox()
+                    if raw_box is None:
+                        reject("empty_soft_mask")
+                        continue
+                elif "mask" in entry:
                     mask = _mapped_mask(entry, payload, provenance, image_size)
                     if mask is None:
                         reject("invalid_empty_or_unmapped_mask")
@@ -163,7 +175,7 @@ def compile_tensor_evidence(items, image_size, contract):
                 if mask is not None:
                     # Float BOX resize preserves tiny regions; uint8 rounding may erase them.
                     canvas = np.zeros((side, side), dtype=np.float32)
-                    canvas[top:top + height, left:left + width] = np.asarray(mask) / 255.0
+                    canvas[top:top + height, left:left + width] = np.asarray(mask) / (1.0 if mask.mode == "F" else 255.0)
                     region = np.asarray(Image.fromarray(canvas).resize(
                         (grid, grid), Image.Resampling.BOX), dtype=np.float32)
                 area = float(region.mean())

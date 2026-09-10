@@ -21,6 +21,8 @@ def resolve_generalist_spec(spec):
 
 def load_generalist(spec, artifacts=None):
     spec = resolve_generalist_spec(spec)
+    if spec.get("tensor_bridge_checkpoint"):
+        raise ValueError("trained tensor_bridge_checkpoint is retired; use training_free_spatial")
     backend = spec.get("backend", "qwen")
     model_path = spec.get("checkpoint_path") or _local_or_remote(spec["id"], artifacts)
     if backend == "llava_med":
@@ -33,16 +35,11 @@ def load_generalist(spec, artifacts=None):
             local_files_only=True,
             deterministic_image_padding=spec.get("deterministic_image_padding", False),
         )
-        if spec.get("tensor_bridge_checkpoint"):
-            from .open_study import fingerprint
-
-            base_spec = {k: v for k, v in spec.items() if k != "tensor_bridge_checkpoint"}
-            probe.load_tensor_bridge(spec["tensor_bridge_checkpoint"],
-                                     expected_base_identity=fingerprint(
-                                         generalist_provenance(base_spec, artifacts)))
+        if spec.get("training_free_spatial"):
+            probe.enable_spatial_evidence(max_records=spec.get("spatial_max_records", 64))
         return probe
-    if spec.get("tensor_bridge_checkpoint"):
-        raise ValueError("tensor bridge currently supports only llava_med")
+    if spec.get("training_free_spatial"):
+        raise ValueError("training_free_spatial currently supports only llava_med")
     if backend != "qwen":
         raise ValueError(f"unsupported medical generalist backend: {backend}")
     from .generalist import QwenLayerProbe

@@ -1,5 +1,23 @@
 # Current status
 
+## Strict training-free replacement (implementation, medical results pending)
+
+- Current method: [training-free spatial collaboration](docs/TRAINING_FREE_SPATIAL.md).
+  Supersedes the source-training recommendation in the historical null report below.
+- The default vector config uses a zero-parameter spatial operator over existing
+  VLM tokens; the factory refuses trained bridge checkpoints. Training and source
+  preparation CLIs are retired. No new dataset split or CE/OE generation branch.
+- Adds source-balanced lexical importance, XRV positive CAM and optional pinned
+  BiomedParse v1 soft masks with explicit anatomy/sequence applicability.
+  Score-only and generation/retrieval experts are excluded from the spatial protocol.
+- New four-arm full-manifest runner: generalist / spatial_equal /
+  spatial_weighted / spatial_gate. Gate probes the full answer budget and uses
+  evidence-free sequence teacher forcing (four verifier forwards for differing pairs).
+- Final validation: 634 tests passed, 17 optional-dependency tests skipped; Ruff
+  and launcher syntax checks passed. Official medical checkpoint execution,
+  CUDA resource use, runtime improvements and clinical accuracy are not validated.
+  Nonzero token changes and zero acceptance are not counted as medical success.
+
 ## Matched vector-gate full evaluation (2026-09-10; complete, null result, do not scale)
 
 - Fast-forwarded to `e7c4093` and ran the complete 451-question official

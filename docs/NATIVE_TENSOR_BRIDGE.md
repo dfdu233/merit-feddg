@@ -1,3 +1,5 @@
+> Historical trained-bridge design, superseded. Use [the strict training-free method](TRAINING_FREE_SPATIAL.md). The training CLI is retired.
+
 # 原生异构输出的非文本桥接实验
 
 用户提供的补丁基于 `e1fbe3e`，对应“按输出类型编码 → 共享读取器 → 门控注入”。

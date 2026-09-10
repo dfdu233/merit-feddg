@@ -525,12 +525,25 @@ class CapabilityPool:
         return CapabilityResult(expert_id, request.capability, (item,))
 
     def _xrv_classify(self, expert_id, spec, request):
-        labels, scores, transform = self._model(spec).classify(request.image)
+        maps = None
+        if spec.get("spatial_support", False):
+            labels, scores, transform, maps = self._model(spec).classify_with_spatial(request.image)
+        else:
+            labels, scores, transform = self._model(spec).classify(request.image)
         entries = [
             {"finding": label, "score": float(score)}
             for label, score in zip(labels, scores, strict=True) if label
         ]
         entries.sort(key=lambda value: (-value["score"], value["finding"]))
+        if maps is not None:
+            from .spatial_evidence import encode_soft_mask
+
+            for entry in entries:
+                entry["spatial_support"] = {
+                    "soft_mask": encode_soft_mask(maps[list(labels).index(entry["finding"])]),
+                    "mask_coordinate_system": "model_grid_of_center_crop",
+                    "representation": "positive_class_activation_not_lesion_mask",
+                }
         if any(not np.isfinite(x["score"]) or not 0 <= x["score"] <= 1 for x in entries):
             raise ValueError("XRV classifier scores must be finite sigmoid values")
         item = EvidenceItem(

@@ -9,7 +9,7 @@ import json
 from dataclasses import asdict, replace
 from pathlib import Path
 
-from .capabilities import CapabilityResult, EvidenceItem
+from .capabilities import CapabilityResult, EvidenceItem, tool_descriptors
 from .capability_runtime import NativeSession, ValueGenerationConfig
 from .io import load_experiment_yaml
 from .open_study import atomic_json, fingerprint, model_provenance
@@ -83,11 +83,18 @@ class SharedExpertPool:
 
 def experiment_arms(decoder, protocol):
     """Declare matched arms without consulting case metadata or answer types."""
-    if protocol == "vector":
+    if protocol in {"vector", "spatial"}:
         if decoder.evidence_style != "tensor" or decoder.token_budgeted_evidence or decoder.visual_views:
             raise ValueError("vector protocol requires tensor style, no text evidence, and no visual panels")
         names = {"generalist": "off", "tensor_all": "off", "tensor_gate": "visual_contrast"}
-        return {name: replace(decoder, vector_gate=gate, block_tokens=decoder.max_new_tokens,
+        if protocol == "spatial":
+            if decoder.vector_gate_probe_tokens != decoder.max_new_tokens:
+                raise ValueError("spatial protocol requires the full answer budget for gate probes")
+            names = {"generalist": "off", "spatial_equal": "off", "spatial_weighted": "off",
+                     "spatial_gate": "visual_contrast"}
+        return {name: replace(decoder, vector_gate=gate,
+                              spatial_weighting="equal" if name == "spatial_equal" else decoder.spatial_weighting,
+                              block_tokens=decoder.max_new_tokens,
                               behavior_probe="off", uncertainty_from_probe=False)
                 for name, gate in names.items()}
     if protocol != "text" or not decoder.token_budgeted_evidence or decoder.visual_views:
@@ -101,7 +108,7 @@ def experiment_arms(decoder, protocol):
             for name, style in methods.items()}
 
 
-def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="text"):
+def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="spatial"):
     from .capability_experts import CapabilityPool
     from .capability_runtime import CapabilityRuntime
     from .capability_study import _filter_optional_experts, _route_records
@@ -114,18 +121,23 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="t
     decoder = ValueGenerationConfig(**config["capability_value"]["generation"])
     arms = experiment_arms(decoder, protocol)
     methods = {name: asdict(arm) for name, arm in arms.items()}
-    if protocol == "vector" and not config["generalist"].get("tensor_bridge_checkpoint"):
-        raise ValueError("vector experiment requires a trained, base-matched tensor_bridge_checkpoint")
+    vector = protocol in {"vector", "spatial"}
+    if vector and (not config["generalist"].get("training_free_spatial")
+                   or config["generalist"].get("tensor_bridge_checkpoint")):
+        raise ValueError("vector/spatial experiment requires training_free_spatial, never a trained bridge")
     specs, excluded = _filter_optional_experts(config["experts"], artifacts)
     specs.pop("source_cases", None)
-    if protocol == "vector":
+    if vector:
         for name, spec in list(specs.items()):
             supported = [v for v in spec.get("capabilities", [])
                          if v in {"classification", "segmentation", "detection"}]
+            if "classification" in supported and not spec.get("spatial_support", False):
+                supported.remove("classification")
+                excluded[name] = {"reason": "classification_without_spatial_support"}
             if supported:
                 specs[name] = {**spec, "capabilities": supported}
             else:
-                excluded[name] = {"reason": "unsupported_nontext_output_type"}
+                excluded.setdefault(name, {"reason": "unsupported_nontext_output_type"})
                 del specs[name]
     if any(spec.get("native_precision_card") for spec in specs.values()):
         raise ValueError("this no-calibration benchmark does not enable domain precision cards")
@@ -140,13 +152,10 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="t
     root = Path(output_dir) / identity
     root.mkdir(parents=True, exist_ok=True)
     probe = load_generalist(config["generalist"], artifacts)
-    if protocol == "vector":
+    if vector:
         bridge = probe.tensor_bridge
-        bridge.eval().requires_grad_(False)
-        if bridge.gate.detach().item() == 0:
-            raise ValueError("trained bridge has zero fusion strength; vector experiment would be a null intervention")
-        if not set(specs).intersection(b["expert"] for b in bridge.contract.bindings):
-            raise ValueError("no active expert has a registered native-output binding in the trained bridge")
+        if not getattr(bridge, "training_free", False) or list(bridge.parameters()):
+            raise ValueError("spatial experiment requires a parameter-free evidence operator")
     rows = [{"id": r["id"], "image": r["image"], "question": r["question"], "modality": "mixed",
              "capability": "classification", "task": "open_vqa", "domain": "official-test",
              "domain_kind": "official_dataset_split", "role": "target",
@@ -170,6 +179,8 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="t
                     engine = CapabilityRuntime(session, shared_pool, row, specs, arm, None)
                     cached = engine.run("generalist" if method == "generalist" else "all_evidence")
                     cached["generation_config"] = asdict(arm)
+                    cached["input_modality"] = row["modality"]
+                    cached["available_experts"] = sorted({d["expert"] for d in tool_descriptors(specs, row)})
                     atomic_json(path, {"identity": identity, "output": cached})
                 outputs[method][row["id"]] = cached
             print(f"matched full manifest {index}/{len(rows)} {row['id']}", flush=True)
@@ -178,9 +189,10 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="t
         atomic_json(root / "protocol.json", {
             "identity": identity, "n": len(rows), "methods": list(methods), "config": config,
             "experiment_protocol": protocol, "arm_configs": methods,
-            "bridge_requires_pretraining": protocol == "vector", "gate_fitted": False,
-            "vector_gate_unit": "acquired_expert_result" if protocol == "vector" else None,
-            "vector_gate_control": "same_size_image_channel_mean" if protocol == "vector" else None,
+            "bridge_requires_pretraining": False, "gate_fitted": False,
+            "collaboration_training_free": vector,
+            "vector_gate_unit": "acquired_expert_result" if vector else None,
+            "vector_gate_control": "same_size_image_channel_mean" if vector else None,
             "excluded": excluded, "baseline_regenerated": True, "dataset_partitioned": False,
             "references_loaded_for_generation": False, "calibration_or_policy_fitted": False,
             "answer_type_used_for_generation": False, "output_grammar": "unconstrained_for_all_questions",
@@ -195,10 +207,10 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="t
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", required=True)
-    parser.add_argument("--config", default="configs/matched_permissions.yaml")
-    parser.add_argument("--output", default="runs/matched-permissions")
+    parser.add_argument("--config", default="configs/matched_vector_gate.yaml")
+    parser.add_argument("--output", default="runs/matched-spatial")
     parser.add_argument("--artifacts", default="artifacts")
-    parser.add_argument("--protocol", choices=("text", "vector"), default="text")
+    parser.add_argument("--protocol", choices=("text", "vector", "spatial"), default="spatial")
     args = parser.parse_args()
     print(run(args.manifest, args.config, args.output, artifacts=args.artifacts, protocol=args.protocol))
 

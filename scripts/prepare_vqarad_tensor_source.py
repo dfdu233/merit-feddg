@@ -26,7 +26,7 @@ from merit_feddg.tensor_evidence import TensorContract, compile_tensor_evidence
 
 def rgb_image(value):
     if not isinstance(value, dict):
-        raise ValueError("expected embedded Hugging Face image")
+        raise TypeError("expected embedded Hugging Face image")
     source = io.BytesIO(value["bytes"]) if value.get("bytes") else value.get("path")
     if source is None:
         raise ValueError("image has neither bytes nor path")
@@ -92,7 +92,7 @@ def main():
                    "domain_kind": "official_train_filtered_by_test_image_identity", "role": "source",
                    "group_id": digest, "image_sha256": digest}
                   for digest, values in sorted(candidates.items())]
-    routed, routing = _route_records(image_rows, config.get("routing", {}), lambda: probe,
+    routed, _routing = _route_records(image_rows, config.get("routing", {}), lambda: probe,
                                      {"source_protocol": 1, "config": fingerprint(config)}, output)
     routed_by_hash = {row["image_sha256"]: row for row in routed}
     contract = TensorContract.from_dict(json.loads(Path(args.contract).read_text()))
@@ -168,4 +168,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit("Retired source-preparation entrypoint: the method is training-free and uses the full manifest directly.")

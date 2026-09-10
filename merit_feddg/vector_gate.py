@@ -83,6 +83,11 @@ def assess_visual_contrast(base_session, evidence_session, image_session, contro
         cache = {}
 
         def mean_logp(session, image_key, tokens):
+            if hasattr(session, "sequence_mean_logp"):
+                audit["verifier_scoring"] = "raw_teacher_forced_sequence"
+                audit["verifier_queries"] += 1
+                return session.sequence_mean_logp(prefix, tokens)
+            audit["verifier_scoring"] = "production_prefix_replay"
             total = 0.0
             for index, token in enumerate(tokens):
                 context = prefix + tokens[:index]

@@ -84,7 +84,7 @@ class XrvCapabilityAdapter:
             state = {key.removeprefix("module."): value for key, value in state.items()}
             self.model.load_state_dict(state, strict=True)
             self.resolution = 512
-        self.model = self.model.to(self.device).eval()
+        self.model = self.model.to(self.device).eval().requires_grad_(False)
 
     def _inputs(self, image):
         rgb = load_rgb(image)
@@ -127,6 +127,32 @@ class XrvCapabilityAdapter:
             vector = self.torch.relu(features).mean(dim=(-2, -1))[0]
         return vector.detach().float().cpu().numpy()
 
+    def classify_with_spatial(self, image):
+        """Existing DenseNet class weights localize positive feature contribution.
+
+        CAM is NOT a predicted lesion mask, calibrated confidence, or absence
+        evidence. Capture features from the same forward that produces scores.
+        """
+        if self.capability != "classification":
+            raise ValueError("CAM requires the DenseNet classifier")
+        tensor, transform = self._inputs(image)
+        captured = []
+        handle = self.model.features.register_forward_hook(
+            lambda _module, _inputs, output: captured.append(output))
+        try:
+            with self.torch.inference_mode():
+                scores = self.model(tensor)[0]
+                if len(captured) != 1:
+                    raise ValueError("DenseNet feature capture failed")
+                maps = positive_class_maps(captured[0], self.model.classifier.weight,
+                                           size=tensor.shape[-2:])
+        finally:
+            handle.remove()
+        if scores.numel() != len(self.targets) or not self.torch.isfinite(scores).all():
+            raise ValueError("invalid DenseNet scores")
+        return (self.targets, scores.float().cpu().numpy(), transform,
+                maps[0].float().cpu().numpy())
+
     def segment(self, image):
         tensor, transform = self._inputs(image)
         tensor = ((tensor + 1024) / 2048).repeat(1, 3, 1, 1)
@@ -141,3 +167,15 @@ class XrvCapabilityAdapter:
         if not np.isfinite(probabilities).all():
             raise ValueError("XRV anatomical segmentation produced nonfinite values")
         return self.targets, probabilities, transform
+
+
+def positive_class_maps(features, classifier_weight, *, size):
+    import torch
+    from torch.nn import functional as F
+
+    if features.ndim != 4 or classifier_weight.ndim != 2 or features.shape[1] != classifier_weight.shape[1]:
+        raise ValueError("DenseNet feature/classifier dimensions differ")
+    maps = torch.einsum("bchw,kc->bkhw", features.relu(), classifier_weight).relu()
+    maps = F.interpolate(maps, size=size, mode="bilinear", align_corners=False)
+    maximum = maps.flatten(2).amax(-1)[..., None, None]
+    return maps / maximum.clamp_min(torch.finfo(maps.dtype).tiny)

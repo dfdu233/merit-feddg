@@ -339,17 +339,38 @@ class LlavaMedGeneralist:
         device = self.model.get_input_embeddings().weight.device
         self.tensor_bridge = bridge.to(device=device)
 
-    def tensor_packet(self, items, image):
+    def enable_spatial_evidence(self, *, max_records=64):
+        from .spatial_evidence import SpatialEvidenceBridge
+        from .tensor_bridge import validate_tensor_backend
+
+        patches = int(self.model.get_vision_tower().num_patches)
+        grid = int(patches ** 0.5)
+        if grid * grid != patches:
+            raise ValueError("spatial evidence requires a square patch grid")
+        bridge = SpatialEvidenceBridge(int(self.model.config.hidden_size), grid, max_records)
+        validate_tensor_backend(self, bridge)
+        self.model.eval().requires_grad_(False)
+        self.tensor_bridge = bridge.eval()
+
+    def tensor_packet(self, items, image, *, question="", weighting="relevance"):
         from .tensor_evidence import compile_tensor_evidence
 
         if not hasattr(self, "tensor_bridge"):
-            raise ValueError("tensor evidence requires a trained tensor_bridge_checkpoint")
+            raise ValueError("tensor evidence requires training_free_spatial")
         if isinstance(image, (list, tuple)):
             raise TypeError("tensor evidence accepts one original image")
+        if getattr(self.tensor_bridge, "training_free", False):
+            from .spatial_evidence import spatial_packet
+
+            return spatial_packet(items, load_rgb(image).size,
+                                  grid_size=self.tensor_bridge.contract.grid_size,
+                                  max_records=self.tensor_bridge.contract.max_records,
+                                  question=question, weighting=weighting)
         return compile_tensor_evidence(items, load_rgb(image).size, self.tensor_bridge.contract)
 
-    def new_tensor_answer_session(self, image, prompt, items):
-        return LlavaMedAnswerSession(self, image, prompt, self.tensor_packet(items, image))
+    def new_tensor_answer_session(self, image, prompt, items, *, question="", weighting="relevance"):
+        return LlavaMedAnswerSession(self, image, prompt, self.tensor_packet(
+            items, image, question=question, weighting=weighting))
 
     def _validate_context(self, inputs, max_new_tokens):
         """Do not let the official multimodal helper silently truncate evidence/prefix."""
@@ -515,6 +536,35 @@ class LlavaMedAnswerSession:
         if len(output.scores) != len(prefix) + 1:
             raise RuntimeError("next_scores replay did not cover the exact prefix")
         return output.scores[-1][0].detach().float().cpu().numpy()
+
+    def sequence_mean_logp(self, prefix, tokens):
+        """One teacher-forced, evidence-free forward per complete candidate.
+
+        This is raw conditional likelihood, not production replay logits. The
+        verifier is deliberately separate from the intervened candidate session.
+        """
+        if self.tensor_packet is not None and len(self.tensor_packet):
+            raise ValueError("visual verifier must not contain expert evidence")
+        if not tokens:
+            raise ValueError("empty verifier candidate")
+        torch = self.generalist.torch
+        inputs = dict(self.inputs)
+        continuation = tuple(prefix) + tuple(tokens[:-1])
+        if continuation:
+            extra = torch.tensor([continuation], device=inputs["inputs"].device,
+                                 dtype=inputs["inputs"].dtype)
+            inputs["inputs"] = torch.cat((inputs["inputs"], extra), dim=1)
+            inputs["attention_mask"] = torch.ones_like(inputs["inputs"])
+        self.generalist._validate_context(inputs, 1)
+        inputs["input_ids"] = inputs.pop("inputs")
+        with torch.inference_mode():
+            output = self.generalist.model(**inputs, use_cache=False, return_dict=True)
+            logits = output.logits[0, -len(tokens):].float()
+            target = torch.tensor(tokens, device=logits.device, dtype=torch.long)
+            if logits.shape[0] != len(tokens):
+                raise ValueError("verifier did not cover full candidate")
+            values = torch.log_softmax(logits, -1).gather(1, target[:, None])
+        return float(values.mean())
 
     def _generate(self, prefix, length):
         torch, model = self.generalist.torch, self.generalist.model

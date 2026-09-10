@@ -1,3 +1,5 @@
+> Historical trained-bridge design, superseded. Use [the strict training-free method](TRAINING_FREE_SPATIAL.md). The training CLI is retired.
+
 # 统一向量证据接口与 training-free 动态 gate
 
 本轮基于 `4b3d43f`。论文主线恢复为：（1）通用模型与异构专家的非文本统一证据接口；（2）无需拟合的样本自适应证据采用 gate。此前 permissions/uncertainty 的文本实验只作工程诊断，不能证明这两项机制有效。

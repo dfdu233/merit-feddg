@@ -119,3 +119,41 @@ experts:
     scope: cxr_description
     requires_region: false
     description: Ask an existing specialist chest X-ray VLM for a short visual description relevant to the question. Its generated observation can be wrong and is not a gold report.
+
+  biomedparse_objects:
+    id: microsoft/BiomedParse
+    checkpoint_path: artifacts/models/BiomedParse/biomed_parse.pt
+    optional: true
+    adapter: biomedparse_v1
+    factory: merit_feddg.experts.native_biomedparse:BiomedParseCapabilityExpert
+    factory_kwargs:
+      expert_id: biomedparse_objects
+      scope: biomedical_objects
+      source_path: upstream/BiomedParse-v1
+      max_prompts: 8
+      groups_by_modality:
+        ct: [CT-Abdomen, CT-Chest, CT-Liver]
+        mri: [MRI-Abdomen, MRI-Cardiac, MRI-FLAIR-Brain, MRI-T1-Gd-Brain]
+        cxr: [X-Ray-Chest]
+        pathology: [Pathology]
+        fundus: [Fundus]
+        dermatology: [Dermoscopy]
+        endoscopy: [Endoscopy]
+        oct: [OCT]
+        ultrasound: [Ultrasound-Cardiac]
+      group_requirements:
+        CT-Abdomen: [[abdomen, abdominal, kidney, renal, liver, hepatic, spleen, pancreas, bowel]]
+        CT-Chest: [[chest, lung, pulmonary, thorax, thoracic]]
+        CT-Liver: [[liver, hepatic]]
+        MRI-Abdomen: [[abdomen, abdominal, kidney, renal, liver, hepatic, spleen, pancreas]]
+        MRI-Cardiac: [[heart, cardiac, ventricle, ventricular]]
+        MRI-FLAIR-Brain: [[flair]]
+        MRI-T1-Gd-Brain: [[t1], [contrast, gadolinium, gd]]
+        Ultrasound-Cardiac: [[heart, cardiac, ventricle, ventricular, echocardiogram, echocardiography]]
+    modalities: [ct, mri, cxr, pathology, fundus, dermatology, endoscopy, oct, ultrasound]
+    tasks: [open_vqa]
+    capabilities: [segmentation]
+    scope: biomedical_objects
+    prefix_invariant: true
+    requires_region: false
+    description: Frozen BiomedParse v1 prompted soft masks within its published object groups; unknown anatomy or sequence is rejected where required. Not automatic diagnosis or confirmed object presence.

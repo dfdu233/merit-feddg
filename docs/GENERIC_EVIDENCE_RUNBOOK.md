@@ -10,6 +10,7 @@
 
 ```bash
 python -m merit_feddg.matched_evaluation \
+  --protocol text \
   --manifest /absolute/path/to/existing-full-manifest.jsonl \
   --config configs/matched_permissions.yaml \
   --output runs/matched-permissions \
