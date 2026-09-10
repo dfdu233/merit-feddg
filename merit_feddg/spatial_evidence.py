@@ -79,6 +79,10 @@ def spatial_packet(items, image_size, *, grid_size=24, max_records=64, question=
         raise ValueError("spatial weighting must be equal or relevance")
     supported, bindings, rejected = [], [], []
     for item in items:
+        if item.provenance.get("spatial_transport_disabled"):
+            rejected.append({"expert_id": item.expert_id, "evidence_id": item.evidence_id,
+                             "reason": item.provenance["spatial_transport_disabled"]})
+            continue
         payload = dict(item.payload)
         if item.capability == "classification":
             entries = payload.get("catalog", payload.get("findings", []))

@@ -51,6 +51,9 @@ class ValueGenerationConfig:
     vector_gate_probe_tokens: int = 8
     vector_gate_min_gain: float = 1e-6
     semantic_spatial: bool = False
+    native_entry_transport: bool = False
+    claim_attribute_filter: bool = False
+    claim_gate_max_checks: int = 2
 
     def __post_init__(self):
         from .vector_gate import VectorGateConfig
@@ -58,8 +61,18 @@ class ValueGenerationConfig:
         if self.spatial_weighting not in {"equal", "relevance"}:
             raise ValueError("spatial_weighting must be equal or relevance")
         VectorGateConfig(self.vector_gate_probe_tokens, self.vector_gate_min_gain)
-        if self.vector_gate not in {"off", "visual_contrast", "multidimensional"}:
+        if self.vector_gate not in {"off", "visual_contrast", "multidimensional", "claim_support"}:
             raise ValueError("unsupported evidence gate")
+        if type(self.native_entry_transport) is not bool or type(self.claim_attribute_filter) is not bool:
+            raise ValueError("native entry options must be boolean")
+        if type(self.claim_gate_max_checks) is not int or self.claim_gate_max_checks < 1:
+            raise ValueError("claim gate requires a positive per-case check budget")
+        if self.native_entry_transport and (self.evidence_style != "semantic" or self.evidence_order != "acquisition"):
+            raise ValueError("native entry transport requires acquisition-ordered semantic evidence")
+        if self.claim_attribute_filter and not self.native_entry_transport:
+            raise ValueError("attribute filtering requires native entry transport")
+        if self.vector_gate == "claim_support" and (not self.native_entry_transport or not self.semantic_spatial):
+            raise ValueError("claim support requires native entry transport and spatial backend")
         if self.vector_gate != "off" and self.evidence_style not in {"tensor", "semantic"}:
             raise ValueError("evidence gate requires tensor or semantic channel")
         if type(self.semantic_spatial) is not bool or (self.semantic_spatial and self.evidence_style != "semantic"):
@@ -237,7 +250,7 @@ class NativeSession:
             # packets have explicit reasons rather than disappearing upstream.
             unbounded = replace(self.config, max_evidence_chars=10_000_000)
             if self.config.evidence_style == "semantic":
-                from .semantic_evidence import semantic_records, semantic_prompt
+                from .semantic_evidence import semantic_prompt, semantic_records
 
                 records = semantic_records(presentation_items(state.items, self.question, self.config))
                 render = lambda memory: semantic_prompt(self.prompt, memory)
@@ -343,6 +356,7 @@ class CapabilityRuntime:
             raise ValueError("runtime accepts strictly label-free inference fields")
         self.session, self.pool, self.row, self.specs = session, pool, row, specs
         self.config, self.encoder = config, encoder
+        self.claim_checks_used = 0
 
     def descriptors(self, state):
         if state.finished or len(state.history) >= self.config.max_expert_calls:
@@ -443,6 +457,17 @@ class CapabilityRuntime:
                     trace.update(reason="behavior_probe_rejected", seconds=perf_counter() - started,
                                  native_evidence=[asdict(v) for v in result.items])
                     return replace(state, history=(*state.history, key)), trace
+            raw_native_evidence = [asdict(v) for v in result.items]
+            if self.config.native_entry_transport:
+                from .claim_evidence import attribute_check, native_entries
+
+                entries = native_entries(result.items)
+                checks = [{"evidence_id": v.evidence_id, **attribute_check(v, self.row["question"])}
+                          for v in entries]
+                trace["native_entry_checks"] = checks
+                trace["attribute_filter_enabled"] = self.config.claim_attribute_filter
+                result = replace(result, items=tuple(v for v, check in zip(entries, checks)
+                    if check["passed"] or not self.config.claim_attribute_filter))
             # Native payload is immutable. Only evidence visible to the VLM is
             # counted as adopted; empty generated_text is not an intervention.
             proposed = (state.items + tuple(result.items) if self.config.evidence_order == "acquisition"
@@ -484,7 +509,67 @@ class CapabilityRuntime:
                 visible.update((v["expert_id"], v["evidence_id"])
                                for view in view_meta for v in view.get("sources", []))
             accepted = [v for v in result.items if (v.expert_id, v.evidence_id) in visible]
-            if accepted and self.config.vector_gate != "off":
+            if accepted and self.config.vector_gate == "claim_support":
+                from .claim_gate import assess_claim_support
+
+                gate_started = perf_counter()
+                retained, events = [], []
+                for entry in accepted:
+                    current = replace(state, items=state.items + tuple(retained))
+                    candidate = current.items + (entry,)
+                    self.session.context(replace(state, items=candidate))
+                    presented_ids = {(v["expert_id"], v["evidence_id"])
+                                     for v in self.session.last_transport["presented"]}
+                    fits = all((v.expert_id, v.evidence_id) in presented_ids for v in candidate)
+                    from .tensor_evidence import preserves_tensor_records
+                    before = self.session.probe.tensor_packet(current.items, self.session.image)
+                    after = self.session.probe.tensor_packet(candidate, self.session.image)
+                    fits = fits and preserves_tensor_records(before, after)
+                    spatial = self.session.probe.tensor_packet((entry,), self.session.image)
+                    if not fits:
+                        event = {"accepted": False, "reason": "would_evict_or_hide_native_entry"}
+                    elif len(spatial) and self.claim_checks_used >= self.config.claim_gate_max_checks:
+                        # Keep fallible semantics, but never silently pass an
+                        # untested spatial intervention after exhausting budget.
+                        entry = replace(entry, provenance={**entry.provenance,
+                            "spatial_transport_disabled": "visual_budget_exhausted"})
+                        self.session.context(replace(state, items=current.items + (entry,)))
+                        fallback_ids = {(v["expert_id"], v["evidence_id"])
+                                        for v in self.session.last_transport["presented"]}
+                        fallback_fits = all((v.expert_id, v.evidence_id) in fallback_ids
+                                            for v in current.items + (entry,))
+                        event = {"accepted": fallback_fits,
+                                 "reason": "semantic_fallback_visual_budget_exhausted" if fallback_fits
+                                           else "fallback_metadata_exceeds_budget",
+                                 "visual_status": "unknown", "spatial_transport_enabled": False}
+                    else:
+                        if len(spatial):
+                            self.claim_checks_used += 1
+                        event = assess_claim_support(self.session, current, entry)
+                    if event.get("spatial_transport_enabled") is False and event["accepted"]:
+                        entry = replace(entry, provenance={**entry.provenance,
+                            "spatial_transport_disabled": entry.provenance.get(
+                                "spatial_transport_disabled", "spatial_test_unavailable")})
+                        self.session.context(replace(state, items=current.items + (entry,)))
+                        visible_fallback = {(v["expert_id"], v["evidence_id"])
+                                            for v in self.session.last_transport["presented"]}
+                        if not all((v.expert_id, v.evidence_id) in visible_fallback
+                                   for v in current.items + (entry,)):
+                            event.update(accepted=False, reason="fallback_metadata_exceeds_budget")
+                    events.append({"expert_id": entry.expert_id, "evidence_id": entry.evidence_id, **event})
+                    if event["accepted"]:
+                        retained.append(entry)
+                accepted = retained
+                trace["vector_gate"] = {
+                    "schema": "native-entry-local-removal-v1", "accepted": bool(retained),
+                    "reason": "native_entries_retained" if retained else "no_native_entries_retained",
+                    "entries": events, "visual_checks_used_in_case": self.claim_checks_used,
+                    "gate_trained": False, "correctness_guaranteed": False,
+                    "seconds": perf_counter() - gate_started,
+                    **{k: sum(e.get(k, 0) for e in events) for k in (
+                        "candidate_generation_calls", "candidate_generated_tokens", "verifier_queries",
+                        "estimated_replayed_forward_steps")}}
+            elif accepted and self.config.vector_gate != "off":
                 from .tensor_evidence import preserves_tensor_records
 
                 candidate_items = (state.items + tuple(accepted) if self.config.evidence_order == "acquisition"
@@ -529,7 +614,9 @@ class CapabilityRuntime:
                 items = tuple(replace(v, provenance={**v.provenance,
                               "merit_acquired_token": len(state.prefix)}) for v in items)
             trace.update(reason=result.reason if items or result.reason != "ok" else "empty_or_unusable_evidence",
-                         adopted=bool(items), native_evidence=[asdict(v) for v in result.items])
+                         adopted=bool(items), native_evidence=raw_native_evidence)
+            if self.config.native_entry_transport:
+                trace["transport_entries"] = [asdict(v) for v in result.items]
             if "vector_gate" in trace and not items:
                 trace["reason"] = "vector_gate_rejected:" + trace["vector_gate"]["reason"]
         except (ValueError, TypeError, FileNotFoundError, ImportError) as exc:

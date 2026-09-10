@@ -1,5 +1,13 @@
 # Current status
 
+## Native-entry protocol implementation (2026-09-10; GPU evaluation pending)
+
+- Added an independent, strictly training-free `native_claims` protocol; see [implementation and runbook](docs/NATIVE_CLAIMS.md). Six arms isolate native-entry packing, cheap attribute checks, spatial delivery and paired local-removal gating.
+- The new protocol uses the complete manifest and one unrestricted answer prompt; it rejects CE/OE-specific prompt contracts and sharding. Existing upstream experiment records below remain historical records.
+- Local checks are bounded per case. Unverified semantic fallback is recorded separately and cannot bypass the spatial gate after its budget is exhausted. No fitted confidence weights, calibration cards or learned bridge are introduced.
+- Validation: 665 tests passed, 17 optional tests skipped; changed implementation files pass Ruff and `git diff --check`.
+- This is an implementation update, not a new medical efficacy result. Full real-model inference has not run in this workspace.
+
 ## ANCHOR-aligned semantic-spatial rerun (2026-09-10; shard 0 active)
 
 - The matched runner now renders the frozen `anchor-ce-v1` contract used by the

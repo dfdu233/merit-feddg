@@ -16,7 +16,7 @@ from .io import load_experiment_yaml
 from .open_study import atomic_json, fingerprint, model_provenance
 
 
-def load_manifest(path):
+def load_manifest(path, *, include_answer_type=True):
     rows = [json.loads(s) for s in Path(path).read_text(encoding="utf-8").splitlines() if s.strip()]
     ids = [r["id"] for r in rows]
     if not rows or len(set(ids)) != len(ids):
@@ -26,6 +26,8 @@ def load_manifest(path):
             raise ValueError("generation manifest must not contain answer labels")
         if not all(row.get(k) for k in ("image", "question", "image_sha256")):
             raise ValueError("each case needs image, question, and pixel/file identity")
+    if not include_answer_type:
+        return [{key: row[key] for key in ("id", "image", "question", "image_sha256")} for row in rows]
     normalized = []
     for row in rows:
         answer_type = str(row.get("answer_type", "")).strip().lower()
@@ -102,6 +104,23 @@ class SharedExpertPool:
 
 def experiment_arms(decoder, protocol):
     """Declare matched arms without consulting case metadata or answer types."""
+    if protocol == "native_claims":
+        if decoder.evidence_style != "semantic" or not decoder.token_budgeted_evidence or decoder.visual_views:
+            raise ValueError("native_claims requires token-budgeted semantic evidence")
+        if decoder.vector_gate_probe_tokens != decoder.max_new_tokens:
+            raise ValueError("native_claims requires full answer gate probes")
+        # Isolate packing, cheap filtering, spatial transport, and local gating.
+        definitions = {
+            "generalist": (False, False, False, "off"),
+            "semantic_all": (False, False, False, "off"),
+            "entry_all": (True, False, False, "off"),
+            "entry_filtered": (True, True, False, "off"),
+            "hybrid_all": (True, True, True, "off"),
+            "hybrid_gate": (True, True, True, "claim_support")}
+        return {name: replace(decoder, native_entry_transport=entries, claim_attribute_filter=filtered,
+            semantic_spatial=spatial, vector_gate=gate, evidence_order="acquisition",
+            block_tokens=decoder.max_new_tokens, uncertainty_from_probe=False, behavior_probe="off")
+            for name, (entries, filtered, spatial, gate) in definitions.items()}
     if protocol == "semantic_spatial":
         if decoder.evidence_style != "semantic" or not decoder.token_budgeted_evidence or decoder.visual_views:
             raise ValueError("semantic_spatial protocol requires token-budgeted semantic evidence")
@@ -177,17 +196,22 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     from .capability_study import _filter_optional_experts, _route_records
     from .generalist_factory import generalist_provenance, load_generalist, resolve_generalist_spec
 
-    original = load_manifest(manifest)
+    original = load_manifest(manifest, include_answer_type=protocol != "native_claims")
     if shard_count < 1 or not 0 <= shard_index < shard_count:
         raise ValueError("shard_index must be in [0, shard_count)")
     config = load_experiment_yaml(config_path)
+    if protocol == "native_claims":
+        if config.get("prompt_contract", "legacy_suffix") != "legacy_suffix":
+            raise ValueError("native_claims forbids answer-type-dependent prompt contracts")
+        if shard_count != 1:
+            raise ValueError("native_claims runs the complete manifest without sharding")
     config["generalist"] = resolve_generalist_spec(config["generalist"])
     config["generalist"]["deterministic_image_padding"] = True
     decoder = ValueGenerationConfig(**config["capability_value"]["generation"])
     arms = experiment_arms(decoder, protocol)
     methods = {name: asdict(arm) for name, arm in arms.items()}
     vector = protocol in {"vector", "spatial"}
-    frozen_spatial = vector or protocol == "semantic_spatial"
+    frozen_spatial = vector or protocol in {"semantic_spatial", "native_claims"}
     if frozen_spatial and (not config["generalist"].get("training_free_spatial")
                    or config["generalist"].get("tensor_bridge_checkpoint")):
         raise ValueError("vector/spatial experiment requires training_free_spatial, never a trained bridge")
@@ -263,9 +287,9 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             "experiment_protocol": protocol, "arm_configs": methods,
             "bridge_requires_pretraining": False, "gate_fitted": False,
             "collaboration_training_free": frozen_spatial,
-            "vector_gate_unit": "acquired_expert_result" if frozen_spatial else None,
-            "vector_gate_control": "same_size_image_channel_mean" if frozen_spatial else None,
-            "semantic_channel": "existing_frozen_token_embeddings" if protocol == "semantic_spatial" else None,
+            "vector_gate_unit": "native_entry" if protocol == "native_claims" else ("acquired_expert_result" if frozen_spatial else None),
+            "vector_gate_control": "paired_local_blur_translation" if protocol == "native_claims" else ("same_size_image_channel_mean" if frozen_spatial else None),
+            "semantic_channel": "existing_frozen_token_embeddings" if protocol in {"semantic_spatial", "native_claims"} else None,
             "excluded": excluded, "baseline_regenerated": True, "dataset_partitioned": False,
             "references_loaded_for_generation": False, "calibration_or_policy_fitted": False,
             "answer_type_used_for_generation": config.get("prompt_contract") == "anchor-ce-v1",
@@ -293,7 +317,7 @@ def main():
     parser.add_argument("--config", default="configs/matched_vector_gate.yaml")
     parser.add_argument("--output", default="runs/matched-spatial")
     parser.add_argument("--artifacts", default="artifacts")
-    parser.add_argument("--protocol", choices=("text", "vector", "spatial", "semantic_spatial"), default="spatial")
+    parser.add_argument("--protocol", choices=("text", "vector", "spatial", "semantic_spatial", "native_claims"), default="spatial")
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--shard-count", type=int, default=1)
     args = parser.parse_args()

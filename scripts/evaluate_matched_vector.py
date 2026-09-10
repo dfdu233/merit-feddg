@@ -99,6 +99,21 @@ def main():
                                     "exact_text_same": sum(outputs[name][i]["text"] ==
                                                            outputs["generalist"][i]["text"] for i in ids)}
 
+    intervention_diagnostics = {}
+    for name in names[1:]:
+        changed_ids = [i for i in ids if outputs[name][i]["text"] != outputs["generalist"][i]["text"]]
+        intervention_diagnostics[name] = {
+            "changed_text_coverage": len(changed_ids) / len(ids),
+            "changed_cases": len(changed_ids),
+            "mean_score_shortfall_on_changed": statistics.mean(
+                1-per_case[name]["strict"][i] for i in changed_ids) if changed_ids else None,
+            "baseline_shortfall_on_same_cases": statistics.mean(
+                1-per_case["generalist"]["strict"][i] for i in changed_ids) if changed_ids else None,
+            "harm_fraction_on_changed": statistics.mean(
+                per_case[name]["strict"][i] < per_case["generalist"]["strict"][i]
+                for i in changed_ids) if changed_ids else None,
+            "clinical_risk_estimated": False}
+
     transport = {}
     channel_cases = {name: set() for name in ("cxr_findings", "cxr_anatomy", "biomed_anatomy")}
     for name in names:
@@ -128,7 +143,7 @@ def main():
                 if event.get("event") == "decode":
                     seen.update((item["expert_id"], item["evidence_id"])
                                 for item in event.get("evidence_transport", {}).get("presented", []))
-            for expert, _ in seen:
+            for expert in {expert for expert, _ in seen}:
                 presented[expert] += 1
         transport[name] = {"expert_calls": sum(calls.values()), "calls_by_expert": dict(calls),
                            "adopted_by_expert": dict(adopted),
@@ -155,6 +170,14 @@ def main():
                    for event in outputs[gate_name][sample_id]["trace"]
                    if event.get("event") == "tool" and event.get("vector_gate")]
     finite_gains = [event["gain"] for event in gate_events if "gain" in event]
+    entry_events = [entry for event in gate_events for entry in event.get("entries", [])]
+    entry_audit = {
+        "calls": len(entry_events), "accepted": sum(e["accepted"] for e in entry_events),
+        "reasons": dict(Counter(e["reason"] for e in entry_events)),
+        "accepted_without_visual_verification": sum(e["accepted"] and e.get("visual_status") == "unknown"
+                                                    for e in entry_events),
+        "local_removal_gains": [e["local_removal_gain"] for e in entry_events if "local_removal_gain" in e]}
+
     no_tool = [i for i in ids if outputs[all_name][i]["expert_calls"] == 0]
     changed = [i for i in ids if outputs[all_name][i]["text"] !=
                outputs["generalist"][i]["text"]]
@@ -162,6 +185,8 @@ def main():
         "protocol_identity": json.loads((args.run / "protocol.json").read_text())["identity"],
         "complete": True, "n": len(ids), "scores": evaluated, "paired_vs_generalist": paired,
         "transport": transport, "evidence_by_expert_content_diagnostic": channel_effects,
+        "native_entry_gate": entry_audit,
+        "intervention_diagnostics": intervention_diagnostics,
         "gate": {"calls": len(gate_events), "accepted": sum(e["accepted"] for e in gate_events),
                  "acceptance_rate": (statistics.mean(e["accepted"] for e in gate_events) if gate_events else 0.0),
                  "reasons": dict(Counter(e["reason"] for e in gate_events)),

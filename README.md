@@ -680,3 +680,7 @@ This is research software, not a medical device. It must not be used for clinica
 - Liu et al., [FedDG: Federated Domain Generalization on Medical Image Segmentation via Episodic Learning in Continuous Frequency Space](https://openaccess.thecvf.com/content/CVPR2021/html/Liu_FedDG_Federated_Domain_Generalization_on_Medical_Image_Segmentation_via_Episodic_CVPR_2021_paper.html), CVPR 2021.
 - Chen et al., [CheXagent](https://arxiv.org/abs/2401.12208), 2024.
 - Lu et al., [CONCH](https://www.nature.com/articles/s41591-024-02856-4), Nature Medicine, 2024.
+
+### Native-entry training-free experiment
+
+See [the native-entry protocol](docs/NATIVE_CLAIMS.md) for the six-arm full-manifest experiment, literature lineage, local support diagnostic, and unresolved limitations. Start with `configs/matched_native_claims.yaml`; this protocol forbids CE/OE-specific prompts and training.

@@ -1,0 +1,35 @@
+# Native-entry ablations; full manifest, one unrestricted answer protocol.
+# Semantic tokens use existing embeddings; this is NOT arbitrary latent alignment.
+base_config: configs/llava_med_capabilities.yaml
+prompt_contract: legacy_suffix
+generalist:
+  training_free_spatial: true
+  spatial_max_records: 64
+  deterministic_image_padding: true
+capability_value:
+  generation:
+    max_new_tokens: 64
+    block_tokens: 64
+    max_expert_calls: 4
+    max_decisions: 5
+    max_evidence_chars: 30000
+    visual_views: 0
+    evidence_style: semantic
+    evidence_order: acquisition
+    token_budgeted_evidence: true
+    request_style: need
+    request_scope_check: false
+    retrieval_answer_context: false
+    behavior_probe: "off"
+    uncertainty_from_probe: false
+    semantic_spatial: true
+    vector_gate: claim_support
+    native_entry_transport: true
+    claim_attribute_filter: true
+    claim_gate_max_checks: 2
+    vector_gate_probe_tokens: 64
+    spatial_weighting: equal
+    vector_gate_min_gain: 0.000001
+expert_overrides:
+  cxr_findings:
+    spatial_support: true
