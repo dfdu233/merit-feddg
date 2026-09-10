@@ -47,7 +47,7 @@ delta = margin(control-removal image) - margin(support-removal image)
 | hybrid_all | 是 | 是 | 是 | 否 |
 | hybrid_gate | 是 | 是 | 是 | 是，每例最多两次 |
 
-各臂使用同一完整 451 题清单、相同原图、冻结权重和 64-token 确定性生成，并复用论文基线的 `anchor-ce-v1` 输出契约：闭合题追加 `Please answer Yes or No.`，开放题追加 `Give only the short answer. Do not explain.`。`answer_type` 只在 runner 的提示词边界选择这两个固定模板，随后不会进入路由、专家调用、Gate 或生成运行时。新协议拒绝其他提示契约和分片执行，确保完整运行的 regenerated generalist 可逐题与专门评测的 Greedy baseline 核对。上游已有旧协议仍保留供历史实验复现，不作为新方法入口。不要直接使用 `configs/matched_semantic_spatial.yaml` 启动本轮实验。
+各臂使用同一完整 451 题清单、相同原图、冻结权重和 64-token 确定性生成，并复用论文基线的 `anchor-ce-v1` 输出契约：闭合题追加 `Please answer Yes or No.`，开放题追加 `Give only the short answer. Do not explain.`。`answer_type` 只在 runner 的提示词边界选择这两个固定模板，随后不会进入路由、专家调用、Gate 或生成运行时。新协议拒绝其他提示契约；允许确定性的步长分片仅用于并行调度，分片并集仍须覆盖完整 451 题且只能在全部分片完成后合并，`dataset_partitioned` 始终为 false。这样 regenerated generalist 仍可逐题与专门评测的 Greedy baseline 核对。上游已有旧协议仍保留供历史实验复现，不作为新方法入口。不要直接使用 `configs/matched_semantic_spatial.yaml` 启动本轮实验。
 
 ```bash
 python -m merit_feddg.matched_evaluation \

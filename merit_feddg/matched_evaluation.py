@@ -203,8 +203,6 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     if protocol == "native_claims":
         if config.get("prompt_contract") != "anchor-ce-v1":
             raise ValueError("native_claims requires the frozen ANCHOR CE/OE prompt contract")
-        if shard_count != 1:
-            raise ValueError("native_claims runs the complete manifest without sharding")
     config["generalist"] = resolve_generalist_spec(config["generalist"])
     config["generalist"]["deterministic_image_padding"] = True
     decoder = ValueGenerationConfig(**config["capability_value"]["generation"])
