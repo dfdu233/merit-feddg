@@ -9,6 +9,7 @@ from PIL import Image
 from merit_feddg.block_decode import Block
 from merit_feddg.capability_runtime import NativeSession, NativeState, ValueGenerationConfig
 from merit_feddg.matched_evaluation import experiment_arms
+from merit_feddg.io import load_experiment_yaml
 from merit_feddg.vector_gate import (
     VectorGateConfig,
     assess_visual_contrast,
@@ -103,6 +104,20 @@ def test_matched_arms_only_gate_differs_and_no_question_type_is_needed():
     assert arms["tensor_gate"].max_new_tokens == arms["tensor_all"].max_new_tokens
     with pytest.raises(ValueError):
         ValueGenerationConfig(vector_gate="visual_contrast")
+
+
+def test_experiment_generalist_override_preserves_base_identity(tmp_path):
+    base = tmp_path / "base.yaml"
+    base.write_text("generalist:\n  id: local/model\n  checkpoint_path: /model\n")
+    child = tmp_path / "child.yaml"
+    child.write_text(
+        f"base_config: {base}\ngeneralist:\n  tensor_bridge_checkpoint: /bridge.pt\n"
+    )
+    assert load_experiment_yaml(child)["generalist"] == {
+        "id": "local/model",
+        "checkpoint_path": "/model",
+        "tensor_bridge_checkpoint": "/bridge.pt",
+    }
 
 
 def test_native_session_probes_do_not_mutate_live_decoder_or_commit_tokens():

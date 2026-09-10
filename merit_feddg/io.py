@@ -21,6 +21,15 @@ def load_experiment_yaml(path):
         base = load_yaml(config.pop("base_config"))
         if "base_config" in base:
             raise ValueError("nested experiment inheritance is unsupported")
+        # A bridge checkpoint is an add-on to the same generalist, not a full
+        # replacement for its local model/source/vision paths. Keep the base
+        # identity when an experiment overrides only generalist runtime fields.
+        if "generalist" in config:
+            if not isinstance(base.get("generalist"), dict) or not isinstance(
+                config["generalist"], dict
+            ):
+                raise TypeError("generalist config and override must be dictionaries")
+            config["generalist"] = {**base["generalist"], **config["generalist"]}
         base.update(config)
         config = base
     overrides = config.pop("expert_overrides", {})

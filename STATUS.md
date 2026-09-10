@@ -1,5 +1,68 @@
 # Current status
 
+## Matched vector-gate full evaluation (2026-09-10; complete, null result, do not scale)
+
+- Fast-forwarded to `e7c4093` and ran the complete 451-question official
+  VQA-RAD test manifest with matched `generalist`, `tensor_all` and
+  `tensor_gate` arms. All arms used the same original image, prompt,
+  unconstrained 64-token budget and deterministic preprocessing. Generation
+  never loaded references or answer types; no target subset or tuned threshold
+  was created. The detached run completed 1,353/1,353 outputs without runtime
+  error or empty answer.
+- The official QA split is not image-disjoint: 202/203 test images occur in the
+  official train split, covering 1,059/1,793 train questions. Those rows were
+  excluded by exact RGB identity before bridge training. Of the remaining 111
+  source images and 734 questions, one answer-blind deterministic question per
+  image was considered and 39 images had a fully registered applicable expert
+  result. The resulting source cache has zero image overlap with the full test,
+  contains 32 XRV findings, three XRV segmentation and five Biomed anatomy
+  items, and uses only test-manifest image identities for exclusion: no test
+  question field or answer participates in source preparation.
+- A one-epoch, 39-step source-only bridge was trained against frozen LLaVA-Med.
+  Its learned fusion gate is nonzero but very small (`0.003635`). This satisfies
+  the non-null checkpoint guard mechanically, but the complete evaluation shows
+  that the intervention is functionally negligible; it must not be presented as
+  effective bridge training.
+- All fixed scores are identical across the three arms: strict mixed 0.2945,
+  strict closed 0.2749, open answer-token recall 0.3190, target-blind content-
+  aware mixed diagnostic 0.4320 and generic Token-F1 0.0752. `tensor_all`
+  changed only 1/451 strings (`suggests` to `shows`) with no strict, content or
+  lexical score change. `tensor_gate` was byte-identical to generalist on
+  451/451. The matched generalist itself is byte-identical on 451/451 to the
+  preceding matched-permissions baseline, so baseline drift is not the cause.
+- Real native evidence did enter `tensor_all`: 141 XRV finding packets, 33 XRV
+  anatomy packets (99 actual mask structures) and six Biomed anatomy packets
+  were adopted and presented over 178 cases. Nevertheless the spatial channel
+  changed 0/33 answers, Biomed changed 0/6 and findings changed only wording in
+  1/141, with zero measured medical gain or harm. This is evidence of ineffective
+  fusion, not evidence that the expert channels are clinically useless.
+- The training-free gate executed after all 180 expert calls and accepted 0/180.
+  In 179 calls the baseline/evidence candidates were identical within the fixed
+  eight-token probe; the sole changed candidate reached the image-versus-mean-
+  color verifier but had negative gain (`-0.01510`) and was rejected. Thus zero
+  adoption is a null intervention, not safety or success. It generated 2,880
+  probe tokens, made 26 verifier score queries and spent 91.18 s (0.507 s per
+  eligible case) without changing a final answer.
+- Mean recorded engine time was 0.576 s/case for generalist, 0.607 s for
+  `tensor_all` (+5.4%) and 0.843 s for `tensor_gate` (+46.3%). These sequential
+  shared-cache measurements are not independent cold-start latency, but they
+  establish that the current gate overhead is material and brings no observed
+  benefit. The full evaluation stage, including model load and 77.8 s image
+  routing, finished in about 16.1 minutes.
+- Do not scale and do not relax the `1e-6` admission threshold. The next valid
+  step is a predeclared source-side bridge-training study with held-out source
+  validation that demonstrates a material tensor effect before another target
+  run. It should separate bridge undertraining/fusion amplitude from gate
+  horizon and verifier behavior; the completed target answers must not be used
+  to choose epochs, fusion strength or probe length.
+- Necessary repair: experiment YAML inheritance now merges partial `generalist`
+  overrides with the base model identity. Previously the new vector config
+  discarded `id`, checkpoint, LLaVA source and vision-tower paths and failed
+  before loading. A regression test covers this behavior. The source builder,
+  complete 36-binding VQA-RAD contract, detached pipeline and offline evaluator
+  are now reproducible scripts. Detailed results and raw paths are in
+  `docs/VECTOR_GATE_RESULTS_2026-09-10.md`.
+
 ## Matched permissions full evaluation (2026-09-10; complete, do not scale)
 
 - Ran the complete 451-question official VQA-RAD test manifest under the new
