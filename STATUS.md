@@ -2,6 +2,20 @@
 
 ## Detailed diagnosis and experimental successor (2026-09-10)
 
+- Final reporting is frozen to the paper-baseline evaluation provenance in
+  Codex conversation `01a05d29-9d0b-7121-8a53-488b8cd1a125`. In addition to
+  the within-run matched analysis, every arm will be scored by ANCHOR
+  `mixed-medical-vqa-table-v2-source-typed-primary`: sample-weighted CE strict
+  0/1 plus OE answer-token recall, with CE accuracy, OE recall, parse rate,
+  repetition and unresolved cap hits reported separately. The MERIT and ANCHOR
+  VQA-RAD manifests match on 451/451 ordered questions, references, mapped task
+  types and decoded RGB images; their IDs and JPEG byte hashes differ and will
+  be mapped explicitly. The external paper baselines used a different
+  `anchor-ce-v1`/1024-token generation contract, whereas this matched run uses
+  one unrestricted 64-token contract. Therefore the regenerated in-run
+  generalist is the causal baseline; the external matrix is a same-data,
+  same-metric contextual comparison and will not be mislabeled as generation-
+  matched.
 - Real-model validation at commit `e6ec0ed` passed 54 focused tests and a
   one-case five-arm GPU smoke test. The final semantic context was bounded to
   1,834 input tokens plus 64 reserved tokens under the 2,048-token limit;
