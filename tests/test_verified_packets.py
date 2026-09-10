@@ -143,6 +143,21 @@ def test_five_arms_preserve_uniform_protocol_and_isolate_layout_from_arbitration
     assert all(v.max_new_tokens == v.block_tokens == 64 for v in arms.values())
 
 
+def test_report_manifest_preserves_task_and_exact_anchor_prompt(tmp_path):
+    from merit_feddg.matched_evaluation import generation_prompt, load_manifest
+
+    manifest = tmp_path / 'manifest.jsonl'
+    row = {'id':'report', 'image':'image.jpg', 'image_sha256':'pixels',
+           'question':'You are a professional radiologist. Generate a concise medical report for the image.',
+           'answer_type':'report', 'task':'report_generation'}
+    manifest.write_text(json.dumps(row))
+    loaded = load_manifest(manifest)
+    assert loaded[0]['task'] == 'report_generation'
+    assert generation_prompt(loaded[0], {'prompt_contract':'anchor-task-v1'}) == row['question']
+    with pytest.raises(ValueError, match='anchor-task-v1'):
+        generation_prompt(loaded[0], {'prompt_contract':'anchor-ce-v1'})
+
+
 def test_actual_verifier_freezes_parameters_and_rejects_text_truncation():
     import torch
 

@@ -28,22 +28,31 @@ def load_manifest(path, *, include_answer_type=True):
         if not all(row.get(k) for k in ("image", "question", "image_sha256")):
             raise ValueError("each case needs image, question, and pixel/file identity")
     if not include_answer_type:
-        return [{key: row[key] for key in ("id", "image", "question", "image_sha256")} for row in rows]
+        return [{key: row[key] for key in ("id", "image", "question", "image_sha256")}
+                | {"task": str(row.get("task") or "open_vqa")} for row in rows]
     normalized = []
     for row in rows:
         answer_type = str(row.get("answer_type", "")).strip().lower()
-        if answer_type not in {"closed", "open"}:
-            raise ValueError("each case needs answer_type closed/open for the frozen prompt contract")
+        task = str(row.get("task") or "open_vqa").strip().lower()
+        if task not in {"open_vqa", "report_generation"}:
+            raise ValueError("each case needs task open_vqa/report_generation")
+        allowed = {"report"} if task == "report_generation" else {"closed", "open"}
+        if answer_type not in allowed:
+            raise ValueError(f"answer_type {answer_type!r} is incompatible with task {task!r}")
         normalized.append({key: row[key] for key in ("id", "image", "question", "image_sha256")}
-                          | {"answer_type": answer_type})
+                          | {"answer_type": answer_type, "task": task})
     return normalized
 
 
 def generation_prompt(row, config):
-    """Render the same answer-blind CE/OE prompts as ANCHOR anchor-ce-v1."""
+    """Render the same answer-blind prompts as the corresponding ANCHOR task."""
     contract = config.get("prompt_contract", "legacy_suffix")
     question = str(row["question"]).strip()
-    if contract == "anchor-ce-v1":
+    if contract in {"anchor-ce-v1", "anchor-task-v1"}:
+        if row.get("task", "open_vqa") == "report_generation":
+            if contract != "anchor-task-v1":
+                raise ValueError("report generation requires anchor-task-v1")
+            return question
         if row["answer_type"] == "closed":
             return f"{question} Please answer Yes or No."
         return f"{question}\nGive only the short answer. Do not explain."
@@ -216,14 +225,18 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     from .generalist_factory import generalist_provenance, load_generalist, resolve_generalist_spec
 
     config = load_experiment_yaml(config_path)
-    uses_answer_contract = config.get("prompt_contract", "legacy_suffix") == "anchor-ce-v1"
+    uses_answer_contract = config.get("prompt_contract", "legacy_suffix") in {
+        "anchor-ce-v1", "anchor-task-v1"
+    }
     original = load_manifest(manifest, include_answer_type=protocol != "verified_packets" or uses_answer_contract)
     if shard_count < 1 or not 0 <= shard_index < shard_count:
         raise ValueError("shard_index must be in [0, shard_count)")
     if protocol == "native_claims" and config.get("prompt_contract") != "anchor-ce-v1":
         raise ValueError("native_claims requires the frozen ANCHOR CE/OE prompt contract")
     if protocol == "verified_packets":
-        if config.get("prompt_contract", "legacy_suffix") not in {"legacy_suffix", "anchor-ce-v1"}:
+        if config.get("prompt_contract", "legacy_suffix") not in {
+            "legacy_suffix", "anchor-ce-v1", "anchor-task-v1"
+        }:
             raise ValueError("verified_packets requires a declared legacy or ANCHOR prompt contract")
         if not config.get("answer_verifiers"):
             raise ValueError("verified_packets requires explicitly configured frozen verifiers")
@@ -329,7 +342,8 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             raise ValueError("spatial experiment requires a parameter-free evidence operator")
     rows = [{"id": r["id"], "image": r["image"], "question": r["question"],
              "modality": "mixed",
-             "capability": "classification", "task": "open_vqa", "domain": "official-test",
+             "capability": "classification", "task": r.get("task", "open_vqa"),
+             "domain": "official-test",
              "domain_kind": "official_dataset_split", "role": "target",
              "group_id": r["image_sha256"], "image_sha256": r["image_sha256"]} for r in original]
     rows = rows[shard_index::shard_count]
@@ -409,7 +423,9 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             "excluded": excluded, "baseline_regenerated": reused_generalist is None,
             "dataset_partitioned": False,
             "references_loaded_for_generation": False, "calibration_or_policy_fitted": False,
-            "answer_type_used_for_generation": config.get("prompt_contract") == "anchor-ce-v1",
+            "answer_type_used_for_generation": config.get("prompt_contract") in {
+                "anchor-ce-v1", "anchor-task-v1"
+            },
             "output_grammar": config.get("prompt_contract", "legacy_suffix"),
             "limitations": ["No clinical efficacy claim until fixed reference evaluation.",
                             "Packing may change delivered subsets; compare transport before attributing channel effects.",
