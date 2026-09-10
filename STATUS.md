@@ -21,11 +21,12 @@
   order only after every shard is complete. This changes scheduling, not the
   experiment definition. Full regression passed 659 tests with two optional
   skips; the focused semantic-spatial suite passed 10 tests.
-- The current container exposes only GPU 0, despite the host having two cards.
-  Shard 0 is active as detached PID `2435636`, processing 226 even-indexed cases
-  under identity `e63b52e0...`; its log is
-  `runs/matched-semantic-spatial-anchor/shard-0.log`. Launch shard 1 from the
-  host on `CUDA_VISIBLE_DEVICES=1` with `--shard-index 1 --shard-count 2`.
+- The current container exposes one device as container GPU 0; this maps to host
+  GPU 1, while host GPU 0 is not visible inside the container. Shard 0 is active
+  there as detached PID `2435636`, processing 226 even-indexed cases under
+  identity `e63b52e0...`; its log is
+  `runs/matched-semantic-spatial-anchor/shard-0.log`. Launch shard 1 directly
+  from the host on `CUDA_VISIBLE_DEVICES=0` with `--shard-index 1 --shard-count 2`.
   Existing environments and local weights are reused offline; no dependency
   upgrade, download, target split or threshold change is authorized.
 
