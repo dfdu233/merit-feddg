@@ -1,11 +1,49 @@
 # Current status
 
-## Complete packets and external answer verification (implementation; GPU evaluation pending)
+## Complete packets and external answer verification (2026-09-10; full GPU run active)
 
-- Added `verified_packets`: complete native packets, shared-field compression, identical-content layout comparison, and frozen external answer arbitration. See [method, code lineage and experiments](docs/VERIFIED_PACKETS.md).
-- One full manifest and a uniform answer prompt; no CE/OE generation contract or training. The verifier margin is not a calibrated correctness probability. Unknown scope, same-model verification, truncation and inconsistent preferences abstain to exact baseline tokens.
-- Validation: 686 tests passed, 17 optional tests skipped; changed implementation files pass Ruff and the patch passes `git diff --check`.
-- The candidate is reused instead of generating per-entry probes. Real-model benefit and ICLR-level contribution remain hypotheses requiring the documented ablations. Published stopped-snapshot results below are unchanged.
+- Added `verified_packets`: complete native packets, lossless scalar/shared-field
+  compression, an identical-content layout comparison, and frozen external answer
+  arbitration. See [method, code lineage and experiments](docs/VERIFIED_PACKETS.md).
+  The optimization directly addresses the diagnosed information-loss and Gate
+  problems, but is not yet an efficacy result. The verifier margin is not a
+  calibrated correctness probability; unsupported modality, same-model checking,
+  text truncation and inconsistent preferences abstain to the exact baseline.
+- The evaluation is now aligned to conversation
+  `01a05d29-9d0b-7121-8a53-488b8cd1a125`: the official full 451-case VQA-RAD
+  test manifest, `anchor-ce-v1` CE/OE prompt contract, deterministic 64-token
+  generation and the frozen ANCHOR scorer. `answer_type` selects only the same
+  prompt applied to every arm and is removed before routing, experts and
+  arbitration. Scheduling-only strided sharding does not divide the dataset;
+  all 451 cases must merge before scoring.
+- Completed work is reused without reading labels at runtime. Generalist imports
+  a sanitized 451-answer package from the dedicated ANCHOR Greedy run and is not
+  regenerated; its text and token IDs were independently reproduced exactly on
+  all 364 overlapping stopped-run cases. Expert inference first uses the complete
+  451-case semantic-spatial run's request-keyed cache after exact expert-weight,
+  exclusion, route-ID and manifest-size checks. Old routes predate per-route
+  `group_id`, which is disclosed in provenance; every expert-cache lookup still
+  includes the current image path and image-hash group and therefore cannot hit
+  on a mismatched image. Unavailable requests run the real frozen expert.
+- A real one-case GPU preflight produced all five arms. Baseline was imported;
+  `semantic_all`, `compact_rows` and `compact_all` were newly generated; and
+  `compact_verified` reused the exact `compact_all` candidate. In that case the
+  verifier accepted only a semantically equivalent wording change, which will
+  not be counted as a medical success. It recorded two image-text renderings,
+  paired scores, margins, decision and timing.
+- Full regression at commit `9703c57` collected 704 tests and completed with no
+  failures (two optional skips); the verified-packet suite passed 22/22 and
+  `git diff --check` passed. No dependency upgrade, new download, threshold
+  change, target run or result-driven protocol change was made.
+- Container-visible GPU 0 (host GPU 1) is running even indices as detached PID
+  `2607735`, identity
+  `72f36cd3907456c90166699cd0a7fe007de3eff937f6696e04f41a0dae5e5082`,
+  under `runs/matched-verified-packets-anchor`. At the first health check it had
+  completed 10/226 cases, used 18.6/49.1 GiB and reached 98% GPU utilization,
+  with no traceback or OOM. `shard-0.failed-reuse-validation.log` preserves the
+  harmless pre-model validation failure that led to the explicit legacy-route
+  audit fix. Final results do not exist until host shard 1 also completes and
+  the atomic merger writes the root protocol/results.
 
 ## ANCHOR-aligned native-entry evaluation (2026-09-10; stopped at 362 common cases)
 
