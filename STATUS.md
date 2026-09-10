@@ -29,15 +29,19 @@
   incomplete historical run but are not reused because the cache identity
   intentionally binds implementation bytes. Container GPU 0 (previously
   mapped to host GPU 1) is now running shard 0/2 as detached PID `2501208`;
-  host GPU 0 should run shard 1/2. Both current shards use identity
+  host GPU 0 is now running shard 1/2. Both current shards use identity
   `edcf48420dd394d764533ec9cc24be2e555887d916adc7fa29a9d74181ac603d`
   and the existing offline weights. Because container `/root` is not visible
-  on the host, the already-cached 2.5 GB XraySigLIP dependency and 196 KB
-  CheXagent dynamic module were copied without downloading to the shared
-  `/home/dbw/hf-shared` cache. Its XraySigLIP config checksum matches the
-  container source and resolves successfully in strict offline mode. Host
-  shard 1 must set `HF_HOME`, `HF_HUB_CACHE` and `HF_MODULES_CACHE` to this
-  shared tree. Logs are
+  on the host, the already-cached XraySigLIP, CLIP tokenizer, BiomedBERT and
+  CheXagent dynamic-module dependencies were copied without downloading to the
+  3.3 GB shared `/home/dbw/hf-shared` cache. All required tokenizer/config
+  lookups resolve in strict offline mode. The first host attempt passed
+  XraySigLIP but failed before a complete case because the shared cache did not
+  yet contain `openai/clip-vit-base-patch32`; that log is retained as
+  `shard-1-host.failed-missing-clip.log`. After completing the shared cache,
+  the restarted host shard advanced from 6/225 to 8/225 in 15 seconds with no
+  traceback, OOM, runtime error or empty sampled output. At the same checkpoint
+  the container shard was at 73/226. Logs are
   `runs/matched-native-claims-anchor/shard-0.log` and
   `runs/matched-native-claims-anchor/shard-1-host.log`. No dependency upgrade,
   download, threshold change, target run or result-based protocol change was made.
