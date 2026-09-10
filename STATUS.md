@@ -8,7 +8,7 @@
 - Validation: 665 tests passed, 17 optional tests skipped; changed implementation files pass Ruff and `git diff --check`.
 - This is an implementation update, not a new medical efficacy result. Full real-model inference has not run in this workspace.
 
-## ANCHOR-aligned semantic-spatial rerun (2026-09-10; shard 0 active)
+## ANCHOR-aligned semantic-spatial rerun (2026-09-10; shard 0 complete, shard 1 recovery required)
 
 - The matched runner now renders the frozen `anchor-ce-v1` contract used by the
   dedicated paper baseline: closed questions append `Please answer Yes or No.`
@@ -30,13 +30,32 @@
   experiment definition. Full regression passed 659 tests with two optional
   skips; the focused semantic-spatial suite passed 10 tests.
 - The current container exposes one device as container GPU 0; this maps to host
-  GPU 1, while host GPU 0 is not visible inside the container. Shard 0 is active
-  there as detached PID `2435636`, processing 226 even-indexed cases under
-  identity `e63b52e0...`; its log is
-  `runs/matched-semantic-spatial-anchor/shard-0.log`. Launch shard 1 directly
-  from the host on `CUDA_VISIBLE_DEVICES=0` with `--shard-index 1 --shard-count 2`.
-  Existing environments and local weights are reused offline; no dependency
-  upgrade, download, target split or threshold change is authorized.
+  GPU 1, while host GPU 0 is not visible inside the container. Shard 0 completed
+  all 226 even-indexed cases under identity `e63b52e0...`; its regenerated
+  generalist is exactly identical to the dedicated paper baseline on 226/226
+  answers. Relative to it, `semantic_all`, `hybrid_all`, `hybrid_contrast` and
+  `hybrid_gate` changed 73, 77, 18 and 0 answer strings respectively. These are
+  intervention counts, not accuracy results; scoring waits for all 451 cases.
+  The completed artifacts and log are under
+  `runs/matched-semantic-spatial-anchor/e63b52e0ade6b740854572a2f5305678873a564b0edc3bed9f959f67abe48fa4/shards/0000-of-0002`
+  and `runs/matched-semantic-spatial-anchor/shard-0.log`.
+- Host shard 1 is not running. Its two launch attempts reached the first
+  CheXagent-required case and exited because the host process did not resolve
+  the nested XraySigLIP dependency from the existing `/root/.cache/huggingface`
+  cache while offline. The checkpoint is present and complete locally, so the
+  recovery is to relaunch host GPU 0 with explicit `HF_HOME`, `HF_HUB_CACHE`
+  and `HF_MODULES_CACHE`; no download or dependency change is needed. The
+  per-case cache makes this resumable. The failed log is
+  `runs/matched-semantic-spatial-anchor/shard-1.log`.
+- For the final apples-to-apples table, the frozen evaluator is
+  `mixed-medical-vqa-table-v2-source-typed-primary` with current answer decoder
+  `medheval-decoded-eval-v11-explanatory-binary-source-audited`. A read-only
+  rescore of the immutable 451-answer VQA-RAD baselines gives unified/CE/OE:
+  Greedy 48.47/61.35/32.31, ICD 47.16/59.36/31.84, VCD 44.89/53.39/34.23,
+  DoLa 46.55/57.77/32.47, MMedPO 49.91/60.16/37.04 and MedRAG
+  39.48/46.61/30.53 percent. Unified is the paper-facing primary score; CE is
+  strict accuracy and OE is answer-token recall. The current ANCHOR-aligned
+  run will be evaluated by this exact code after both shards merge.
 
 ## Detailed diagnosis and experimental successor (2026-09-10)
 
@@ -48,12 +67,13 @@
   repetition and unresolved cap hits reported separately. The MERIT and ANCHOR
   VQA-RAD manifests match on 451/451 ordered questions, references, mapped task
   types and decoded RGB images; their IDs and JPEG byte hashes differ and will
-  be mapped explicitly. The external paper baselines used a different
-  `anchor-ce-v1`/1024-token generation contract, whereas this matched run uses
-  one unrestricted 64-token contract. Therefore the regenerated in-run
-  generalist is the causal baseline; the external matrix is a same-data,
-  same-metric contextual comparison and will not be mislabeled as generation-
-  matched.
+  be mapped explicitly. The dedicated paper Greedy baseline and this aligned
+  rerun both use the `anchor-ce-v1` prompt contract and deterministic 64-token
+  generation. The regenerated in-run generalist is therefore required to
+  reproduce that baseline on 451/451 answers; the completed even shard
+  currently passes this acceptance check on 226/226. Historical pre-alignment
+  unrestricted-prompt runs remain contextual only and will not be mixed into
+  the final table.
 - Real-model validation at commit `e6ec0ed` passed 54 focused tests and a
   one-case five-arm GPU smoke test. The final semantic context was bounded to
   1,834 input tokens plus 64 reserved tokens under the 2,048-token limit;
