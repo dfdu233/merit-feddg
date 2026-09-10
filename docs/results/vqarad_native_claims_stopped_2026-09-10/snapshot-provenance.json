@@ -1,0 +1,27 @@
+{
+  "snapshot_date": "2026-09-10",
+  "status": "stopped",
+  "run_root": "runs/matched-native-claims-anchor/edcf48420dd394d764533ec9cc24be2e555887d916adc7fa29a9d74181ac603d",
+  "source_commit": "8a5a897",
+  "config": "configs/matched_native_claims.yaml",
+  "protocol": "native_claims",
+  "manifest": "runs/vqarad-official-full-test/manifest.jsonl",
+  "references_joined_offline": "runs/vqarad-official-full-test/references.json",
+  "artifacts": {
+    "per_case": "per-case-results.jsonl",
+    "evaluation": "evaluation-summary.json"
+  },
+  "omission": {
+    "only": "base64 float32-zlib soft-mask data strings",
+    "replacement": [
+      "data_omitted_from_git",
+      "data_character_count",
+      "data_sha256"
+    ],
+    "raw_bytes_retained_locally": true
+  },
+  "raw_log_sha256": {
+    "shard-0.log": "be3dcb86f0f00d14353c7c9ba83528141d54d4f856e71d0747e7f10d484fa57a",
+    "shard-1-host.log": "4152bbb109567a049046a10062ebbe2ee7e57c293b8654552a3d084ce2b6b8e0"
+  }
+}

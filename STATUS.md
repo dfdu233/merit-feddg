@@ -1,6 +1,6 @@
 # Current status
 
-## ANCHOR-aligned native-entry evaluation (2026-09-10; full GPU run active)
+## ANCHOR-aligned native-entry evaluation (2026-09-10; stopped at 362 common cases)
 
 - Added an independent, strictly training-free `native_claims` protocol; see [implementation and runbook](docs/NATIVE_CLAIMS.md). Six arms isolate native-entry packing, cheap attribute checks, spatial delivery and paired local-removal gating.
 - The new protocol now uses the exact paper-baseline generation boundary from
@@ -12,21 +12,32 @@
   `mixed-medical-vqa-table-v2-source-typed-primary` and decoder v11, with
   regenerated Generalist required to match the dedicated Greedy answers on
   451/451 cases.
-- Local checks are bounded per case. Unverified semantic fallback is recorded separately and cannot bypass the spatial gate after its budget is exhausted. No fitted confidence weights, calibration cards or learned bridge are introduced.
-- A read-only interim snapshot at 314 six-arm-complete cases (173 closed,
-  141 open) is diagnostic only because sequential completion is not a fixed
-  evaluation subset. Under the frozen final evaluator, unified/CE/OE scores
-  are: Generalist 51.57/65.32/34.69, `semantic_all` 53.40/65.90/38.08,
-  `entry_all` 48.64/57.23/38.11, `entry_filtered` 48.64/57.23/38.11,
-  `hybrid_all` 48.32/57.23/37.40 and `hybrid_gate` 49.20/59.54/36.51
-  percent. Relative unified deltas show `semantic_all` +1.84 points over
-  Generalist, atomization -4.76 versus `semantic_all`, filtering exactly zero,
-  spatial transport -0.32 versus `entry_filtered`, and Gate +0.88 versus
-  `hybrid_all` but still -2.37 versus Generalist. Of 2,267 attribute checks,
-  only one was rejected; the filter is currently functionally inactive. Gate
-  accepted 205/342 native entries, including 127 unverified semantic entries,
-  and has no runtime errors. These values must not be cited as final results;
-  only the completed 451-case merged evaluation is admissible.
+- Local checks are bounded per case. Spatial evidence beyond the check budget is
+  downgraded to an explicitly unverified semantic fallback, while evidence that
+  is semantic-only is currently accepted as `semantic_only_unverified`; this is
+  a diagnosed Gate weakness, not a correctness claim. No fitted confidence
+  weights, calibration cards or learned bridge are introduced.
+- The run was stopped by request and both workers are no longer running. The
+  frozen six-arm common snapshot contains 362/451 cases (206 closed, 156 open);
+  available per-arm caches are 364/364/364/364/363/362 in arm order. This is
+  completion-order selected and diagnostic only. Unified/CE/OE scores are:
+  Generalist 51.06/62.62/35.79, `semantic_all` 52.38/62.62/38.85,
+  `entry_all` 47.97/54.85/38.88, `entry_filtered` 47.97/54.85/38.88,
+  `hybrid_all` 47.69/54.85/38.24 and `hybrid_gate` 48.45/56.80/37.44 percent.
+  Gate recovers +0.76 points versus `hybrid_all` but remains -2.61 points below
+  Generalist. The 364 available Generalist answers match the dedicated ANCHOR
+  Greedy baseline exactly 364/364, excluding baseline drift. Mean engine time
+  is 0.676 s Generalist versus 3.140 s Gate (4.65x).
+- Gate audited 408 native entries: 246 accepted and 162 rejected. Of the
+  accepted entries, 152 are `semantic_only_unverified`, 93 have positive local
+  removal gain and one is an unverified budget fallback. There is no calibrated
+  Gate probability: expert confidence is null, XRV scores are explicitly
+  uncalibrated, and local-removal gain measures reliance rather than medical
+  correctness. `attribute_check` passed 2,784/2,785 entries, so filtering is
+  functionally inactive. Concrete good/bad cases show both lucky CheXagent
+  corrections and wrong semantic/spatial evidence overriding a correct
+  Generalist. See the [complete stopped result bundle](docs/results/vqarad_native_claims_stopped_2026-09-10/README.md)
+  and [Gate/literature diagnosis](docs/results/vqarad_native_claims_stopped_2026-09-10/GATE_FAILURE_AND_CONFIDENCE_RESEARCH_2026-09-10.md).
 - Validation: 680 tests passed and two optional tests skipped; the focused
   native/semantic suite passed 31 tests and `git diff --check` passed. A real
   closed/open two-case smoke reproduced both paper Greedy answers exactly in
@@ -34,7 +45,7 @@
   `vqarad-official-test-0003`, Generalist and semantic arms retained the correct
   `right` heart border, while `hybrid_all` and `hybrid_gate` changed it to
   `left`. Gate execution is therefore not being treated as medical success.
-- Host physical GPU 0 remains unavailable from this container. To use it
+- Host physical GPU 0 remained unavailable from this container. To use it
   without duplicating the full run, commit `5346bb7` enables deterministic
   scheduling-only sharding for `native_claims`; the two shard unions must still
   cover the complete 451 cases before finalization, and `dataset_partitioned`
@@ -42,10 +53,11 @@
   complete cases; its 77 atomic per-arm cache files are retained as an
   incomplete historical run but are not reused because the cache identity
   intentionally binds implementation bytes. Container GPU 0 (previously
-  mapped to host GPU 1) is now running shard 0/2 as detached PID `2501208`;
-  host GPU 0 is now running shard 1/2. Both current shards use identity
+  mapped to host GPU 1) ran shard 0/2 as detached PID `2501208`, while host GPU
+  0 ran shard 1/2. Both shards use identity
   `edcf48420dd394d764533ec9cc24be2e555887d916adc7fa29a9d74181ac603d`
-  and the existing offline weights. Because container `/root` is not visible
+  and the existing offline weights. Both jobs have now stopped; their partial
+  caches and logs are retained. Because container `/root` is not visible
   on the host, the already-cached XraySigLIP, CLIP tokenizer, BiomedBERT and
   CheXagent dynamic-module dependencies were copied without downloading to the
   3.3 GB shared `/home/dbw/hf-shared` cache. All required tokenizer/config
