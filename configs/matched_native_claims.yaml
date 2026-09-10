@@ -1,7 +1,7 @@
-# Native-entry ablations; full manifest, one unrestricted answer protocol.
+# Native-entry ablations; full manifest and frozen ANCHOR CE/OE prompt contract.
 # Semantic tokens use existing embeddings; this is NOT arbitrary latent alignment.
 base_config: configs/llava_med_capabilities.yaml
-prompt_contract: legacy_suffix
+prompt_contract: anchor-ce-v1
 generalist:
   training_free_spatial: true
   spatial_max_records: 64

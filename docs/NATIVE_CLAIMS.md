@@ -47,7 +47,7 @@ delta = margin(control-removal image) - margin(support-removal image)
 | hybrid_all | 是 | 是 | 是 | 否 |
 | hybrid_gate | 是 | 是 | 是 | 是，每例最多两次 |
 
-各臂使用同一完整清单、相同原图、统一 unrestricted 64-token 简答提示和冻结权重；不按 CE/OE 切换输出契约。新协议在读取清单时移除 answer_type，并拒绝 `anchor-ce-v1` 配置和分片执行。上游已有的旧协议与分片实现保留供已有实验复现，不作为新方法入口。不要直接使用 `configs/matched_semantic_spatial.yaml` 启动本轮实验。
+各臂使用同一完整 451 题清单、相同原图、冻结权重和 64-token 确定性生成，并复用论文基线的 `anchor-ce-v1` 输出契约：闭合题追加 `Please answer Yes or No.`，开放题追加 `Give only the short answer. Do not explain.`。`answer_type` 只在 runner 的提示词边界选择这两个固定模板，随后不会进入路由、专家调用、Gate 或生成运行时。新协议拒绝其他提示契约和分片执行，确保完整运行的 regenerated generalist 可逐题与专门评测的 Greedy baseline 核对。上游已有旧协议仍保留供历史实验复现，不作为新方法入口。不要直接使用 `configs/matched_semantic_spatial.yaml` 启动本轮实验。
 
 ```bash
 python -m merit_feddg.matched_evaluation \
@@ -69,7 +69,7 @@ python scripts/evaluate_matched_vector.py \
   --output runs/matched-native-claims/IDENTITY/evaluation-summary.json
 ```
 
-带答案类型的评估清单只供离线评分；顺序、ID、图像、问题应与生成清单一致。新增输出包含逐条 gate 原因、未验证的语义接受数、局部移除分数、答案变化覆盖率，以及变化子集上的得分缺口和损害比例。得分缺口包含 OE 的分数损失，不是临床错误率。修正了多条证据把“出现专家的病例数”重复计数的问题。
+同一份带答案类型的清单既用于选择冻结提示模板，也用于离线评分；答案文本和参考答案始终只由离线 evaluator 读取。清单顺序、ID、图像和问题必须与论文基线 451/451 对齐。新增输出包含逐条 gate 原因、未验证的语义接受数、局部移除分数、答案变化覆盖率，以及变化子集上的得分缺口和损害比例。得分缺口包含 OE 的分数损失，不是临床错误率。修正了多条证据把“出现专家的病例数”重复计数的问题。
 
 ## 验证、研究目标与尚未解决的问题
 

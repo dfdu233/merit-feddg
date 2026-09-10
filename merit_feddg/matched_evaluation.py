@@ -196,13 +196,13 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     from .capability_study import _filter_optional_experts, _route_records
     from .generalist_factory import generalist_provenance, load_generalist, resolve_generalist_spec
 
-    original = load_manifest(manifest, include_answer_type=protocol != "native_claims")
+    original = load_manifest(manifest)
     if shard_count < 1 or not 0 <= shard_index < shard_count:
         raise ValueError("shard_index must be in [0, shard_count)")
     config = load_experiment_yaml(config_path)
     if protocol == "native_claims":
-        if config.get("prompt_contract", "legacy_suffix") != "legacy_suffix":
-            raise ValueError("native_claims forbids answer-type-dependent prompt contracts")
+        if config.get("prompt_contract") != "anchor-ce-v1":
+            raise ValueError("native_claims requires the frozen ANCHOR CE/OE prompt contract")
         if shard_count != 1:
             raise ValueError("native_claims runs the complete manifest without sharding")
     config["generalist"] = resolve_generalist_spec(config["generalist"])

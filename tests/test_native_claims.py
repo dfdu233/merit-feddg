@@ -200,17 +200,19 @@ def test_semantic_evidence_without_geometry_is_explicitly_unverified():
     assert result['reason'] == 'semantic_only_unverified' and not result['correctness_guaranteed']
 
 
-def test_native_protocol_does_not_require_or_read_answer_type(tmp_path):
+def test_native_protocol_uses_answer_type_only_at_frozen_prompt_boundary(tmp_path):
     import json
 
     from merit_feddg.matched_evaluation import generation_prompt, load_manifest
-    row = {'id': 'a', 'image': 'i', 'question': 'Q', 'image_sha256': 'h'}
+    row = {'image': 'i', 'question': 'Q', 'image_sha256': 'h'}
     manifest = tmp_path / 'manifest.jsonl'
-    for metadata in ({}, {'answer_type': 'closed'}, {'answer_type': 'open'}, {'answer_type': 'unknown'}):
-        manifest.write_text(json.dumps({**row, **metadata})+'\n')
-        loaded = load_manifest(manifest, include_answer_type=False)
-        assert loaded == [row]
-        assert generation_prompt(loaded[0], {'prompt_contract': 'legacy_suffix'}) == 'Q\nAnswer concisely from the image.'
+    rows = [{**row, 'id': 'closed', 'answer_type': 'closed'},
+            {**row, 'id': 'open', 'answer_type': 'open'}]
+    manifest.write_text(''.join(json.dumps(value)+'\n' for value in rows))
+    loaded = load_manifest(manifest)
+    config = {'prompt_contract': 'anchor-ce-v1'}
+    assert generation_prompt(loaded[0], config) == 'Q Please answer Yes or No.'
+    assert generation_prompt(loaded[1], config) == 'Q\nGive only the short answer. Do not explain.'
 
 
 def test_packet_confidence_is_not_relabelled_as_entry_correctness():
