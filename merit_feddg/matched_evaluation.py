@@ -73,8 +73,10 @@ def load_cached(path, identity):
 class SharedExpertPool:
     """Persist native outputs so point/range/permission arms see the same tool run."""
 
-    def __init__(self, pool, directory, identity):
+    def __init__(self, pool, directory, identity, fallback_directories=()):
         self.pool, self.directory, self.identity = pool, Path(directory), identity
+        self.fallback_directories = tuple((Path(path), donor_identity)
+                                          for path, donor_identity in fallback_directories)
         self.last_origin = "unknown"
 
     def _get(self, operation, expert, request):
@@ -82,6 +84,12 @@ class SharedExpertPool:
         path = self.directory / f"{key}.json"
         value = load_cached(path, self.identity)
         self.last_origin = "cached_native_output" if value is not None else "live_native_output"
+        if value is None:
+            for fallback, donor_identity in self.fallback_directories:
+                value = load_cached(fallback / f"{key}.json", donor_identity)
+                if value is not None:
+                    self.last_origin = "reused_compatible_native_output"
+                    break
         if value is None:
             value = getattr(self.pool, operation)(expert, request)
             value = asdict(value) if operation == "infer" else value
@@ -94,7 +102,7 @@ class SharedExpertPool:
 
     def behavior_probe(self, expert, request):
         value = self._get("behavior_probe", expert, request)
-        if self.last_origin == "cached_native_output":
+        if self.last_origin in {"cached_native_output", "reused_compatible_native_output"}:
             value["cached_extra_model_calls"] = value.get("extra_model_calls", 0)
             value["extra_model_calls"] = 0
             value["cached_seconds"] = value.get("seconds", 0)
@@ -201,23 +209,26 @@ def _finalize_shards(root, rows, methods, protocol_payload, shard_count):
 
 
 def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="spatial",
-        shard_index=0, shard_count=1):
+        shard_index=0, shard_count=1, reuse_generalist=None, reuse_expert_run=None):
     from .capability_experts import CapabilityPool
     from .capability_runtime import CapabilityRuntime
     from .capability_study import _filter_optional_experts, _route_records
     from .generalist_factory import generalist_provenance, load_generalist, resolve_generalist_spec
 
-    original = load_manifest(manifest, include_answer_type=protocol != "verified_packets")
+    config = load_experiment_yaml(config_path)
+    uses_answer_contract = config.get("prompt_contract", "legacy_suffix") == "anchor-ce-v1"
+    original = load_manifest(manifest, include_answer_type=protocol != "verified_packets" or uses_answer_contract)
     if shard_count < 1 or not 0 <= shard_index < shard_count:
         raise ValueError("shard_index must be in [0, shard_count)")
-    config = load_experiment_yaml(config_path)
     if protocol == "native_claims" and config.get("prompt_contract") != "anchor-ce-v1":
         raise ValueError("native_claims requires the frozen ANCHOR CE/OE prompt contract")
     if protocol == "verified_packets":
-        if config.get("prompt_contract", "legacy_suffix") != "legacy_suffix" or shard_count != 1:
-            raise ValueError("verified_packets requires one full manifest and a uniform answer prompt")
+        if config.get("prompt_contract", "legacy_suffix") not in {"legacy_suffix", "anchor-ce-v1"}:
+            raise ValueError("verified_packets requires a declared legacy or ANCHOR prompt contract")
         if not config.get("answer_verifiers"):
             raise ValueError("verified_packets requires explicitly configured frozen verifiers")
+    elif reuse_generalist or reuse_expert_run:
+        raise ValueError("cross-run reuse is restricted to verified_packets")
     config["generalist"] = resolve_generalist_spec(config["generalist"])
     config["generalist"]["deterministic_image_padding"] = True
     decoder = ValueGenerationConfig(**config["capability_value"]["generation"])
@@ -249,12 +260,58 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     expert_ids = {name: model_provenance(spec, artifacts) for name, spec in specs.items()}
     verifier_specs = config.get("answer_verifiers", {}) if protocol == "verified_packets" else {}
     verifier_provenance = {name: model_provenance(spec, artifacts) for name, spec in verifier_specs.items()}
+    reused_generalist, reuse_generalist_audit = None, None
+    if reuse_generalist:
+        reuse_path = Path(reuse_generalist)
+        payload = json.loads(reuse_path.read_text(encoding="utf-8"))
+        reused_generalist = payload.get("outputs")
+        expected_ids = [row["id"] for row in original]
+        if (payload.get("schema") != "matched-generalist-reuse-v1"
+                or payload.get("prompt_contract") != config.get("prompt_contract", "legacy_suffix")
+                or payload.get("generalist_id") != config["generalist"]["id"]
+                or not isinstance(reused_generalist, dict)
+                or set(reused_generalist) != set(expected_ids)):
+            raise ValueError("reused Generalist does not match protocol/model/full manifest")
+        for sample_id in expected_ids:
+            value = reused_generalist[sample_id]
+            if not isinstance(value.get("text"), str) or not value["text"].strip() or not value.get("token_ids"):
+                raise ValueError(f"invalid reused Generalist output: {sample_id}")
+        reuse_generalist_audit = {"path": str(reuse_path.resolve()),
+            "sha256": hashlib.sha256(reuse_path.read_bytes()).hexdigest(),
+            "source": payload.get("source"), "n": len(reused_generalist)}
+    fallback_expert_root, reuse_expert_audit, reused_routes = None, None, None
+    if reuse_expert_run:
+        donor_root = Path(reuse_expert_run)
+        donor_protocol_path = donor_root / "protocol.json"
+        donor_protocol = json.loads(donor_protocol_path.read_text(encoding="utf-8"))
+        donor_routes = json.loads((donor_root / "routing.json").read_text(encoding="utf-8"))
+        expected_ids = {row["id"] for row in original}
+        donor_specs, donor_excluded = _filter_optional_experts(
+            donor_protocol["config"]["experts"], artifacts)
+        donor_specs.pop("source_cases", None)
+        donor_ids = {name: model_provenance(spec, artifacts) for name, spec in donor_specs.items()}
+        # Unsharded runs written before scheduling-only sharding have no
+        # shards_complete field; their final protocol.json is emitted only
+        # after all rows are finalized.  A present field must still be true.
+        donor_complete = donor_protocol.get("shards_complete", donor_protocol.get("shards") is None)
+        if (not donor_complete
+                or donor_protocol.get("n") != len(original)
+                or set(donor_routes) != expected_ids
+                or donor_ids != expert_ids or donor_excluded != excluded
+                or any(donor_routes[row["id"]].get("group_id") != row["image_sha256"] for row in original)):
+            raise ValueError("reused expert run does not match full manifest/routes/expert weights")
+        fallback_expert_root = donor_root / "expert-cache"
+        reuse_expert_audit = {"path": str(donor_root.resolve()), "identity": donor_protocol["identity"],
+            "protocol_sha256": hashlib.sha256(donor_protocol_path.read_bytes()).hexdigest(),
+            "native_requests_keyed": True, "expert_provenance_equal": True}
+        reused_routes = donor_routes
     # Bind cached predictions to actual bytes, not just caller-supplied image IDs.
     image_files = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
                    for path in sorted({row["image"] for row in original})}
     identity = cache_identity({**config, "active_experts": specs, "methods": methods,
                                "expert_provenance": expert_ids, "verifier_provenance": verifier_provenance,
-                               "image_file_sha256": image_files}, original, model_id)
+                               "image_file_sha256": image_files, "reuse_generalist": reuse_generalist_audit,
+                               "reuse_expert_run": reuse_expert_audit}, original, model_id)
     root = Path(output_dir) / identity
     root.mkdir(parents=True, exist_ok=True)
     work_root = (root if shard_count == 1 else
@@ -271,8 +328,12 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
              "domain_kind": "official_dataset_split", "role": "target",
              "group_id": r["image_sha256"], "image_sha256": r["image_sha256"]} for r in original]
     rows = rows[shard_index::shard_count]
-    rows, routes = _route_records(rows, config.get("routing", {}), lambda: probe,
-                                  {"identity": identity}, work_root)
+    if reused_routes is None:
+        rows, routes = _route_records(rows, config.get("routing", {}), lambda: probe,
+                                      {"identity": identity}, work_root)
+    else:
+        routes = {row["id"]: reused_routes[row["id"]] for row in rows}
+        rows = [{**row, "modality": routes[row["id"]]["modality"]} for row in rows]
     atomic_json(work_root / "routing.json", routes)
     pool = CapabilityPool(specs, artifacts, source_records=())
     outputs = {name: {} for name in methods}
@@ -281,12 +342,18 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
         for index, row in enumerate(rows, 1):
             # Reuse actual specialist predictions across all evidence arms.
             pool.reset_case()
-            shared_pool = SharedExpertPool(pool, root / "expert-cache" / fingerprint(row["id"]), identity)
+            fallbacks = (() if fallback_expert_root is None else
+                         ((fallback_expert_root / fingerprint(row["id"]), reuse_expert_audit["identity"]),))
+            shared_pool = SharedExpertPool(pool, root / "expert-cache" / fingerprint(row["id"]),
+                                           identity, fallbacks)
             for method, arm in arms.items():
                 path = root / "case-cache" / method / f"{fingerprint(row['id'])}.json"
                 cached = load_cached(path, identity)
                 if cached is None:
-                    if method == "compact_verified":
+                    if method == "generalist" and reused_generalist is not None:
+                        cached = copy.deepcopy(reused_generalist[row["id"]])
+                        cached["reuse_provenance"] = reuse_generalist_audit
+                    elif method == "compact_verified":
                         from .answer_arbitration import arbitrate_output, load_verifier
                         candidate = outputs["compact_all"][row["id"]]
                         baseline = outputs["generalist"][row["id"]]
@@ -329,10 +396,13 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             "collaboration_training_free": frozen_spatial or protocol == "verified_packets",
             "answer_arbitration": "external_frozen_image_text" if verifier_specs else None,
             "verifier_provenance": verifier_provenance,
+            "reuse_generalist": reuse_generalist_audit,
+            "reuse_expert_run": reuse_expert_audit,
             "vector_gate_unit": "native_entry" if protocol == "native_claims" else ("acquired_expert_result" if frozen_spatial else None),
             "vector_gate_control": "paired_local_blur_translation" if protocol == "native_claims" else ("same_size_image_channel_mean" if frozen_spatial else None),
             "semantic_channel": "existing_frozen_token_embeddings" if protocol in {"semantic_spatial", "native_claims"} else None,
-            "excluded": excluded, "baseline_regenerated": True, "dataset_partitioned": False,
+            "excluded": excluded, "baseline_regenerated": reused_generalist is None,
+            "dataset_partitioned": False,
             "references_loaded_for_generation": False, "calibration_or_policy_fitted": False,
             "answer_type_used_for_generation": config.get("prompt_contract") == "anchor-ce-v1",
             "output_grammar": config.get("prompt_contract", "legacy_suffix"),
@@ -362,9 +432,12 @@ def main():
     parser.add_argument("--protocol", choices=("text", "vector", "spatial", "semantic_spatial", "native_claims", "verified_packets"), default="spatial")
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--shard-count", type=int, default=1)
+    parser.add_argument("--reuse-generalist")
+    parser.add_argument("--reuse-expert-run")
     args = parser.parse_args()
     print(run(args.manifest, args.config, args.output, artifacts=args.artifacts, protocol=args.protocol,
-              shard_index=args.shard_index, shard_count=args.shard_count))
+              shard_index=args.shard_index, shard_count=args.shard_count,
+              reuse_generalist=args.reuse_generalist, reuse_expert_run=args.reuse_expert_run))
 
 
 if __name__ == "__main__":

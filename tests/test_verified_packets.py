@@ -12,7 +12,8 @@ from merit_feddg.capability_runtime import ValueGenerationConfig
 from merit_feddg.compact_evidence import columnar, compact_prompt, compact_records, factor_shared
 from merit_feddg.evidence_transport import pack_records
 from merit_feddg.io import load_experiment_yaml
-from merit_feddg.matched_evaluation import experiment_arms
+from merit_feddg.matched_evaluation import SharedExpertPool, experiment_arms
+from merit_feddg.open_study import atomic_json, fingerprint
 from merit_feddg.spatial_evidence import encode_soft_mask
 
 
@@ -136,7 +137,7 @@ def test_five_arms_preserve_uniform_protocol_and_isolate_layout_from_arbitration
     config = load_experiment_yaml('configs/matched_verified_packets.yaml')
     decoder = ValueGenerationConfig(**config['capability_value']['generation'])
     arms = experiment_arms(decoder, 'verified_packets')
-    assert config['prompt_contract'] == 'legacy_suffix' and len(arms) == 5
+    assert config['prompt_contract'] == 'anchor-ce-v1' and len(arms) == 5
     assert replace(arms['compact_rows'], compact_columns=True) == arms['compact_all'] == arms['compact_verified']
     assert all(v.vector_gate == 'off' and not v.native_entry_transport and not v.semantic_spatial for v in arms.values())
     assert all(v.max_new_tokens == v.block_tokens == 64 for v in arms.values())
@@ -157,7 +158,7 @@ def test_actual_verifier_freezes_parameters_and_rejects_text_truncation():
     assert result['decision'] == 'abstain' and result['reason'] == 'verification_unavailable'
 
 
-def test_runner_reuses_candidate_and_never_reads_answer_types(tmp_path, monkeypatch):
+def test_runner_reuses_candidate_and_keeps_answer_type_out_of_runtime(tmp_path, monkeypatch):
     from PIL import Image
 
     from merit_feddg import (
@@ -170,7 +171,8 @@ def test_runner_reuses_candidate_and_never_reads_answer_types(tmp_path, monkeypa
     image = tmp_path / 'i.png'
     Image.new('RGB', (4, 4)).save(image)
     manifest = tmp_path / 'manifest.jsonl'
-    manifest.write_text(json.dumps({'id':'case', 'image':str(image), 'image_sha256':'h', 'question':'Q'}))
+    manifest.write_text(json.dumps({'id':'case', 'image':str(image), 'image_sha256':'h',
+                                    'question':'Q', 'answer_type':'open'}))
     config = load_experiment_yaml('configs/matched_verified_packets.yaml')
     config['experts'] = {}
     config['answer_verifiers']['biomedclip']['modalities'] = ['mixed']
@@ -197,12 +199,39 @@ def test_runner_reuses_candidate_and_never_reads_answer_types(tmp_path, monkeypa
     verifier = Verifier([0,1,0,1])
     verifier.modalities = frozenset({'mixed'})
     monkeypatch.setattr('merit_feddg.answer_arbitration.load_verifier', lambda *a: verifier)
-    root = runner.run(manifest, 'config', tmp_path/'out', protocol='verified_packets')
+    reuse = tmp_path/'generalist.json'
+    reuse.write_text(json.dumps({'schema':'matched-generalist-reuse-v1',
+        'prompt_contract':'anchor-ce-v1', 'generalist_id':config['generalist']['id'],
+        'outputs':{'case':{'text':'base', 'token_ids':[1], 'finished':True, 'seconds':0.,
+                           'trace':[], 'evidence':[]}}}))
+    root = runner.run(manifest, 'config', tmp_path/'out', protocol='verified_packets',
+                      reuse_generalist=reuse)
     result = json.loads((root/'compact_verified.json').read_text())['case']
-    assert len(calls) == 4 and len(verifier.calls) == 1
+    assert len(calls) == 3 and len(verifier.calls) == 1
     assert result['text'] == 'candidate' and result['answer_arbitration']['decision'] == 'accept'
     protocol = json.loads((root/'protocol.json').read_text())
-    assert not protocol['answer_type_used_for_generation'] and not protocol['dataset_partitioned']
+    assert protocol['answer_type_used_for_generation'] and not protocol['dataset_partitioned']
+    assert not protocol['baseline_regenerated']
+    assert protocol['reuse_generalist']['n'] == 1
+
+
+def test_shared_expert_pool_reuses_request_keyed_compatible_cache(tmp_path):
+    from merit_feddg.capabilities import CapabilityRequest
+
+    request = CapabilityRequest('case', 'image', 'question', 'cxr', 'open_vqa', 'target',
+                                'group', 'generation', query='q', scope='scope')
+    donor = tmp_path/'donor'
+    key = fingerprint(['infer', 'expert', request.__dict__])
+    value = {'expert_id':'expert', 'capability':'generation', 'reason':'ok', 'items':[{
+        'evidence_id':'e', 'expert_id':'expert', 'capability':'generation', 'scope':'scope',
+        'payload':{'generated_text':'observation'}, 'summary':'', 'confidence':None,
+        'provenance':{}}]}
+    atomic_json(donor/f'{key}.json', {'identity':'donor-id', 'output':value})
+    live = SimpleNamespace(infer=lambda *a: pytest.fail('compatible cache must avoid live inference'))
+    pool = SharedExpertPool(live, tmp_path/'current', 'current-id', ((donor, 'donor-id'),))
+    result = pool.infer('expert', request)
+    assert result.items[0].payload['generated_text'] == 'observation'
+    assert pool.last_origin == 'reused_compatible_native_output'
 
 
 def test_shared_fields_preserve_boolean_integer_and_float_types():

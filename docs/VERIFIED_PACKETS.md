@@ -76,7 +76,16 @@ m_j = sim(I, render_j(q, y1)) - sim(I, render_j(q, y0))
 - `compact_verified` 对 `compact_all`：同一个候选答案，只改变提交决策。
 - 所有方法都与 Generalist 比较；仅超过旧 hybrid 不构成成功。
 
-运行同一完整清单，不分片、不读取 answer_type、不用 CE/OE 专用提示。因旧 native_claims 快照使用 ANCHOR 提示，本轮必须重新生成统一提示下的全部对照，不能直接拼接旧分数。
+运行同一完整清单，不创建数据子集。为继续满足既有论文评测契约，使用
+`anchor-ce-v1`；`answer_type` 只选择每例统一应用于所有实验臂的固定
+CE/OE 后缀，不进入路由、专家、证据压缩或答案核验。调度分片只把同一
+451 例清单按索引交错分派，所有分片完成后才合并，不改变实验定义。
+
+已完成的 Generalist 可通过 `--reuse-generalist` 导入无标签预测包；运行时
+不会读取参考答案。`--reuse-expert-run` 只复用完整旧运行中按完整请求键缓存
+的原生专家输出，并要求清单图像哈希、路由、活跃专家和权重 provenance
+完全一致。复用来源和文件哈希写入新协议。候选答案、完整包两种布局和外部
+核验仍由本轮代码生成。
 
 ```bash
 python -m merit_feddg.matched_evaluation \
@@ -84,7 +93,10 @@ python -m merit_feddg.matched_evaluation \
   --config configs/matched_verified_packets.yaml \
   --manifest /absolute/path/to/full-inference-manifest.jsonl \
   --artifacts /absolute/path/to/prepared-artifacts \
-  --output runs/matched-verified-packets
+  --output runs/matched-verified-packets \
+  --reuse-generalist runs/vqarad-official-full-test/baselines/llava-med-greedy-anchor-ce-v1.json \
+  --reuse-expert-run runs/matched-semantic-spatial/46662ead4eb2ebeb14ace380ea76a5179a7157e8e7f959a0f771422a09d477c6 \
+  --shard-index 0 --shard-count 2
 ```
 
 沿用已有本地模型；启动前检查核验器快照和 revision。无需下载新模型或训练。若本地 BiomedCLIP 尚未准备，程序明确报错，不会假装跑出了验证结果。
