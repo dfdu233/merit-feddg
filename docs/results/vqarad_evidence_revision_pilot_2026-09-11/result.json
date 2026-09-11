@@ -1,0 +1,317 @@
+{
+  "schema": "vqarad-evidence-revision-pilot-result-v1",
+  "date": "2026-09-11",
+  "dataset": {
+    "name": "VQA-RAD",
+    "split": "official train pilot, selection-only",
+    "n": 24,
+    "closed_n": 12,
+    "open_n": 12,
+    "unique_pixel_hashes": 24,
+    "target_test_used": false
+  },
+  "protocol": {
+    "identity": "f5cebc62ae47dba5fbe77c1f4fbc988e9b226a49eb3f5d661fa78a1097780e12",
+    "prompt_contract": "anchor-ce-v1",
+    "primary_metric": "sample-weighted CE strict correctness plus OE answer-token recall",
+    "complete": true,
+    "methods": 17,
+    "shards": 2,
+    "references_loaded_for_generation": false
+  },
+  "results": {
+    "generalist": {
+      "mixed_score": 0.5590277777777778,
+      "closed_accuracy": 0.6666666666666666,
+      "open_token_recall": 0.4513888888888889,
+      "mean_engine_seconds": 0.6477662762093436,
+      "improved_vs_generalist": 0,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 24,
+      "changed_text_cases": 0
+    },
+    "semantic_all": {
+      "mixed_score": 0.6527777777777778,
+      "closed_accuracy": 0.75,
+      "open_token_recall": 0.5555555555555556,
+      "mean_engine_seconds": 2.3707642538308087,
+      "improved_vs_generalist": 3,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 21,
+      "changed_text_cases": 9
+    },
+    "compact_rows": {
+      "mixed_score": 0.6527777777777778,
+      "closed_accuracy": 0.75,
+      "open_token_recall": 0.5555555555555556,
+      "mean_engine_seconds": 1.2450169951771386,
+      "improved_vs_generalist": 3,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 21,
+      "changed_text_cases": 9
+    },
+    "compact_all": {
+      "mixed_score": 0.6458333333333334,
+      "closed_accuracy": 0.75,
+      "open_token_recall": 0.5416666666666666,
+      "mean_engine_seconds": 1.1992774499570562,
+      "improved_vs_generalist": 3,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 21,
+      "changed_text_cases": 10
+    },
+    "compact_verified": {
+      "mixed_score": 0.6006944444444444,
+      "closed_accuracy": 0.6666666666666666,
+      "open_token_recall": 0.5347222222222222,
+      "mean_engine_seconds": 2.246010216830958,
+      "improved_vs_generalist": 1,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 23,
+      "changed_text_cases": 2
+    },
+    "compact_guarded": {
+      "mixed_score": 0.6423611111111112,
+      "closed_accuracy": 0.75,
+      "open_token_recall": 0.5347222222222222,
+      "mean_engine_seconds": 2.246010216830958,
+      "improved_vs_generalist": 2,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 22,
+      "changed_text_cases": 4
+    },
+    "compact_geometry": {
+      "mixed_score": 0.6423611111111112,
+      "closed_accuracy": 0.75,
+      "open_token_recall": 0.5347222222222222,
+      "mean_engine_seconds": 1.2274856684962288,
+      "improved_vs_generalist": 2,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 22,
+      "changed_text_cases": 9
+    },
+    "compact_spatial": {
+      "mixed_score": 0.5590277777777778,
+      "closed_accuracy": 0.5833333333333334,
+      "open_token_recall": 0.5347222222222222,
+      "mean_engine_seconds": 1.4598097814014181,
+      "improved_vs_generalist": 1,
+      "harmed_vs_generalist": 1,
+      "unchanged_vs_generalist": 22,
+      "changed_text_cases": 10
+    },
+    "uncertainty__semantic_all__predictive_entropy": {
+      "mixed_score": 0.6111111111111112,
+      "closed_accuracy": 0.6666666666666666,
+      "open_token_recall": 0.5555555555555556,
+      "mean_engine_seconds": 11.483282562122136,
+      "improved_vs_generalist": 2,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 22,
+      "changed_text_cases": 5
+    },
+    "uncertainty__semantic_all__semantic_entropy": {
+      "mixed_score": 0.6111111111111112,
+      "closed_accuracy": 0.6666666666666666,
+      "open_token_recall": 0.5555555555555556,
+      "mean_engine_seconds": 11.483282562122136,
+      "improved_vs_generalist": 2,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 22,
+      "changed_text_cases": 6
+    },
+    "uncertainty__semantic_all__discrete_semantic_entropy": {
+      "mixed_score": 0.6111111111111112,
+      "closed_accuracy": 0.6666666666666666,
+      "open_token_recall": 0.5555555555555556,
+      "mean_engine_seconds": 11.483282562122136,
+      "improved_vs_generalist": 2,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 22,
+      "changed_text_cases": 6
+    },
+    "uncertainty__compact_all__predictive_entropy": {
+      "mixed_score": 0.6458333333333334,
+      "closed_accuracy": 0.75,
+      "open_token_recall": 0.5416666666666666,
+      "mean_engine_seconds": 10.36928669292926,
+      "improved_vs_generalist": 3,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 21,
+      "changed_text_cases": 7
+    },
+    "uncertainty__compact_all__semantic_entropy": {
+      "mixed_score": 0.6458333333333334,
+      "closed_accuracy": 0.75,
+      "open_token_recall": 0.5416666666666666,
+      "mean_engine_seconds": 10.36928669292926,
+      "improved_vs_generalist": 3,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 21,
+      "changed_text_cases": 9
+    },
+    "uncertainty__compact_all__discrete_semantic_entropy": {
+      "mixed_score": 0.6458333333333334,
+      "closed_accuracy": 0.75,
+      "open_token_recall": 0.5416666666666666,
+      "mean_engine_seconds": 10.36928669292926,
+      "improved_vs_generalist": 3,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 21,
+      "changed_text_cases": 9
+    },
+    "uncertainty__compact_geometry__predictive_entropy": {
+      "mixed_score": 0.6006944444444444,
+      "closed_accuracy": 0.6666666666666666,
+      "open_token_recall": 0.5347222222222222,
+      "mean_engine_seconds": 10.454733004211448,
+      "improved_vs_generalist": 1,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 23,
+      "changed_text_cases": 6
+    },
+    "uncertainty__compact_geometry__semantic_entropy": {
+      "mixed_score": 0.6423611111111112,
+      "closed_accuracy": 0.75,
+      "open_token_recall": 0.5347222222222222,
+      "mean_engine_seconds": 10.454733004211448,
+      "improved_vs_generalist": 2,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 22,
+      "changed_text_cases": 6
+    },
+    "uncertainty__compact_geometry__discrete_semantic_entropy": {
+      "mixed_score": 0.6423611111111112,
+      "closed_accuracy": 0.75,
+      "open_token_recall": 0.5347222222222222,
+      "mean_engine_seconds": 10.454733004211448,
+      "improved_vs_generalist": 2,
+      "harmed_vs_generalist": 0,
+      "unchanged_vs_generalist": 22,
+      "changed_text_cases": 7
+    }
+  },
+  "selection": {
+    "highest_metric": [
+      "semantic_all",
+      "compact_rows"
+    ],
+    "highest_mixed_score": 0.6527777777777778,
+    "recommended_full_scale_arm": "compact_rows",
+    "reason": "Ties the best primary score with lower recorded latency; semantic-entropy arms add no primary gain. Full scale must audit the metric-invisible ventricle harm.",
+    "uncertainty_safety_observation": "compact_all predictive entropy rejected the observed ventricle bad rewrite while retaining all three scored improvements, but most good changes occurred when uncertainty was unavailable/abstained and the method costs 8.33x compact_rows; gate efficacy is not established.",
+    "statistical_limit": "Three improvements and zero metric harms on n=24 are selection evidence, not an efficacy claim or significance result."
+  },
+  "cases": [
+    {
+      "id": "vqarad-train-pilot-0755",
+      "kind": "metric_good",
+      "question": "what do the densities in the lung fields represent?",
+      "reference": "pleural plaques",
+      "generalist": "The densities in the lung fields represent areas of increased opacity or density on the chest X-ray. These densities can be caused by various factors, such as fluid accumulation, inflammation, infection, or other lung abnormalities. Further evaluation and clinical correlation are needed to determine the cause and significance of",
+      "compact_rows": "The densities in the lung fields represent calcified pleural plaques. These are areas of thickened tissue on the pleura, which is the thin membrane that covers the lungs and lines the inside of the chest cavity. Calcified pleural plaques are often benign and may not cause",
+      "compact_all_predictive_entropy": "The densities in the lung fields represent calcified pleural plaques. These are areas of thickened tissue on the pleura, which is the thin membrane that covers the lungs and lines the inside of the chest cavity. Calcified pleural plaques are often seen on chest X-r",
+      "note": "CheXagent supplied calcified pleural plaques; score 0 to 1."
+    },
+    {
+      "id": "vqarad-train-pilot-0832",
+      "kind": "partial_metric_good",
+      "question": "what indicates there is a consolidation in the right lung?",
+      "reference": "blunting of the costophrenic angle, loss of the right hemidiaphragm and right heart border",
+      "generalist": "The presence of a right-sided pleural effusion in the chest X-ray indicates that there is a consolidation in the right lung.",
+      "compact_rows": "The presence of a consolidation in the right lung is indicated by the expert observation \"Volume loss and infiltrate.\" This observation suggests that there is an area of increased density in the right lung, which could be due to various reasons such as infection, inflammation, or other lung conditions.",
+      "compact_all_predictive_entropy": "In the context of the chest X-ray, a consolidation in the right lung is indicated by an area of increased opacity or density in the right lung field. This can be seen as a region that appears more solid or white compared to the surrounding lung tissue. Consolidation is often associated with conditions such as p",
+      "note": "CheXagent supplied volume loss/infiltrate; token recall 0.25 to 0.5 for compact_rows."
+    },
+    {
+      "id": "vqarad-train-pilot-1587",
+      "kind": "metric_good",
+      "question": "is the heart enlarged?",
+      "reference": "no",
+      "generalist": "Yes, the chest X-ray shows an enlarged heart.",
+      "compact_rows": "No, the heart does not appear to be enlarged in the chest X-ray.",
+      "compact_all_predictive_entropy": "No, the heart does not appear to be enlarged in the chest X-ray.",
+      "note": "CheXagent answered No; closed accuracy 0 to 1."
+    },
+    {
+      "id": "vqarad-train-pilot-1568",
+      "kind": "metric_invisible_bad",
+      "question": "which ventricle is compressed by the lesion?",
+      "reference": "4th ventricle",
+      "generalist": "The right lateral ventricle is compressed by the lesion.",
+      "compact_rows": "The left ventricle is compressed by the lesion.",
+      "compact_all_predictive_entropy": "The right lateral ventricle is compressed by the lesion.",
+      "note": "BiomedParse selected MRI-Cardiac labels for a brain image and changed right lateral ventricle to left ventricle; both remain wrong versus 4th ventricle and token metric stays 0.5."
+    },
+    {
+      "id": "vqarad-train-pilot-1712",
+      "kind": "format_failure",
+      "question": "is the heart size abnormal",
+      "reference": "no",
+      "generalist": "Yes, the chest X-ray shows an abnormally enlarged heart.",
+      "compact_rows": "The heart size appears to be normal in the image.",
+      "compact_all_predictive_entropy": "The heart size appears to be normal in the image.",
+      "note": "Evidence changed enlarged heart to normal, but omitted the required leading No, so strict closed score remains 0."
+    }
+  ],
+  "channel_diagnostics": {
+    "cxr_findings": {
+      "n": 0,
+      "text_changed": 0,
+      "mean_content_delta": null,
+      "improved": 0,
+      "harmed": 0
+    },
+    "cxr_anatomy": {
+      "n": 2,
+      "text_changed": 2,
+      "mean_content_delta": 0.0,
+      "improved": 0,
+      "harmed": 0
+    },
+    "biomed_anatomy": {
+      "n": 0,
+      "text_changed": 0,
+      "mean_content_delta": null,
+      "improved": 0,
+      "harmed": 0
+    },
+    "chexagent_description": {
+      "n": 9,
+      "text_changed": 9,
+      "mean_content_delta": 0.23148148148148148,
+      "improved": 3,
+      "harmed": 0
+    },
+    "biomedparse_objects": {
+      "n": 8,
+      "text_changed": 8,
+      "mean_content_delta": 0.2604166666666667,
+      "improved": 3,
+      "harmed": 0
+    }
+  },
+  "verifier_decisions": {
+    "unchanged": 14,
+    "reject": 6,
+    "accept": 2,
+    "abstain": 2
+  },
+  "integrity": {
+    "manifest_sha256": "ae0f567bccacd4bf7148423e7dd20053a74ddca9b076684cbc73284b6653877e",
+    "references_sha256": "7879cf3dfd72571d3027cdc348f1ba0cb7df8caacbbfc3c11b181498d635de54",
+    "selection_audit_sha256": "3976412093a25dabfdda5ad84b8d0af982944ef29c5bbcef2535b60971c07167",
+    "full_local_evaluation_sha256": "19d5e5de38f592f8daab0927286318e2c922acc449715d3a7335bfe04c432eb4",
+    "shard0_log_sha256": "fabb5443c8ba42fc8a1061cc67369dac95e683a7e0502e6d26ca33baddd7074b",
+    "shard1_log_sha256": "9ee5998811b210f93243bcd6eff40edb3be3f2b243d5190769ceb463a632e788",
+    "local_raw_result_root": "/home/dbw/merit-feddg/runs/vqarad-train-evidence-revision-pilot/uncertainty-matrix-gpu/f5cebc62ae47dba5fbe77c1f4fbc988e9b226a49eb3f5d661fa78a1097780e12",
+    "local_raw_size": "4.2G",
+    "raw_committed_to_git": false
+  },
+  "limitations": [
+    "Pilot sampled from official train split; official test remains untouched for confirmation.",
+    "Lexical token recall can hide a clinically wrong anatomical substitution.",
+    "Sequential shared-cache engine seconds are not independent cold-start latency.",
+    "Expert outputs and verifier/entropy values are not calibrated correctness probabilities."
+  ]
+}

@@ -1,5 +1,26 @@
 # Current status
 
+## VQA-RAD evidence-revision pilot complete (2026-09-11)
+
+- Both CUDA-NLI shards completed 12/12 cases and merged all 17 arms for the
+  fixed 24-case VQA-RAD train selection pilot. The full compact result and case
+  audit are in
+  [`docs/results/vqarad_evidence_revision_pilot_2026-09-11/`](docs/results/vqarad_evidence_revision_pilot_2026-09-11/).
+- Frozen sample-weighted CE/OE score is 55.90% Generalist, 65.28%
+  `semantic_all`, 65.28% `compact_rows`, and 64.58% `compact_all`. The two top
+  arms record 3 improvements, 0 metric harms and 9 changed answers; this small
+  selection set does not establish significance or test efficacy.
+- `compact_rows` is selected for full-scale confirmation because it ties the
+  highest primary score at 1.245 s/case versus 2.371 s for `semantic_all`.
+  `compact_all` predictive entropy rejects the observed metric-invisible bad
+  ventricle rewrite but costs 10.369 s/case, and most useful changes pass through
+  unavailable-uncertainty abstention rather than a positive Gate decision.
+- A clinically important failure is hidden by token recall: on reference `4th
+  ventricle`, BiomedParse routes a brain image to `MRI-Cardiac` and changes one
+  wrong ventricular answer into another while the score remains 0.5. Full scale
+  must explicitly audit this error class. `compact_spatial` is not selected
+  because it has zero net primary gain and one measured harm.
+
 ## VQA-RAD evidence-revision pilot GPU recovery (2026-09-11; dual-host launch)
 
 - The 24-case, 17-arm source-only pilot was found healthy but operationally
