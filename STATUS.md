@@ -1,5 +1,12 @@
 # Current status
 
+## Locally rescored cross-method tables and representative cases (2026-09-11)
+
+- Added [`docs/GOOD_CASES_AND_ALIGNED_VQA_RESULTS_2026-09-11.md`](docs/GOOD_CASES_AND_ALIGNED_VQA_RESULTS_2026-09-11.md), four GitHub-renderable source images, a compact case record and a machine-readable VQA table. The cases preserve expert identity, frozen revision where available, raw expert values, before/after outputs, gate/OOD fields and causal limitations.
+- Remote baseline/method `answers.jsonl` files were rescored with this repository's matched Strict rule and the frozen MedHEval v11 content parser; precomputed remote scores were not copied into the comparison. Local matched Generalist is exact-text identical to remote Greedy on VQA-RAD 451/451 and SLAKE 2,094/2,094 cases.
+- Full aligned VQA-RAD includes Greedy, ICD, VCD, DoLa, MMedPO, MedRAG and all four completed evidence arms. Full aligned SLAKE includes Greedy, ICD, MMedPO, MedRAG and the four evidence arms. The available SLAKE VCD/DoLa/OPERA/PAI/AvisC/VISTA artifacts cover only a 1,536-row subset, and VQA-RAD OPERA/PAI/AvisC/VISTA only the 200-row OPEN subset, so they are not imputed into the full-test tables.
+- Best local Strict evidence arm is `semantic_all`: VQA-RAD 51.35% versus 48.25% Greedy. On SLAKE, `compact_all` is 33.62% Strict versus 32.91% Greedy and 39.59% content diagnostic versus 34.68% Greedy; MMedPO remains higher at 48.35% Strict. SLAKE Strict is retained for exact experiment compatibility but is not plain accuracy because its CLOSED annotation includes non-binary answers.
+
 ## Complete packets and external answer verification (2026-09-10; full GPU run active)
 
 - Added `verified_packets`: complete native packets, lossless scalar/shared-field

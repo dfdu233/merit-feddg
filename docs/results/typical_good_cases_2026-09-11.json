@@ -1,0 +1,61 @@
+{
+  "schema": "merit-feddg-typical-good-cases-v1",
+  "date": "2026-09-11",
+  "cases": [
+    {
+      "id": "pathorob-tolkach-esca-876e526af69d2aab1e88",
+      "dataset": "PathoROB Tolkach ESCA",
+      "modality": "histopathology",
+      "medical_center": "VALSET3_TCGA",
+      "slide_id": "case_044",
+      "patch_id": "tumor.3719",
+      "reference": "tumor tissue",
+      "generalist": {"model": "OpenMed/Qwen2.5-3B-MedVL", "output": "muscularis propria", "confidence": 0.18289023827883913, "correct": false},
+      "expert": {"model": "MahmoodLab/CONCH", "revision": "f9ca9f877171a28ade80228fb195ac5d79003357", "capability": "pathology classification", "output": "tumor tissue", "confidence": 0.6873186467710233},
+      "fusion": {"method": "med_defer_full", "output": "tumor tissue", "gate_weight": 0.16801366687909036, "pre_call_ood": 0.0, "post_call_ood": 0.0, "correct": true},
+      "shuffled_evidence": {"output": "regressed tumor tissue", "correct": false},
+      "image": "../assets/good_cases_2026-09-11/pathology_tumor_tcga_case044.png"
+    },
+    {
+      "id": "pathorob-tolkach-esca-5d6f0543fe1bf923fad6",
+      "dataset": "PathoROB Tolkach ESCA",
+      "modality": "histopathology",
+      "medical_center": "VALSET2_WNS",
+      "slide_id": "case_018",
+      "patch_id": "sh_oes.3685",
+      "reference": "oesophageal mucosa",
+      "generalist": {"model": "OpenMed/Qwen2.5-3B-MedVL", "output": "muscularis propria", "confidence": 0.18369453525917567, "correct": false},
+      "expert": {"model": "MahmoodLab/CONCH", "revision": "f9ca9f877171a28ade80228fb195ac5d79003357", "capability": "pathology classification", "output": "oesophageal mucosa", "confidence": 0.8352729568044365},
+      "fusion": {"method": "med_defer_full", "output": "oesophageal mucosa", "gate_weight": 0.05637889669799324, "pre_call_ood": 0.8571428571428571, "post_call_ood": 0.42857142857142855, "correct": true},
+      "shuffled_evidence": {"output": "muscularis propria", "correct": false},
+      "image": "../assets/good_cases_2026-09-11/pathology_oesophageal_mucosa_wns_case018.png"
+    },
+    {
+      "id": "slake-official-test-0250",
+      "dataset": "SLAKE",
+      "modality": "CT",
+      "question": "What organ is the gray part on the left of the image?",
+      "reference": "Liver",
+      "generalist": {"model": "LLaVA-Med-v1.5-7B", "output": "The gray part on the left of the image is the spleen.", "score": 0.0},
+      "expert": {"model": "microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", "revision": "9f341de24bfb00180f1b847274256e9b65a3a32e", "capability": "major-anatomy classification", "top_matches": [{"concept": "liver", "similarity": 0.39959012390729476}, {"concept": "spleen", "similarity": 0.3399150420829304}, {"concept": "breast", "similarity": 0.32672969138818464}], "score_semantics": "relative_similarity_not_probability", "confidence": null},
+      "compact_all": {"output": "The gray part on the left of the image is the liver.", "score": 1.0},
+      "compact_verified": {"output": "The gray part on the left of the image is the spleen.", "score": 0.0, "note": "The answer verifier reverted a correct expert-assisted answer."},
+      "image": "../assets/good_cases_2026-09-11/slake_ct_liver_0250.jpg"
+    },
+    {
+      "id": "slake-official-test-0514",
+      "dataset": "SLAKE",
+      "modality": "CXR",
+      "question": "What part of the lung is the pneumonia located in?",
+      "reference": "Lower Left Lung",
+      "generalist": {"model": "LLaVA-Med-v1.5-7B", "output": "The pneumonia is located in the right lower lobe of the lung.", "answer_token_recall": 0.6666666666666666},
+      "experts": [
+        {"model": "xrv/pspnet-chestxray", "capability": "thoracic-anatomy segmentation", "output": "Left Lung, Right Lung and Heart masks", "adopted": true, "confidence": null},
+        {"model": "StanfordAIMI/CheXagent-2-3b", "capability": "CXR question-conditioned generation", "output": "Lower Left Lung", "adopted": true, "confidence": null}
+      ],
+      "compact_all": {"output": "The pneumonia is located in the left lower lobe of the lung.", "answer_token_recall": 1.0},
+      "causal_warning": "semantic_all also corrects this case without cxr_anatomy; the correction cannot be attributed to segmentation alone and is most directly supported by CheXagent's text.",
+      "image": "../assets/good_cases_2026-09-11/slake_cxr_pneumonia_0514.jpg"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "merit-feddg-aligned-vqa-local-rescore-v1",
+  "date": "2026-09-11",
+  "evaluation": {
+    "strict_mixed": "For CLOSED rows, the local matched evaluator requires a leading Yes/No decision; OPEN rows use reference answer-token recall; all rows are sample-weighted.",
+    "content_aware_mixed_diagnostic": "The frozen MedHEval v11 evaluator scores CLOSED rows using its content-aware parser; OPEN rows use the same answer-token recall.",
+    "evaluator_protocol": "medheval-decoded-eval-v11-explanatory-binary-source-audited",
+    "evaluator_source_sha256": "47587c200cef7b6b182f6788b85c1c021d1cd83ad6878ffcdcd8f5ae3f14f7c3",
+    "remote_answers_rescored_locally": true,
+    "target_labels_used_for_generation": false
+  },
+  "alignment": {
+    "vqa_rad": {
+      "n": 451,
+      "closed_n": 251,
+      "open_n": 200,
+      "local_generalist_equals_remote_greedy_exact_text": "451/451"
+    },
+    "slake": {
+      "n": 2094,
+      "closed_n": 836,
+      "open_n": 1258,
+      "local_generalist_equals_remote_greedy_exact_text": "2094/2094",
+      "strict_warning": "SLAKE CLOSED includes non-binary answers; the local leading-Yes/No Strict score is retained for exact experiment compatibility but is not plain medical accuracy."
+    }
+  },
+  "vqa_rad": [
+    {"method": "Greedy / matched generalist", "strict_mixed": 0.48251336616081625, "content_aware_mixed_diagnostic": 0.484730661061038, "closed_strict": 0.6095617529880478, "closed_content": 0.6135458167330677, "open_recall": 0.3230676406926407},
+    {"method": "ICD", "strict_mixed": 0.469364615428917, "content_aware_mixed_diagnostic": 0.4715819103291387, "closed_strict": 0.5896414342629482, "closed_content": 0.5936254980079682, "open_recall": 0.3184172077922078},
+    {"method": "VCD", "strict_mixed": 0.4245284648832321, "content_aware_mixed_diagnostic": 0.4489187087856711, "closed_strict": 0.4900398406374502, "closed_content": 0.5338645418326693, "open_recall": 0.3423116883116883},
+    {"method": "DoLa", "strict_mixed": 0.46549058849502306, "content_aware_mixed_diagnostic": 0.46549058849502306, "closed_strict": 0.5776892430278885, "closed_content": 0.5776892430278885, "open_recall": 0.32468127705627703},
+    {"method": "MMedPO", "strict_mixed": 0.4990638888088999, "content_aware_mixed_diagnostic": 0.4990638888088999, "closed_strict": 0.601593625498008, "closed_content": 0.601593625498008, "open_recall": 0.3703890692640693},
+    {"method": "MedRAG", "strict_mixed": 0.3948107140457473, "content_aware_mixed_diagnostic": 0.3948107140457473, "closed_strict": 0.46613545816733065, "closed_content": 0.46613545816733065, "open_recall": 0.3052981601731602},
+    {"method": "Ours semantic_all", "strict_mixed": 0.5135132605753449, "content_aware_mixed_diagnostic": 0.5379035044777839, "closed_strict": 0.6334661354581673, "closed_content": 0.6772908366533864, "open_recall": 0.3629724025974026},
+    {"method": "Ours compact_rows", "strict_mixed": 0.5018724623491807, "content_aware_mixed_diagnostic": 0.5395664756529501, "closed_strict": 0.6135458167330677, "closed_content": 0.6812749003984063, "open_recall": 0.36172240259740257},
+    {"method": "Ours compact_all", "strict_mixed": 0.5040897572494025, "content_aware_mixed_diagnostic": 0.5395664756529501, "closed_strict": 0.6095617529880478, "closed_content": 0.6733067729083665, "open_recall": 0.3717224025974026},
+    {"method": "Ours compact_verified", "strict_mixed": 0.49991913112755687, "content_aware_mixed_diagnostic": 0.5220920801297741, "closed_strict": 0.6175298804780877, "closed_content": 0.6573705179282868, "open_recall": 0.3523176406926407}
+  ],
+  "slake": [
+    {"method": "Greedy / matched generalist", "strict_mixed": 0.3291439604118687, "content_aware_mixed_diagnostic": 0.34681349240804826, "closed_strict": 0.423444976076555, "closed_content": 0.4677033492822967, "open_recall": 0.2664765128000422},
+    {"method": "ICD", "strict_mixed": 0.3456268407915972, "content_aware_mixed_diagnostic": 0.3327328579835743, "closed_strict": 0.49521531100478466, "closed_content": 0.46291866028708134, "open_recall": 0.24621828665946313},
+    {"method": "MMedPO", "strict_mixed": 0.48350128726203223, "content_aware_mixed_diagnostic": 0.465354200347037, "closed_strict": 0.6746411483253588, "closed_content": 0.6291866028708134, "open_recall": 0.35647988515635576},
+    {"method": "MedRAG", "strict_mixed": 0.21339488141064072, "content_aware_mixed_diagnostic": 0.2716565815061517, "closed_strict": 0.2631578947368421, "closed_content": 0.4090909090909091, "open_recall": 0.18032502517796636},
+    {"method": "Ours semantic_all", "strict_mixed": 0.33703953506962103, "content_aware_mixed_diagnostic": 0.3933910154898694, "closed_strict": 0.36363636363636365, "closed_content": 0.5047846889952153, "open_recall": 0.3193646950999892},
+    {"method": "Ours compact_rows", "strict_mixed": 0.3351618759570049, "content_aware_mixed_diagnostic": 0.39485624080896287, "closed_strict": 0.36004784688995217, "closed_content": 0.5095693779904307, "open_recall": 0.3186239811239811},
+    {"method": "Ours compact_all", "strict_mixed": 0.33620381396169363, "content_aware_mixed_diagnostic": 0.3958981788136516, "closed_strict": 0.361244019138756, "closed_content": 0.5107655502392344, "open_recall": 0.31956342323989384},
+    {"method": "Ours compact_verified", "strict_mixed": 0.3250811257616415, "content_aware_mixed_diagnostic": 0.3632855192668946, "closed_strict": 0.3875598086124402, "closed_content": 0.48325358851674644, "open_recall": 0.28356111076699314}
+  ],
+  "not_in_full_aligned_table": {
+    "slake": ["VCD", "DoLa", "OPERA", "PAI", "AvisC", "VISTA"],
+    "reason": "The available SLAKE artifacts for these methods contain 1536 fine-grained rows rather than the frozen full 2094-row test manifest; missing rows are not imputed.",
+    "vqa_rad_partial_artifacts": "OPERA, PAI, AvisC and VISTA currently have only the 200-row open subset in the inspected result tree."
+  }
+}
