@@ -422,6 +422,25 @@ class LlavaMedGeneralist:
             image, prompt, max_new_tokens, logits_processor, allowed_texts=allowed_texts
         )["text"]
 
+    def sample_answers(self, image, prompt, *, count, max_new_tokens, seed):
+        """Independent ancestral samples at T=1; isolate RNG from other arms."""
+        if type(count) is not int or count < 2:
+            raise ValueError('uncertainty requires at least two samples')
+        inputs = self._inputs(image, prompt)
+        self._validate_context(inputs, max_new_tokens)
+        devices = list(range(self.torch.cuda.device_count()))
+        results = []
+        with self.torch.random.fork_rng(devices=devices), self.torch.inference_mode():
+            self.torch.manual_seed(seed)
+            for _ in range(count):
+                output = self.model.generate(**inputs, max_new_tokens=max_new_tokens,
+                    do_sample=True, temperature=1.0, top_p=1.0, top_k=0,
+                    num_beams=1, use_cache=True, return_dict_in_generate=True, output_scores=True)
+                ids, mean_logp, finished = _generated_rows(output, self.model, self.tokenizer)[0]
+                results.append({'text':self.tokenizer.decode(ids, skip_special_tokens=True).strip(),
+                    'token_ids':list(ids), 'mean_log_probability':mean_logp, 'finished':finished})
+        return results
+
     def generate_with_usage(
         self, image, prompt, max_new_tokens=64, logits_processor=None, *, allowed_texts=None
     ):

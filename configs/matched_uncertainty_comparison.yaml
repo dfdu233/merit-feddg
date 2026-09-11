@@ -1,0 +1,57 @@
+# Experimental successor; run with --protocol evidence_revision.
+# Full manifest, generic complete-packet transport and external answer verification.
+# Semantic tokens use existing embeddings; this is NOT arbitrary latent alignment.
+base_config: configs/llava_med_capabilities.yaml
+prompt_contract: legacy_suffix
+generalist:
+  training_free_spatial: true
+  spatial_max_records: 64
+  deterministic_image_padding: true
+capability_value:
+  generation:
+    max_new_tokens: 64
+    block_tokens: 64
+    max_expert_calls: 4
+    max_decisions: 5
+    max_evidence_chars: 30000
+    visual_views: 0
+    evidence_style: semantic
+    evidence_order: acquisition
+    token_budgeted_evidence: true
+    request_style: need
+    request_scope_check: false
+    retrieval_answer_context: false
+    behavior_probe: "off"
+    uncertainty_from_probe: false
+    semantic_spatial: false
+    vector_gate: "off"
+    native_entry_transport: false
+    claim_attribute_filter: false
+    claim_gate_max_checks: 2
+    vector_gate_probe_tokens: 64
+    spatial_weighting: equal
+    vector_gate_min_gain: 0.000001
+expert_overrides:
+  cxr_findings:
+    spatial_support: true
+
+# Existing pretrained model only. Scope is an experimental applicability
+# declaration, not a claim that every medical attribute is verified correctly.
+answer_verifiers:
+  biomedclip:
+    id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+    adapter: contrastive_biomedclip
+    modalities: [cxr, xray, ct, mri, gross_pathology]
+    device: auto
+
+# Optional: requires an explicitly prepared local NLI checkpoint.
+# Estimators: ICLR 2023 semantic entropy / Nature 2024 discrete variant.
+uncertainty_comparison:
+  enabled: true
+  samples: 5
+  seed: 0
+  candidates: [semantic_all, compact_all, compact_geometry]
+  nli_model_id: microsoft/deberta-v2-xlarge-mnli
+  nli_checkpoint: artifacts/models/deberta-v2-xlarge-mnli
+  nli_device: cpu

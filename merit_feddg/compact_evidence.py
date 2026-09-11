@@ -17,7 +17,7 @@ def _equal(left, right):
 ARRAY_ENCODINGS = {'float32-zlib-base64', 'rle-row-major-zero-first'}
 
 
-def compact_records(items):
+def compact_records(items, *, geometry=False):
     records = []
     for item in items:
         arrays = []
@@ -28,7 +28,11 @@ def compact_records(items):
                     arrays.append(path)
                     # Shape/encoding and deterministic array ordinal are retained; only array
                     # values leave the semantic channel. No geometry is invented.
-                    return {'array': index, **{k: v for k, v in value.items() if k not in {'data', 'counts'}}}
+                    result = {'array': index, **{k: v for k, v in value.items() if k not in {'data', 'counts'}}}
+                    if geometry:
+                        from .semantic_evidence import native_grid_summary
+                        result['geometry_summary'] = native_grid_summary(value)
+                    return result
                 return {k: visit(v, f'{path}/{k}') for k, v in value.items()}
             if isinstance(value, (list, tuple)):
                 return [visit(v, f'{path}/{i}') for i, v in enumerate(value)]

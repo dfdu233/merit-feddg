@@ -174,10 +174,10 @@ def test_full_manifest_kept_intact_and_only_answer_blind_task_type_loaded(tmp_pa
              "answer_type": "closed"} for i in range(7)]
     path = tmp_path / "manifest.jsonl"
     path.write_text("\n".join(json.dumps(r) for r in rows))
-    assert load_manifest(path) == rows
+    assert load_manifest(path) == [{**r, "task": "open_vqa"} for r in rows]
     altered = [{**r, "answer_type": "open"} for r in rows]
     path.write_text("\n".join(json.dumps(r) for r in altered))
-    assert load_manifest(path) == altered
+    assert load_manifest(path) == [{**r, "task": "open_vqa"} for r in altered]
     rows[0]["answer"] = "no"
     path.write_text("\n".join(json.dumps(r) for r in rows))
     with pytest.raises(ValueError, match="labels"):

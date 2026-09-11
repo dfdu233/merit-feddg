@@ -53,6 +53,7 @@ class ValueGenerationConfig:
     semantic_spatial: bool = False
     compact_native: bool = False
     compact_columns: bool = True
+    compact_geometry: bool = False
     native_entry_transport: bool = False
     claim_attribute_filter: bool = False
     claim_gate_max_checks: int = 2
@@ -62,6 +63,8 @@ class ValueGenerationConfig:
 
         if type(self.compact_native) is not bool or type(self.compact_columns) is not bool:
             raise ValueError("compact options must be boolean")
+        if type(self.compact_geometry) is not bool or (self.compact_geometry and not self.compact_native):
+            raise ValueError("compact geometry requires compact native transport")
         if self.compact_native and (self.evidence_style != "semantic" or self.native_entry_transport):
             raise ValueError("compact transport requires intact semantic packets")
         if self.spatial_weighting not in {"equal", "relevance"}:
@@ -263,7 +266,8 @@ class NativeSession:
                 render = lambda memory: semantic_prompt(self.prompt, memory)
                 if self.config.compact_native:
                     from .compact_evidence import compact_prompt, compact_records
-                    records = compact_records(presentation_items(state.items, self.question, self.config))
+                    records = compact_records(presentation_items(state.items, self.question, self.config),
+                                              geometry=self.config.compact_geometry)
                     render = lambda memory: compact_prompt(self.prompt, memory, columns=self.config.compact_columns)
                     companion_render = lambda memory: compact_prompt(self.prompt, memory, columns=not self.config.compact_columns)
             else:

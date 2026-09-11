@@ -122,6 +122,12 @@ class SharedExpertPool:
 
 def experiment_arms(decoder, protocol):
     """Declare matched arms without consulting case metadata or answer types."""
+    if protocol == "evidence_revision":
+        arms = experiment_arms(decoder, "verified_packets")
+        arms['compact_guarded'] = arms['compact_all']
+        arms['compact_geometry'] = replace(arms['compact_all'], compact_geometry=True)
+        arms['compact_spatial'] = replace(arms['compact_geometry'], semantic_spatial=True)
+        return arms
     if protocol == "verified_packets":
         if decoder.evidence_style != "semantic" or decoder.native_entry_transport or decoder.semantic_spatial:
             raise ValueError("verified_packets requires intact semantic-only packets")
@@ -228,12 +234,15 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     uses_answer_contract = config.get("prompt_contract", "legacy_suffix") in {
         "anchor-ce-v1", "anchor-task-v1"
     }
-    original = load_manifest(manifest, include_answer_type=protocol != "verified_packets" or uses_answer_contract)
+    packet_protocol = protocol in {"verified_packets", "evidence_revision"}
+    if protocol == "evidence_revision" and config.get("prompt_contract", "legacy_suffix") != "legacy_suffix":
+        raise ValueError("evidence_revision requires the same generic prompt for all questions")
+    original = load_manifest(manifest, include_answer_type=not packet_protocol or uses_answer_contract)
     if shard_count < 1 or not 0 <= shard_index < shard_count:
         raise ValueError("shard_index must be in [0, shard_count)")
     if protocol == "native_claims" and config.get("prompt_contract") != "anchor-ce-v1":
         raise ValueError("native_claims requires the frozen ANCHOR CE/OE prompt contract")
-    if protocol == "verified_packets":
+    if packet_protocol:
         if config.get("prompt_contract", "legacy_suffix") not in {
             "legacy_suffix", "anchor-ce-v1", "anchor-task-v1"
         }:
@@ -246,9 +255,26 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     config["generalist"]["deterministic_image_padding"] = True
     decoder = ValueGenerationConfig(**config["capability_value"]["generation"])
     arms = experiment_arms(decoder, protocol)
+    uncertainty = config.get('uncertainty_comparison', {})
+    uncertainty_arms = {}
+    if uncertainty.get('enabled'):
+        from .semantic_uncertainty import METHODS
+        if protocol != 'evidence_revision':
+            raise ValueError('uncertainty comparisons require evidence_revision')
+        if type(uncertainty.get('samples')) is not int or uncertainty['samples'] < 2:
+            raise ValueError('declare at least two uncertainty samples')
+        if not uncertainty.get('nli_checkpoint'):
+            raise ValueError('declare a prepared frozen MNLI checkpoint')
+        for source in uncertainty.get('candidates', ['compact_all']):
+            if source not in {'semantic_all', 'compact_rows', 'compact_all', 'compact_geometry'}:
+                raise ValueError('uncertainty candidate must have a supported semantic sampling path')
+            for estimator in METHODS:
+                name = f'uncertainty__{source}__{estimator}'
+                uncertainty_arms[name] = (source, estimator)
+                arms[name] = arms[source]
     methods = {name: asdict(arm) for name, arm in arms.items()}
     vector = protocol in {"vector", "spatial"}
-    frozen_spatial = vector or protocol in {"semantic_spatial", "native_claims"}
+    frozen_spatial = vector or protocol in {"semantic_spatial", "native_claims", "evidence_revision"}
     if frozen_spatial and (not config["generalist"].get("training_free_spatial")
                    or config["generalist"].get("tensor_bridge_checkpoint")):
         raise ValueError("vector/spatial experiment requires training_free_spatial, never a trained bridge")
@@ -271,8 +297,13 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     prompt_by_id = {row["id"]: generation_prompt(row, config) for row in original}
     model_id = generalist_provenance(config["generalist"], artifacts)
     expert_ids = {name: model_provenance(spec, artifacts) for name, spec in specs.items()}
-    verifier_specs = config.get("answer_verifiers", {}) if protocol == "verified_packets" else {}
+    verifier_specs = config.get("answer_verifiers", {}) if packet_protocol else {}
     verifier_provenance = {name: model_provenance(spec, artifacts) for name, spec in verifier_specs.items()}
+    if uncertainty.get('enabled'):
+        # Bind result caches to the actual prepared NLI model as well as the VLM.
+        verifier_provenance['semantic_entropy_nli'] = model_provenance({
+            'id':uncertainty.get('nli_model_id', 'microsoft/deberta-v2-xlarge-mnli'),
+            'checkpoint_path':uncertainty['nli_checkpoint']}, artifacts)
     reused_generalist, reuse_generalist_audit = None, None
     if reuse_generalist:
         reuse_path = Path(reuse_generalist)
@@ -357,8 +388,10 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     pool = CapabilityPool(specs, artifacts, source_records=())
     outputs = {name: {} for name in methods}
     verifiers = {}
+    entailment = None
     try:
         for index, row in enumerate(rows, 1):
+            uncertainty_cache = {}
             # Reuse actual specialist predictions across all evidence arms.
             pool.reset_case()
             fallbacks = (() if fallback_expert_root is None else
@@ -372,6 +405,36 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                     if method == "generalist" and reused_generalist is not None:
                         cached = copy.deepcopy(reused_generalist[row["id"]])
                         cached["reuse_provenance"] = reuse_generalist_audit
+                    elif method in uncertainty_arms:
+                        from .semantic_uncertainty import (
+                            FrozenDebertaEntailment,
+                            estimate_answer_uncertainty,
+                            prefer_lower_uncertainty,
+                        )
+                        nli_load_seconds = 0.0
+                        if entailment is None:
+                            load_started = perf_counter()
+                            entailment = FrozenDebertaEntailment(uncertainty['nli_checkpoint'],
+                                uncertainty.get('nli_device', 'cpu'))
+                            nli_load_seconds = perf_counter()-load_started
+                        source, estimator = uncertainty_arms[method]
+                        for name in ('generalist', source):
+                            if name not in uncertainty_cache:
+                                seed = int(fingerprint([row['id'], name, uncertainty.get('seed', 0)])[:8], 16)
+                                uncertainty_cache[name] = estimate_answer_uncertainty(probe, row,
+                                    prompt_by_id[row['id']], arms[name], outputs[name][row['id']],
+                                    entailment, count=uncertainty['samples'], seed=seed)
+                                if nli_load_seconds:
+                                    uncertainty_cache[name]['nli_initialization_seconds'] = nli_load_seconds
+                                    uncertainty_cache[name]['seconds'] = uncertainty_cache[name].get('seconds', 0)+nli_load_seconds
+                                    nli_load_seconds = 0.0
+                        cached = prefer_lower_uncertainty(outputs['generalist'][row['id']],
+                            outputs[source][row['id']], uncertainty_cache['generalist'],
+                            uncertainty_cache[source], estimator)
+                    elif method == "compact_guarded":
+                        from .revision_policy import preserve_unverified_candidate
+                        cached = preserve_unverified_candidate(outputs['generalist'][row['id']],
+                            outputs['compact_all'][row['id']], outputs['compact_verified'][row['id']])
                     elif method == "compact_verified":
                         from .answer_arbitration import arbitrate_output, load_verifier
                         candidate = outputs["compact_all"][row["id"]]
@@ -382,14 +445,22 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                             raise ValueError("declare one verifier per modality; no implicit selection")
                         verifier = None
                         verifier_load_seconds = 0.0
+                        sources = [specs[e["expert_id"]]["id"] for e in candidate.get("evidence", [])]
+                        if protocol == 'evidence_revision':
+                            from .revision_policy import presented_expert_ids
+                            sources = [specs[name]['id'] for name in presented_expert_ids(candidate)]
                         if eligible and baseline["text"] != candidate["text"]:
                             name, spec = eligible[0]
-                            if name not in verifiers:
+                            if protocol == 'evidence_revision' and spec['id'] in {config['generalist']['id'], *sources}:
+                                from types import SimpleNamespace
+                                # assess_revision exits on identity before calling score.
+                                verifier = SimpleNamespace(model_id=spec['id'], modalities=spec['modalities'])
+                            elif name not in verifiers:
                                 load_started = perf_counter()
                                 verifiers[name] = load_verifier(spec, artifacts)
                                 verifier_load_seconds = perf_counter() - load_started
-                            verifier = verifiers[name]
-                        sources = [specs[e["expert_id"]]["id"] for e in candidate.get("evidence", [])]
+                            if verifier is None:
+                                verifier = verifiers[name]
                         cached = arbitrate_output(baseline, candidate, image=row["image"],
                             question=row["question"], modality=row["modality"], verifier=verifier,
                             generalist_id=config["generalist"]["id"], source_model_ids=sources)
@@ -417,8 +488,10 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             "verifier_provenance": verifier_provenance,
             "reuse_generalist": reuse_generalist_audit,
             "reuse_expert_run": reuse_expert_audit,
-            "vector_gate_unit": "native_entry" if protocol == "native_claims" else ("acquired_expert_result" if frozen_spatial else None),
-            "vector_gate_control": "paired_local_blur_translation" if protocol == "native_claims" else ("same_size_image_channel_mean" if frozen_spatial else None),
+            "vector_gate_unit": "native_entry" if protocol == "native_claims" else ("acquired_expert_result" if frozen_spatial and protocol != "evidence_revision" else None),
+            "vector_gate_control": "paired_local_blur_translation" if protocol == "native_claims" else ("same_size_image_channel_mean" if frozen_spatial and protocol != "evidence_revision" else None),
+            "revision_policy": "candidate_default_v1" if protocol == "evidence_revision" else None,
+            "domain_generalization_proven": False,
             "semantic_channel": "existing_frozen_token_embeddings" if protocol in {"semantic_spatial", "native_claims"} else None,
             "excluded": excluded, "baseline_regenerated": reused_generalist is None,
             "dataset_partitioned": False,
@@ -450,7 +523,7 @@ def main():
     parser.add_argument("--config", default="configs/matched_vector_gate.yaml")
     parser.add_argument("--output", default="runs/matched-spatial")
     parser.add_argument("--artifacts", default="artifacts")
-    parser.add_argument("--protocol", choices=("text", "vector", "spatial", "semantic_spatial", "native_claims", "verified_packets"), default="spatial")
+    parser.add_argument("--protocol", choices=("text", "vector", "spatial", "semantic_spatial", "native_claims", "verified_packets", "evidence_revision"), default="spatial")
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--shard-count", type=int, default=1)
     parser.add_argument("--reuse-generalist")
