@@ -54,4 +54,6 @@ uncertainty_comparison:
   candidates: [semantic_all, compact_all, compact_geometry]
   nli_model_id: microsoft/deberta-v2-xlarge-mnli
   nli_checkpoint: artifacts/models/deberta-v2-xlarge-mnli
-  nli_device: cpu
+  # The xlarge NLI verifier dominates wall time on CPU. Each evaluation shard
+  # owns one physical GPU, so keep both stochastic VLM sampling and NLI there.
+  nli_device: cuda

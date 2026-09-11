@@ -1,5 +1,25 @@
 # Current status
 
+## VQA-RAD evidence-revision pilot GPU recovery (2026-09-11; dual-host launch)
+
+- The 24-case, 17-arm source-only pilot was found healthy but operationally
+  misconfigured: `microsoft/deberta-v2-xlarge-mnli` was pinned to CPU, so each
+  shard held LLaVA-Med GPU memory while spending most wall time in repeated
+  bidirectional NLI with reported GPU utilization at zero. The two CPU-NLI
+  workers were stopped cleanly and their atomic partial caches retained.
+- `configs/matched_uncertainty_comparison.yaml` now places the frozen NLI model
+  on the shard's CUDA device. This changes execution placement only: sample
+  count, seeds, candidate arms, estimators, prompts and thresholds are unchanged.
+  A real 1-case/17-arm GPU run completed in about 42 seconds instead of roughly
+  9 minutes for the first CPU-NLI case. Every overlapping deterministic answer,
+  uncertainty decision and uncertainty reduction matched the prior CPU result.
+  GPU utilization reached 98%, all 17 arms completed, and there was no OOM or
+  traceback. Focused tests pass 15/15 and `git diff --check` passes.
+- Formal recovery uses one process per physical GPU: container GPU 0 (host GPU
+  1) runs shard 0/2, and host GPU 0 runs shard 1/2 with the shared `/home/dbw`
+  checkpoints and `/home/dbw/hf-shared` cache. Both must use the same commit,
+  configuration, 24-row manifest and output root before the runner will merge.
+
 ## Locally rescored cross-method tables and representative cases (2026-09-11)
 
 - Added [`docs/GOOD_CASES_AND_ALIGNED_VQA_RESULTS_2026-09-11.md`](docs/GOOD_CASES_AND_ALIGNED_VQA_RESULTS_2026-09-11.md), four GitHub-renderable source images, a compact case record and a machine-readable VQA table. The cases preserve expert identity, frozen revision where available, raw expert values, before/after outputs, gate/OOD fields and causal limitations.
