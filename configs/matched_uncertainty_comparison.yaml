@@ -1,8 +1,8 @@
 # Experimental successor; run with --protocol evidence_revision.
-# Full manifest, generic complete-packet transport and external answer verification.
+# Full manifest, frozen ANCHOR CE/OE prompts, complete-packet transport and external verification.
 # Semantic tokens use existing embeddings; this is NOT arbitrary latent alignment.
 base_config: configs/llava_med_capabilities.yaml
-prompt_contract: legacy_suffix
+prompt_contract: anchor-ce-v1
 generalist:
   training_free_spatial: true
   spatial_max_records: 64

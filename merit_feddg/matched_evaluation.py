@@ -235,8 +235,10 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
         "anchor-ce-v1", "anchor-task-v1"
     }
     packet_protocol = protocol in {"verified_packets", "evidence_revision"}
-    if protocol == "evidence_revision" and config.get("prompt_contract", "legacy_suffix") != "legacy_suffix":
-        raise ValueError("evidence_revision requires the same generic prompt for all questions")
+    if protocol == "evidence_revision" and config.get("prompt_contract", "legacy_suffix") not in {
+        "legacy_suffix", "anchor-ce-v1"
+    }:
+        raise ValueError("evidence_revision requires a declared generic or frozen CE/OE prompt contract")
     original = load_manifest(manifest, include_answer_type=not packet_protocol or uses_answer_contract)
     if shard_count < 1 or not 0 <= shard_index < shard_count:
         raise ValueError("shard_index must be in [0, shard_count)")
@@ -492,7 +494,9 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             "vector_gate_control": "paired_local_blur_translation" if protocol == "native_claims" else ("same_size_image_channel_mean" if frozen_spatial and protocol != "evidence_revision" else None),
             "revision_policy": "candidate_default_v1" if protocol == "evidence_revision" else None,
             "domain_generalization_proven": False,
-            "semantic_channel": "existing_frozen_token_embeddings" if protocol in {"semantic_spatial", "native_claims"} else None,
+            "semantic_channel": "existing_frozen_token_embeddings" if protocol in {
+                "semantic_spatial", "native_claims", "evidence_revision"
+            } else None,
             "excluded": excluded, "baseline_regenerated": reused_generalist is None,
             "dataset_partitioned": False,
             "references_loaded_for_generation": False, "calibration_or_policy_fitted": False,

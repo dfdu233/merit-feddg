@@ -76,7 +76,7 @@ def test_geometry_is_measured_without_modifying_masks_or_asserting_presence():
 
 def test_new_arms_keep_old_arms_and_isolate_geometry_from_spatial_operator():
     config = load_experiment_yaml('configs/matched_evidence_revision.yaml')
-    assert config['prompt_contract'] == 'legacy_suffix'
+    assert config['prompt_contract'] == 'anchor-ce-v1'
     decoder = ValueGenerationConfig(**config['capability_value']['generation'])
     old = experiment_arms(decoder, 'verified_packets')
     new = experiment_arms(decoder, 'evidence_revision')
@@ -107,7 +107,8 @@ def test_complete_runner_reuses_candidate_and_skips_same_source_model_load(tmp_p
     Image.new('RGB', (4, 4)).save(image)
     manifest = tmp_path/'manifest.jsonl'
     manifest.write_text(json.dumps({'id':'case', 'image':str(image), 'image_sha256':'h',
-                                     'question':'Which organ?'}))
+                                     'question':'Which organ?', 'answer_type':'open',
+                                     'task':'open_vqa'}))
     config = load_experiment_yaml('configs/matched_evidence_revision.yaml')
     if enable_uncertainty:
         config['uncertainty_comparison'] = {'enabled':True, 'samples':5,

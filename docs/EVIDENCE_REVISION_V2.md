@@ -12,7 +12,10 @@ as that expert; the existing guard abstains rather than scores this evidence.
 An unavailable verification is not a negative finding. The new candidate-default
 policy is an explicit experimental alternative, NOT a correctness guarantee.
 
-Eight arms run on the same complete manifest and a single generic answer prompt:
+Eight arms run on the same complete manifest. VQA experiments use the frozen
+`anchor-ce-v1` CE/OE prompt contract so the Generalist and final scores remain
+comparable with the existing VQA-RAD/SLAKE evaluation; a legacy generic prompt
+remains available only for non-paper exploratory inputs.
 
 | Arm | Change |
 | --- | --- |
@@ -53,9 +56,11 @@ python -m merit_feddg.matched_evaluation \
   --artifacts artifacts --protocol evidence_revision
 ```
 
-This protocol rejects CE/OE-specific prompt contracts. It does not reuse answers
-from the historical ANCHOR contract: regenerate matched baselines. No medical
-reference answers are allowed in generation manifests. Existing sharding only
+The checked-in VQA configuration uses `anchor-ce-v1`. Reuse is permitted only
+when the sanitized Generalist package and expert run pass the runner's existing
+full manifest, model, route and cache-identity checks; otherwise regenerate the
+matched baseline. No medical reference answers are allowed in generation
+manifests. Existing sharding only
 distributes work; the merger must cover the full manifest before scoring.
 
 ## Diagnose completed results without running models
