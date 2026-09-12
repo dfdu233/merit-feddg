@@ -1,0 +1,10 @@
+# Opt-in extension; no inheritance or alteration of legacy configurations.
+# Exact incumbent generation settings come from a completed matched run.
+region_limit: 2
+max_steps: 6
+observation_tokens: 48
+planner_tokens: 48
+padding: 0.05
+# First measure candidates separately. UNKNOWN keeps incumbent, not generalist.
+# external_compare reuses the existing fallible comparator; NOT a new confidence model.
+commit_policy: audit_only
