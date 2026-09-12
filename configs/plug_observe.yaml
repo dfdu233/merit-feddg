@@ -1,0 +1,8 @@
+# New opt-in protocol. Existing semantic/compact/Agent-v1 configs are untouched.
+# Fixed common compute budgets, not trained/fitted clinical thresholds.
+max_calls: 3
+region_limit: 2
+max_new_tokens: 64
+observation_tokens: 48
+planner_tokens: 16
+observation_view: region
