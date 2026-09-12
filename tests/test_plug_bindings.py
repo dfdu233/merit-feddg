@@ -11,8 +11,15 @@ import pytest
 from PIL import Image
 
 from merit_feddg.plug_observe import (
-    available_actions, answer_prompt, model_records, observation, pack_observations,
-    planner_prompt, plugin_regions, run_case, validate_observation,
+    answer_prompt,
+    available_actions,
+    model_records,
+    observation,
+    pack_observations,
+    planner_prompt,
+    plugin_regions,
+    run_case,
+    validate_observation,
 )
 from merit_feddg.plug_run import prepare
 
@@ -220,7 +227,7 @@ def test_observation_validates_without_mutating_artifact():
 
 
 def test_plain_model_prompt_preserves_existing_representation():
-    from merit_feddg.plug_observe import RULES, ANSWER_SUFFIX
+    from merit_feddg.plug_observe import ANSWER_SUFFIX, RULES
     values = [observation(raw('x'), 'case'), observation(raw('y'), 'case')]
     content = [{'observation': f'O{i}', **v['content']} for i, v in enumerate(values)]
     expected = RULES + json.dumps(content, ensure_ascii=False, separators=(',', ':'), allow_nan=False)

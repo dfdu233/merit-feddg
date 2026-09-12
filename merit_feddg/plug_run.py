@@ -16,7 +16,14 @@ from time import perf_counter
 
 import yaml
 
-from .agent_protocol import atomic_json, file_hash, load_incumbent, merge_shards, read_inputs, read_sources
+from .agent_protocol import (
+    atomic_json,
+    file_hash,
+    load_incumbent,
+    merge_shards,
+    read_inputs,
+    read_sources,
+)
 from .evidence_agent import ToolUnavailable, digest
 from .plug_observe import ANSWER_SUFFIX, json_copy, run_case, validate_specs
 
@@ -102,8 +109,9 @@ def prepare(args):
 
 def live(args, data, root):
     import fcntl
-    import torch
     from dataclasses import asdict, replace
+
+    import torch
 
     from .capabilities import CapabilityRequest, EvidenceItem, validate_result
     from .capability_experts import CapabilityPool

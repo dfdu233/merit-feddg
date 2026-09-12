@@ -9,10 +9,10 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, is_dataclass
 from pathlib import Path
 from time import perf_counter
-from typing import Callable
 
 from PIL import Image
 
@@ -38,7 +38,7 @@ def json_copy(value):
 def native_dict(item):
     item = json_copy(asdict(item) if is_dataclass(item) else item)
     if not isinstance(item, dict):
-        raise ValueError('native evidence must be a dictionary or dataclass')
+        raise TypeError('native evidence must be a dictionary or dataclass')
     for key in ('evidence_id', 'expert_id', 'capability', 'scope'):
         if not isinstance(item.get(key), str) or not item[key]:
             raise ValueError(f'native evidence needs {key}')
@@ -216,7 +216,7 @@ class ObserveAction:
 def validate_specs(specs):
     """Only native contracts, not disease/question-template routing."""
     if not isinstance(specs, dict):
-        raise ValueError('expert registry must be a mapping')
+        raise TypeError('expert registry must be a mapping')
     for name, spec in specs.items():
         if (not isinstance(name, str) or not name or not isinstance(spec, dict)
                 or not spec.get('id') or not spec.get('scope') or not spec.get('description')):
@@ -250,7 +250,7 @@ def plugin_regions(artifacts, size, limit):
         payload = item['payload']
         entries = payload.get('detections', [])
         if not isinstance(entries, list):
-            raise ValueError('detections must be a list')
+            raise TypeError('detections must be a list')
         for entry_index, entry in enumerate(entries):
             origin = {'expert_id': item['expert_id'], 'evidence_id': item['evidence_id'],
                       'source_index': source_index, 'entry_index': entry_index}
