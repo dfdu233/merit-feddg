@@ -13,6 +13,8 @@ from .evidence_agent import digest
 INPUT_KEYS = {
     'id', 'image', 'question', 'image_sha256', 'answer_type', 'task', 'modality',
     'domain', 'domain_kind', 'role', 'group_id', 'subject_id', 'study_id',
+    # Answer-blind provenance retained by the frozen official dataset manifest.
+    'official_index', 'official_split',
 }
 SOURCE_KEYS = {
     'id', 'image', 'question', 'image_sha256', 'modality', 'domain', 'group_id',
@@ -64,6 +66,13 @@ def read_inputs(path):
         if any(not isinstance(row.get(k), str) or not row[k].strip()
                for k in ('image', 'question', 'image_sha256')):
             raise ValueError('image, question and image_sha256 required')
+        if ('official_index' in row
+                and (type(row['official_index']) is not int or row['official_index'] < 0)):
+            raise ValueError('official_index must be a nonnegative integer')
+        if ('official_split' in row
+                and (not isinstance(row['official_split'], str)
+                     or not row['official_split'].strip())):
+            raise ValueError('official_split must be a nonempty provenance string')
         image = Path(row['image']).expanduser()
         if not image.is_absolute():
             image = Path(path).parent / image

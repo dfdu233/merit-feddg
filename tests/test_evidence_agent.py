@@ -261,6 +261,23 @@ def test_manifest_labels_duplicate_and_hash_mismatch(tmp_path):
         read_inputs(args.manifest)
 
 
+def test_manifest_accepts_valid_official_provenance_only(tmp_path):
+    args, row, _ = fixture_run(tmp_path)
+    official = {**row, 'official_index': 17, 'official_split': 'train'}
+    Path(args.manifest).write_text(json.dumps(official) + '\n')
+    loaded = read_inputs(args.manifest)
+    assert loaded[0]['official_index'] == 17
+    assert loaded[0]['official_split'] == 'train'
+    for changed in [
+        {**official, 'official_index': -1},
+        {**official, 'official_index': True},
+        {**official, 'official_split': ''},
+    ]:
+        Path(args.manifest).write_text(json.dumps(changed) + '\n')
+        with pytest.raises(ValueError):
+            read_inputs(args.manifest)
+
+
 def test_source_leakage_and_valid_corpus(tmp_path):
     args, row, _ = fixture_run(tmp_path)
     queries = read_inputs(args.manifest)
