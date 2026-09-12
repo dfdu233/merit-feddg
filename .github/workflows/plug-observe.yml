@@ -1,11 +1,13 @@
 name: plug-observe
 on:
   push:
-    branches: ['implementation/plug-observe-v1']
+    branches: ['implementation/plug-observe-*']
   pull_request:
     paths:
       - 'merit_feddg/plug_*.py'
       - 'tests/test_plug_observe.py'
+      - 'tests/test_plug_bindings.py'
+      - 'configs/plug_observe*.yaml'
       - '.github/workflows/plug-observe.yml'
 concurrency:
   group: plug-observe-${{ github.ref }}
@@ -21,8 +23,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev]'
-      - run: python -m pytest tests/test_plug_observe.py tests/test_evidence_agent.py -q
-      - run: python -m ruff check merit_feddg/plug_observe.py merit_feddg/plug_run.py tests/test_plug_observe.py
+      - run: python -m pytest tests/test_plug_observe.py tests/test_plug_bindings.py tests/test_evidence_agent.py -q
+      - run: python -m ruff check merit_feddg/plug_observe.py merit_feddg/plug_run.py tests/test_plug_observe.py tests/test_plug_bindings.py
       - run: python -m merit_feddg.plug_run --help
   full-cpu-regression:
     runs-on: ubuntu-latest
