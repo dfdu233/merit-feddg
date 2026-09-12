@@ -29,7 +29,8 @@ from .plug_observe import ANSWER_SUFFIX, json_copy, run_case, validate_specs
 
 METHODS = ['incumbent', 'plug_read', 'plug_static', 'plug_agent']
 DEFAULTS = {'max_calls': 3, 'region_limit': 2, 'max_new_tokens': 64,
-            'observation_tokens': 48, 'planner_tokens': 16, 'observation_view': 'region'}
+            'observation_tokens': 48, 'planner_tokens': 16, 'observation_view': 'region',
+            'content_encoding': 'plain'}
 
 
 def prepare(args):
@@ -44,6 +45,8 @@ def prepare(args):
         raise ValueError('max_calls must be 0..32')
     if options['observation_view'] not in {'region', 'whole'}:
         raise ValueError('observation_view must be region or whole')
+    if options['content_encoding'] not in {'plain', 'shared'}:
+        raise ValueError('content_encoding must be plain or shared')
     rows = read_inputs(args.manifest)
     base_protocol, base = load_incumbent(args.base_run, args.incumbent, rows)
     if not 0 <= args.shard_index < args.shard_count <= len(rows):

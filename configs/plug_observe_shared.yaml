@@ -1,0 +1,9 @@
+# Opt-in, same four arms and budgets as plug_observe.yaml.
+# Shared fields are a reversible layout; no medical values are summarized/dropped.
+max_calls: 3
+region_limit: 2
+max_new_tokens: 64
+observation_tokens: 48
+planner_tokens: 16
+observation_view: region
+content_encoding: shared
