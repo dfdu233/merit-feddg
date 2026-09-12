@@ -18,7 +18,7 @@ from merit_feddg.agent_protocol import (
     atomic_json, load_incumbent, merge_shards, read_inputs, read_sources,
 )
 from merit_feddg.agent_regions import crop_box_pixels, decode_mask, extract_regions
-from merit_feddg.agent_run import METHODS, live, load_options, prepare
+from merit_feddg.agent_run import METHODS, json_value, live, load_options, prepare
 from merit_feddg.agent_runtime import augment_case, image_digest
 from merit_feddg.evidence_agent import (
     Action, EvidenceLedger, InvalidObservation, commit_or_keep, execute_plan, make_plan,
@@ -76,6 +76,13 @@ def test_agent_replays_unified_short_v1_base_prompt_without_answer_type_branchin
                 'image. Do not explain.')
     assert generation_prompt(closed, config) == expected
     assert generation_prompt(opened, config) == expected
+
+
+def test_persisted_model_provenance_compares_after_json_container_normalization():
+    memory = {'file_stats': [('config.json', 10, 20)]}
+    persisted = json.loads(json.dumps(memory))
+    assert memory != persisted
+    assert json_value(memory) == persisted
 
 
 def test_ledger_copies_lineage_and_local_invalidation():

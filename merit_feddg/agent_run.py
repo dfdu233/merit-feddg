@@ -27,6 +27,11 @@ DEFAULTS = {'region_limit': 2, 'max_steps': 6, 'observation_tokens': 48,
             'planner_tokens': 48, 'padding': 0.05, 'commit_policy': 'audit_only'}
 
 
+def json_value(value):
+    """Normalize tuples and other JSON containers before persisted identity checks."""
+    return json.loads(json.dumps(value, allow_nan=False))
+
+
 def load_options(path):
     raw = yaml.safe_load(Path(path).read_text())
     if not isinstance(raw, dict) or set(raw) - set(DEFAULTS):
@@ -89,6 +94,7 @@ def live(args, prepared, root):
     if options['commit_policy'] == 'external_compare':
         model_id['verifiers'] = {k: model_provenance(v, args.artifacts)
                                  for k, v in config.get('answer_verifiers', {}).items()}
+    model_id = json_value(model_id)
     model_file = root / 'model_provenance.json'
     with (root / '.assets.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
