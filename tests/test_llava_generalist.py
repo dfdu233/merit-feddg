@@ -228,11 +228,44 @@ def test_constructor_uses_explicit_offline_model_and_visual_paths(fake_backend):
     options = logs["load"][0][1]
     assert options["local_files_only"] is True
     assert options["device_map"] == {"": "cpu"}
+    assert options["attn_implementation"] == "eager"
+    assert "use_flash_attention_2" not in options
     assert options["config"].mm_vision_tower == str(visual_path.resolve())
     assert logs["loaded_visual_path"] == str(visual_path.resolve())
     assert logs["tokenizer_load"][1]["trust_remote_code"] is False
     assert logs["config_load"][1]["local_files_only"] is True
     assert backend.processor.tokenizer is backend.tokenizer
+    assert backend.vision_load_protocol == "upstream_loader"
+    assert backend.forward_compatibility == "forward_not_exposed"
+
+
+def test_new_transformers_clip_config_failure_uses_explicit_frozen_vision_config(monkeypatch):
+    tower = SimpleNamespace(
+        vision_tower_name='/local/clip', is_loaded=False,
+        load_model=lambda: (_ for _ in ()).throw(
+            AttributeError("'CLIPConfig' object has no attribute 'hidden_size'")))
+    frozen = SimpleNamespace(requires_grad_=lambda value: frozen)
+    config = object()
+    processor = object()
+    monkeypatch.setattr('transformers.CLIPVisionConfig.from_pretrained',
+                        lambda path, **kw: config)
+    monkeypatch.setattr('transformers.CLIPImageProcessor.from_pretrained',
+                        lambda path, **kw: processor)
+    monkeypatch.setattr('transformers.CLIPVisionModel.from_pretrained',
+                        lambda path, **kw: frozen)
+    protocol = module._load_vision_tower_compat(tower)
+    assert protocol == 'explicit_clip_vision_config_compat'
+    assert tower.is_loaded and tower.image_processor is processor and tower.vision_tower is frozen
+
+
+def test_new_generation_cache_position_is_ignored_by_pinned_old_forward():
+    class OldModel:
+        def forward(self, input_ids=None):
+            return input_ids
+    model = OldModel()
+    protocol = module._install_generation_kwarg_compat(model)
+    assert protocol == 'drop_redundant_cache_position'
+    assert model.forward(input_ids=[1], cache_position=[0]) == [1]
 
 
 def test_native_tensor_generation_uses_projector_and_keeps_exact_prefix(fake_backend):

@@ -1,5 +1,33 @@
 # Current status
 
+## Evidence-agent-v1 VQA-RAD TRAIN complete (2026-09-12)
+
+- Completed and merged both frozen shards (897 + 896 = 1,793); protocol has
+  `shards_complete=true`. All seven arms match manifest IDs/order; all answer
+  text and token IDs equal incumbent, including previously sensitive case 0049.
+- Implementation remains `ff7f69330ba3aeefbc71aef19073369bb46a45af`;
+  identity `21d7284ea2d895ac254b811e2ec554cce21e9de6d970ecd6ac23c7be49db05d0`
+  under `runs/evidence-agent-v1-vqarad-train-ff7f693/`.
+  Both inference workers finished. Full offline `evaluation.json` is present.
+- Frozen Python 3.14.6 / torch 2.14.0+cu130 / transformers 4.57.6 was verified.
+  No parity/runtime/OOM failure occurred; all 550 crop instances passed digest
+  checks and 36 focused engineering tests passed. Prior huatuo failure is retained
+  outside this result and excluded. No baseline inference or code/strategy change.
+- Real anatomy regions cover 80/1,793 cases (4.46%; 50 images). Static and both
+  controls each acquire 160 local observations; agent acquires 8 after 158 planner
+  calls. All 248 synthesis attempts yield no candidate. RAG remains disabled,
+  BiomedParse remains disabled, and `audit_only` keeps incumbent in all cases.
+- Seven-arm diagnostic score is 44.01%; unchanged ANCHOR decoded strict is 31.62%.
+  Every Agent delta is zero, with 0 improvements, 0 harms and 0 text changes.
+  Paired 313-image bootstrap intervals are [0,0]. Zero candidates mean no efficacy
+  or successful medical-gate claim. Generalist→incumbent diagnostic gain of
+  +1.88 pp belongs entirely to the legacy baseline, not Agent.
+- [Full acceptance report and compact audit](docs/results/evidence_agent_v1_vqarad_train_2026-09-12/README.md)
+  cover seven arms, real control differences, costs, failure reasons and retained
+  erroneous cases. Candidate-delivery failure and medically unreliable crop
+  descriptions remain limitations; no thresholds were relaxed and no follow-up
+  experiment has been launched. The original worktree's user changes are untouched.
+
 ## VQA-RAD evidence-revision pilot complete (2026-09-11)
 
 - Both CUDA-NLI shards completed 12/12 cases and merged all 17 arms for the

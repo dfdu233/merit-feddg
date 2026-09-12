@@ -10,9 +10,11 @@ See microsoft/LLaVA-Med's llava_mistral.py and eval/model_vqa.py.
 from __future__ import annotations
 
 import importlib
+import inspect
 import json
 import sys
 from contextlib import nullcontext
+from functools import wraps
 from pathlib import Path, PurePosixPath
 from types import SimpleNamespace
 
@@ -184,6 +186,45 @@ def _generated_rows(output, model, tokenizer):
     return rows
 
 
+def _load_vision_tower_compat(tower):
+    """Load the pinned CLIP tower across the upstream Transformers boundary."""
+    try:
+        tower.load_model()
+        return "upstream_loader"
+    except AttributeError as exc:
+        if "CLIPConfig" not in str(exc) or "hidden_size" not in str(exc):
+            raise
+    from transformers import CLIPImageProcessor, CLIPVisionConfig, CLIPVisionModel
+
+    config = CLIPVisionConfig.from_pretrained(tower.vision_tower_name, local_files_only=True)
+    tower.image_processor = CLIPImageProcessor.from_pretrained(
+        tower.vision_tower_name, local_files_only=True)
+    tower.vision_tower = CLIPVisionModel.from_pretrained(
+        tower.vision_tower_name, config=config, local_files_only=True)
+    tower.vision_tower.requires_grad_(False)
+    tower.is_loaded = True
+    return "explicit_clip_vision_config_compat"
+
+
+def _install_generation_kwarg_compat(model):
+    """Bridge new generation cache metadata into the pinned old forward API."""
+    if not hasattr(model, "forward"):
+        return "forward_not_exposed"
+    parameters = inspect.signature(model.forward).parameters
+    if "cache_position" in parameters or any(
+            parameter.kind == inspect.Parameter.VAR_KEYWORD for parameter in parameters.values()):
+        return "native_forward_signature"
+    original = model.forward
+
+    @wraps(original)
+    def forward_compat(*args, cache_position=None, **kwargs):
+        del cache_position
+        return original(*args, **kwargs)
+
+    model.forward = forward_compat
+    return "drop_redundant_cache_position"
+
+
 class LlavaMedGeneralist:
     def __init__(
         self,
@@ -225,8 +266,9 @@ class LlavaMedGeneralist:
             device_map=mapping,
             local_files_only=True,
             low_cpu_mem_usage=mapping is not None,
-            use_flash_attention_2=False,
+            attn_implementation="eager",
         ).eval()
+        self.forward_compatibility = _install_generation_kwarg_compat(self.model)
         constants = runtime.constants
         if getattr(config, "mm_use_im_patch_token", True):
             self.tokenizer.add_tokens([constants.DEFAULT_IMAGE_PATCH_TOKEN], special_tokens=True)
@@ -240,7 +282,9 @@ class LlavaMedGeneralist:
         if tower is None:
             raise RuntimeError("LLaVA-Med did not construct its CLIP vision tower")
         if not tower.is_loaded:
-            tower.load_model()
+            self.vision_load_protocol = _load_vision_tower_compat(tower)
+        else:
+            self.vision_load_protocol = "loaded_with_language_checkpoint"
         input_device = self.model.get_input_embeddings().weight.device
         if input_device.type == "meta":
             raise RuntimeError(

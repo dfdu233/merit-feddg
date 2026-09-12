@@ -56,6 +56,10 @@ def generation_prompt(row, config):
         if row["answer_type"] == "closed":
             return f"{question} Please answer Yes or No."
         return f"{question}\nGive only the short answer. Do not explain."
+    if contract == "unified-short-v1":
+        if row.get("task", "open_vqa") != "open_vqa":
+            raise ValueError("unified-short-v1 is a VQA-only contract")
+        return question + "\nAnswer the question with one concise answer based only on the image. Do not explain."
     if contract != "legacy_suffix":
         raise ValueError(f"unsupported prompt contract: {contract}")
     return question + "\n" + config.get("prompt_suffix", "Answer concisely from the image.")
