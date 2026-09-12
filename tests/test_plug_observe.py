@@ -6,11 +6,17 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from merit_feddg.plug_observe import (
-    ANSWER_SUFFIX, available_actions, native_dict, observation, pack_observations,
-    payload_view, run_case, validate_specs,
-)
 from merit_feddg.evidence_agent import ToolUnavailable
+from merit_feddg.plug_observe import (
+    ANSWER_SUFFIX,
+    available_actions,
+    native_dict,
+    observation,
+    pack_observations,
+    payload_view,
+    run_case,
+    validate_specs,
+)
 
 
 def item(expert='specialist', capability='classification', payload=None):
@@ -200,7 +206,7 @@ def test_prompted_expert_waits_for_real_region(case):
     assert not actions
     obs = [observation(segment(), case['id'])]
     actions, _ = available_actions(spec('segmentation'), case, obs, set(), (4, 4), 2)
-    expert = [a for a in actions if a.operation == 'expert'][0]
+    expert = next(a for a in actions if a.operation == 'expert')
     assert expert.region is not None and expert.parent == obs[0]['ref']
 
 
@@ -352,6 +358,7 @@ def test_only_presented_evidence_recorded_as_candidate_input(case, tmp_path):
 
 def test_prepare_strips_task_labels_for_all_methods(case, tmp_path):
     from types import SimpleNamespace
+
     from merit_feddg.agent_protocol import file_hash
     from merit_feddg.plug_run import prepare
     manifest = tmp_path / 'manifest.jsonl'
@@ -382,6 +389,7 @@ def test_prepare_strips_task_labels_for_all_methods(case, tmp_path):
 
 def test_prepare_rejects_invalid_budgets_before_inference(tmp_path):
     from types import SimpleNamespace
+
     from merit_feddg.plug_run import prepare
     cfg = tmp_path / 'bad.yaml'
     cfg.write_text('max_calls: -1\n')
@@ -395,7 +403,7 @@ def test_live_runner_callback_wiring(case, tmp_path, monkeypatch):
     import types
     from dataclasses import dataclass, field
     torch = pytest.importorskip('torch')
-    from merit_feddg.plug_run import live, DEFAULTS, METHODS
+    from merit_feddg.plug_run import DEFAULTS, METHODS, live
 
     @dataclass
     class Evidence:
