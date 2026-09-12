@@ -1,0 +1,1229 @@
+{
+  "identity": "21d7284ea2d895ac254b811e2ec554cce21e9de6d970ecd6ac23c7be49db05d0",
+  "implementation_commit": "ff7f69330ba3aeefbc71aef19073369bb46a45af",
+  "protocol": {
+    "identity": "21d7284ea2d895ac254b811e2ec554cce21e9de6d970ecd6ac23c7be49db05d0",
+    "n": 1793,
+    "methods": [
+      "incumbent",
+      "graph_noop",
+      "graph_static",
+      "region_control",
+      "full_image_control",
+      "agent_candidate",
+      "agent_committed"
+    ],
+    "base_run": "/home/dbw/merit-feddg/runs/vqarad-official-train-v3/transport-fixed/0379506d53573b3a4ba8eb1c1e3648604b22fdf781949f780b6b1091d3f8dbd6",
+    "base_identity": "0379506d53573b3a4ba8eb1c1e3648604b22fdf781949f780b6b1091d3f8dbd6",
+    "incumbent_method": "compact_rows",
+    "options": {
+      "region_limit": 2,
+      "max_steps": 6,
+      "observation_tokens": 48,
+      "planner_tokens": 48,
+      "padding": 0.05,
+      "commit_policy": "audit_only"
+    },
+    "source_audit": {
+      "enabled": false,
+      "reason": "no_source_manifest"
+    },
+    "output_root": "/home/dbw/merit-feddg-agent-a82f43c/runs/evidence-agent-v1-vqarad-train-ff7f693/21d7284ea2d895ac254b811e2ec554cce21e9de6d970ecd6ac23c7be49db05d0",
+    "weights_fitted": false,
+    "calibration_fitted": false,
+    "langgraph_required": false,
+    "gpu_validated_by_preflight": false,
+    "shards_complete": true,
+    "shard_count": 2
+  },
+  "n": 1793,
+  "image_clusters": 313,
+  "environment": {
+    "python": "3.14.6",
+    "torch": "2.14.0+cu130",
+    "transformers": "4.57.6"
+  },
+  "artifact_hashes": {
+    "protocol.json": "40afa9a24de1c4bb576f93a5dd2bc8771036db28c24bc78b6edd9df40be054f4",
+    "evaluation.json": "0b8ce39ca8a2e33795287efd01b24a48a2489968dcf671a6d9ea7cb5d73b4a4b",
+    "model_provenance.json": "f9597e3585861287d863a3917c70035476170736c4c5e3c0700229088cf278d3",
+    "incumbent.json": "c1f00a6db75df36a239fff7e442a13ea00d5dcdb913147494a9de01957038def",
+    "graph_noop.json": "83bd6a5c97d3c3ed4862150944bfcc4403b48e6740a8534c981106683f563347",
+    "graph_static.json": "1b6031184e88c1ccc5dc73eb12a5d5ac836652f3b138f93c971da2b62850f9d6",
+    "region_control.json": "cb6f293b80165b229f0d44209f55f21442bc2f31f4727f5f2b4ee0177631ff83",
+    "full_image_control.json": "de23f190ded4bd32faca264116d36806f6bb4e2af82fe41fa06eb67c0bddf427",
+    "agent_candidate.json": "c2886cff92d7ab4bfe421022874b65f011c8e7bf641ac79e2e31c163472bed1f",
+    "agent_committed.json": "4579a0a955963571cc072969e280f51a871c358dc4de446a32a2cb818fdf9372"
+  },
+  "diagnostic_metrics": {
+    "incumbent": {
+      "n": 1793,
+      "score": 0.44011529090020607,
+      "delta_to_incumbent": 0.0,
+      "improved_metric": 0,
+      "harmed_metric": 0,
+      "changed_text": 0,
+      "accepted": 0,
+      "mean_reported_seconds": 0.6124075924165675,
+      "region_cases": 0,
+      "candidate_cases": 0,
+      "action_failures": 0,
+      "model_calls": 0,
+      "paired_cluster_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "cost_caveat": "shared warm assets and incumbent cost; not an independent cold-start benchmark"
+    },
+    "graph_noop": {
+      "n": 1793,
+      "score": 0.44011529090020607,
+      "delta_to_incumbent": 0.0,
+      "improved_metric": 0,
+      "harmed_metric": 0,
+      "changed_text": 0,
+      "accepted": 0,
+      "mean_reported_seconds": 0.7361059990493742,
+      "region_cases": 0,
+      "candidate_cases": 0,
+      "action_failures": 0,
+      "model_calls": 0,
+      "paired_cluster_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "cost_caveat": "shared warm assets and incumbent cost; not an independent cold-start benchmark"
+    },
+    "graph_static": {
+      "n": 1793,
+      "score": 0.44011529090020607,
+      "delta_to_incumbent": 0.0,
+      "improved_metric": 0,
+      "harmed_metric": 0,
+      "changed_text": 0,
+      "accepted": 0,
+      "mean_reported_seconds": 0.691751592828995,
+      "region_cases": 80,
+      "candidate_cases": 0,
+      "action_failures": 0,
+      "model_calls": 240,
+      "paired_cluster_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "cost_caveat": "shared warm assets and incumbent cost; not an independent cold-start benchmark"
+    },
+    "region_control": {
+      "n": 1793,
+      "score": 0.44011529090020607,
+      "delta_to_incumbent": 0.0,
+      "improved_metric": 0,
+      "harmed_metric": 0,
+      "changed_text": 0,
+      "accepted": 0,
+      "mean_reported_seconds": 0.6888186709983384,
+      "region_cases": 80,
+      "candidate_cases": 0,
+      "action_failures": 0,
+      "model_calls": 240,
+      "paired_cluster_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "cost_caveat": "shared warm assets and incumbent cost; not an independent cold-start benchmark"
+    },
+    "full_image_control": {
+      "n": 1793,
+      "score": 0.44011529090020607,
+      "delta_to_incumbent": 0.0,
+      "improved_metric": 0,
+      "harmed_metric": 0,
+      "changed_text": 0,
+      "accepted": 0,
+      "mean_reported_seconds": 0.6988873433050836,
+      "region_cases": 80,
+      "candidate_cases": 0,
+      "action_failures": 0,
+      "model_calls": 240,
+      "paired_cluster_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "cost_caveat": "shared warm assets and incumbent cost; not an independent cold-start benchmark"
+    },
+    "agent_candidate": {
+      "n": 1793,
+      "score": 0.44011529090020607,
+      "delta_to_incumbent": 0.0,
+      "improved_metric": 0,
+      "harmed_metric": 0,
+      "changed_text": 0,
+      "accepted": 0,
+      "mean_reported_seconds": 0.6455212242285681,
+      "region_cases": 80,
+      "candidate_cases": 0,
+      "action_failures": 0,
+      "model_calls": 174,
+      "paired_cluster_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "cost_caveat": "shared warm assets and incumbent cost; not an independent cold-start benchmark"
+    },
+    "agent_committed": {
+      "n": 1793,
+      "score": 0.44011529090020607,
+      "delta_to_incumbent": 0.0,
+      "improved_metric": 0,
+      "harmed_metric": 0,
+      "changed_text": 0,
+      "accepted": 0,
+      "mean_reported_seconds": 0.6456073582320039,
+      "region_cases": 0,
+      "candidate_cases": 0,
+      "action_failures": 0,
+      "model_calls": 0,
+      "paired_cluster_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "cost_caveat": "shared warm assets and incumbent cost; not an independent cold-start benchmark"
+    }
+  },
+  "official_evaluator_protocol": "medheval-decoded-eval-v11-explanatory-binary-source-audited",
+  "official_decoded_strict": {
+    "incumbent": {
+      "summary": {
+        "n": 1793,
+        "correct": 567,
+        "parseable": 1739,
+        "parse_rate": 0.9698828778583379,
+        "accuracy_invalid_as_error": 0.3162297824874512,
+        "accuracy_parseable_only": 0.32604945370902816
+      },
+      "by_answer_type": {
+        "binary": {
+          "n": 940,
+          "correct": 567,
+          "parseable": 886,
+          "parse_rate": 0.9425531914893617,
+          "accuracy_invalid_as_error": 0.6031914893617021,
+          "accuracy_parseable_only": 0.6399548532731377
+        },
+        "short_answer": {
+          "n": 853,
+          "correct": 0,
+          "parseable": 853,
+          "parse_rate": 1.0,
+          "accuracy_invalid_as_error": 0.0,
+          "accuracy_parseable_only": 0.0
+        }
+      },
+      "delta": 0,
+      "improved": 0,
+      "harmed": 0,
+      "paired_image_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      }
+    },
+    "graph_noop": {
+      "summary": {
+        "n": 1793,
+        "correct": 567,
+        "parseable": 1739,
+        "parse_rate": 0.9698828778583379,
+        "accuracy_invalid_as_error": 0.3162297824874512,
+        "accuracy_parseable_only": 0.32604945370902816
+      },
+      "by_answer_type": {
+        "binary": {
+          "n": 940,
+          "correct": 567,
+          "parseable": 886,
+          "parse_rate": 0.9425531914893617,
+          "accuracy_invalid_as_error": 0.6031914893617021,
+          "accuracy_parseable_only": 0.6399548532731377
+        },
+        "short_answer": {
+          "n": 853,
+          "correct": 0,
+          "parseable": 853,
+          "parse_rate": 1.0,
+          "accuracy_invalid_as_error": 0.0,
+          "accuracy_parseable_only": 0.0
+        }
+      },
+      "delta": 0,
+      "improved": 0,
+      "harmed": 0,
+      "paired_image_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      }
+    },
+    "graph_static": {
+      "summary": {
+        "n": 1793,
+        "correct": 567,
+        "parseable": 1739,
+        "parse_rate": 0.9698828778583379,
+        "accuracy_invalid_as_error": 0.3162297824874512,
+        "accuracy_parseable_only": 0.32604945370902816
+      },
+      "by_answer_type": {
+        "binary": {
+          "n": 940,
+          "correct": 567,
+          "parseable": 886,
+          "parse_rate": 0.9425531914893617,
+          "accuracy_invalid_as_error": 0.6031914893617021,
+          "accuracy_parseable_only": 0.6399548532731377
+        },
+        "short_answer": {
+          "n": 853,
+          "correct": 0,
+          "parseable": 853,
+          "parse_rate": 1.0,
+          "accuracy_invalid_as_error": 0.0,
+          "accuracy_parseable_only": 0.0
+        }
+      },
+      "delta": 0,
+      "improved": 0,
+      "harmed": 0,
+      "paired_image_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      }
+    },
+    "region_control": {
+      "summary": {
+        "n": 1793,
+        "correct": 567,
+        "parseable": 1739,
+        "parse_rate": 0.9698828778583379,
+        "accuracy_invalid_as_error": 0.3162297824874512,
+        "accuracy_parseable_only": 0.32604945370902816
+      },
+      "by_answer_type": {
+        "binary": {
+          "n": 940,
+          "correct": 567,
+          "parseable": 886,
+          "parse_rate": 0.9425531914893617,
+          "accuracy_invalid_as_error": 0.6031914893617021,
+          "accuracy_parseable_only": 0.6399548532731377
+        },
+        "short_answer": {
+          "n": 853,
+          "correct": 0,
+          "parseable": 853,
+          "parse_rate": 1.0,
+          "accuracy_invalid_as_error": 0.0,
+          "accuracy_parseable_only": 0.0
+        }
+      },
+      "delta": 0,
+      "improved": 0,
+      "harmed": 0,
+      "paired_image_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      }
+    },
+    "full_image_control": {
+      "summary": {
+        "n": 1793,
+        "correct": 567,
+        "parseable": 1739,
+        "parse_rate": 0.9698828778583379,
+        "accuracy_invalid_as_error": 0.3162297824874512,
+        "accuracy_parseable_only": 0.32604945370902816
+      },
+      "by_answer_type": {
+        "binary": {
+          "n": 940,
+          "correct": 567,
+          "parseable": 886,
+          "parse_rate": 0.9425531914893617,
+          "accuracy_invalid_as_error": 0.6031914893617021,
+          "accuracy_parseable_only": 0.6399548532731377
+        },
+        "short_answer": {
+          "n": 853,
+          "correct": 0,
+          "parseable": 853,
+          "parse_rate": 1.0,
+          "accuracy_invalid_as_error": 0.0,
+          "accuracy_parseable_only": 0.0
+        }
+      },
+      "delta": 0,
+      "improved": 0,
+      "harmed": 0,
+      "paired_image_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      }
+    },
+    "agent_candidate": {
+      "summary": {
+        "n": 1793,
+        "correct": 567,
+        "parseable": 1739,
+        "parse_rate": 0.9698828778583379,
+        "accuracy_invalid_as_error": 0.3162297824874512,
+        "accuracy_parseable_only": 0.32604945370902816
+      },
+      "by_answer_type": {
+        "binary": {
+          "n": 940,
+          "correct": 567,
+          "parseable": 886,
+          "parse_rate": 0.9425531914893617,
+          "accuracy_invalid_as_error": 0.6031914893617021,
+          "accuracy_parseable_only": 0.6399548532731377
+        },
+        "short_answer": {
+          "n": 853,
+          "correct": 0,
+          "parseable": 853,
+          "parse_rate": 1.0,
+          "accuracy_invalid_as_error": 0.0,
+          "accuracy_parseable_only": 0.0
+        }
+      },
+      "delta": 0,
+      "improved": 0,
+      "harmed": 0,
+      "paired_image_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      }
+    },
+    "agent_committed": {
+      "summary": {
+        "n": 1793,
+        "correct": 567,
+        "parseable": 1739,
+        "parse_rate": 0.9698828778583379,
+        "accuracy_invalid_as_error": 0.3162297824874512,
+        "accuracy_parseable_only": 0.32604945370902816
+      },
+      "by_answer_type": {
+        "binary": {
+          "n": 940,
+          "correct": 567,
+          "parseable": 886,
+          "parse_rate": 0.9425531914893617,
+          "accuracy_invalid_as_error": 0.6031914893617021,
+          "accuracy_parseable_only": 0.6399548532731377
+        },
+        "short_answer": {
+          "n": 853,
+          "correct": 0,
+          "parseable": 853,
+          "parse_rate": 1.0,
+          "accuracy_invalid_as_error": 0.0,
+          "accuracy_parseable_only": 0.0
+        }
+      },
+      "delta": 0,
+      "improved": 0,
+      "harmed": 0,
+      "paired_image_bootstrap_95": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 313,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      }
+    }
+  },
+  "engineering": {
+    "tests_passed": 36,
+    "all_method_ids_order_match_manifest": true,
+    "incumbent_equals_base_entire_records": true,
+    "parity_failure_snapshots": 0,
+    "all_seven_arms_text_and_token_parity_cases": 1793
+  },
+  "workflows": {
+    "graph_static": {
+      "region_cases": 80,
+      "candidate_cases": 0,
+      "observation_cases": 80,
+      "no_candidate_reasons": {
+        "no_usable_regions_or_observations": 1713,
+        "evidence_budget_or_generation": 80
+      },
+      "events": {
+        "executed": 320
+      },
+      "operations": {
+        "crop": 160,
+        "inspect": 160
+      },
+      "region_audit": {
+        "region_budget": 80
+      },
+      "source_region_counts": {
+        "cxr_anatomy": 160
+      },
+      "pending_cases": 0,
+      "step_budget_exhausted_cases": 0,
+      "stops": {},
+      "failures": [],
+      "crop_digest_checks": 160,
+      "retrieval_status": {
+        "no_source_manifest": 1793
+      }
+    },
+    "region_control": {
+      "region_cases": 80,
+      "candidate_cases": 0,
+      "observation_cases": 80,
+      "no_candidate_reasons": {
+        "no_usable_regions_or_observations": 1713,
+        "evidence_budget_or_generation": 80
+      },
+      "events": {
+        "executed": 320
+      },
+      "operations": {
+        "crop": 160,
+        "inspect": 160
+      },
+      "region_audit": {
+        "region_budget": 80
+      },
+      "source_region_counts": {
+        "cxr_anatomy": 160
+      },
+      "pending_cases": 0,
+      "step_budget_exhausted_cases": 0,
+      "stops": {},
+      "failures": [],
+      "crop_digest_checks": 160,
+      "retrieval_status": {
+        "no_source_manifest": 1793
+      }
+    },
+    "full_image_control": {
+      "region_cases": 80,
+      "candidate_cases": 0,
+      "observation_cases": 80,
+      "no_candidate_reasons": {
+        "no_usable_regions_or_observations": 1713,
+        "evidence_budget_or_generation": 80
+      },
+      "events": {
+        "executed": 320
+      },
+      "operations": {
+        "crop": 160,
+        "inspect": 160
+      },
+      "region_audit": {
+        "region_budget": 80
+      },
+      "source_region_counts": {
+        "cxr_anatomy": 160
+      },
+      "pending_cases": 0,
+      "step_budget_exhausted_cases": 0,
+      "stops": {},
+      "failures": [],
+      "crop_digest_checks": 160,
+      "retrieval_status": {
+        "no_source_manifest": 1793
+      }
+    },
+    "agent_candidate": {
+      "region_cases": 80,
+      "candidate_cases": 0,
+      "observation_cases": 8,
+      "no_candidate_reasons": {
+        "no_usable_regions_or_observations": 1785,
+        "evidence_budget_or_generation": 8
+      },
+      "events": {
+        "executed": 78,
+        "stop": 80
+      },
+      "operations": {
+        "crop": 70,
+        "inspect": 8
+      },
+      "region_audit": {
+        "region_budget": 80
+      },
+      "source_region_counts": {
+        "cxr_anatomy": 160
+      },
+      "pending_cases": 80,
+      "step_budget_exhausted_cases": 0,
+      "stops": {
+        "planner_stop": 80
+      },
+      "failures": [],
+      "crop_digest_checks": 70,
+      "retrieval_status": {
+        "no_source_manifest": 1793
+      }
+    }
+  },
+  "controls": {
+    "region_control": {
+      "cases_with_different_pixels": 80,
+      "cases_with_different_observation_texts": 18,
+      "paired_crops": 160,
+      "different_boxes": 160,
+      "different_pixels": 160,
+      "control_identical_to_expert": 0,
+      "paired_observations": 160,
+      "different_observation_texts": 25
+    },
+    "full_image_control": {
+      "cases_with_different_pixels": 80,
+      "cases_with_different_observation_texts": 20,
+      "paired_crops": 160,
+      "different_boxes": 160,
+      "different_pixels": 160,
+      "control_identical_to_expert": 0,
+      "paired_observations": 160,
+      "different_observation_texts": 32
+    }
+  },
+  "cost": {
+    "graph_static": {
+      "new_seconds_total": 142.2637927394826,
+      "new_seconds_mean": 0.07934400041242755,
+      "inherited_plus_new_seconds_mean": 0.691751592828995,
+      "call_records_by_role": {
+        "local_observation": 160,
+        "candidate_synthesis": 80
+      },
+      "recorded_input_tokens_by_role": {
+        "local_observation": 14500,
+        "candidate_synthesis": null
+      },
+      "recorded_output_tokens_by_role": {
+        "local_observation": 3215,
+        "candidate_synthesis": 0
+      },
+      "seconds_by_role": {
+        "local_observation": 99.36811396223493,
+        "candidate_synthesis": 26.92710266262293
+      },
+      "zero_output_synthesis_attempts": 80,
+      "token_caveat": "candidate_synthesis input tokens are not recorded; zero output attempt is not successful model generation"
+    },
+    "region_control": {
+      "new_seconds_total": 137.00506389711518,
+      "new_seconds_mean": 0.07641107858177087,
+      "inherited_plus_new_seconds_mean": 0.6888186709983384,
+      "call_records_by_role": {
+        "local_observation": 160,
+        "candidate_synthesis": 80
+      },
+      "recorded_input_tokens_by_role": {
+        "local_observation": 14500,
+        "candidate_synthesis": null
+      },
+      "recorded_output_tokens_by_role": {
+        "local_observation": 3176,
+        "candidate_synthesis": 0
+      },
+      "seconds_by_role": {
+        "local_observation": 96.89122140838299,
+        "candidate_synthesis": 25.15671538945753
+      },
+      "zero_output_synthesis_attempts": 80,
+      "token_caveat": "candidate_synthesis input tokens are not recorded; zero output attempt is not successful model generation"
+    },
+    "full_image_control": {
+      "new_seconds_total": 155.05819334310945,
+      "new_seconds_mean": 0.08647975088851614,
+      "inherited_plus_new_seconds_mean": 0.6988873433050836,
+      "call_records_by_role": {
+        "local_observation": 160,
+        "candidate_synthesis": 80
+      },
+      "recorded_input_tokens_by_role": {
+        "local_observation": 14500,
+        "candidate_synthesis": null
+      },
+      "recorded_output_tokens_by_role": {
+        "local_observation": 3170,
+        "candidate_synthesis": 0
+      },
+      "seconds_by_role": {
+        "local_observation": 98.99692313116975,
+        "candidate_synthesis": 26.219052546075545
+      },
+      "zero_output_synthesis_attempts": 80,
+      "token_caveat": "candidate_synthesis input tokens are not recorded; zero output attempt is not successful model generation"
+    },
+    "agent_candidate": {
+      "new_seconds_total": 59.372741838917136,
+      "new_seconds_mean": 0.03311363181200063,
+      "inherited_plus_new_seconds_mean": 0.6455212242285681,
+      "call_records_by_role": {
+        "planner": 158,
+        "local_observation": 8,
+        "candidate_synthesis": 8
+      },
+      "recorded_input_tokens_by_role": {
+        "planner": 66353,
+        "local_observation": 716,
+        "candidate_synthesis": null
+      },
+      "recorded_output_tokens_by_role": {
+        "planner": 552,
+        "local_observation": 131,
+        "candidate_synthesis": 0
+      },
+      "seconds_by_role": {
+        "planner": 42.69602467736695,
+        "local_observation": 4.512012747814879,
+        "candidate_synthesis": 2.141960359062068
+      },
+      "zero_output_synthesis_attempts": 8,
+      "token_caveat": "candidate_synthesis input tokens are not recorded; zero output attempt is not successful model generation"
+    },
+    "incumbent": {
+      "inherited_seconds_total": 1098.0468132029055,
+      "inherited_seconds_mean": 0.6124075924165675,
+      "inherited_counters": {
+        "expert_calls": 1270,
+        "controller_calls": 1270,
+        "probe_model_calls": 0,
+        "gate_judge_model_calls": 0
+      },
+      "answer_tokens": 38505
+    },
+    "graph_noop": {
+      "replay_seconds_total": 1319.9341424582526,
+      "replay_seconds_mean": 0.7361595886549094,
+      "regenerated_answers": 1793,
+      "answer_tokens": 38505
+    },
+    "agent_committed": {
+      "inherits_agent_candidate_cost": true,
+      "gate_seconds_total": 0.15443826816044748,
+      "mean_inherited_plus_new_and_commit_seconds": 0.6456073582320039,
+      "external_verifier_calls": 0
+    },
+    "notes": [
+      "Inherited counters are original recorded values; no new expert inference is implied.",
+      "graph_noop evaluator model_calls=0 means no agent_workflow call list, NOT zero replay calls.",
+      "agent_committed evaluator region_cases/model_calls=0 reflects absent workflow metadata; execution and cost are inherited from agent_candidate.",
+      "Candidate synthesis callback can reject intact evidence delivery before generation; zero output does not establish that model inference ran.",
+      "Reported times use shared warm assets, exclude model loading and are not end-to-end or independent cold-start benchmarks."
+    ]
+  },
+  "examples": {
+    "vqarad-official-train-0049": {
+      "question": "what are the locations of the hyperintensities?",
+      "reference": [
+        "bilateral frontal lobes and body of corpus callosum"
+      ],
+      "incumbent_text": "The hyperintensities are located in the bilateral basal ganglia and the left thalamus.",
+      "all_arm_text_token_parity": true,
+      "diagnostic_score": 0.25,
+      "workflows": {
+        "graph_static": {
+          "region_count": 0,
+          "no_candidate_reason": "no_usable_regions_or_observations",
+          "calls": [],
+          "operations": [],
+          "crops": [],
+          "observations": []
+        },
+        "region_control": {
+          "region_count": 0,
+          "no_candidate_reason": "no_usable_regions_or_observations",
+          "calls": [],
+          "operations": [],
+          "crops": [],
+          "observations": []
+        },
+        "full_image_control": {
+          "region_count": 0,
+          "no_candidate_reason": "no_usable_regions_or_observations",
+          "calls": [],
+          "operations": [],
+          "crops": [],
+          "observations": []
+        },
+        "agent_candidate": {
+          "region_count": 0,
+          "no_candidate_reason": "no_usable_regions_or_observations",
+          "calls": [],
+          "operations": [],
+          "crops": [],
+          "observations": []
+        }
+      }
+    },
+    "vqarad-official-train-0198": {
+      "question": "which side is the diaphragm more depressed?",
+      "reference": [
+        "left"
+      ],
+      "incumbent_text": "The diaphragm appears to be more depressed on the right side.",
+      "all_arm_text_token_parity": true,
+      "diagnostic_score": 0.0,
+      "workflows": {
+        "graph_static": {
+          "region_count": 2,
+          "no_candidate_reason": "evidence_budget_or_generation",
+          "calls": [
+            {
+              "role": "local_observation",
+              "seconds": 0.5591959999874234,
+              "input_tokens": 92,
+              "output_tokens": 18,
+              "max_new_tokens": 48
+            },
+            {
+              "role": "local_observation",
+              "seconds": 0.6445972810033709,
+              "input_tokens": 92,
+              "output_tokens": 18,
+              "max_new_tokens": 48
+            },
+            {
+              "role": "candidate_synthesis",
+              "seconds": 0.2848128790501505,
+              "output_tokens": 0
+            }
+          ],
+          "operations": [
+            {
+              "event": "executed",
+              "action": {
+                "id": "crop:0",
+                "operation": "crop",
+                "inputs": [
+                  "region:0"
+                ],
+                "output_kind": "crop",
+                "purpose": "select local observation"
+              }
+            },
+            {
+              "event": "executed",
+              "action": {
+                "id": "inspect:0",
+                "operation": "inspect",
+                "inputs": [
+                  "crop:0"
+                ],
+                "output_kind": "observation",
+                "purpose": "observe local appearance, not global disease absence"
+              }
+            },
+            {
+              "event": "executed",
+              "action": {
+                "id": "crop:1",
+                "operation": "crop",
+                "inputs": [
+                  "region:1"
+                ],
+                "output_kind": "crop",
+                "purpose": "select local observation"
+              }
+            },
+            {
+              "event": "executed",
+              "action": {
+                "id": "inspect:1",
+                "operation": "inspect",
+                "inputs": [
+                  "crop:1"
+                ],
+                "output_kind": "observation",
+                "purpose": "observe local appearance, not global disease absence"
+              }
+            }
+          ],
+          "crops": [
+            {
+              "box": [
+                430,
+                48,
+                881,
+                806
+              ],
+              "mode": "expert"
+            },
+            {
+              "box": [
+                34,
+                83,
+                464,
+                853
+              ],
+              "mode": "expert"
+            }
+          ],
+          "observations": [
+            "The diaphragm appears to be more depressed on the right side.",
+            "The diaphragm appears to be more depressed on the right side."
+          ]
+        },
+        "region_control": {
+          "region_count": 2,
+          "no_candidate_reason": "evidence_budget_or_generation",
+          "calls": [
+            {
+              "role": "local_observation",
+              "seconds": 0.665385207044892,
+              "input_tokens": 92,
+              "output_tokens": 18,
+              "max_new_tokens": 48
+            },
+            {
+              "role": "local_observation",
+              "seconds": 0.5126194979529828,
+              "input_tokens": 92,
+              "output_tokens": 18,
+              "max_new_tokens": 48
+            },
+            {
+              "role": "candidate_synthesis",
+              "seconds": 0.3034618420060724,
+              "output_tokens": 0
+            }
+          ],
+          "operations": [
+            {
+              "event": "executed",
+              "action": {
+                "id": "crop:0",
+                "operation": "crop",
+                "inputs": [
+                  "region:0"
+                ],
+                "output_kind": "crop",
+                "purpose": "select local observation"
+              }
+            },
+            {
+              "event": "executed",
+              "action": {
+                "id": "inspect:0",
+                "operation": "inspect",
+                "inputs": [
+                  "crop:0"
+                ],
+                "output_kind": "observation",
+                "purpose": "observe local appearance, not global disease absence"
+              }
+            },
+            {
+              "event": "executed",
+              "action": {
+                "id": "crop:1",
+                "operation": "crop",
+                "inputs": [
+                  "region:1"
+                ],
+                "output_kind": "crop",
+                "purpose": "select local observation"
+              }
+            },
+            {
+              "event": "executed",
+              "action": {
+                "id": "inspect:1",
+                "operation": "inspect",
+                "inputs": [
+                  "crop:1"
+                ],
+                "output_kind": "observation",
+                "purpose": "observe local appearance, not global disease absence"
+              }
+            }
+          ],
+          "crops": [
+            {
+              "box": [
+                18,
+                119,
+                469,
+                877
+              ],
+              "mode": "opposite_control"
+            },
+            {
+              "box": [
+                435,
+                72,
+                865,
+                842
+              ],
+              "mode": "opposite_control"
+            }
+          ],
+          "observations": [
+            "The diaphragm appears to be more depressed on the right side.",
+            "The diaphragm appears to be more depressed on the right side."
+          ]
+        },
+        "full_image_control": {
+          "region_count": 2,
+          "no_candidate_reason": "evidence_budget_or_generation",
+          "calls": [
+            {
+              "role": "local_observation",
+              "seconds": 0.5027657999889925,
+              "input_tokens": 92,
+              "output_tokens": 18,
+              "max_new_tokens": 48
+            },
+            {
+              "role": "local_observation",
+              "seconds": 0.498643449973315,
+              "input_tokens": 92,
+              "output_tokens": 18,
+              "max_new_tokens": 48
+            },
+            {
+              "role": "candidate_synthesis",
+              "seconds": 0.3086115319747478,
+              "output_tokens": 0
+            }
+          ],
+          "operations": [
+            {
+              "event": "executed",
+              "action": {
+                "id": "crop:0",
+                "operation": "crop",
+                "inputs": [
+                  "region:0"
+                ],
+                "output_kind": "crop",
+                "purpose": "select local observation"
+              }
+            },
+            {
+              "event": "executed",
+              "action": {
+                "id": "inspect:0",
+                "operation": "inspect",
+                "inputs": [
+                  "crop:0"
+                ],
+                "output_kind": "observation",
+                "purpose": "observe local appearance, not global disease absence"
+              }
+            },
+            {
+              "event": "executed",
+              "action": {
+                "id": "crop:1",
+                "operation": "crop",
+                "inputs": [
+                  "region:1"
+                ],
+                "output_kind": "crop",
+                "purpose": "select local observation"
+              }
+            },
+            {
+              "event": "executed",
+              "action": {
+                "id": "inspect:1",
+                "operation": "inspect",
+                "inputs": [
+                  "crop:1"
+                ],
+                "output_kind": "observation",
+                "purpose": "observe local appearance, not global disease absence"
+              }
+            }
+          ],
+          "crops": [
+            {
+              "box": [
+                0,
+                0,
+                899,
+                925
+              ],
+              "mode": "full_image"
+            },
+            {
+              "box": [
+                0,
+                0,
+                899,
+                925
+              ],
+              "mode": "full_image"
+            }
+          ],
+          "observations": [
+            "The diaphragm appears to be more depressed on the right side.",
+            "The diaphragm appears to be more depressed on the right side."
+          ]
+        },
+        "agent_candidate": {
+          "region_count": 2,
+          "no_candidate_reason": "no_usable_regions_or_observations",
+          "calls": [
+            {
+              "role": "planner",
+              "seconds": 0.2506923519540578,
+              "input_tokens": 365,
+              "output_tokens": 4,
+              "max_new_tokens": 48
+            },
+            {
+              "role": "planner",
+              "seconds": 0.27220569096971303,
+              "input_tokens": 464,
+              "output_tokens": 3,
+              "max_new_tokens": 48
+            }
+          ],
+          "operations": [
+            {
+              "event": "executed",
+              "action": {
+                "id": "crop:0",
+                "operation": "crop",
+                "inputs": [
+                  "region:0"
+                ],
+                "output_kind": "crop",
+                "purpose": "select local observation"
+              }
+            },
+            {
+              "event": "stop",
+              "reason": "planner_stop"
+            }
+          ],
+          "crops": [
+            {
+              "box": [
+                430,
+                48,
+                881,
+                806
+              ],
+              "mode": "expert"
+            }
+          ],
+          "observations": []
+        }
+      }
+    }
+  },
+  "commit_decisions": {
+    "('unknown', 'no_usable_candidate', False)": 1793
+  },
+  "generalist_context_only": {
+    "metric": "DIAGNOSTIC closed-EM/open-token-recall, first reference",
+    "score": 0.4213303777901396,
+    "incumbent_gain": 0.018784913110066484,
+    "improved": 94,
+    "harmed": 56,
+    "changed_text": 550,
+    "paired_image_bootstrap_95": {
+      "low": 0.005627033912435346,
+      "high": 0.032971961975119944,
+      "clusters": 313,
+      "unit": "image",
+      "sample_weighted": true,
+      "informative_ci": true
+    },
+    "attribution": "legacy compact_rows evidence baseline; NOT Agent benefit; existing output rescored offline, no baseline inference"
+  },
+  "metric_notes": {
+    "diagnostic": "DIAGNOSTIC closed-EM/open-token-recall, first reference",
+    "official": "Unchanged ANCHOR evaluate_rows decoded_strict; short-answer exact strings, not mixed CE/OE token recall; do not equate these metrics. Its primary_metric pointer names a field added only by its CLI; use the actual decoded_strict fields above.",
+    "bootstrap": "2000 resamples; seed 0; 313 pixel-image clusters; sample-weighted paired means. All-zero deltas imply degenerate [0,0], not demonstrated effective equivalence of usable candidates."
+  },
+  "region_image_clusters": 50,
+  "diagnostic_by_answer_type": {
+    "closed": {
+      "n": 940,
+      "score": 0.5159574468085106
+    },
+    "open": {
+      "n": 853,
+      "score": 0.35653776856280134
+    }
+  },
+  "input_hashes": {
+    "manifest_sha256": "784b79a2cb6918671997a45f4bfa3a11c14cba222662f23ed86714a08ea60edb",
+    "reference_sha256": "05fb6a3e36c91f9b26ff86df2434a3f54b6e017e534027f83b77dfcb0fffabff"
+  },
+  "bootstrap": {
+    "replicates": 2000,
+    "seed": 0,
+    "unit": "pixel-image",
+    "clusters": 313,
+    "sample_weighted": true
+  }
+}
