@@ -24,6 +24,7 @@ from merit_feddg.evidence_agent import (
     Action, EvidenceLedger, InvalidObservation, commit_or_keep, execute_plan, make_plan,
     validate_plan,
 )
+from merit_feddg.matched_evaluation import generation_prompt
 
 
 def evidence():
@@ -65,6 +66,16 @@ def fixture_run(tmp_path):
                      manifest=str(manifest), source_manifest=None, artifacts='unused',
                      shard_index=0, shard_count=1, output=str(tmp_path / 'out'))
     return args, row, output
+
+
+def test_agent_replays_unified_short_v1_base_prompt_without_answer_type_branching():
+    config = {'prompt_contract': 'unified-short-v1'}
+    closed = {'question': 'Is there edema?', 'answer_type': 'closed', 'task': 'open_vqa'}
+    opened = {'question': 'Is there edema?', 'answer_type': 'open', 'task': 'open_vqa'}
+    expected = ('Is there edema?\nAnswer the question with one concise answer based only on the '
+                'image. Do not explain.')
+    assert generation_prompt(closed, config) == expected
+    assert generation_prompt(opened, config) == expected
 
 
 def test_ledger_copies_lineage_and_local_invalidation():
