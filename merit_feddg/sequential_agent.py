@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Callable
+from collections.abc import Callable
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -18,7 +18,6 @@ from .med_defer import (
     LazyExpertPool,
     NativeEvidence,
 )
-
 
 SignalBuilder = Callable[
     [ClaimRequest, ExpertCard, NativeEvidence, tuple["AcquisitionStep", ...]],
@@ -47,6 +46,7 @@ class SequentialAgentTrace:
     guided_logits: tuple[float, ...]
     steps: tuple[AcquisitionStep, ...] = ()
     reason: str = ""
+    failures: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -59,6 +59,8 @@ class SequentialAgentConfig:
     def __post_init__(self) -> None:
         if self.max_expert_calls < 1:
             raise ValueError("max_expert_calls must be at least one")
+        if not np.isfinite([self.cost_weight, self.guidance_strength, self.max_bias_norm]).all():
+            raise ValueError("finite configuration required")
         if self.cost_weight < 0.0:
             raise ValueError("cost_weight cannot be negative")
         if self.guidance_strength < 0.0 or self.max_bias_norm < 0.0:
@@ -73,44 +75,44 @@ def default_signal_builder(
 ) -> InterventionSignals:
     """Build conservative risk signals from already-available metadata.
 
-    New specialist adapters can provide stronger claim-specific diagnostics in
-    ``evidence.provenance`` without modifying the controller.  Missing optional
-    verification fields are treated conservatively only when the semantic
-    bridge explicitly reports failure; otherwise they remain neutral so this
-    layer can be introduced without invalidating legacy adapters.
+    Missing verification remains unknown. This historical logits-only path
+    cannot certify joint free answers. The opt-in medcave.run_case path generates
+    actual candidates and re-evaluates the accumulated evidence state.
     """
 
     signal = request.domain_signals.get(card.expert_id)
-    pre_ood = signal.ood_score if signal is not None else 1.0
-    source_reliability = float(card.source_reliability_lcb)
+    pre_ood = signal.ood_score if signal is not None else None
+    source_reliability = (float(card.source_reliability_lcb)
+                          if card.qualification_artifact else None)
     semantic_valid = evidence.provenance.get("semantic_bridge_validated")
-    coverage = float(evidence.provenance.get("coverage", 1.0))
+    coverage = evidence.provenance.get("coverage") if semantic_valid is True else None
     if request.expert_queries and semantic_valid is not True:
         coverage = 0.0
 
-    conflict = float(evidence.provenance.get("conflict", 0.0))
-    instability = float(evidence.provenance.get("instability", 0.0))
-    visual_consistency = float(evidence.provenance.get("visual_consistency", 1.0))
+    conflict = evidence.provenance.get("conflict")
+    instability = evidence.provenance.get("instability")
+    visual_consistency = evidence.provenance.get("visual_consistency")
 
     # Independent corroboration may be supplied by a verifier.  A compatible
     # second expert can reduce conflict, but agreement is never inferred merely
     # from having multiple calls.
     if history and "cross_expert_conflict" in evidence.provenance:
-        conflict = max(conflict, float(evidence.provenance["cross_expert_conflict"]))
+        conflict = max(conflict or 0, float(evidence.provenance["cross_expert_conflict"]))
 
     return InterventionSignals(
         applicability=1.0,
         source_reliability=source_reliability,
         pre_ood=pre_ood,
-        post_ood=evidence.ood_score,
+        post_ood=evidence.ood_score if evidence.provenance.get("post_ood_artifact") else None,
         conflict=conflict,
         instability=instability,
         coverage=coverage,
         visual_consistency=visual_consistency,
-        expert_confidence=evidence.confidence,
+        expert_confidence=None,  # Native confidence is not a calibrated correctness probability.
         metadata={
             "expert_id": card.expert_id,
             "history_length": len(history),
+            "raw_confidence": evidence.confidence,
         },
     )
 
@@ -148,6 +150,10 @@ class SequentialSpecialistAgent:
         for expert_id, card in pool.cards.items():
             if expert_id in used:
                 continue
+            if not card.checkpoint_fingerprint:
+                continue
+            if any(pool.cards[k].checkpoint_fingerprint == card.checkpoint_fingerprint for k in used):
+                continue
             if request.modality not in card.modalities and "*" not in card.modalities:
                 continue
             overlap = required.intersection(card.capabilities)
@@ -160,7 +166,8 @@ class SequentialSpecialistAgent:
             trust = self.trust_calibrator.score(card, signal).score
             value = capability_match * trust * card.expected_gain
             utility = value - self.config.cost_weight * card.latency_ms / 1000.0
-            ranked.append((float(utility), expert_id))
+            if np.isfinite(utility) and utility > 0:
+                ranked.append((float(utility), expert_id))
         ranked.sort(reverse=True)
         return ranked
 
@@ -185,7 +192,7 @@ class SequentialSpecialistAgent:
         direction = self._normalized_delta(request, evidence)
         delta = self.config.guidance_strength * direction
         norm = float(np.linalg.norm(delta))
-        if norm > self.config.max_bias_norm > 0.0:
+        if norm > self.config.max_bias_norm:
             delta *= self.config.max_bias_norm / norm
         return tuple(float(value) for value in base + delta)
 
@@ -211,11 +218,19 @@ class SequentialSpecialistAgent:
             utility, expert_id = ranked[0]
             used.add(expert_id)
             card = pool.cards[expert_id]
-            evidence, cache_hit = pool.get(expert_id, request)
+            try:
+                evidence, cache_hit = pool.get(expert_id, request)
+            except (RuntimeError, ValueError, TypeError, OSError, KeyError, ArithmeticError) as exc:
+                return SequentialAgentTrace(request.sample_id, request.claim_id,
+                    InterventionAction.FALLBACK, None, base, base, tuple(steps),
+                    "tool-failure", (type(exc).__name__,))
 
             # Capability mismatch is a hard structural failure and must not be
             # rescued by confidence, source performance or visual saliency.
-            if evidence.capability not in request.required_capabilities:
+            if (evidence.capability not in request.required_capabilities
+                    or evidence.capability not in card.capabilities
+                    or evidence.expert_id != expert_id
+                    or evidence.provenance.get("semantic_bridge_validated") is not True):
                 decision = self.risk_controller.decide(
                     InterventionSignals(applicability=0.0)
                 )
@@ -237,6 +252,12 @@ class SequentialSpecialistAgent:
             )
 
             if decision.action is InterventionAction.ACCEPT:
+                if steps[:-1]:
+                    # This historical logits-only path has no joint semantic verifier.
+                    # The free-generation path below re-evaluates the accumulated state.
+                    return SequentialAgentTrace(request.sample_id, request.claim_id,
+                        InterventionAction.FALLBACK, None, base, base, tuple(steps),
+                        "joint-verification-unavailable")
                 return SequentialAgentTrace(
                     sample_id=request.sample_id,
                     claim_id=request.claim_id,

@@ -1,5 +1,30 @@
 # Current status
 
+## MedCAVE PR #4 free-answer engineering validation (2026-09-14)
+
+- Continued `medcave-risk-agent` from `df7edce` in an independent worktree.
+  Fixed acceptance-disabled/unknown/hard-constraint handling, zero bias, request
+  cache identity, model alias checks and cumulative candidate verification.
+  Added six executable `medcave_run` stages and independent full-trajectory
+  source-cal validation; this is calibration-only, not a conformal guarantee.
+- Full CPU regression: 740 passed. Ruff, diff and shell syntax checks pass.
+  Actual LLaVA/CheXagent compatibility fixes are a separate commit `c1b0e9c`.
+- Real source smoke ran the first two rows of the unchanged VQA-RAD TRAIN
+  manifest: 1 real expert call, 1 delivered-evidence candidate, 2 exact baseline
+  fallbacks. ACCEPT 0/2; conditional harmful-accept rate undefined. No target
+  evaluation or independent source risk certificate was produced.
+- Missing real qualification/OOD artifacts, candidate semantic coverage and
+  independent source-cal data keep acceptance disabled. See the
+  [execution report](docs/results/medcave_pr4_2026-09-14/README.md) and
+  [implemented commands and limits](docs/MEDCAVE_RISK_AGENT.md).
+- Expanded real smoke to the first 32 TRAIN rows in a new output directory:
+  32 completed, 8 actual CheXagent calls and 8 candidates (25% coverage), all
+  8 evidence packets presented without omission. Seven candidate texts changed,
+  but offline scores improved in 0 cases and declined in 0 cases. All 32 final
+  outputs exactly retained baseline. This is not evidence of effective gating.
+  Mean loop time 1.410 s excludes startup and modality routing; no full TRAIN
+  or target efficacy result is claimed.
+
 ## Locally rescored cross-method tables and representative cases (2026-09-11)
 
 - Added [`docs/GOOD_CASES_AND_ALIGNED_VQA_RESULTS_2026-09-11.md`](docs/GOOD_CASES_AND_ALIGNED_VQA_RESULTS_2026-09-11.md), four GitHub-renderable source images, a compact case record and a machine-readable VQA table. The cases preserve expert identity, frozen revision where available, raw expert values, before/after outputs, gate/OOD fields and causal limitations.

@@ -8,8 +8,8 @@ from PIL import Image
 
 from merit_feddg.block_decode import Block
 from merit_feddg.capability_runtime import NativeSession, NativeState, ValueGenerationConfig
-from merit_feddg.matched_evaluation import experiment_arms
 from merit_feddg.io import load_experiment_yaml
+from merit_feddg.matched_evaluation import experiment_arms
 from merit_feddg.vector_gate import (
     VectorGateConfig,
     assess_visual_contrast,

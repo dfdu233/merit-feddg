@@ -28,7 +28,14 @@ def _thresholds(accept: float = 0.10, acquire: float = 0.30) -> RiskThresholds:
         acquire_empirical_harm=0.05,
         acquire_harm_upper_bound=0.20,
         calibration_size=100,
+        acceptance_disabled=False,  # Explicit synthetic controller certificate fixture.
     )
+
+
+def _observed(**kwargs):
+    return InterventionSignals(**{"applicability": 1.0, "source_reliability": 1.0,
+        "pre_ood": 0.0, "post_ood": 0.0, "conflict": 0.0, "instability": 0.0, "coverage": 1.0,
+        "visual_consistency": 1.0, "expert_confidence": 1.0} | kwargs)
 
 
 def test_max_risk_cannot_be_averaged_away() -> None:
@@ -54,15 +61,15 @@ def test_controller_has_accept_acquire_fallback_regions() -> None:
     controller = InterventionRiskController(_thresholds())
 
     assert (
-        controller.decide(InterventionSignals(source_reliability=0.95)).action
+        controller.decide(_observed(source_reliability=0.95)).action
         is InterventionAction.ACCEPT
     )
     assert (
-        controller.decide(InterventionSignals(source_reliability=0.80)).action
+        controller.decide(_observed(source_reliability=0.80)).action
         is InterventionAction.ACQUIRE
     )
     assert (
-        controller.decide(InterventionSignals(source_reliability=0.40)).action
+        controller.decide(_observed(source_reliability=0.40)).action
         is InterventionAction.FALLBACK
     )
 
@@ -111,16 +118,17 @@ def _evidence(expert_id: str, confidence: float) -> NativeEvidence:
         capability="classification",
         concept_scores={"negative": -1.0, "positive": 1.0},
         confidence=confidence,
-        provenance={"coverage": 1.0},
+        provenance={"coverage": 1.0, "semantic_bridge_validated": True},
     )
 
 
-def test_sequential_agent_acquires_independent_expert_before_accepting() -> None:
+def test_legacy_logits_agent_cannot_claim_joint_free_answer_verification() -> None:
     pool = LazyExpertPool()
     # Higher expected gain deliberately makes the riskier expert get queried first.
     pool.register(
         ExpertCard(
             expert_id="expert-risky",
+            checkpoint_fingerprint="model-A",
             modalities=("xray",),
             capabilities=("classification",),
             source_reliability_lcb=0.80,
@@ -133,6 +141,7 @@ def test_sequential_agent_acquires_independent_expert_before_accepting() -> None
     pool.register(
         ExpertCard(
             expert_id="expert-safe",
+            checkpoint_fingerprint="model-B",
             modalities=("xray",),
             capabilities=("classification",),
             source_reliability_lcb=0.95,
@@ -146,6 +155,8 @@ def test_sequential_agent_acquires_independent_expert_before_accepting() -> None
     agent = SequentialSpecialistAgent(
         InterventionRiskController(_thresholds()),
         config=SequentialAgentConfig(max_expert_calls=2),
+        signal_builder=lambda request, card, evidence, history:
+            _observed(source_reliability=card.source_reliability_lcb),
     )
     trace = agent.run(_request(), pool)
 
@@ -154,9 +165,9 @@ def test_sequential_agent_acquires_independent_expert_before_accepting() -> None
     assert trace.steps[0].risk_decision.action is InterventionAction.ACQUIRE
     assert trace.steps[1].expert_id == "expert-safe"
     assert trace.steps[1].risk_decision.action is InterventionAction.ACCEPT
-    assert trace.action is InterventionAction.ACCEPT
-    assert trace.selected_expert == "expert-safe"
-    assert trace.guided_logits != trace.base_logits
+    assert trace.action is InterventionAction.FALLBACK
+    assert trace.reason == "joint-verification-unavailable"
+    assert trace.guided_logits == trace.base_logits
 
 
 def test_sequential_agent_preserves_baseline_when_budget_expires() -> None:
@@ -164,6 +175,7 @@ def test_sequential_agent_preserves_baseline_when_budget_expires() -> None:
     pool.register(
         ExpertCard(
             expert_id="expert-risky",
+            checkpoint_fingerprint="model-A",
             modalities=("xray",),
             capabilities=("classification",),
             source_reliability_lcb=0.80,

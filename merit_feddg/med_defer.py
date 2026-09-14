@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
@@ -44,6 +46,9 @@ class ExpertCard:
     validation_domain_scores: tuple[float, ...] = ()
     expected_gain: float = 1.0
     latency_ms: float = 100.0
+    checkpoint_fingerprint: str | None = None
+    adapter_fingerprint: str | None = None
+    qualification_artifact: str | None = None
 
     def __post_init__(self) -> None:
         unknown = set(self.capabilities) - SUPPORTED_CAPABILITIES
@@ -55,7 +60,8 @@ class ExpertCard:
             raise ValueError("source_reliability_lcb must be in [0, 1]")
         if any(not 0.0 <= score <= 1.0 for score in self.validation_domain_scores):
             raise ValueError("validation_domain_scores must be in [0, 1]")
-        if self.expected_gain < 0.0 or self.latency_ms < 0.0:
+        if (not math.isfinite(self.expected_gain) or not math.isfinite(self.latency_ms)
+                or self.expected_gain < 0.0 or self.latency_ms < 0.0):
             raise ValueError("expected_gain and latency_ms cannot be negative")
 
 
@@ -119,10 +125,13 @@ class ClaimRequest:
     task_type: str = "closed_set"
     deferral_policy: str = "uncertainty"
     expert_queries: tuple[str, ...] = ()
+    image_sha256: str = ""
 
     def __post_init__(self) -> None:
         if len(self.concepts) < 2 or len(self.base_logits) != len(self.concepts):
             raise ValueError("concepts and base_logits must have the same length >= 2")
+        if not all(math.isfinite(x) for x in self.base_logits):
+            raise ValueError("base_logits must be finite")
         if not 0.0 <= self.uncertainty <= 1.0:
             raise ValueError("uncertainty must be in [0, 1]")
         if not set(self.required_capabilities) <= SUPPORTED_CAPABILITIES:
@@ -300,14 +309,17 @@ class LazyExpertPool:
         self.call_counts[card.expert_id] = 0
 
     def get(self, expert_id: str, request: ClaimRequest) -> tuple[NativeEvidence, bool]:
-        key = (request.sample_id, request.claim_id, expert_id)
+        identity = hashlib.sha256(json.dumps(
+            [asdict(request), asdict(self.cards[expert_id])], sort_keys=True,
+            allow_nan=False).encode()).hexdigest()
+        key = (request.sample_id, identity, expert_id)
         if key in self.cache:
             return self.cache[key], True
+        self.call_counts[expert_id] += 1
         evidence = self.providers[expert_id](request)
         if evidence.expert_id != expert_id:
             raise ValueError("evidence expert_id does not match the selected expert")
         self.cache[key] = evidence
-        self.call_counts[expert_id] += 1
         return evidence, False
 
 

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Iterable, Mapping
 
 import numpy as np
 
@@ -12,7 +12,9 @@ def _clip01(value: float) -> float:
     value = float(value)
     if not math.isfinite(value):
         raise ValueError("risk signals must be finite")
-    return float(np.clip(value, 0.0, 1.0))
+    if not 0 <= value <= 1:
+        raise ValueError("risk signals must be in [0, 1]")
+    return value
 
 
 class InterventionAction(str, Enum):
@@ -37,15 +39,15 @@ class InterventionSignals:
     domain shift merely because another scalar is favorable.
     """
 
-    applicability: float = 1.0
-    source_reliability: float = 1.0
-    pre_ood: float = 0.0
-    post_ood: float = 0.0
-    conflict: float = 0.0
-    instability: float = 0.0
-    coverage: float = 1.0
-    visual_consistency: float = 1.0
-    expert_confidence: float = 1.0
+    applicability: float | None = None
+    source_reliability: float | None = None
+    pre_ood: float | None = None
+    post_ood: float | None = None
+    conflict: float | None = None
+    instability: float | None = None
+    coverage: float | None = None
+    visual_consistency: float | None = None
+    expert_confidence: float | None = None
     metadata: Mapping[str, object] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -60,20 +62,22 @@ class InterventionSignals:
             "visual_consistency",
             "expert_confidence",
         ):
-            object.__setattr__(self, name, _clip01(getattr(self, name)))
+            if getattr(self, name) is not None:
+                object.__setattr__(self, name, _clip01(getattr(self, name)))
 
-    def risk_components(self) -> dict[str, float]:
-        return {
-            "inapplicability": 1.0 - self.applicability,
-            "source_unreliability": 1.0 - self.source_reliability,
+    def risk_components(self) -> dict[str, float | None]:
+        values = {
+            "inapplicability": None if self.applicability is None else 1-self.applicability,
+            "source_unreliability": None if self.source_reliability is None else 1-self.source_reliability,
             "pre_ood": self.pre_ood,
             "post_ood": self.post_ood,
             "conflict": self.conflict,
             "instability": self.instability,
-            "missing_coverage": 1.0 - self.coverage,
-            "visual_inconsistency": 1.0 - self.visual_consistency,
-            "expert_uncertainty": 1.0 - self.expert_confidence,
+            "missing_coverage": None if self.coverage is None else 1-self.coverage,
+            "visual_inconsistency": None if self.visual_consistency is None else 1-self.visual_consistency,
+            "expert_uncertainty": None if self.expert_confidence is None else 1-self.expert_confidence,
         }
+        return values
 
 
 @dataclass(frozen=True)
@@ -124,7 +128,8 @@ class InterventionRiskScorer:
         if unknown:
             raise ValueError(f"unknown risk components: {sorted(unknown)}")
         components = {
-            name: float(all_components[name]) for name in self.config.enabled_components
+            name: (1.0 if all_components[name] is None else float(all_components[name]))
+            for name in self.config.enabled_components
         }
         ordered = sorted(components.items(), key=lambda item: item[1], reverse=True)
         dominant_name, dominant_value = ordered[0]
@@ -160,12 +165,13 @@ class CalibrationRecord:
 class RiskThresholds:
     accept_max_risk: float
     acquire_max_risk: float
-    accept_empirical_harm: float
+    accept_empirical_harm: float | None
     accept_harm_upper_bound: float
-    acquire_empirical_harm: float
+    acquire_empirical_harm: float | None
     acquire_harm_upper_bound: float
     calibration_size: int
-    method: str = "source-wilson-risk-control"
+    method: str = "source-dev-wilson-selection-only"
+    acceptance_disabled: bool = True
 
     def __post_init__(self) -> None:
         if not 0.0 <= self.accept_max_risk <= self.acquire_max_risk <= 1.0:
@@ -200,9 +206,9 @@ def _select_threshold(
     """
 
     if not records:
-        return 0.0, 0.0, 1.0
+        return 0.0, None, 1.0
     candidates = sorted({0.0, *(record.score for record in records)})
-    best = (0.0, 0.0, 1.0)
+    best = (0.0, None, 1.0)
     for threshold in candidates:
         selected = [record for record in records if record.score <= threshold]
         if len(selected) < minimum_support:
@@ -223,20 +229,20 @@ def fit_source_risk_thresholds(
     confidence_z: float = 1.645,
     minimum_support: int = 20,
 ) -> RiskThresholds:
-    """Calibrate ACCEPT/ACQUIRE/FALLBACK thresholds on source interventions.
+    """Select source-dev thresholds; this function always disables ACCEPT.
 
-    No model parameters are fitted.  The complete downstream agent policy should
-    be frozen before collecting ``records`` so that calibration evaluates the
-    actual intervention policy rather than an isolated component.
+    No model parameters are fitted. Independent full-trajectory source-cal
+    validation must follow policy freezing; searching Wilson bounds on development
+    records is not a deployment or conformal guarantee.
     """
 
     if not 0.0 < accept_target_harm <= acquire_target_harm < 1.0:
         raise ValueError(
             "require 0 < accept_target_harm <= acquire_target_harm < 1"
         )
-    if confidence_z <= 0.0:
+    if not math.isfinite(confidence_z) or confidence_z <= 0.0:
         raise ValueError("confidence_z must be positive")
-    if minimum_support < 1:
+    if type(minimum_support) is not int or minimum_support < 1:
         raise ValueError("minimum_support must be at least one")
 
     frozen = list(records)
@@ -261,6 +267,7 @@ def fit_source_risk_thresholds(
         acquire_empirical_harm=acquire_emp,
         acquire_harm_upper_bound=acquire_upper,
         calibration_size=len(frozen),
+        acceptance_disabled=True,  # Development selection is never a deployment certificate.
     )
 
 
@@ -284,12 +291,18 @@ class InterventionRiskController:
 
     def decide(self, signals: InterventionSignals) -> RiskDecision:
         risk = self.scorer.score(signals)
-        if risk.score <= self.thresholds.accept_max_risk:
+        if signals.applicability == 0 or signals.metadata.get("hard_failures"):
+            return RiskDecision(InterventionAction.FALLBACK, risk, "structural-mismatch")
+        missing = [k for k in self.scorer.config.enabled_components
+                   if signals.risk_components()[k] is None]
+        if missing:
+            return RiskDecision(InterventionAction.ACQUIRE, risk, "unknown:" + ",".join(missing))
+        if not self.thresholds.acceptance_disabled and risk.score <= self.thresholds.accept_max_risk:
             action = InterventionAction.ACCEPT
             reason = "risk-within-accept-envelope"
         elif risk.score <= self.thresholds.acquire_max_risk:
             action = InterventionAction.ACQUIRE
-            reason = "risk-requires-independent-evidence"
+            reason = "risk-requires-additional-model-source"
         else:
             action = InterventionAction.FALLBACK
             reason = f"risk-too-high:{risk.dominant_component}"
