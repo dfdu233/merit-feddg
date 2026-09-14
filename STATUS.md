@@ -1,5 +1,19 @@
 # Current status
 
+## Requested single TEST-image routing demo (2026-09-14)
+
+- Used BreastMNIST test_images[0] with a synthetic breast-classification question;
+  no labels read, no outcome-based sample selection or policy changes. This was
+  explicitly requested routing plumbing, not the TRAIN experiment or scoring.
+- Existing agent entry selected segmentation, crop reading, then BreastMNIST.
+  Classification was actually invoked, but only after it became the sole
+  remaining non-STOP action; semantic priority-routing quality is unproven.
+- Purpose Gate classified all three observations AUXILIARY. No answer evidence
+  was delivered, no candidate generated, exact baseline retained. Crop reader
+  incorrectly described this ultrasound as CT. No correction-success claim.
+- [Sanitized report](docs/results/gate_kb_canary_2026-09-14/test_image_routing_demo.md)
+  links local raw artifacts; no test-driven fixes or full run were started.
+
 ## Evidence Gate / KB engineering and specialist expansion (2026-09-14)
 
 - Independent branch `implementation/evidence-gate-kb-v1` starts at bindings
