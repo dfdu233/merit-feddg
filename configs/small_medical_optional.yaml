@@ -1,0 +1,33 @@
+# Missing bundles explicitly disable these registrations in plug_run preflight.
+# They are not counted as executed experts or independent BUSI-derived sources.
+experts:
+  ukan_busi:
+    id: CUHK-AIM-Group/U-KAN
+    optional: true
+    checkpoint_path: artifacts/models/ukan-busi/bundle.json
+    factory: merit_feddg.experts.native_small_medical:UKANExpert
+    factory_kwargs: {expert_id: ukan_busi, scope: breast_ultrasound_mask}
+    modalities: [ultrasound]
+    tasks: [open_vqa]
+    capabilities: [segmentation]
+    scope: breast_ultrasound_mask
+    requires_region: false
+    request_contract:
+      mode: named_concepts
+      concept_aliases: {breast: [mammary]}
+    description: BUSI-derived predicted breast foreground geometry, not clinical diagnosis.
+  breastmnist:
+    id: MedMNIST/breastmnist-resnet18-28
+    optional: true
+    checkpoint_path: artifacts/models/breastmnist/bundle.json
+    factory: merit_feddg.experts.native_small_medical:MedMNISTExpert
+    factory_kwargs: {expert_id: breastmnist, scope: breast_ultrasound_binary}
+    modalities: [ultrasound]
+    tasks: [open_vqa]
+    capabilities: [classification]
+    scope: breast_ultrasound_binary
+    requires_region: false
+    request_contract:
+      mode: named_concepts
+      concept_aliases: {breast: [mammary]}
+    description: Native 28px BreastMNIST binary classifier; same BUSI source family as U-KAN BUSI.

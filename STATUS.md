@@ -1,5 +1,32 @@
 # Current status
 
+## Evidence Gate / KB engineering and specialist expansion (2026-09-14)
+
+- Independent branch `implementation/evidence-gate-kb-v1` starts at bindings
+  `e6f88744900a11b516279980124dc4775a5ee07b`; dirty original worktree, MedCAVE
+  strategy and all historical methods/results remain untouched.
+- Implemented inherited/new evidence scope and frozen use routing, four-arm
+  runner, six-source-entry queryable text seed, strict local U-KAN/MedMNIST
+  adapters, and private-by-default offline HTML. No training or shared upgrades.
+- Full CPU suite: **859 passed in 14.19 s** after adapter preparation. Earlier
+  failures and the separate inherited-lint repair `7c895c0` are documented.
+- Real fixed two-row VQA-RAD TRAIN canary stopped as required: no_new_gate made
+  2/2 candidates; scope_restored and purpose_gate made 0/2, preserving incumbent.
+  All five inherited registry entries lack request contracts, so purpose judging
+  was never invoked. Improvements/harms are 0/0 on these two diagnostic rows;
+  this is NOT Gate efficacy, clinical accuracy, or a full-dataset result.
+- Official BreastMNIST run-1 weights downloaded, member CRC verified, strict
+  three-channel loading and actual first TRAIN-image CPU inference passed.
+  Original U-KAN author download requires authentication; author-hosted U-Bench
+  reproduction is separately identified and its download is being verified.
+  BUSI and BreastMNIST share lineage, not independent supporting evidence.
+- No stopped full experiment was resumed. New modality/site/capability options
+  and a mechanism-first ICLR research question are documented, not claimed as
+  established novelty. Generic tool orchestration/relevance gating overlaps
+  CRITIC, Self-RAG, ViperGPT and MedRAX.
+- Details: [engineering and real canary](docs/EVIDENCE_GATE_KB_V1.md),
+  [expert coverage, resource audit and research boundary](docs/EXPERT_LIBRARY_RESEARCH.md).
+
 ## Evidence-agent-v1 VQA-RAD TRAIN complete (2026-09-12)
 
 - Completed and merged both frozen shards (897 + 896 = 1,793); protocol has

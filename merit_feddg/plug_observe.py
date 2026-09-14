@@ -287,7 +287,7 @@ def whole_image_observation(value):
                                                       'crop_ref', 'coordinate_metadata')))
 
 
-def available_actions(specs, case, observations, attempted, size, region_limit):
+def available_actions(specs, case, observations, attempted, size, region_limit, restore_scope=False):
     artifacts = [o['artifact'] for o in observations]
     regions, rejects = plugin_regions(artifacts, size, region_limit)
     result = []
@@ -306,6 +306,10 @@ def available_actions(specs, case, observations, attempted, size, region_limit):
         if spec.get('tasks') and case['task'] not in spec['tasks']:
             continue
         for capability in spec['capabilities']:
+            if restore_scope:
+                from .request_scope import assess_request
+                if not assess_request(case['question'], spec, capability)['allowed']:
+                    continue
             needs_region = spec.get('requires_region', capability == 'segmentation')
             supports = regions if needs_region else [None]
             for region in supports:
@@ -345,7 +349,7 @@ def _valid_answer(result):
 def run_case(*, case, specs, seed_items, incumbent, generate: Callable, measure: Callable,
              invoke: Callable, output_dir, mode='fixed', max_calls=3, region_limit=2,
              max_new_tokens=64, observation_tokens=48, planner_tokens=16,
-             observation_view='region', content_encoding='plain'):
+             observation_view='region', content_encoding='plain', evidence_gate='off'):
     """Generic bounded observe/read/answer loop, with no truth scorer.
 
     generate(path, prompt, token_limit, allowed_texts) -> text + token_ids + usage.
@@ -366,6 +370,8 @@ def run_case(*, case, specs, seed_items, incumbent, generate: Callable, measure:
         raise ValueError('max_calls must be a nonnegative integer')
     if content_encoding not in {'plain', 'shared'}:
         raise ValueError('content encoding must be plain or shared')
+    if evidence_gate not in {'off', 'scope', 'purpose'}:
+        raise ValueError('invalid evidence gate')
     specs = validate_specs(specs)
     seed = [observation(item, case['id']) for item in seed_items]
     if len({o['ref'] for o in seed}) != len(seed):
@@ -382,7 +388,7 @@ def run_case(*, case, specs, seed_items, incumbent, generate: Callable, measure:
         return measure(case['image'], text, reserve)
     _, initial_pack = pack_observations(case['question'], seed, [], actual_measure, max_new_tokens,
                                              encoding=content_encoding)
-    if initial_pack['reason'] != 'packed':
+    if initial_pack['reason'] != 'packed' and evidence_gate == 'off':
         return _finish(incumbent, None, observations, calls, events, initial_pack, started, mode)
 
     def model_call(path, prompt, tokens, allowed, role):
@@ -409,7 +415,8 @@ def run_case(*, case, specs, seed_items, incumbent, generate: Callable, measure:
     if mode != 'read':
         for _ in range(max_calls):
             ready, rejects = available_actions(specs, case, observations, attempted,
-                                               original.size, region_limit)
+                                               original.size, region_limit,
+                                               restore_scope=evidence_gate != 'off')
             events.append({'event': 'availability', 'count': len(ready), 'region_audit': rejects})
             if not ready:
                 break
@@ -479,10 +486,30 @@ def run_case(*, case, specs, seed_items, incumbent, generate: Callable, measure:
                 event.update(status='unavailable', reason=str(exc))
             # Unexpected errors/OOM propagate to the runner, never counted as safe abstention.
 
+    gate_audit = []
+    if evidence_gate != 'off':
+        from .evidence_use import USES, filter_evidence, purpose_prompt
+
+        def judge(obs):
+            try:
+                return model_call(case['image'], purpose_prompt(case['question'], obs),
+                                  8, list(USES), 'evidence_use')['text'].strip()
+            except ToolUnavailable:
+                return 'UNKNOWN'
+
+        admitted, gate_audit = filter_evidence(case, observations, specs,
+                                    judge if evidence_gate == 'purpose' else None)
+        refs = {o['ref'] for o in admitted}
+        seed = [o for o in seed if o['ref'] in refs]
+        additions = [o for o in additions if o['ref'] in refs]
     selected, audit = pack_observations(case['question'], seed, additions,
                                         actual_measure, max_new_tokens, encoding=content_encoding)
     candidate = None
-    if selected is not None and (mode == 'read' or audit['added_refs']):
+    audit['evidence_gate'] = evidence_gate
+    audit['gate_audit'] = gate_audit
+    if evidence_gate != 'off' and not selected:
+        audit['reason'] = 'no_answer_evidence_after_gate'
+    elif selected is not None and (mode == 'read' or audit['added_refs'] or evidence_gate != 'off'):
         try:
             candidate = model_call(case['image'], answer_prompt(case['question'], selected, encoding=content_encoding),
                                    max_new_tokens, None, 'answer')
