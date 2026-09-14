@@ -1,5 +1,21 @@
 # Current status
 
+## Soft-guidance replacement probe — stopped before full scale (2026-09-14)
+
+- Independent `implementation/capability-soft-guidance-v1`, based on 93c9c72.
+  Reuses complete VQA-RAD/SLAKE native caches; no expert rerun, training or test
+  strength selection. Frozen alpha=.5, segmentation channel only, identical
+  non-spatial compact text. Classification-native guidance remains unimplemented.
+- 863 CPU tests passed; first four GPU cases passed exact compact and zero
+  parity. One more historical-harm case passed. On two verified historical Bad
+  cases native guidance recovered the answer, but removing segmentation text
+  recovered both too: no demonstrated incremental native-information benefit.
+- VQA-RAD 0053 failed token parity despite identical prompt/evidence hashes;
+  fresh-process diagnostic found image/period logits tied at 16.75. Kept the
+  failure, stopped before its soft inference and before SLAKE 0015. No full
+  new result or relaxed tie rule. Prefix-replay decoding is also too expensive.
+- [Frozen design, full historical rescoring, real partial results and costs](docs/SOFT_GUIDANCE_PILOT.md).
+
 ## Requested single TEST-image routing demo (2026-09-14)
 
 - Used BreastMNIST test_images[0] with a synthetic breast-classification question;
