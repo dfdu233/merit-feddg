@@ -7,15 +7,20 @@ admission checks here are executable contracts; medical gate remains experimenta
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 from time import perf_counter
-from typing import Callable
 
 from PIL import Image
 
 from .agent_regions import crop_box_pixels, extract_regions
 from .evidence_agent import (
-    EvidenceLedger, InvalidObservation, ToolUnavailable, digest, execute_plan, make_plan,
+    EvidenceLedger,
+    InvalidObservation,
+    ToolUnavailable,
+    digest,
+    execute_plan,
+    make_plan,
 )
 
 

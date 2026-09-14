@@ -15,7 +15,12 @@ from time import perf_counter
 import yaml
 
 from .agent_protocol import (
-    atomic_json, file_hash, load_incumbent, merge_shards, read_inputs, read_sources,
+    atomic_json,
+    file_hash,
+    load_incumbent,
+    merge_shards,
+    read_inputs,
+    read_sources,
 )
 from .agent_runtime import augment_case
 from .evidence_agent import ToolUnavailable, commit_or_keep, digest
@@ -71,13 +76,19 @@ def prepare(args):
 
 def live(args, prepared, root):
     # Do not import torch/transformers in --check-only or --merge-only.
-    import torch
     import fcntl
     from dataclasses import asdict
 
+    import torch
+
     from .capabilities import CapabilityRequest, EvidenceItem
     from .capability_experts import CapabilityPool
-    from .capability_runtime import CapabilityRuntime, NativeSession, NativeState, ValueGenerationConfig
+    from .capability_runtime import (
+        CapabilityRuntime,
+        NativeSession,
+        NativeState,
+        ValueGenerationConfig,
+    )
     from .generalist_factory import generalist_provenance, load_generalist
     from .matched_evaluation import generation_prompt
     from .open_data import INFERENCE_FIELDS
@@ -148,7 +159,7 @@ def live(args, prepared, root):
                     if req.get('question') is not None and req['question'] != row['question']:
                         raise ValueError('question differs from base tool request')
 
-                def render(items):
+                def render(items, row=row, prompt=prompt, generation=generation, runtime_row=runtime_row):
                     session = NativeSession(probe, row['image'], prompt, row['question'], generation)
                     engine = CapabilityRuntime(session, None, runtime_row, specs, generation)
                     with torch.inference_mode():
@@ -166,7 +177,8 @@ def live(args, prepared, root):
                 before = {(v['expert_id'], v['evidence_id'])
                           for v in noop.get('evidence_transport', {}).get('presented', [])}
 
-                def synthesize(extras):
+                def synthesize(extras, row=row, prompt=prompt, generation=generation,
+                               native=native, before=before, render=render):
                     added = tuple(EvidenceItem(**value) for value in extras)
                     trial = NativeSession(probe, row['image'], prompt, row['question'], generation)
                     trial.context(NativeState(items=native + added))
@@ -184,7 +196,7 @@ def live(args, prepared, root):
                         return probe.generate_with_usage(path, text, max_new_tokens=tokens,
                                                          allowed_texts=allowed)
 
-                def retrieve(path):
+                def retrieve(path, row=row, modality=modality, runtime_row=runtime_row):
                     request = CapabilityRequest(
                         sample_id=row['id'], image=path, question=row['question'],
                         modality=modality, task=runtime_row['task'], domain=runtime_row['domain'],
