@@ -1,5 +1,23 @@
 # Current status
 
+## Full soft-guidance run — active (2026-09-14)
+
+- User explicitly requested full expansion. Original VQA-RAD 451 + SLAKE 2094
+  manifests, alpha=.5, same cached experts, segmentation channel only.
+- New run uses fresh generalist/compact controls to isolate guidance from the
+  historical numerical drift. Old output parity is audited, not called passed;
+  prompt/evidence delivery equality and current zero-guidance parity stay strict.
+- Seven arms include historical controls, fresh controls, deletion-only, text
+  soft and native spatial soft. No usable mask -> explicit fresh-compact reuse,
+  not successful guidance. No training, rule selection or new expert execution.
+- 866 tests passed; two same-manifest canary rows completed and are reused.
+  Full continuation + complete-only offline scoring launched in tmux
+  `soft-guidance-full`; log `runs/soft-full-checks/full.log`.
+- Frozen root identity `6ff365dc97261b29232acdab0a1060109bfd342c8dcb61d5621f7bfa07295440`.
+  Scorer hashes pinned. Full scores NOT available yet. Explicit old-correction,
+  old-harm and new improvement/harm analysis is prepared in the evaluator.
+- [Full frozen design, controls, costs, commands and raw result root](docs/SOFT_GUIDANCE_FULL.md).
+
 ## Soft-guidance replacement probe — stopped before full scale (2026-09-14)
 
 - Independent `implementation/capability-soft-guidance-v1`, based on 93c9c72.
