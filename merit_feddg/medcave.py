@@ -307,6 +307,7 @@ def run_case(
         "phase": phase,
         "input_hash": digest(row),
         "baseline": baseline,
+        "baseline_seconds": perf_counter() - start,
         "final": copy.deepcopy(baseline),
         "candidate": None,
         "action": "fallback",
@@ -366,6 +367,7 @@ def run_case(
         stamp = perf_counter()
         try:
             output = pool.infer(expert, request)
+            step["expert_seconds"] = perf_counter() - stamp
             origin = getattr(pool, "last_origin", "live_native_output")
             cache_hit = origin in {"cached_native_output", "reused_compatible_native_output"}
             result["cache_hits" if cache_hit else "actual_tool_calls"] += 1
@@ -378,14 +380,18 @@ def run_case(
             state_hash = digest([asdict(i) for i in items])
             step["evidence"] = [asdict(i) for i in items]
             result["candidate_calls"] += 1
+            candidate_started = perf_counter()
             candidate = generate(items)
+            step["candidate_seconds"] = perf_counter() - candidate_started
             if not answer_valid(candidate):
                 raise ValueError("empty_or_invalid_candidate")
             transport = candidate.get("evidence_transport", {})
             presented = {(i["expert_id"], i["evidence_id"]) for i in transport.get("presented", [])}
             expected = {(i.expert_id, i.evidence_id) for i in items}
             result["candidate"] = copy.deepcopy(candidate)
+            verification_started = perf_counter()
             audit = (verifier or CandidateSignalBuilder())(row, candidate, items, state_hash)
+            step["verification_seconds"] = perf_counter() - verification_started
             if audit["candidate_hash"] != digest(candidate) or audit["state_hash"] != state_hash:
                 raise ValueError("verifier_did_not_evaluate_this_candidate_and_state")
             if presented != expected:

@@ -8,6 +8,7 @@ import hashlib
 import json
 from dataclasses import asdict
 from pathlib import Path
+from time import perf_counter
 
 from .medcave import (
     FrozenPolicy,
@@ -176,7 +177,30 @@ def describe(trajectories, scores):
         sum(v["status"] == "unknown" for v in fields) / len(fields) if fields else None
     )
     result["acceptance_coverage"] = result["accepted"] / len(trajectories)
+    candidates = [t for t in trajectories if t.get("candidate") is not None]
+    result["candidate_coverage"] = len(candidates) / len(trajectories)
+    result["candidate_text_changes"] = sum(
+        t["candidate"]["text"] != t["baseline"]["text"] for t in candidates
+    )
+    result["routing_calls"] = sum(t.get("routing_calls", 0) for t in trajectories)
+    result["routing_cache_hits"] = sum(t.get("routing_cache_hit", False) for t in trajectories)
+    result["timing_totals_seconds"] = {
+        key: sum(t[key] for t in trajectories) if all(key in t for t in trajectories) else None
+        for key in ("baseline_seconds", "routing_seconds", "model_load_seconds", "case_wall_seconds")
+    }
+    result["candidate_metrics"] = {}
     if scores:
+        for kind in ("closed", "open"):
+            s = [scores[t["id"]] for t in candidates if scores[t["id"]]["kind"] == kind]
+            if s:
+                result["candidate_metrics"][kind] = {
+                    "n": len(s),
+                    "metric": "normalized_exact" if kind == "closed" else "token_f1",
+                    "baseline": sum(v["baseline"] for v in s) / len(s),
+                    "candidate": sum(v["candidate"] for v in s) / len(s),
+                    "improved": sum(v["candidate"] > v["baseline"] for v in s),
+                    "declined": sum(v["candidate"] < v["baseline"] for v in s),
+                }
         harms = sum(
             scores[t["id"]]["final"] < scores[t["id"]]["baseline"]
             for t in trajectories
@@ -353,6 +377,9 @@ def main():
         raise ValueError("positive source-smoke limit required")
     selected = rows[: args.limit] if args.stage == "source-smoke" else rows
     probe = None
+    # infer_image_type uses only pixels and a fixed prompt, never the question.
+    # Scoped to this execution/model binding; never cache answers or patient facts.
+    routing_cache = {}
     verifier = SourceArtifactVerifier(config["experts"], fingerprints)
     outputs = []
     for original in selected:
@@ -364,17 +391,29 @@ def main():
             outputs.append(t)
             continue
         if probe is None:
+            load_started = perf_counter()
             probe = load_generalist(config["generalist"], args.artifacts)
             pool = SharedExpertPool(
                 CapabilityPool(config["experts"], args.artifacts, source_records=()),
                 root / "expert-cache",
                 identity,
             )
+            model_load_seconds = perf_counter() - load_started
+        else:
+            model_load_seconds = 0.0
+        case_started = perf_counter()
         row = copy.deepcopy(original)
         route = None
+        routing_cache_hit = False
+        routing_started = perf_counter()
         if row["modality"] == "mixed":
-            route = infer_image_type(probe, row)
+            key = row["image_sha256"]
+            routing_cache_hit = key in routing_cache
+            if not routing_cache_hit:
+                routing_cache[key] = infer_image_type(probe, row)
+            route = copy.deepcopy(routing_cache[key])
             row["modality"] = route["modality"]
+        routing_seconds = perf_counter() - routing_started
         prompt = row["question"] + "\n" + config["prompt_suffix"]
 
         def generate(items, probe=probe, row=row, prompt=prompt):
@@ -401,7 +440,11 @@ def main():
         )
         t["input_hash"] = digest(original)
         t["routing"] = route
-        t["routing_calls"] = int(route is not None)
+        t["routing_calls"] = int(route is not None and not routing_cache_hit)
+        t["routing_cache_hit"] = routing_cache_hit
+        t["routing_seconds"] = routing_seconds
+        t["model_load_seconds"] = model_load_seconds
+        t["case_wall_seconds"] = perf_counter() - case_started
         atomic_json(case_path, t)
         outputs.append(t)
         print(f"completed {len(outputs)}/{len(selected)}", flush=True)

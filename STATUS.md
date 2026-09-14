@@ -2,6 +2,11 @@
 
 ## MedCAVE PR #4 free-answer engineering validation (2026-09-14)
 
+- Flow optimization: image-hash routing reuse reduces actual routing calls from
+  32 to 16 on the same real TRAIN smoke. Baseline 32/32, candidates 8/8 and final
+  32/32 retain exact text/token/config parity. Added candidate-only diagnostics
+  and phase costs; no risk threshold or generation policy changed. Full tests:
+  740 passed. See [flow audit and measured costs](docs/results/medcave_pr4_2026-09-14/FLOW_OPTIMIZATION.md).
 - Continued `medcave-risk-agent` from `df7edce` in an independent worktree.
   Fixed acceptance-disabled/unknown/hard-constraint handling, zero bias, request
   cache identity, model alias checks and cumulative candidate verification.

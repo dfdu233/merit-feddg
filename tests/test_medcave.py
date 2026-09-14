@@ -371,7 +371,20 @@ def test_all_cli_stages_use_frozen_policy_and_fail_closed(tmp_path, monkeypatch)
     assert json.loads(cert.read_text())['conditional_harm'] is None
     replay=invoke('replay','--replay-run',cal)
     assert json.loads((replay/'replay.json').read_text())['rows'][0]['status']=='exact_trajectory_available'
-    invoke('source-smoke')
+    from merit_feddg import capability_routing
+    route_calls = []
+    def route_once(probe, sample):
+        route_calls.append(sample['id'])
+        return {'modality':'cxr', 'seconds':1.0}
+    monkeypatch.setattr(capability_routing, 'infer_image_type', route_once)
+    current[:] = [row() | {'id': str(i), 'modality':'mixed'} for i in range(2)]
+    smoke = invoke('source-smoke')
+    smoke_diag = json.loads((smoke/'diagnostics.json').read_text())
+    assert len(route_calls) == 1
+    assert smoke_diag['routing_calls'] == 1 and smoke_diag['routing_cache_hits'] == 1
+    assert smoke_diag['candidate_coverage'] == 0
+    assert smoke_diag['candidate_metrics'] == {}
+    assert smoke_diag['timing_totals_seconds']['case_wall_seconds'] >= 0
     current[:]=[row()|{'id':'test','group_id':'patient-test','image_sha256':'image-test'}]
     evaluation=invoke('evaluate','--policy',frozen,'--certificate',cert,'--references',refs)
     diag=json.loads((evaluation/'diagnostics.json').read_text())
