@@ -11,6 +11,12 @@
 - User expanded scope to classification, text and retrieval guidance, plus
   the same 694 MIMIC reports. These extensions are NOT active full results.
   [Channel resource audit, official-code references and scoring caveats](docs/SOFT_GUIDANCE_CHANNELS.md).
+- MIMIC two-report spatial-soft canary now runs on host GPU0, original 256
+  output-token budget, no automatic expansion. Six classification/text/real
+  retrieval canaries passed preflight and queue after it; nine targeted tests
+  and Ruff pass. These are separate pilots, no full scores. GPU0 is shared
+  with the main full-run shard: mark timing contention, not isolated latency.
+  Host sessions: `mimic-soft-canary`, `channel-soft-canary` (queued).
 - User explicitly requested full expansion. Original VQA-RAD 451 + SLAKE 2094
   manifests, alpha=.5, same cached experts, segmentation channel only.
 - New run uses fresh generalist/compact controls to isolate guidance from the

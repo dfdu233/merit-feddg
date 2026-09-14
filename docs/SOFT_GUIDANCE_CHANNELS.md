@@ -4,6 +4,45 @@ Status 2026-09-14: segmentation full run is active on two physical GPUs.
 Other-channel and MIMIC runs are separate experiments, not results of that run.
 No training, calibration, test-selected strengths, or cross-case adaptation.
 
+## Actual scheduling and validation
+
+MIMIC two-report canary is running on host GPU0 via `merit-runner`, session
+`mimic-soft-canary`. It imports the unchanged spatial `full_case`, preserves
+the historical 256-token generation limit, checks both historical shard
+configurations and all 694 cache-file IDs against the full manifest, and loads
+no references. It stops after the first two manifest rows, does not certify
+the missing historical root completion marker, and never auto-expands.
+Root: `runs/mimic-report-soft-canary/889ed16b82d7197312e0dfd72bc000a66ded75a69281b0a9b60ab61cff40319d`.
+Log: `runs/soft-full-checks/mimic-report-canary.log`.
+
+`run_channel_soft_canary.py` implements .5 convex guidance separately for
+classification-conditioned, generated-observation and real retrieved-text
+contexts. It preserves nonselected expert evidence, refuses to call omitted
+or displaced context successful guidance, and checks current-context and
+zero-control token parity. The classification path is text-mediated, NOT
+native image-classifier logit alignment. CAD is a reference/future separately
+labelled arm, not implemented by this convex interpolation.
+
+Six fixed scheduling cases are selected solely from manifest order and
+available capability, not scores: first classification and generation cache
+per VQA dataset, and first manifest row for public-text retrieval. The seed
+contains six real sourced paragraphs and is fingerprinted. Both no-channel
+and ordinary text controls accompany the soft candidate. There is no promise
+that a channel will be relevant or helpful on these cases.
+
+CPU validation: nine targeted tests passed and Ruff passed. Both new CLIs
+passed real-resource preflight. Channel session `channel-soft-canary` on the
+host waits on the running MIMIC canary's existing lock before loading a model;
+it is QUEUED, not completed. Root:
+`runs/channel-soft-canary/c4d3055ff05209352975d69876c31d36646d56b2b511d2f3c74408919ffcd999`.
+Log: `runs/soft-full-checks/channel-canary.log`.
+
+The exploratory slot shares GPU0 with the full VQA/SLAKE shard (approximately
+two model copies fit the 49-GiB card). Record contention explicitly; these
+timings are not isolated latency measurements. The full run's own measured
+runtime may likewise be affected from this point onward. Inference policies
+and model versions remain unchanged. No full channel/report scores exist yet.
+
 ## Real cached resources (not effective delivery)
 
 | Dataset | Cached cases | Segmentation | Classification | Generated observation | Retrieval |
