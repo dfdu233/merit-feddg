@@ -9,10 +9,57 @@ from __future__ import annotations
 
 import hashlib
 import json
+from contextlib import contextmanager
 from pathlib import Path
 
 from ..capabilities import CapabilityRequest, CapabilityResult, EvidenceItem
 from .chexagent import CheXagentConceptExpert
+
+
+@contextmanager
+def _legacy_transformers_cache_api():
+    """Scoped server compatibility; restore upstream classes after generation."""
+    from transformers.cache_utils import Cache
+
+    names = ("seen_tokens", "get_max_length", "get_usable_length")
+    missing = [name for name in names if not hasattr(Cache, name)]
+
+    def maximum(cache):
+        value = cache.get_max_cache_shape()
+        return None if value is None or value < 0 else value
+
+    def usable(cache, new_seq_length, layer_idx=0):
+        limit, previous = maximum(cache), cache.get_seq_length(layer_idx)
+        return limit-new_seq_length if limit is not None and previous+new_seq_length > limit else previous
+
+    values = (property(lambda cache: cache.get_seq_length()), maximum, usable)
+    for name, value in zip(names, values):
+        if name in missing:
+            setattr(Cache, name, value)
+    try:
+        yield
+    finally:
+        for name in missing:
+            delattr(Cache, name)
+
+
+@contextmanager
+def _legacy_generation_cache_mode(model):
+    model_type = type(model)
+    name = "_supports_default_dynamic_cache"
+    if not hasattr(model_type, name):
+        yield
+        return
+    had_override = name in model_type.__dict__
+    original = model_type.__dict__.get(name)
+    setattr(model_type, name, classmethod(lambda cls: False))
+    try:
+        yield
+    finally:
+        if had_override:
+            setattr(model_type, name, original)
+        else:
+            delattr(model_type, name)
 
 
 class CheXagentCapabilityExpert:
@@ -71,9 +118,11 @@ class CheXagentCapabilityExpert:
             )
         ids = self.expert._prompt_ids(str(Path(request.image).resolve()), prompt)
         ids = ids.to(next(self.expert.model.parameters()).device)
-        with self.expert.torch.inference_mode():
+        with (_legacy_transformers_cache_api(), _legacy_generation_cache_mode(self.expert.model),
+              self.expert.torch.inference_mode()):
             output = self.expert.model.generate(
-                input_ids=ids, do_sample=False, num_beams=1, use_cache=True,
+                input_ids=ids, attention_mask=self.expert.torch.ones_like(ids),
+                do_sample=False, num_beams=1, use_cache=True,
                 max_new_tokens=self.max_new_tokens,
             )
         sequences = getattr(output, "sequences", output)
