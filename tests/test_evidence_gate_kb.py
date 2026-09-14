@@ -6,7 +6,7 @@ import pytest
 from PIL import Image
 
 from merit_feddg.evidence_html import render
-from merit_feddg.evidence_use import filter_evidence, purpose_prompt
+from merit_feddg.evidence_use import filter_evidence, purpose_prompt, restore_contracts
 from merit_feddg.experts.native_small_medical import MedMNISTExpert, UKANExpert, load_bundle
 from merit_feddg.plug_observe import available_actions, observation, run_case
 from merit_feddg.text_kb import TextKnowledgeExpert, build, query
@@ -35,6 +35,20 @@ def test_existing_scope_restored_without_changing_old_default():
     c = case() | {'question':'What is the heart size?'}
     assert available_actions(spec(),c,[],set(),(20,20),2)[0]
     assert not available_actions(spec(),c,[],set(),(20,20),2,True)[0]
+
+
+def test_restore_only_missing_contract_not_models_or_conflicting_policy():
+    specs = spec()
+    contract = specs['e'].pop('request_contract')
+    overrides = {'e': {'request_contract': contract}}
+    assert restore_contracts(specs, overrides) == ['e']
+    assert specs['e']['id'] == 'model'
+    assert restore_contracts(specs, overrides) == []
+    overrides['e']['request_contract'] = {'mode': 'free_query'}
+    with pytest.raises(ValueError, match='no automatic policy override'):
+        restore_contracts(specs, overrides)
+    with pytest.raises(ValueError, match='request_contract only'):
+        restore_contracts(specs, {'e': {'id': 'replacement'}})
 
 
 @pytest.mark.parametrize('use,admit',[('ANSWER',True),('AUXILIARY',False),('IRRELEVANT',False),('UNKNOWN',False),('garbage',False)])

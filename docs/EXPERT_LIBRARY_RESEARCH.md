@@ -14,7 +14,7 @@ survey, an ICLR acceptance prediction, or a frozen paper hypothesis.
 | Existing CheXagent | CXR | chest | query-conditioned text observation | Existing weights; prose is fallible and needs task-use checks |
 | MedMNIST BreastMNIST ResNet18-28 | breast ultrasound | breast | malignant vs normal/benign classification | Downloaded official run-1 checkpoint; strict load and one TRAIN-image inference passed |
 | Original U-KAN BUSI | ultrasound | breast | binary predicted foreground | Original author SharePoint links require login; not downloaded |
-| U-Bench U-KAN BUSI reproduction | ultrasound | breast | binary predicted foreground | Author-hosted alternative identified and downloading; separate identity, NOT original paper weights |
+| U-Bench U-KAN BUSI reproduction | ultrasound | breast | binary predicted foreground | Downloaded, publisher SHA verified, strict CPU/GPU inference passed; NOT original paper weights |
 | U-Bench U-KAN ACDC | MRI | heart | cardiac segmentation | Candidate, not yet integrated/validated; multiclass/slice normalization must be audited |
 | U-Bench U-KAN DRIVE | fundus | retinal vessels | vessel segmentation | Candidate, not yet integrated; cannot infer diabetic disease from vessel geometry |
 | U-Bench U-KAN ISIC / Kvasir | dermoscopy / endoscopy | skin / bowel | lesion / polyp segmentation | Candidates, not yet integrated; distinct preprocessing and splits |
@@ -88,6 +88,16 @@ was located. Its advertised LFS SHA is
 The MedOtter mirror's source/hash metadata matched this, but download provenance
 remains the U-Bench author's release. U-Bench is not the original U-KAN run.
 
+Download completed: 101,790,181 bytes, full advertised SHA-256 matched. Strict
+state loading confirmed model U_KAN, BUSI, image size 256, num_classes=1,
+train.txt/val.txt as checkpoint-declared splits. CPU smoke: initialization
+1.732 s / inference 0.215 s; authorized GPU smoke: 1.350 s / 0.189 s.
+The same first BreastMNIST TRAIN image was used solely to test adapter plumbing;
+its low resolution and shared BUSI lineage make it unsuitable for measuring
+independent segmentation accuracy. No labels/masks were supplied to inference.
+Both verified local bundles are registered in `configs/small_medical_ready.yaml`;
+this is a new configuration, not a rewrite of either historical Gate canary.
+
 U-KAN/BUSI preprocessing was traced in actual upstream loader code, not guessed
 from a model name: OpenCV BGR → resize → ImageNet Normalize → additional /255.
 Its held-out identities depend on the source list/seed; patient-level separation
@@ -132,7 +142,9 @@ semantics, the proposed mechanism is weakened or refuted.
 This is a proposal, not a proven mechanism. Preliminary rubric I=2/M=2/N=1/E=2:
 multiple external-tool/retrieval studies motivate the issue; a distinguishing
 intervention is describable; novelty search is incomplete; the existing runner
-can instrument it but source-contract recovery is still required. Do not market
+can instrument it and legacy contracts were subsequently recovered verbatim
+from `configs/request_scoped_pilot.yaml`. The two-row recheck admits evidence
+but produces no improvement (see engineering report). Do not market
 this as an established high-novelty result. Expert-count scaling alone is a
 weaker alternative unless a compute/information boundary can be demonstrated.
 

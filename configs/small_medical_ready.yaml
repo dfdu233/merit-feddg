@@ -1,0 +1,32 @@
+# Audited local bundles; NOT used in either historical VQA-RAD Gate canary.
+experts:
+  ukan_busi_ubench:
+    id: FengheTan9/U-Bench-U_KAN-busi
+    optional: true
+    checkpoint_path: artifacts/models/ukan-busi-ubench/bundle.json
+    factory: merit_feddg.experts.native_small_medical:UKANExpert
+    factory_kwargs: {expert_id: ukan_busi_ubench, scope: breast_ultrasound_mask}
+    modalities: [ultrasound]
+    tasks: [open_vqa]
+    capabilities: [segmentation]
+    scope: breast_ultrasound_mask
+    requires_region: false
+    request_contract:
+      mode: named_concepts
+      concept_aliases: {breast: [mammary]}
+    description: U-Bench reproduction BUSI foreground geometry, not diagnosis; BUSI source family.
+  breastmnist:
+    id: MedMNIST/breastmnist-resnet18-28
+    optional: true
+    checkpoint_path: artifacts/models/breastmnist/bundle.json
+    factory: merit_feddg.experts.native_small_medical:MedMNISTExpert
+    factory_kwargs: {expert_id: breastmnist, scope: breast_ultrasound_binary}
+    modalities: [ultrasound]
+    tasks: [open_vqa]
+    capabilities: [classification]
+    scope: breast_ultrasound_binary
+    requires_region: false
+    request_contract:
+      mode: named_concepts
+      concept_aliases: {breast: [mammary]}
+    description: Native 28px binary classifier, not full-resolution VQA image classifier; BUSI source family.

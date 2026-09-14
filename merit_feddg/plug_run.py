@@ -55,6 +55,13 @@ def prepare(args):
         raise ValueError('invalid sharding')
     sources, references, source_audit = read_sources(args.source_manifest, rows)
     specs = copy.deepcopy(base_protocol['config']['experts'])
+    scope_audit = None
+    if gate_comparison:
+        from .evidence_use import restore_contracts
+        path = Path(getattr(args, 'scope_contracts', 'configs/request_scoped_pilot.yaml'))
+        legacy = yaml.safe_load(path.read_text(encoding='utf-8'))
+        scope_audit = {'source_sha256': file_hash(path),
+                       'restored': restore_contracts(specs, legacy['expert_overrides'])}
     if args.expert_registry:
         extra = yaml.safe_load(Path(args.expert_registry).read_text(encoding='utf-8'))
         if not isinstance(extra, dict) or set(extra) != {'experts'}:
@@ -101,13 +108,14 @@ def prepare(args):
         'manifest': rows, 'base_protocol': base_protocol,
         'base_output_sha256': file_hash(Path(args.base_run) / f'{args.incumbent}.json'),
         'registry': specs, 'excluded': excluded, 'source_audit': source_audit,
+        'scope_audit': scope_audit,
         'implementation': {p.relative_to(source).as_posix(): file_hash(p)
                            for p in sorted(source.rglob('*.py'))}})
     return {'identity': identity, 'options': options, 'cases': cases, 'base': base,
             'methods': GATE_METHODS if gate_comparison else METHODS,
             'base_protocol': base_protocol, 'config': config, 'specs': specs,
             'excluded': excluded, 'sources': sources, 'references': references,
-            'source_audit': source_audit}
+            'source_audit': source_audit, 'scope_audit': scope_audit}
 
 
 def live(args, data, root):
@@ -270,6 +278,8 @@ def main():
     parser.add_argument('--source-manifest')
     parser.add_argument('--gate-comparison', action='store_true',
                         help='Fixed incumbent/off/scope/purpose arms; no clinical truth gate')
+    parser.add_argument('--scope-contracts', default='configs/request_scoped_pilot.yaml',
+                        help='Existing frozen request contracts, used only with --gate-comparison')
     parser.add_argument('--artifacts', default='artifacts')
     parser.add_argument('--output', required=True)
     parser.add_argument('--check-only', action='store_true')
@@ -287,7 +297,8 @@ def main():
     preflight = {'identity': data['identity'], 'n': len(data['cases']), 'methods': data['methods'],
         'output_root': str(root.resolve()), 'base_identity': data['base_protocol']['identity'],
         'options': data['options'], 'experts': data['specs'], 'excluded': data['excluded'],
-        'source_audit': data['source_audit'], 'weights_fitted': False, 'calibration_fitted': False,
+        'source_audit': data['source_audit'], 'scope_audit': data['scope_audit'],
+        'weights_fitted': False, 'calibration_fitted': False,
         'prompt_protocol': 'uniform-free-v1', 'answer_type_used_at_inference': False,
         'historical_scores_directly_comparable': False, 'clinical_gate_implemented': False,
         'new_retrieval_content_policy': 'native_source_scoped_with_explicit_corpus'}

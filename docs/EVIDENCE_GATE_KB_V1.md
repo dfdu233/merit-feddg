@@ -43,7 +43,47 @@ was not treated as code; it was not available in the inspected attachment paths.
   remain visible. `--include-text` is an explicit sensitive LOCAL export only.
   Admission is never displayed as medical correctness.
 
-## Real canary — STOPPED, not a medical success
+## Contract recovery and fixed two-row recheck
+
+Subsequent source inspection found the exact legacy request contracts already in
+`configs/request_scoped_pilot.yaml`. This corrects the earlier assessment that
+they still required reconstruction. Gate comparison now copies only missing
+contracts from that file, fingerprints it, and rejects conflicting overrides;
+model identities and non-Gate policies do not change. No new concept aliases,
+blanket permission or test-selected rules were added.
+
+The same first two rows were rerun into a NEW root:
+`runs/gate-kb-contracts-canary/234de5e6de4cc40653fb5106f24463c9ad37e2b301dc61b571cd146d8ff25472/`.
+Use the command below with `--output runs/gate-kb-contracts-canary` and explicit
+`--scope-contracts configs/request_scoped_pilot.yaml`. Baseline generation uses
+the runner's matched uniform-free prompt; historical published scores are not
+automatically comparable. Completion remains false (2/1793), not a full score.
+
+| Arm | Candidates | Diagnostic score | Improve/harm | New generalist calls | Mean incremental time |
+|---|---:|---:|---:|---:|---:|
+| incumbent | baseline | 0/2 | — | 2 baseline calls | 0.872 s baseline generation |
+| no_new_gate | 2/2 | 0/2 | 0/0 | 2 | 3.477 s |
+| scope_restored | 2/2 | 0/2 | 0/0 | 3 | 1.730 s |
+| purpose_gate | 2/2 | 0/2 | 0/0 | 8 | 2.400 s |
+
+The three candidate arms have identical final text, differing from incumbent.
+Purpose judging really ran five times, but admitted all five observations as
+ANSWER; this does NOT demonstrate useful discrimination. Mean extra time over
+scope-only was 0.670 s/case. Fixed arm order and warmed shared models confound
+cross-arm speed comparisons; no speedup claim is warranted.
+
+The second row formed a real predicted anatomy region and a crop inspection in
+both gated arms. Its full mask evidence exceeded the 2048-token context, so it
+was omitted; the derived crop observation was also omitted as
+`parent_not_presented`. Thus crop generation happened, but this spatial evidence
+did NOT reach final synthesis. The parent-dependency safeguard worked; the
+mechanism's effective delivery is still deficient. Do not loosen budgets or
+drop dependency checks based on these outcomes. No full experiment resumed.
+The [recheck HTML](results/gate_kb_canary_2026-09-14/contracts-redacted.html)
+preserves hashed provenance, Gate decisions, actual delivery and costs.
+Final CPU suite after contract restoration: **860 passed in 12.71 s**.
+
+## Initial real canary — retained failed engineering check
 
 The original complete 1,793-row VQA-RAD TRAIN manifest and complete compact_rows
 base were verified. Exactly the first two rows were scheduled, without answer
@@ -142,8 +182,8 @@ separate commit `7c895c0`, preserving the public mask validation exception and
 binding loop closures explicitly. No test assertions were removed for a pass.
 Ruff, shell syntax and diff checks passed before GPU execution.
 
-The source contracts still need authoritative, model-specific reconstruction,
-not outcome-selected permissiveness. The usefulness labels are uncalibrated
+The initially missing source contracts were subsequently recovered verbatim;
+the failed initial snapshot is preserved, not rewritten. The usefulness labels are uncalibrated
 frozen model decisions. Two source-lineage-related specialists are not independent
 votes. No ICLR novelty or medical benefit follows from these engineering checks.
 

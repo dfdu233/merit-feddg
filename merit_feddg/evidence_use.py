@@ -6,6 +6,24 @@ from .request_scope import assess_request
 USES = ('ANSWER', 'AUXILIARY', 'IRRELEVANT', 'UNKNOWN')
 
 
+def restore_contracts(specs, overrides):
+    """Copy only missing legacy contracts; never replace models or existing policy."""
+    restored = []
+    for name, override in overrides.items():
+        if set(override) != {'request_contract'}:
+            raise ValueError('scope restoration accepts request_contract only')
+        if name not in specs:
+            continue
+        contract = override['request_contract']
+        if 'request_contract' in specs[name]:
+            if specs[name]['request_contract'] != contract:
+                raise ValueError('existing scope contract differs; no automatic policy override')
+        else:
+            specs[name]['request_contract'] = json.loads(json.dumps(contract))
+            restored.append(name)
+    return restored
+
+
 def scope_check(case, item, specs):
     spec = specs.get(item['expert_id'])
     if spec is None:

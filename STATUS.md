@@ -10,7 +10,8 @@
   adapters, and private-by-default offline HTML. No training or shared upgrades.
 - Full CPU suite: **859 passed in 14.19 s** after adapter preparation. Earlier
   failures and the separate inherited-lint repair `7c895c0` are documented.
-- Real fixed two-row VQA-RAD TRAIN canary stopped as required: no_new_gate made
+  Follow-up exact-contract restoration: **860 passed in 12.71 s**.
+- Initial fixed two-row VQA-RAD TRAIN canary stopped as required: no_new_gate made
   2/2 candidates; scope_restored and purpose_gate made 0/2, preserving incumbent.
   All five inherited registry entries lack request contracts, so purpose judging
   was never invoked. Improvements/harms are 0/0 on these two diagnostic rows;
@@ -18,12 +19,21 @@
 - Official BreastMNIST run-1 weights downloaded, member CRC verified, strict
   three-channel loading and actual first TRAIN-image CPU inference passed.
   Original U-KAN author download requires authentication; author-hosted U-Bench
-  reproduction is separately identified and its download is being verified.
+  reproduction downloaded with full publisher SHA verification and strict
+  CPU/GPU inference. New ready registry keeps these identities separate.
   BUSI and BreastMNIST share lineage, not independent supporting evidence.
 - No stopped full experiment was resumed. New modality/site/capability options
   and a mechanism-first ICLR research question are documented, not claimed as
   established novelty. Generic tool orchestration/relevance gating overlaps
   CRITIC, Self-RAG, ViperGPT and MedRAX.
+- Follow-up source audit located exact legacy contracts in
+  `configs/request_scoped_pilot.yaml`; only missing contracts are restored, and
+  conflicting policy overrides are rejected. The same two rows were rerun in a
+  new root: all three candidate arms now generate 2/2 candidates, five real
+  purpose judgments all say ANSWER, and all candidate arms give identical text.
+  Diagnostic improvements/harms remain 0/0. Anatomy mask and dependent crop
+  evidence fail final delivery due to context budget/parent dependency. This
+  recheck establishes nonzero calls, NOT medical Gate benefit or readiness to scale.
 - Details: [engineering and real canary](docs/EVIDENCE_GATE_KB_V1.md),
   [expert coverage, resource audit and research boundary](docs/EXPERT_LIBRARY_RESEARCH.md).
 

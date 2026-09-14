@@ -38,11 +38,15 @@ def main():
         raise RuntimeError('no native evidence: ' + result.reason)
     if any(p.requires_grad for p in expert.model.parameters()):
         raise RuntimeError('unfrozen expert parameter')
+    mask = result.items[0].payload.get('mask')
+    mask_audit = None if mask is None else {
+        'size_hw': mask['size'], 'foreground_pixels': sum(mask['counts'][1::2]),
+        'region_available': sum(mask['counts'][1::2]) > 0}
     print(json.dumps({'kind': args.kind, 'strict_load': True, 'all_frozen': True,
         'native_items': len(result.items), 'capability': capability,
         'checkpoint_sha256': expert.bundle['checkpoint_sha256'],
         'initialization_seconds': initialized-start, 'inference_seconds': finished-initialized,
-        'device': args.device, 'medical_accuracy_assessed': False,
+        'device': args.device, 'mask_audit': mask_audit, 'medical_accuracy_assessed': False,
         'patient_split_independence_verified': False}, indent=2))
 
 
