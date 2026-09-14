@@ -2,6 +2,15 @@
 
 ## Full soft-guidance run — active (2026-09-14)
 
+- Dual-GPU continuation is active: container physical GPU1 shard 0 and host
+  physical GPU0 shard 1, via the existing `merit-runner@172.17.0.1` account.
+  Original runner/function/identity unchanged; finished cases reused. New
+  scheduler validates frozen resources and disjoint writes; complete-only
+  merge/scoring. Host CUDA and real spatial canary passed; 868 CPU tests pass.
+  Current logs: `runs/soft-full-checks/shard-0.log`, `shard-1-host.log`.
+- User expanded scope to classification, text and retrieval guidance, plus
+  the same 694 MIMIC reports. These extensions are NOT active full results.
+  [Channel resource audit, official-code references and scoring caveats](docs/SOFT_GUIDANCE_CHANNELS.md).
 - User explicitly requested full expansion. Original VQA-RAD 451 + SLAKE 2094
   manifests, alpha=.5, same cached experts, segmentation channel only.
 - New run uses fresh generalist/compact controls to isolate guidance from the

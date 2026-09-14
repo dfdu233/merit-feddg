@@ -122,3 +122,34 @@ of failed/missing rows. Initial preflight-only roots are not inference results.
 Full results will appear in `evaluation.json` and a patient-text-free
 `evaluation-summary.json`; neither file exists until full evaluation finishes.
 Raw per-case records, masks, images and credentials are not pushed to GitHub.
+
+## Authorized dual-GPU continuation
+
+The user authorized both host cards. The working SSH account is
+`merit-runner@172.17.0.1`, with the existing local key
+`/root/.ssh/merit_host_gpu0_ed25519` (never export its contents).
+Host GPU 0 UUID is `GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023`;
+container GPU 0 remains physical GPU 1 as above.
+
+`run_soft_guidance_shard.py` adds scheduling only and imports the unchanged
+`full_case`. It verifies the original runner, model, source, manifest and
+runtime fingerprints against the SAME frozen root. Per-dataset even/odd
+indices partition both complete manifests. Completed rows are reused. Shared
+legacy locking excludes the original single worker, while shard locks exclude
+duplicate workers. Exact ID/arm validation precedes merge; scoring is locked
+and complete-only. The single worker was deliberately interrupted, with its
+last unfinished case recomputed, not imputed. No old outputs were deleted.
+
+Host preflight and CUDA passed. Host real cases 0091 and 0095 passed current
+zero parity with 24 and 16 conditioned calls respectively. Initial two
+unsupported rows alone were NOT accepted as a soft-operator canary. Full CPU
+suite: 868 tests passed; targeted eight tests and Ruff passed.
+
+Active sessions: container `soft-guidance-shard0`, host
+`soft-guidance-host-full`. Logs: `runs/soft-full-checks/shard-0.log` and
+`runs/soft-full-checks/shard-1-host.log`. Invocation on each device uses the
+existing wrapper and `scripts/run_soft_guidance_shard.py --run` followed by
+the same root above, plus `--shard-index 0` or `1`. No model/data downloads.
+Only this run's root, dataset directories and log directory were granted
+group write access to the existing host runner group (GID 1003); other trees
+and historical outputs were not changed.
