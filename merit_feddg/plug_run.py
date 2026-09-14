@@ -28,6 +28,7 @@ from .evidence_agent import ToolUnavailable, digest
 from .plug_observe import ANSWER_SUFFIX, json_copy, run_case, validate_specs
 
 METHODS = ['incumbent', 'plug_read', 'plug_static', 'plug_agent']
+GATE_METHODS = ['incumbent', 'no_new_gate', 'scope_restored', 'purpose_gate']
 DEFAULTS = {'max_calls': 3, 'region_limit': 2, 'max_new_tokens': 64,
             'observation_tokens': 48, 'planner_tokens': 16, 'observation_view': 'region',
             'content_encoding': 'plain'}
@@ -38,6 +39,7 @@ def prepare(args):
     if not isinstance(raw, dict) or set(raw) - set(DEFAULTS):
         raise ValueError('unknown plug-observe configuration field')
     options = {**DEFAULTS, **raw}
+    gate_comparison = getattr(args, 'gate_comparison', False)
     for key in ('region_limit', 'max_new_tokens', 'observation_tokens', 'planner_tokens'):
         if type(options[key]) is not int or not 1 <= options[key] <= 1024:
             raise ValueError(f'invalid integer budget: {key}')
@@ -53,6 +55,13 @@ def prepare(args):
         raise ValueError('invalid sharding')
     sources, references, source_audit = read_sources(args.source_manifest, rows)
     specs = copy.deepcopy(base_protocol['config']['experts'])
+    scope_audit = None
+    if gate_comparison:
+        from .evidence_use import restore_contracts
+        path = Path(getattr(args, 'scope_contracts', 'configs/request_scoped_pilot.yaml'))
+        legacy = yaml.safe_load(path.read_text(encoding='utf-8'))
+        scope_audit = {'source_sha256': file_hash(path),
+                       'restored': restore_contracts(specs, legacy['expert_overrides'])}
     if args.expert_registry:
         extra = yaml.safe_load(Path(args.expert_registry).read_text(encoding='utf-8'))
         if not isinstance(extra, dict) or set(extra) != {'experts'}:
@@ -95,16 +104,18 @@ def prepare(args):
                       'group_id': row.get('group_id', row['image_sha256']),
                       'image_sha256': row['_pixel_sha256']})
     source = Path(__file__).parent
-    identity = digest({'schema': 'plug-observe-v1', 'options': options,
+    identity = digest({'schema': 'plug-observe-v1', 'options': options, 'gate_comparison': gate_comparison,
         'manifest': rows, 'base_protocol': base_protocol,
         'base_output_sha256': file_hash(Path(args.base_run) / f'{args.incumbent}.json'),
         'registry': specs, 'excluded': excluded, 'source_audit': source_audit,
+        'scope_audit': scope_audit,
         'implementation': {p.relative_to(source).as_posix(): file_hash(p)
                            for p in sorted(source.rglob('*.py'))}})
     return {'identity': identity, 'options': options, 'cases': cases, 'base': base,
+            'methods': GATE_METHODS if gate_comparison else METHODS,
             'base_protocol': base_protocol, 'config': config, 'specs': specs,
             'excluded': excluded, 'sources': sources, 'references': references,
-            'source_audit': source_audit}
+            'source_audit': source_audit, 'scope_audit': scope_audit}
 
 
 def live(args, data, root):
@@ -120,6 +131,7 @@ def live(args, data, root):
     from .open_study import model_provenance
 
     cfg, opts, specs = data['config'], data['options'], data['specs']
+    methods = data.get('methods', METHODS)
     model_ids = json_copy({'generalist': generalist_provenance(cfg['generalist'], args.artifacts),
                           'experts': {k: model_provenance(v, args.artifacts) for k, v in specs.items()}})
     with (root / '.assets.lock').open('a') as lock:
@@ -136,7 +148,7 @@ def live(args, data, root):
                           source_references=data['references'])
     shard = root / 'shards' / str(args.shard_index)
     shard.mkdir(parents=True, exist_ok=True)
-    values = {name: {} for name in METHODS}
+    values = {name: {} for name in methods}
     cases = data['cases'][args.shard_index::args.shard_count]
     try:
         for index, case in enumerate(cases):
@@ -146,7 +158,7 @@ def live(args, data, root):
             if cache.exists():
                 saved = json.loads(cache.read_text())
                 if (saved.get('identity') != data['identity']
-                        or set(saved.get('outputs', {})) != set(METHODS)
+                        or set(saved.get('outputs', {})) != set(methods)
                         or saved.get('case_id') != case['id']):
                     raise ValueError('case cache mismatch')
                 outputs = saved['outputs']
@@ -221,12 +233,16 @@ def live(args, data, root):
                     return [asdict(v) for v in result.items]
 
                 outputs = {'incumbent': baseline}
-                for name, mode in [('plug_read', 'read'), ('plug_static', 'fixed'), ('plug_agent', 'agent')]:
+                arms = ([('no_new_gate', 'fixed', 'off'), ('scope_restored', 'fixed', 'scope'),
+                         ('purpose_gate', 'fixed', 'purpose')] if methods == GATE_METHODS else
+                        [('plug_read', 'read', 'off'), ('plug_static', 'fixed', 'off'),
+                         ('plug_agent', 'agent', 'off')])
+                for name, mode, gate in arms:
                     pool.reset_case()
                     outputs[name] = run_case(case=case, specs=specs, seed_items=seeded,
                         incumbent=baseline, generate=generate, measure=probe.context_token_budget,
                         invoke=invoke, output_dir=shard / 'crops' / digest(case['id']) / name,
-                        mode=mode, **opts)
+                        mode=mode, evidence_gate=gate, **opts)
                 for out in outputs.values():
                     out['inherited_cost_upper_bound_seconds'] = historical.get('seconds')
                     out['historical_generation_not_rerun_for_seed_tools'] = True
@@ -234,7 +250,7 @@ def live(args, data, root):
                     out['uniform_free_prompt'] = True
                 atomic_json(cache, {'identity': data['identity'], 'case_id': case['id'],
                                     'outputs': outputs})
-            for name in METHODS:
+            for name in methods:
                 values[name][case['id']] = outputs[name]
             print(f"completed {index + 1}/{len(cases)} {case['id']}", flush=True)
         complete = len(values['incumbent']) == len(cases)
@@ -260,6 +276,10 @@ def main():
     parser.add_argument('--config', default='configs/plug_observe.yaml')
     parser.add_argument('--expert-registry', help='Optional add-only experts mapping, using existing factory interface')
     parser.add_argument('--source-manifest')
+    parser.add_argument('--gate-comparison', action='store_true',
+                        help='Fixed incumbent/off/scope/purpose arms; no clinical truth gate')
+    parser.add_argument('--scope-contracts', default='configs/request_scoped_pilot.yaml',
+                        help='Existing frozen request contracts, used only with --gate-comparison')
     parser.add_argument('--artifacts', default='artifacts')
     parser.add_argument('--output', required=True)
     parser.add_argument('--check-only', action='store_true')
@@ -274,10 +294,11 @@ def main():
     data = prepare(args)
     root = Path(args.output) / data['identity']
     root.mkdir(parents=True, exist_ok=True)
-    preflight = {'identity': data['identity'], 'n': len(data['cases']), 'methods': METHODS,
+    preflight = {'identity': data['identity'], 'n': len(data['cases']), 'methods': data['methods'],
         'output_root': str(root.resolve()), 'base_identity': data['base_protocol']['identity'],
         'options': data['options'], 'experts': data['specs'], 'excluded': data['excluded'],
-        'source_audit': data['source_audit'], 'weights_fitted': False, 'calibration_fitted': False,
+        'source_audit': data['source_audit'], 'scope_audit': data['scope_audit'],
+        'weights_fitted': False, 'calibration_fitted': False,
         'prompt_protocol': 'uniform-free-v1', 'answer_type_used_at_inference': False,
         'historical_scores_directly_comparable': False, 'clinical_gate_implemented': False,
         'new_retrieval_content_policy': 'native_source_scoped_with_explicit_corpus'}
@@ -296,7 +317,7 @@ def main():
     if args.merge_only or args.shard_count == 1:
         with (root / '.merge.lock').open('a') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
-            merge_shards(root, data['identity'], [c['id'] for c in data['cases']], METHODS, args.shard_count)
+            merge_shards(root, data['identity'], [c['id'] for c in data['cases']], data['methods'], args.shard_count)
             atomic_json(root / 'protocol.json', {**preflight, 'shards_complete': True,
                                                 'shard_count': args.shard_count})
 

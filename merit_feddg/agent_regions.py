@@ -13,7 +13,7 @@ MAX_PIXELS = 16_777_216
 
 def decode_mask(value: dict) -> np.ndarray:
     if not isinstance(value, dict):
-        raise ValueError('encoded mask dictionary required')
+        raise ValueError('encoded mask dictionary required')  # noqa: TRY004 - public validation contract
     size = value.get('size', [])
     if (not isinstance(size, (list, tuple)) or len(size) != 2
             or any(type(x) is not int or x < 1 for x in size)

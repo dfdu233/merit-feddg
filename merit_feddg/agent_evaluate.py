@@ -27,7 +27,7 @@ def diagnostic_score(text, reference, answer_type):
     pred, ref = words(text), words(reference)
     if answer_type == 'closed':
         if ref in (['yes'], ['no']):
-            match = re.match(r'^\s*(?:answer\s*:\s*)?(yes|no)\b', text, re.I)
+            match = re.match(r'^\s*(?:answer\s*:\s*)?(yes|no)\b', text, re.IGNORECASE)
             return float(bool(match and match.group(1).casefold() == ref[0]))
         # Do not coerce every non-yes reference into no (SLAKE is not binary).
         return float(pred == ref)

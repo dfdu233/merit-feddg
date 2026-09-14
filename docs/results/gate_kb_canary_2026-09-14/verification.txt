@@ -1,0 +1,33 @@
+Sanitized verification summary, 2026-09-14 (not patient/model output)
+Independent worktree base: e6f88744900a11b516279980124dc4775a5ee07b
+Separate compatibility/lint repair: 7c895c0
+Command: scripts/with_gate_kb_env.sh -m pytest -ra
+Final observed output: 859 passed in 14.19s
+Earlier full run: 1 failed, 858 passed (new query fixture corrected; see report)
+Command: scripts/with_gate_kb_env.sh -m ruff check .
+Observed output: All checks passed!
+plug_run --help: passed
+evidence_html --help: passed
+SQLite FTS5 seed build/query: passed, 6 entries
+HTML generation and privacy tests: passed; redacted.html is the real canary audit
+Canary: fixed first 2 entries of original 1793-entry TRAIN manifest, incomplete
+Candidates: no_new_gate 2/2, scope_restored 0/2, purpose_gate 0/2
+Purpose-model calls: 0; no scientific Gate validation
+Outcome: stopped, no full experiment resumed
+Shared environment upgrades: none
+Original patient text/images, references, raw logits and credentials: not exported
+
+FOLLOW-UP (same fixed two TRAIN rows; separate output root, legacy contracts restored)
+Command: scripts/with_gate_kb_env.sh -m pytest -ra
+Observed output: 860 passed in 12.71s
+Ruff: All checks passed!
+Preflight: restored five exact existing contracts, model IDs unchanged
+Candidates: no_new_gate 2/2, scope_restored 2/2, purpose_gate 2/2
+Purpose calls: 5, all five observations labeled ANSWER
+All candidate arm texts identical; diagnostic improvements/harms 0/0
+Actual anatomy crop created; mask and dependent crop not presented (budget/dependency)
+Canary remains incomplete 2/1793; no full scoring/full experiment
+U-Bench U-KAN: full publisher SHA verified; strict CPU and authorized GPU smoke passed
+U-KAN engineering TRAIN image mask: 28x28, 56 predicted foreground pixels
+This is not independent segmentation accuracy or downstream VQA benefit
+BreastMNIST: strict CPU and authorized GPU smoke passed

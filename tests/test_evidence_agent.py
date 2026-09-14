@@ -15,13 +15,22 @@ import pytest
 from PIL import Image
 
 from merit_feddg.agent_protocol import (
-    atomic_json, load_incumbent, merge_shards, read_inputs, read_sources,
+    atomic_json,
+    load_incumbent,
+    merge_shards,
+    read_inputs,
+    read_sources,
 )
 from merit_feddg.agent_regions import crop_box_pixels, decode_mask, extract_regions
 from merit_feddg.agent_run import METHODS, json_value, live, load_options, prepare
 from merit_feddg.agent_runtime import augment_case, image_digest
 from merit_feddg.evidence_agent import (
-    Action, EvidenceLedger, InvalidObservation, commit_or_keep, execute_plan, make_plan,
+    Action,
+    EvidenceLedger,
+    InvalidObservation,
+    commit_or_keep,
+    execute_plan,
+    make_plan,
     validate_plan,
 )
 from merit_feddg.matched_evaluation import generation_prompt
@@ -249,9 +258,9 @@ def test_real_crop_workflow_with_fake_frozen_model(tmp_path, mode):
 
 
 def test_planner_stop_and_no_masks_have_no_candidate(tmp_path):
-    common = dict(case_id='c', image=image_file(tmp_path), question='Q',
-                  source_models={'segmenter': 's'}, output_dir=str(tmp_path / 'w'),
-                  generate=lambda *a: {'text': 'STOP'}, synthesize=lambda *a: pytest.fail('called'))
+    common = {'case_id':'c', 'image':image_file(tmp_path), 'question':'Q',
+              'source_models':{'segmenter': 's'}, 'output_dir':str(tmp_path / 'w'),
+              'generate':lambda *a: {'text': 'STOP'}, 'synthesize':lambda *a: pytest.fail('called')}
     assert augment_case(**common, evidence=[evidence()], mode='agent')['candidate'] is None
     assert augment_case(**common, evidence=[])['region_count'] == 0
 
@@ -419,7 +428,7 @@ def test_live_adapter_with_fake_legacy_backend(tmp_path, monkeypatch):
 
 
 def test_diagnostic_scorer_does_not_convert_nonbinary_to_no():
-    from merit_feddg.agent_evaluate import diagnostic_score, cluster_bootstrap
+    from merit_feddg.agent_evaluate import cluster_bootstrap, diagnostic_score
     assert diagnostic_score('left', 'left', 'closed') == 1
     assert diagnostic_score('No', 'left', 'closed') == 0
     assert diagnostic_score('No, none visible.', 'no', 'closed') == 1

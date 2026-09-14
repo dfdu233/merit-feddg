@@ -9,9 +9,9 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from time import perf_counter
-from typing import Callable, Mapping, Sequence
 
 
 def digest(value) -> str:

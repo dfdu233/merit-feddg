@@ -1,0 +1,8 @@
+# Fixed TRAIN scheduling prefix, no tuning; same factors across all three new arms.
+max_calls: 3
+region_limit: 2
+max_new_tokens: 64
+observation_tokens: 48
+planner_tokens: 16
+observation_view: region
+content_encoding: shared
