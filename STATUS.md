@@ -1,5 +1,27 @@
 # Current status
 
+## Plug-observe bindings VQA-RAD TRAIN pilot stopped before scale-up (2026-09-14)
+
+- Evaluated `implementation/plug-observe-bindings` at
+  `e6f88744900a11b516279980124dc4775a5ee07b` in an independent worktree. Focused
+  tests pass 124/124 and full local pytest passes 846/846. Real plain/shared and
+  spatial canaries verified packet delivery, distinct mask-derived crops and
+  genuine candidates on the authorized CUDA GPU; no dependency/model download,
+  training, calibration, RAG or BiomedParse was used.
+- Per the small-sample-first request, both layouts were stopped on the identical
+  first 154 scheduling rows of the unchanged 1,793-row TRAIN manifest. Incumbent
+  text/token parity is 154/154. Candidate coverage is 96.10% for shared static
+  and agent, versus 96.10%/88.31% for plain static/agent.
+- Coverage did not translate to benefit. Frozen ANCHOR strict is 52/154 incumbent,
+  46/154 plain static, 49/154 plain agent, and 50/154 for both shared arms. The
+  repository diagnostic is 46.83% incumbent versus 40.90%/43.50% plain and
+  39.82%/39.82% shared static/agent. Shared static and agent outputs are identical
+  154/154 despite extra planner calls. Full expansion was not launched.
+- [Pilot report](docs/results/plug_observe_bindings_vqarad_train_pilot_2026-09-14/README.md)
+  records identities, commands, calls, token delivery, costs and representative
+  mechanism failures. Server caches remain resumable but incomplete; they are
+  not presented as a full experiment and raw/restricted artifacts are not committed.
+
 ## Evidence-agent-v1 VQA-RAD TRAIN complete (2026-09-12)
 
 - Completed and merged both frozen shards (897 + 896 = 1,793); protocol has
