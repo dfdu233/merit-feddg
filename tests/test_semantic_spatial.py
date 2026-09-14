@@ -4,10 +4,10 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
-
+import test_capability_runtime as runtime_tests
 from test_capability_runtime import Probe, spec
-from test_capability_runtime import setup as setup  # noqa: F401
 from test_vector_gate import Candidate, Verifier
+
 from merit_feddg.capabilities import EvidenceItem
 from merit_feddg.capability_runtime import NativeSession, NativeState, ValueGenerationConfig
 from merit_feddg.io import load_experiment_yaml
@@ -17,9 +17,14 @@ from merit_feddg.matched_evaluation import (
     generation_prompt,
     load_manifest,
 )
-from merit_feddg.semantic_evidence import semantic_records, semantic_prompt
+from merit_feddg.semantic_evidence import semantic_prompt, semantic_records
 from merit_feddg.spatial_evidence import encode_soft_mask
 from merit_feddg.vector_gate import VectorGateConfig, assess_visual_contrast
+
+
+@pytest.fixture
+def setup(tmp_path):
+    return runtime_tests.setup.__wrapped__(tmp_path)
 
 
 def measure(self, image, prompt, reserve):
@@ -118,7 +123,7 @@ def test_complete_disjoint_shards_are_merged_in_manifest_order(tmp_path):
 def test_runtime_preserves_raw_rejected_evidence_and_gates_before_generation(setup, monkeypatch, relevant):
     monkeypatch.setattr(Probe, "context_token_budget", measure, raising=False)
     build, _, _ = setup
-    runtime, probe, pool = build(specs={"A": spec()}, visual_views=0, evidence_style="semantic",
+    runtime, probe, _pool = build(specs={"A": spec()}, visual_views=0, evidence_style="semantic",
         token_budgeted_evidence=True, vector_gate="multidimensional", max_evidence_chars=20000)
     calls = []
     runtime.session.assess_relevance = lambda items: {"passed": relevant, "status": "test"}
@@ -139,7 +144,7 @@ def test_hybrid_session_receives_both_semantics_and_original_native_geometry(mon
     probe = Probe()
     probe.tensor_bridge = SimpleNamespace(training_free=True, last_audit={})
     class Packet:
-        rejected = []
+        rejected = ()
         def __len__(self):
             return 0
     probe.tensor_packet = lambda items, image: Packet()

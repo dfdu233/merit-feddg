@@ -1,0 +1,54 @@
+# Opt-in, prespecified engineering configuration. No valid source certificate yet.
+medcave_enabled: true
+generalist:
+  backend: llava_med
+  id: microsoft/llava-med-v1.5-mistral-7b
+  checkpoint_path: /home/dbw/ANCHOR/hf_cache/llava-med-v1.5-mistral-7b
+  source_path: /home/dbw/ANCHOR/data/medheval/code/baselines/Med-LVLMs/llava-med-1.5
+  vision_tower_path: /home/dbw/ANCHOR/hf_cache/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1
+  dtype: float16
+  device_map: cuda
+  deterministic_image_padding: true
+prompt_suffix: Answer the original question briefly using only image-supported information.
+generation:
+  max_new_tokens: 64
+  block_tokens: 64
+  max_expert_calls: 2
+  visual_views: 0
+  evidence_style: semantic
+  compact_native: true
+  compact_columns: false
+  token_budgeted_evidence: true
+  max_evidence_chars: 30000
+  evidence_order: acquisition
+  retrieval_answer_context: false
+risk_policy:
+  max_expert_calls: 2
+  max_candidates: 2
+  max_probe_calls: 0
+  accept_threshold: 0.1
+  target_harm: 0.05
+  alpha: 0.05
+  minimum_accepted_groups: 60
+# Prespecified scheduling priorities, NOT expected clinical gain estimates.
+utilities:
+  chexagent_description: 1.0
+experts:
+  chexagent_description:
+    id: StanfordAIMI/CheXagent-2-3b
+    checkpoint_path: /home/dbw/merit-feddg/artifacts/models/StanfordAIMI--CheXagent-2-3b
+    factory: merit_feddg.experts.native_chexagent:CheXagentCapabilityExpert
+    factory_kwargs:
+      expert_id: chexagent_description
+      scope: cxr_description
+      dtype: bfloat16
+      device_map: cuda
+      max_new_tokens: 64
+    modalities: [cxr]
+    tasks: [open_vqa]
+    capabilities: [generation]
+    scope: cxr_description
+    requires_region: false
+    request_contract:
+      mode: free_query
+    description: Unverified chest radiograph specialist description; no clinical correctness guarantee.
