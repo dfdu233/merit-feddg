@@ -82,6 +82,32 @@ The audited cells were VQA-RAD classification `0067`, generation `0000`, SLAKE
 classification `0037`, generation `0031`; these were fixed first-available
 scheduling cases, not chosen by correctness. No answers or images are exported.
 
+## Subsequently authorized dual-GPU scheduling
+
+The user subsequently authorized physical host GPU0. It passed its own four-cell
+338-vector exact audit and all four arms' token IDs matched GPU1's existing
+records. Audit SHA256:
+`7d47418495377b14fe5f4c262c272befc5293ce1196077971479fcc602b75ab3`.
+No prompt, coefficient, expert, model, manifest or scorer changes.
+
+The existing adapter supports `--shard-index 0/1 --gpu-uuid UUID`. Case positions
+modulo two determine scheduling only, on each **unchanged full manifest**.
+Shared legacy locks exclude the old single worker; exclusive per-shard locks
+exclude duplicate workers. Exact full ID sets and row identities are required
+before the last worker invokes the original evaluator. No missing-row filling.
+The original frozen GPU UUID records the historical single-device launch;
+actual hardware and shard provenance are explicit in new rows/load records.
+
+Use the continuation command below with these additional arguments:
+
+- Container GPU0 / physical GPU1: `--shard-index 0 --gpu-uuid GPU-3846413a-4238-d307-b1f3-10c2dfbe002c`.
+- Host GPU0: `--shard-index 1 --gpu-uuid GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023`,
+  replacing `--cache-audit` with `runs/soft-full-checks/persistent-audit-host-gpu0-v1.json`.
+
+Both use the existing environment wrapper, separately persistent tmux sessions,
+same full output root, and reuse completed rows. Host execution uses the existing
+`merit-runner` SSH account; no credentials are included in this document.
+
 Continuation (after an explicit SHA-bound audit admission) uses the original
 full output root, not a new sample or changed experiment identity:
 

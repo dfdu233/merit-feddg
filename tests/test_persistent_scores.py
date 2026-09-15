@@ -87,3 +87,13 @@ def test_continuation_rejects_failed_audit(monkeypatch, tmp_path, audit):
     monkeypatch.setattr(sys, 'argv', ['cached', '--cache-audit', str(path)])
     with pytest.raises(RuntimeError):
         wrapper.main()
+
+
+@pytest.mark.parametrize('size', [451, 2094])
+def test_two_shards_cover_exact_full_manifest(monkeypatch, size):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]/'scripts'))
+    wrapper = importlib.import_module('run_class_text_cached')
+    a = {i for i in range(size) if wrapper.assigned(i, 0)}
+    b = {i for i in range(size) if wrapper.assigned(i, 1)}
+    assert not a & b
+    assert a | b == set(range(size))

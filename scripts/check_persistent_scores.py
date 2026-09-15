@@ -19,13 +19,16 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--base-run', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--gpu-uuid', default=GPU_UUID,
+                   choices=(GPU_UUID, 'GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023'))
+    p.add_argument('--reference-run', type=Path)
     args = p.parse_args()
     if args.output.exists():
         raise RuntimeError('audit output already exists')
     source, spec = validate(args.base_run)
     uuid = subprocess.check_output(['nvidia-smi', '-i', '0', '--query-gpu=uuid',
         '--format=csv,noheader'], text=True, timeout=10).strip()
-    if uuid != GPU_UUID or os.environ.get('CUDA_VISIBLE_DEVICES') != '0':
+    if uuid != args.gpu_uuid or os.environ.get('CUDA_VISIBLE_DEVICES') != '0':
         raise RuntimeError('unauthorized device')
     torch.set_num_threads(4)
     probe = load_generalist(spec, 'artifacts')
@@ -65,11 +68,17 @@ def main():
                     result = guided_case(probe, row, old, data['protocol'], channel)
                 if result['status'] != 'real_candidate':
                     raise RuntimeError('canary has no real candidate')
+                if args.reference_run:
+                    reference = json.loads((args.reference_run/dataset/channel/(row['id']+'.json')).read_text())
+                    for arm in ('current_incumbent', 'without_channel', 'soft', 'cad'):
+                        if result[arm]['token_ids'] != reference[arm]['token_ids']:
+                            raise RuntimeError('cross-device candidate token parity failed: '+arm)
                 cases.append(dict(dataset=dataset, channel=channel, id=row['id'],
                     blend_tokens=len(result['soft']['token_ids']), cad_tokens=len(result['cad']['token_ids'])))
                 print('PASS', dataset, channel, len(checks), flush=True)
                 break
     atomic_json(args.output, dict(status='exact_parity_passed', cases=cases, checks=checks,
+        gpu_uuid=uuid, reference_run=str(args.reference_run) if args.reference_run else None,
         timing_caveat='GPU shared with existing full run; timings are not isolated speed benchmarks'))
 
 

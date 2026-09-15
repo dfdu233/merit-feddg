@@ -1,6 +1,36 @@
 # Current status
 
+## Dual-GPU continuation — newly authorized host GPU0 (2026-09-15)
+
+- User explicitly authorized host GPU0 again. SSH and CUDA checks passed with
+  the existing environment; GPU0 was idle before our audit. Physical GPU0 UUID
+  `GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023`; GPU1 mapping is unchanged.
+- GPU0 real audit passed all four fixed dataset/channel cells: 338 exact score
+  vectors, both zero endpoints, and all four arms' token IDs equal to existing
+  GPU1 canary records. No evidence/decoding/scoring parameter changed.
+- The existing cache adapter now accepts two mutually exclusive scheduling
+  shards. Original frozen runner and full manifest identity are unchanged.
+  Original `frozen.json` GPU UUID remains launch history; new rows/load records
+  explicitly record actual UUID, shard index and scheduling implementation hash.
+- Own single worker PID 1087845 was stopped, preserving completed rows. New
+  background jobs: container tmux `class-text-gpu1-shard0` and host account
+  `merit-runner` tmux `class-text-gpu0-shard1`. Logs are respectively
+  `runs/soft-full-checks/class-text-gpu1-shard0.log` and `class-text-gpu0-shard1.log`.
+  Each resumes its assigned incomplete IDs; shared/exclusive locks exclude the
+  legacy single worker and duplicate shards. Last finisher scores only after
+  every original dataset/channel ID is present and its identity verified.
+- Only current run directories received group-write/setgid permission for the
+  host execution account. Historical result files were not edited. Preflight
+  found an older sibling run: root selection now checks frozen script/source
+  identities instead of assuming the output parent contains only one run.
+- CPU suite: 878 passed (final rerun 12.60 s); focused tests include
+  disjoint/exhaustive 451- and 2094-row schedules. Both workers subsequently
+  produced 11 real candidates each at the verification snapshot, without runtime
+  errors. Full medical results are still pending.
+
 ## Persistent-score acceleration — GPU1 only (2026-09-15)
+
+Historical single-GPU launch; superseded by the dual-GPU continuation above.
 
 - User-authorized throughput optimization is implemented as a separate adapter;
   frozen runner, model, prompts, strengths, manifests and historical rows are
