@@ -116,6 +116,7 @@ def control_case(probe, row, historical, protocol, options):
         result["zero_parity"] = True
         arms["native_fixed"] = decode(plain, spatial, alpha=options["fixed_strength"],
                                       max_tokens=64, eos_ids=eos_ids)
+        arms["native_fixed"]["guidance_applied"] = options["fixed_strength"] > 0
         result["native_operator_audit"] = dict(probe.tensor_bridge.last_audit)
         with Image.open(row["image"]) as source_image:
             controls, result["control_audit"] = spatial_controls(packet, source_image.size)
@@ -130,11 +131,15 @@ def control_case(probe, row, historical, protocol, options):
         if sessions:
             arms["null_fixed"] = decode(plain, sessions[0], alpha=options["fixed_strength"],
                                         max_tokens=64, eos_ids=eos_ids)
+            arms["null_fixed"]["guidance_applied"] = options["fixed_strength"] > 0
         else:
             arms["null_fixed"] = reuse(arms["deletion"], "degenerate_control_family")
         kwargs = {"max_tokens": 64, "eos_ids": eos_ids, "max_strength": options["max_strength"],
                   "kl_budget": options["kl_budget"]}
-        arms["cres"] = decode_controlled(plain, spatial, sessions, **kwargs)
+        if not sessions or options["kl_budget"] == 0 or options["max_strength"] == 0:
+            arms["cres"] = reuse(arms["deletion"], "zero_budget_or_missing_controls")
+        else:
+            arms["cres"] = decode_controlled(plain, spatial, sessions, **kwargs)
         if options["ablations"]:
             arms["kl_only"] = decode_controlled(plain, spatial, (), mode="raw", **kwargs)
             arms["residual_unbounded"] = decode_controlled(

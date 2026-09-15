@@ -109,7 +109,7 @@ def main():
                                     v.get("conditioned_score_calls", 0)) for v in output),
             "reused_control_rows": sum(v.get("reused_control", False) for v in output),
             "guidance_active_rows": sum(v.get("guidance_applied", False) for v in output),
-            "max_measured_token_kl": max((s.get("kl", 0) for s in steps), default=0),
+            "max_measured_token_kl": max((s["kl"] for s in steps if "kl" in s), default=None),
             "mean_selected_strength": statistics.mean(s["strength"] for s in steps if "strength" in s)
             if any("strength" in s for s in steps) else None}
     if hashes() != current:

@@ -94,7 +94,12 @@ def test_real_packet_transport_and_all_arms_with_fake_model(tmp_path):
     # CRES cancels it rather than pretending to have useful geometric evidence.
     assert result["arms"]["cres"]["token_ids"] == result["arms"]["deletion"]["token_ids"]
     assert result["arms"]["native_fixed"]["token_ids"] != result["arms"]["deletion"]["token_ids"]
+    assert result["arms"]["native_fixed"]["guidance_applied"]
     assert inputs[2] == old
+    inputs[-1]["kl_budget"] = 0.
+    zero = control_case(*inputs)
+    assert zero["arms"]["cres"]["reused_control"]
+    assert zero["arms"]["cres"]["token_ids"] == zero["arms"]["deletion"]["token_ids"]
 
 
 def test_nonspatial_cases_remain_in_denominator_without_fake_guidance(tmp_path):
