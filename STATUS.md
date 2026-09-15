@@ -1,5 +1,38 @@
 # Current status
 
+## Native uncertainty / verifier TRAIN pilot — completed (2026-09-15)
+
+- New independent worktree `/home/dbw/merit-feddg-uncertainty`, branch
+  `implementation/evidence-uncertainty-v1`, based on `d20c928`. Prior class/text
+  full VQA-RAD/SLAKE evaluation has completed; its results/code remain untouched.
+- User's reference NumPy decoder was audited and integrated independently.
+  Research covers receiver entropy, source entropy, semantic/visual uncertainty,
+  calibration limits and external visual verification. [Survey](docs/MEDICAL_UNCERTAINTY_SURVEY.md).
+- Complete 1793-row TRAIN incumbent/manifest verified. Fixed pilot: 12 cases,
+  10 image clusters, first 4 distinct images per native whole-image attribute.
+  Genuine XRV raw sigmoid entropy; no catalog softmax, training, calibration,
+  test-based selection, dependency upgrade or model download.
+- Physical GPU1 and host GPU0 canaries passed; both then completed their pilot
+  shards. All new evidence delivered without replacing old effective evidence;
+  12/12 incumbent token parity; fixed-alpha decoder parity checked each case.
+  All 890 CPU tests passed. No active pilot jobs remain.
+- Run `runs/uncertainty-train-v1`, identity
+  `d9d2246b3dcc0b78be0ca8fb97d9e2f86c4a635f191f14e27c7dbb9be4120a5d`.
+  Exact pilot-ID offline scoring complete; full TRAIN completion is explicitly
+  false. Frozen ANCHOR v11 and separate leading-binary diagnostic retained.
+- ANCHOR count: incumbent 11/12; ACD 8/12; source-only 5/12;
+  source-ACD 9/12; source-only constant 7/12; shuffled U 6/12.
+  All revised arms have zero gains relative to incumbent in this small pilot.
+- Independent Qwen medical visual judge: 24 real calls, 23 TIE + 1 A, zero
+  swap-consistent replacements. Blank-image judge: 24 TIE. Self-judge: 12/12
+  invalid pairs. Keeping incumbent is NOT verifier success. Candidate pool
+  has no score-improving source-ACD answer; verifier rescue cannot be estimated.
+- Decision: stop expansion. Investigate numeric finding polarity being lost in
+  language transport before claiming source uncertainty predicts adoption value.
+  Do not tune on test or promote this to full test. [Results/costs/commands](docs/UNCERTAINTY_TRAIN_RESULTS.md).
+
+The earlier launch notes below are historical and superseded by completed runs.
+
 ## Dual-GPU continuation — newly authorized host GPU0 (2026-09-15)
 
 - User explicitly authorized host GPU0 again. SSH and CUDA checks passed with
