@@ -140,6 +140,15 @@ def test_offline_evaluator_refuses_incomplete_before_importing_scorer(tmp_path, 
     monkeypatch.setattr("sys.argv", ["evaluate", "--run", str(tmp_path), "--anchor-root", str(tmp_path)])
     with pytest.raises(ValueError, match="complete full manifest"):
         mod.main()
+    monkeypatch.setattr("sys.argv", ["evaluate", "--run", str(tmp_path), "--anchor-root", str(tmp_path),
+                                     "--partial-diagnostic"])
+    with pytest.raises(ValueError, match="nonempty exact scheduled prefix"):
+        mod.main()
+    import fcntl
+    with (tmp_path / ".worker.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        with pytest.raises(BlockingIOError):
+            mod.main()
 
 
 def test_runner_preflight_live_fake_backend_and_resume(tmp_path, monkeypatch):

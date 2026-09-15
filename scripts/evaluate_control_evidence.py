@@ -43,6 +43,8 @@ def main():
     p.add_argument("--anchor-root", type=Path, required=True)
     p.add_argument("--references", type=Path)
     p.add_argument("--freeze-scorer", action="store_true")
+    p.add_argument("--partial-diagnostic", action="store_true",
+                   help="Explicit time-budget stop: separate incomplete-prefix diagnostics, never full results")
     args = p.parse_args()
     root = args.run
     frozen = json.loads((root / "frozen.json").read_text())
@@ -61,14 +63,22 @@ def main():
     if not pin.exists() or json.loads(pin.read_text()) != current:
         raise ValueError("scorer missing or changed")
     identity = fingerprint(frozen)
-    complete = json.loads((root / "complete.json").read_text())
     rows, arms = frozen["rows"], frozen["arms"]
-    if (not complete.get("full_manifest_complete") or complete.get("identity") != identity
-            or complete.get("n") != len(rows)):
-        raise ValueError("complete full manifest required")
     paths = {p.stem: p for p in (root / "cases").glob("*.json")}
-    if set(paths) != {fingerprint(r["id"]) for r in rows}:
-        raise ValueError("missing or extra case files")
+    if args.partial_diagnostic:
+        import fcntl
+        lock = (root / ".worker.lock").open("a")
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        rows = rows[:len(paths)]
+        if not rows or set(paths) != {fingerprint(r["id"]) for r in rows}:
+            raise ValueError("partial diagnostic requires nonempty exact scheduled prefix")
+    else:
+        complete = json.loads((root / "complete.json").read_text())
+        if (not complete.get("full_manifest_complete") or complete.get("identity") != identity
+                or complete.get("n") != len(rows)):
+            raise ValueError("complete full manifest required")
+        if set(paths) != {fingerprint(r["id"]) for r in rows}:
+            raise ValueError("missing or extra case files")
     records = {r["id"]: json.loads(paths[fingerprint(r["id"])].read_text()) for r in rows}
     if any(v.get("identity") != identity or v.get("id") != k or set(v.get("arms", {})) != set(arms)
            for k, v in records.items()):
@@ -77,10 +87,11 @@ def main():
         validate_outputs(record, arms)
     if args.references is None:
         raise ValueError("separate offline references required")
-    if (root / "evaluation.json").exists():
+    output_name = "partial-evaluation" if args.partial_diagnostic else "evaluation"
+    if (root / f"{output_name}.json").exists():
         raise ValueError("evaluation exists; do not overwrite")
     refs = json.loads(args.references.read_text())
-    if (set(refs) != set(records) or any(not isinstance(v, list) or not v or
+    if (set(refs) != {r["id"] for r in frozen["rows"]} or any(not isinstance(v, list) or not v or
             any(not isinstance(s, str) or not s for s in v) for v in refs.values())):
         raise ValueError("exact complete reference ID set and nonempty string lists required")
     sys.path.insert(0, str(args.anchor_root.resolve()))
@@ -97,6 +108,11 @@ def main():
                        else answer_token_recall(records[r["id"]]["arms"][arm]["text"], refs[r["id"]][0])
                        for r in rows}
     report = {"identity": identity, "n": len(rows), "scorer": PROTOCOL_VERSION,
+              "full_manifest_n": len(frozen["rows"]),
+              "partial_diagnostic": args.partial_diagnostic,
+              "selection_warning": "Time-truncated ordered prefix; not representative full-test estimates"
+              if args.partial_diagnostic else None,
+              "interrupted_case_cost_included": False,
               "metric": "ANCHOR decoded CLOSED + OPEN token recall; first reference",
               "prompt_contract": frozen["options"]["prompt_contract"], "scorer_hashes": current,
               "reference_sha256": hashlib.sha256(args.references.read_bytes()).hexdigest(),
@@ -154,9 +170,10 @@ def main():
     if hashes() != current:
         raise ValueError("scorer changed during evaluation")
     # Aggregate output excludes per-case patient text and references.
-    atomic_json(root / "evaluation.json", {**report, "per_case_scores": scores})
-    atomic_json(root / "evaluation-summary.json", report)
-    print("Full evaluation complete:", root / "evaluation-summary.json")
+    atomic_json(root / f"{output_name}.json", {**report, "per_case_scores": scores})
+    atomic_json(root / f"{output_name}-summary.json", report)
+    print("Partial diagnostic complete:" if args.partial_diagnostic else "Full evaluation complete:",
+          root / f"{output_name}-summary.json")
 
 
 if __name__ == "__main__":

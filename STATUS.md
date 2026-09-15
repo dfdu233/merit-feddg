@@ -1,5 +1,24 @@
 # Current status
 
+## User-imposed four-hour deadline (2026-09-15)
+
+- Supersedes full-run continuation: stop both existing CRES workers at
+  **2026-09-15 19:59:51 UTC / 2026-09-16 03:59:51 Beijing**. Do not resume afterward.
+- Persistent tmux timers `cres-vqarad-deadline` (container) and
+  `cres-slake-deadline` (host merit-runner) are installed. Each verifies the exact
+  original PID start ticks, sends TERM, and escalates after five seconds only if
+  that same process remains. No unrelated processes or historical results touched.
+- After the worker lock releases, each timer runs explicit `--partial-diagnostic`
+  scoring, writing separate `partial-evaluation{,-summary}.json` inside its run.
+  Only a complete eight-arm ordered prefix is accepted; full-manifest reference
+  IDs, scorer pin and cache identity checks remain. Formal full scoring unchanged.
+- Time-truncated results are exploratory, not representative full-test scores.
+  Bootstrap intervals describe completed images only. Interrupted-case compute
+  is not captured by completed-row costs and must be noted in final analysis.
+- SLAKE full-run queue previously failed because host lacks rg; direct original
+  command was resumed successfully. Both GPU workers and both timers verified.
+  Timer logs: `runs/cres-checks/{vqarad,slake}-deadline.log`.
+
 ## CRES PR #7 server execution (2026-09-15)
 
 - Independent worktree `/home/dbw/merit-feddg-cres`, starting at requested
