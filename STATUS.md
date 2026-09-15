@@ -1,5 +1,28 @@
 # Current status
 
+## Persistent-score acceleration — GPU1 only (2026-09-15)
+
+- User-authorized throughput optimization is implemented as a separate adapter;
+  frozen runner, model, prompts, strengths, manifests and historical rows are
+  unchanged. Only physical GPU1/container GPU0 is used.
+- 876 CPU tests passed (final rerun 13.72 s). Two real four-cell audits each
+  passed 338 **exact full-vocabulary score** comparisons and zero-strength token
+  checks. Longest checked prefix: 43 tokens. This is finite computational parity
+  evidence, not new medical benefit or universal future-prefix proof.
+- Isolated GPU scoring: replay **160.881 s**, persistent KV **10.316 s**,
+  **15.60x scoring-only speedup**. Decoder forwards 4506 -> 338; multimodal
+  prefills 338 -> 16. Control generation/loading/inherited experts are excluded;
+  do not report this as end-to-end acceleration.
+- Verified own old worker PID 1056870 was stopped after the first audit; all
+  completed atomic rows retained. The second audit ran alone on the GPU.
+  Continuation now launched in tmux `class-text-cached`, log
+  `runs/soft-full-checks/class-text-cached.log`, same root `13a3e59c...` below.
+  Newly generated rows record backend identity and actual scoring forward counts;
+  old rows retain old timings. Separate cost regimes in downstream reporting.
+- [Implementation, checks, commands and limits](docs/PERSISTENT_SCORE_CACHE.md).
+  Full classification/text medical evaluation remains pending until exact full
+  ID coverage. No additional concurrent full workers or host GPU0 tasks.
+
 ## Classification / generated-text continuation — GPU1 only (2026-09-15)
 
 - Latest device restriction: only container GPU0 = physical host GPU1, UUID
@@ -14,8 +37,9 @@
   afresh. Offline scoring remains frozen ANCHOR, complete-only.
 - 871 CPU tests passed; real-resource preflight and CUDA passed. All four
   scheduling-canary cases passed both zero endpoints and produced real
-  blend/CAD candidates. Full continuation launched in tmux `class-text-full`,
+  blend/CAD candidates. Original continuation launched in tmux `class-text-full`,
   log `runs/soft-full-checks/class-text-full.log`, reusing the four cases.
+  This original worker has since been superseded by the audited cache adapter above.
 - Root `runs/class-text-guidance-v1/13a3e59cbcb99caa714fea919b3b50fb99c80ae6b9aa90e3c8b8879872e35f35`.
   [Research, implementation boundaries, commands and scoring](docs/CLASS_TEXT_GUIDANCE.md).
 - Previous segmentation full run and both older canary jobs completed; GPUs
