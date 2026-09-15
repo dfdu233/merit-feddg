@@ -1,0 +1,11 @@
+{
+  "alpha": 0.5,
+  "cases_per_dataset": 2,
+  "selection": "first two full-manifest rows with cached segmentation; no labels/scores consulted",
+  "methods": ["generalist_cached", "compact_rows_replay", "other_text_only", "text_soft", "native_spatial_soft"],
+  "scope": "segmentation replacement only; other presented experts retained as identical compact text",
+  "native_operator": "existing frozen SpatialEvidenceBridge; equal weighting; no new attention algorithm claim",
+  "classification_native_guidance": false,
+  "parameters_fitted": false,
+  "full_dataset_claim": false
+}

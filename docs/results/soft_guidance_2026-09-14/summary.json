@@ -1,0 +1,234 @@
+{
+  "full_new_test_complete": false,
+  "scorer": "medheval-decoded-eval-v11-explanatory-binary-source-audited",
+  "scorer_sha256": "47587c200cef7b6b182f6788b85c1c021d1cd83ad6878ffcdcd8f5ae3f14f7c3",
+  "historical_full": {
+    "vqarad": {
+      "n": 451,
+      "means": {
+        "generalist": 0.484730661061038,
+        "compact_rows": 0.5395664756529501
+      },
+      "improvements": 49,
+      "harms": 20
+    },
+    "slake": {
+      "n": 2094,
+      "means": {
+        "generalist": 0.34681349240804826,
+        "compact_rows": 0.39485624080896287
+      },
+      "improvements": 199,
+      "harms": 95
+    }
+  },
+  "initial_probe": {
+    "vqarad": {
+      "n": 2,
+      "arms": {
+        "generalist_cached": {
+          "mean": 0.5,
+          "improved_vs_compact": 0,
+          "harmed_vs_compact": 0,
+          "historical_bad_cases": 0,
+          "historical_bad_improved": 0,
+          "mean_decode_seconds": 0,
+          "cached_time_not_remeasured": true,
+          "changed_text": 2,
+          "image_bootstrap": {
+            "low": 0.0,
+            "high": 0.0,
+            "clusters": 2,
+            "unit": "image",
+            "sample_weighted": true,
+            "informative_ci": true
+          },
+          "ci_not_population_inference": "tiny, enriched diagnostic subset"
+        },
+        "compact_rows_cached": {
+          "mean": 0.5,
+          "improved_vs_compact": 0,
+          "harmed_vs_compact": 0,
+          "historical_bad_cases": 0,
+          "historical_bad_improved": 0,
+          "mean_decode_seconds": 0,
+          "cached_time_not_remeasured": true,
+          "changed_text": 0,
+          "image_bootstrap": {
+            "low": 0.0,
+            "high": 0.0,
+            "clusters": 2,
+            "unit": "image",
+            "sample_weighted": true,
+            "informative_ci": true
+          },
+          "ci_not_population_inference": "tiny, enriched diagnostic subset"
+        },
+        "other_text_only": {
+          "mean": 0.5,
+          "improved_vs_compact": 0,
+          "harmed_vs_compact": 0,
+          "historical_bad_cases": 0,
+          "historical_bad_improved": 0,
+          "mean_decode_seconds": 0.5940525344922207,
+          "cached_time_not_remeasured": false,
+          "changed_text": 2,
+          "image_bootstrap": {
+            "low": 0.0,
+            "high": 0.0,
+            "clusters": 2,
+            "unit": "image",
+            "sample_weighted": true,
+            "informative_ci": true
+          },
+          "ci_not_population_inference": "tiny, enriched diagnostic subset"
+        },
+        "text_soft": {
+          "mean": 0.5,
+          "improved_vs_compact": 0,
+          "harmed_vs_compact": 0,
+          "historical_bad_cases": 0,
+          "historical_bad_improved": 0,
+          "mean_decode_seconds": 18.92919542803429,
+          "cached_time_not_remeasured": false,
+          "changed_text": 1,
+          "image_bootstrap": {
+            "low": 0.0,
+            "high": 0.0,
+            "clusters": 2,
+            "unit": "image",
+            "sample_weighted": true,
+            "informative_ci": true
+          },
+          "ci_not_population_inference": "tiny, enriched diagnostic subset"
+        },
+        "native_spatial_soft": {
+          "mean": 0.5,
+          "improved_vs_compact": 0,
+          "harmed_vs_compact": 0,
+          "historical_bad_cases": 0,
+          "historical_bad_improved": 0,
+          "mean_decode_seconds": 17.28684987698216,
+          "cached_time_not_remeasured": false,
+          "changed_text": 1,
+          "image_bootstrap": {
+            "low": 0.0,
+            "high": 0.0,
+            "clusters": 2,
+            "unit": "image",
+            "sample_weighted": true,
+            "informative_ci": true
+          },
+          "ci_not_population_inference": "tiny, enriched diagnostic subset"
+        }
+      }
+    },
+    "slake": {
+      "n": 2,
+      "arms": {
+        "generalist_cached": {
+          "mean": 1.0,
+          "improved_vs_compact": 1,
+          "harmed_vs_compact": 0,
+          "historical_bad_cases": 1,
+          "historical_bad_improved": 1,
+          "mean_decode_seconds": 0,
+          "cached_time_not_remeasured": true,
+          "changed_text": 2,
+          "image_bootstrap": {
+            "low": 0.5,
+            "high": 0.5,
+            "clusters": 1,
+            "unit": "image",
+            "sample_weighted": true,
+            "informative_ci": false
+          },
+          "ci_not_population_inference": "tiny, enriched diagnostic subset"
+        },
+        "compact_rows_cached": {
+          "mean": 0.5,
+          "improved_vs_compact": 0,
+          "harmed_vs_compact": 0,
+          "historical_bad_cases": 1,
+          "historical_bad_improved": 0,
+          "mean_decode_seconds": 0,
+          "cached_time_not_remeasured": true,
+          "changed_text": 0,
+          "image_bootstrap": {
+            "low": 0.0,
+            "high": 0.0,
+            "clusters": 1,
+            "unit": "image",
+            "sample_weighted": true,
+            "informative_ci": false
+          },
+          "ci_not_population_inference": "tiny, enriched diagnostic subset"
+        },
+        "other_text_only": {
+          "mean": 1.0,
+          "improved_vs_compact": 1,
+          "harmed_vs_compact": 0,
+          "historical_bad_cases": 1,
+          "historical_bad_improved": 1,
+          "mean_decode_seconds": 0.5426835974794813,
+          "cached_time_not_remeasured": false,
+          "changed_text": 2,
+          "image_bootstrap": {
+            "low": 0.5,
+            "high": 0.5,
+            "clusters": 1,
+            "unit": "image",
+            "sample_weighted": true,
+            "informative_ci": false
+          },
+          "ci_not_population_inference": "tiny, enriched diagnostic subset"
+        },
+        "text_soft": {
+          "mean": 0.5,
+          "improved_vs_compact": 0,
+          "harmed_vs_compact": 0,
+          "historical_bad_cases": 1,
+          "historical_bad_improved": 0,
+          "mean_decode_seconds": 8.70173396449536,
+          "cached_time_not_remeasured": false,
+          "changed_text": 0,
+          "image_bootstrap": {
+            "low": 0.0,
+            "high": 0.0,
+            "clusters": 1,
+            "unit": "image",
+            "sample_weighted": true,
+            "informative_ci": false
+          },
+          "ci_not_population_inference": "tiny, enriched diagnostic subset"
+        },
+        "native_spatial_soft": {
+          "mean": 1.0,
+          "improved_vs_compact": 1,
+          "harmed_vs_compact": 0,
+          "historical_bad_cases": 1,
+          "historical_bad_improved": 1,
+          "mean_decode_seconds": 10.366031752491836,
+          "cached_time_not_remeasured": false,
+          "changed_text": 2,
+          "image_bootstrap": {
+            "low": 0.5,
+            "high": 0.5,
+            "clusters": 1,
+            "unit": "image",
+            "sample_weighted": true,
+            "informative_ci": false
+          },
+          "ci_not_population_inference": "tiny, enriched diagnostic subset"
+        }
+      }
+    }
+  },
+  "followup": {
+    "valid_soft_cases": 1,
+    "parity_failures": 1,
+    "not_executed": 1,
+    "failure_case": "vqarad-official-test-0053",
+    "native_and_deletion_both_rescue_two_known_bad_cases": true
+  }
+}

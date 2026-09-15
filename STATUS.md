@@ -1,5 +1,133 @@
 # Current status
 
+## Dual-GPU continuation — newly authorized host GPU0 (2026-09-15)
+
+- User explicitly authorized host GPU0 again. SSH and CUDA checks passed with
+  the existing environment; GPU0 was idle before our audit. Physical GPU0 UUID
+  `GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023`; GPU1 mapping is unchanged.
+- GPU0 real audit passed all four fixed dataset/channel cells: 338 exact score
+  vectors, both zero endpoints, and all four arms' token IDs equal to existing
+  GPU1 canary records. No evidence/decoding/scoring parameter changed.
+- The existing cache adapter now accepts two mutually exclusive scheduling
+  shards. Original frozen runner and full manifest identity are unchanged.
+  Original `frozen.json` GPU UUID remains launch history; new rows/load records
+  explicitly record actual UUID, shard index and scheduling implementation hash.
+- Own single worker PID 1087845 was stopped, preserving completed rows. New
+  background jobs: container tmux `class-text-gpu1-shard0` and host account
+  `merit-runner` tmux `class-text-gpu0-shard1`. Logs are respectively
+  `runs/soft-full-checks/class-text-gpu1-shard0.log` and `class-text-gpu0-shard1.log`.
+  Each resumes its assigned incomplete IDs; shared/exclusive locks exclude the
+  legacy single worker and duplicate shards. Last finisher scores only after
+  every original dataset/channel ID is present and its identity verified.
+- Only current run directories received group-write/setgid permission for the
+  host execution account. Historical result files were not edited. Preflight
+  found an older sibling run: root selection now checks frozen script/source
+  identities instead of assuming the output parent contains only one run.
+- CPU suite: 878 passed (final rerun 12.60 s); focused tests include
+  disjoint/exhaustive 451- and 2094-row schedules. Both workers subsequently
+  produced 11 real candidates each at the verification snapshot, without runtime
+  errors. Full medical results are still pending.
+
+## Persistent-score acceleration — GPU1 only (2026-09-15)
+
+Historical single-GPU launch; superseded by the dual-GPU continuation above.
+
+- User-authorized throughput optimization is implemented as a separate adapter;
+  frozen runner, model, prompts, strengths, manifests and historical rows are
+  unchanged. Only physical GPU1/container GPU0 is used.
+- 876 CPU tests passed (final rerun 13.72 s). Two real four-cell audits each
+  passed 338 **exact full-vocabulary score** comparisons and zero-strength token
+  checks. Longest checked prefix: 43 tokens. This is finite computational parity
+  evidence, not new medical benefit or universal future-prefix proof.
+- Isolated GPU scoring: replay **160.881 s**, persistent KV **10.316 s**,
+  **15.60x scoring-only speedup**. Decoder forwards 4506 -> 338; multimodal
+  prefills 338 -> 16. Control generation/loading/inherited experts are excluded;
+  do not report this as end-to-end acceleration.
+- Verified own old worker PID 1056870 was stopped after the first audit; all
+  completed atomic rows retained. The second audit ran alone on the GPU.
+  Continuation now launched in tmux `class-text-cached`, log
+  `runs/soft-full-checks/class-text-cached.log`, same root `13a3e59c...` below.
+  Newly generated rows record backend identity and actual scoring forward counts;
+  old rows retain old timings. Separate cost regimes in downstream reporting.
+- [Implementation, checks, commands and limits](docs/PERSISTENT_SCORE_CACHE.md).
+  Full classification/text medical evaluation remains pending until exact full
+  ID coverage. No additional concurrent full workers or host GPU0 tasks.
+
+## Classification / generated-text continuation — GPU1 only (2026-09-15)
+
+- Latest device restriction: only container GPU0 = physical host GPU1, UUID
+  `GPU-3846413a-4238-d307-b1f3-10c2dfbe002c`. No new host GPU0 job or SSH launch.
+- New independent channel comparisons: ordinary text, channel deletion,
+  .5/.5 blend, and fixed CAD (1.5 with-context minus .5 without-context),
+  adapting the NAACL 2024 official implementation. No training/calibration.
+  Classification remains language-mediated, not native class-to-token logits.
+- Full VQA-RAD 451 / SLAKE 2094 manifests retained for both channels. Other
+  evidence is fixed to originally presented IDs; no freed-budget admission.
+  Source generalist/expert caches reused. Applicable text controls are matched
+  afresh. Offline scoring remains frozen ANCHOR, complete-only.
+- 871 CPU tests passed; real-resource preflight and CUDA passed. All four
+  scheduling-canary cases passed both zero endpoints and produced real
+  blend/CAD candidates. Original continuation launched in tmux `class-text-full`,
+  log `runs/soft-full-checks/class-text-full.log`, reusing the four cases.
+  This original worker has since been superseded by the audited cache adapter above.
+- Root `runs/class-text-guidance-v1/13a3e59cbcb99caa714fea919b3b50fb99c80ae6b9aa90e3c8b8879872e35f35`.
+  [Research, implementation boundaries, commands and scoring](docs/CLASS_TEXT_GUIDANCE.md).
+- Previous segmentation full run and both older canary jobs completed; GPUs
+  were idle before this run. No MIMIC/retrieval/segmentation job is restarted.
+
+## Previous segmentation run — completed; historical launch notes (2026-09-14)
+
+The notes below record the earlier launch state, not current running jobs.
+Full VQA-RAD/SLAKE evaluation exists in root `6ff365dc...`; earlier MIMIC and
+channel canaries finished. Their scope is not the new classification/text run.
+
+- Dual-GPU continuation is active: container physical GPU1 shard 0 and host
+  physical GPU0 shard 1, via the existing `merit-runner@172.17.0.1` account.
+  Original runner/function/identity unchanged; finished cases reused. New
+  scheduler validates frozen resources and disjoint writes; complete-only
+  merge/scoring. Host CUDA and real spatial canary passed; 868 CPU tests pass.
+  Current logs: `runs/soft-full-checks/shard-0.log`, `shard-1-host.log`.
+- User expanded scope to classification, text and retrieval guidance, plus
+  the same 694 MIMIC reports. These extensions are NOT active full results.
+  [Channel resource audit, official-code references and scoring caveats](docs/SOFT_GUIDANCE_CHANNELS.md).
+- MIMIC two-report spatial-soft canary now runs on host GPU0, original 256
+  output-token budget, no automatic expansion. Six classification/text/real
+  retrieval canaries passed preflight and queue after it; nine targeted tests
+  and Ruff pass. These are separate pilots, no full scores. GPU0 is shared
+  with the main full-run shard: mark timing contention, not isolated latency.
+  Host sessions: `mimic-soft-canary`, `channel-soft-canary` (queued).
+- User explicitly requested full expansion. Original VQA-RAD 451 + SLAKE 2094
+  manifests, alpha=.5, same cached experts, segmentation channel only.
+- New run uses fresh generalist/compact controls to isolate guidance from the
+  historical numerical drift. Old output parity is audited, not called passed;
+  prompt/evidence delivery equality and current zero-guidance parity stay strict.
+- Seven arms include historical controls, fresh controls, deletion-only, text
+  soft and native spatial soft. No usable mask -> explicit fresh-compact reuse,
+  not successful guidance. No training, rule selection or new expert execution.
+- 866 tests passed; two same-manifest canary rows completed and are reused.
+  Full continuation + complete-only offline scoring launched in tmux
+  `soft-guidance-full`; log `runs/soft-full-checks/full.log`.
+- Frozen root identity `6ff365dc97261b29232acdab0a1060109bfd342c8dcb61d5621f7bfa07295440`.
+  Scorer hashes pinned. Full scores NOT available yet. Explicit old-correction,
+  old-harm and new improvement/harm analysis is prepared in the evaluator.
+- [Full frozen design, controls, costs, commands and raw result root](docs/SOFT_GUIDANCE_FULL.md).
+
+## Soft-guidance replacement probe — stopped before full scale (2026-09-14)
+
+- Independent `implementation/capability-soft-guidance-v1`, based on 93c9c72.
+  Reuses complete VQA-RAD/SLAKE native caches; no expert rerun, training or test
+  strength selection. Frozen alpha=.5, segmentation channel only, identical
+  non-spatial compact text. Classification-native guidance remains unimplemented.
+- 863 CPU tests passed; first four GPU cases passed exact compact and zero
+  parity. One more historical-harm case passed. On two verified historical Bad
+  cases native guidance recovered the answer, but removing segmentation text
+  recovered both too: no demonstrated incremental native-information benefit.
+- VQA-RAD 0053 failed token parity despite identical prompt/evidence hashes;
+  fresh-process diagnostic found image/period logits tied at 16.75. Kept the
+  failure, stopped before its soft inference and before SLAKE 0015. No full
+  new result or relaxed tie rule. Prefix-replay decoding is also too expensive.
+- [Frozen design, full historical rescoring, real partial results and costs](docs/SOFT_GUIDANCE_PILOT.md).
+
 ## Requested single TEST-image routing demo (2026-09-14)
 
 - Used BreastMNIST test_images[0] with a synthetic breast-classification question;
