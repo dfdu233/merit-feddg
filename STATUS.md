@@ -1,6 +1,31 @@
 # Current status
 
-## Full soft-guidance run — active (2026-09-14)
+## Classification / generated-text continuation — GPU1 only (2026-09-15)
+
+- Latest device restriction: only container GPU0 = physical host GPU1, UUID
+  `GPU-3846413a-4238-d307-b1f3-10c2dfbe002c`. No new host GPU0 job or SSH launch.
+- New independent channel comparisons: ordinary text, channel deletion,
+  .5/.5 blend, and fixed CAD (1.5 with-context minus .5 without-context),
+  adapting the NAACL 2024 official implementation. No training/calibration.
+  Classification remains language-mediated, not native class-to-token logits.
+- Full VQA-RAD 451 / SLAKE 2094 manifests retained for both channels. Other
+  evidence is fixed to originally presented IDs; no freed-budget admission.
+  Source generalist/expert caches reused. Applicable text controls are matched
+  afresh. Offline scoring remains frozen ANCHOR, complete-only.
+- 871 CPU tests passed; real-resource preflight and CUDA passed. All four
+  scheduling-canary cases passed both zero endpoints and produced real
+  blend/CAD candidates. Full continuation launched in tmux `class-text-full`,
+  log `runs/soft-full-checks/class-text-full.log`, reusing the four cases.
+- Root `runs/class-text-guidance-v1/13a3e59cbcb99caa714fea919b3b50fb99c80ae6b9aa90e3c8b8879872e35f35`.
+  [Research, implementation boundaries, commands and scoring](docs/CLASS_TEXT_GUIDANCE.md).
+- Previous segmentation full run and both older canary jobs completed; GPUs
+  were idle before this run. No MIMIC/retrieval/segmentation job is restarted.
+
+## Previous segmentation run — completed; historical launch notes (2026-09-14)
+
+The notes below record the earlier launch state, not current running jobs.
+Full VQA-RAD/SLAKE evaluation exists in root `6ff365dc...`; earlier MIMIC and
+channel canaries finished. Their scope is not the new classification/text run.
 
 - Dual-GPU continuation is active: container physical GPU1 shard 0 and host
   physical GPU0 shard 1, via the existing `merit-runner@172.17.0.1` account.
