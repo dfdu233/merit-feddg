@@ -1,0 +1,8 @@
+{
+  "schema": "cres-v1",
+  "prompt_contract": "uniform",
+  "max_strength": 1.0,
+  "kl_budget": 0.05,
+  "fixed_strength": 0.5,
+  "ablations": true
+}
