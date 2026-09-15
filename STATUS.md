@@ -1,5 +1,22 @@
 # Current status
 
+## CRES PR #7 server execution (2026-09-15)
+
+- Independent worktree `/home/dbw/merit-feddg-cres`, starting at requested
+  `c78986e2429053077e0b8e9db7a648d3ea345c30`. Old dirty trees/results preserved.
+- 65 specified CPU regressions passed; final full suite 902 passed in 12.92 s.
+  Legacy route-key/RGB-image identity compatibility repaired with strict checks.
+- Both authorized physical GPUs passed timed CUDA checks. Real spatial canaries
+  on both datasets passed zero parity, nonzero transport, distinct controls and
+  bounded KL. No medical scoring of canaries or parameter changes.
+- `cres-vqarad-full` on container GPU0/physical GPU1 is active;
+  host `cres-slake-full` waits for the current scheduling canary to finish before
+  same-manifest continuation. Frozen VQA-RAD 451/SLAKE 2094, eight arms,
+  complete-only pinned ANCHOR evaluation queued after successful generation.
+- [Version, identities, commands, costs and acceptance](docs/CRES_SERVER_RESULTS.md).
+  Full scores/CI and superiority claims remain pending. Earlier running notes
+  below are history; previous full soft/class-text tasks are complete.
+
 ## Dual-GPU continuation — newly authorized host GPU0 (2026-09-15)
 
 - User explicitly authorized host GPU0 again. SSH and CUDA checks passed with

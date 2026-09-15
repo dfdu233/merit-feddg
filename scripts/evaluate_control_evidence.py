@@ -2,8 +2,10 @@
 import argparse
 import hashlib
 import json
+import math
 import statistics
 import sys
+from collections import Counter
 from pathlib import Path
 
 from merit_feddg.agent_evaluate import cluster_bootstrap
@@ -12,6 +14,15 @@ from merit_feddg.open_study import atomic_json, fingerprint
 
 SCORERS = ("anchor/corrected_sgta/evaluate_medheval_answers.py",
            "anchor/medeval/evaluate_mixed_vqa_table.py")
+
+
+def distribution(values):
+    values = sorted(values)
+    if not values:
+        return None
+    return {"n": len(values), "min": values[0], "max": values[-1],
+            "mean": statistics.mean(values), "median": statistics.median(values),
+            "p95_nearest_rank": values[max(0, math.ceil(.95 * len(values)) - 1)]}
 
 
 def paired(values, baseline, rows, records, arm, comparator):
@@ -92,6 +103,11 @@ def main():
               "clinical_accuracy_or_causal_uplift_claim": False,
               "applicable": sum(v["applicable"] for v in records.values()),
               "controls_available": sum(v["controls_available"] for v in records.values()),
+              "control_reasons": dict(Counter(v.get("control_audit", {}).get(
+                  "reason", "no_presented_spatial_operator") for v in records.values())),
+              "parity_check_seconds": sum(v.get("parity_check_seconds", 0) for v in records.values()),
+              "forward_counts_measured": False,
+              "score_calls_are_not_forward_counts": True,
               "all_arm_wall_seconds": sum(v["wall_seconds"] for v in records.values()),
               "startup_seconds": sum(json.loads(p.read_text())["seconds"] for p in root.glob("startup-*.json")),
               "arms": {}}
@@ -103,7 +119,18 @@ def main():
             **{f"{kind}_score": statistics.mean(scores[arm][r["id"]] for r in rows if r["answer_type"] == kind)
                if any(r["answer_type"] == kind for r in rows) else None for kind in ("closed", "open")},
             "comparisons": {c: paired(scores[arm], scores[c], rows, records, arm, c)
-                            for c in ("generalist", "compact", "deletion")},
+                            for c in arms if c != arm},
+            "text_revision_vs_compact": sum(v["text"] != records[r["id"]]["arms"]["compact"]["text"]
+                                            for r, v in zip(rows, output)),
+            "fresh_compact_gain_cases": sum(scores["compact"][r["id"]] > scores["generalist"][r["id"]]
+                                             for r in rows),
+            "fresh_compact_gain_cases_preserved": sum(
+                scores["compact"][r["id"]] > scores["generalist"][r["id"]]
+                and scores[arm][r["id"]] >= scores["compact"][r["id"]] for r in rows),
+            "strength_distribution": distribution([s["strength"] for s in steps if "strength" in s]),
+            "measured_kl_distribution": distribution([s["kl"] for s in steps if "kl" in s]),
+            "zero_residual_steps": sum(s.get("residual_nonzero") == 0 for s in steps),
+            "residual_measured_steps": sum("residual_nonzero" in s for s in steps),
             "mean_decode_seconds": statistics.mean(v["seconds"] for v in output),
             "score_calls": sum(v.get("score_calls", v.get("base_score_calls", 0) +
                                     v.get("conditioned_score_calls", 0)) for v in output),
@@ -112,6 +139,18 @@ def main():
             "max_measured_token_kl": max((s["kl"] for s in steps if "kl" in s), default=None),
             "mean_selected_strength": statistics.mean(s["strength"] for s in steps if "strength" in s)
             if any("strength" in s for s in steps) else None}
+    inherited = []
+    for row in rows:
+        path = Path(frozen["source_run"]) / "case-cache" / "compact_rows" / f"{fingerprint(row['id'])}.json"
+        if hashlib.sha256(path.read_bytes()).hexdigest() != frozen["source_caches"][row["id"]]:
+            raise ValueError("inherited cost cache changed")
+        inherited.append(json.loads(path.read_text())["output"])
+    report["inherited_source_cost"] = {
+        "recorded_compact_seconds": sum(v.get("seconds", 0) for v in inherited),
+        "recorded_expert_calls": sum(v.get("expert_calls", 0) for v in inherited),
+        "recorded_controller_calls": sum(v.get("controller_calls", 0) for v in inherited),
+        "new_expert_calls": sum(v["new_expert_calls"] for v in records.values()),
+        "caveat": "Historical cached-run timings; not a fresh deployment or model-loading cost estimate."}
     if hashes() != current:
         raise ValueError("scorer changed during evaluation")
     # Aggregate output excludes per-case patient text and references.

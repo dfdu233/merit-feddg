@@ -15,6 +15,49 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def image_identity(row):
+    """Accept the existing file or size-prefixed RGB identity; pin file bytes too."""
+    from PIL import Image
+    file_sha = sha(row["image"])
+    if file_sha == row["image_sha256"]:
+        return file_sha
+    with Image.open(row["image"]) as image:
+        rgb = image.convert("RGB")
+        pixel_sha = hashlib.sha256(str(rgb.size).encode() + rgb.tobytes()).hexdigest()
+    if pixel_sha != row["image_sha256"]:
+        raise ValueError("manifest image identity matches neither file nor RGB pixels")
+    return file_sha
+
+
+def routing_origin(protocol):
+    """Verify the recorded donor chain before reconstructing legacy route keys."""
+    seen = set()
+    while protocol.get("reuse_expert_run"):
+        if protocol["identity"] in seen:
+            raise ValueError("cyclic routing donor chain")
+        seen.add(protocol["identity"])
+        donor = protocol["reuse_expert_run"]
+        path = Path(donor["path"]) / "protocol.json"
+        if sha(path) != donor["protocol_sha256"]:
+            raise ValueError("routing donor protocol changed")
+        protocol = json.loads(path.read_text())
+        if protocol["identity"] != donor["identity"]:
+            raise ValueError("routing donor identity mismatch")
+    return protocol
+
+
+def check_route(row, route, origin):
+    if route.get("group_id") is not None:
+        if route["group_id"] != row["image_sha256"]:
+            raise ValueError("source image identity mismatch")
+    else:
+        expected = fingerprint({"model_runtime": {"identity": origin["identity"]},
+                                "image_sha256": row["image_sha256"],
+                                "routing": origin["config"]["routing"]})
+        if route.get("cache_key") != expected:
+            raise ValueError("legacy routing cache key does not bind image identity")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--source-run", type=Path, required=True)
@@ -47,12 +90,11 @@ def main():
     if (protocol.get("n") != len(rows) or protocol.get("shards_complete", True) is not True
             or set(routes) != set(ids)):
         raise ValueError("complete source run on the same full manifest required")
-    cache_hashes = {}
+    cache_hashes, image_files = {}, {}
+    origin = routing_origin(protocol)
     for row in rows:
-        if routes[row["id"]].get("group_id") != row["image_sha256"]:
-            raise ValueError("source image identity mismatch")
-        if sha(row["image"]) != row["image_sha256"]:
-            raise ValueError("manifest image SHA is not the actual file SHA256")
+        check_route(row, routes[row["id"]], origin)
+        image_files[row["image"]] = image_identity(row)
         path = args.source_run / "case-cache" / "compact_rows" / f"{fingerprint(row['id'])}.json"
         cached = json.loads(path.read_text())
         if cached.get("identity") != protocol["identity"]:
@@ -75,6 +117,8 @@ def main():
               "rows": rows, "manifest_sha256": sha(args.manifest), "manifest": str(args.manifest.resolve()),
               "source_protocol_sha256": sha(args.source_run / "protocol.json"),
               "source_run": str(args.source_run.resolve()), "source_caches": cache_hashes,
+              "image_file_sha256": image_files, "routing_origin_identity": origin["identity"],
+              "routing_sha256": sha(args.source_run / "routing.json"),
               "model": generalist_provenance(spec, args.artifacts), "generalist_spec": spec,
               "code": {str(q.relative_to(source_root)): sha(q)
                        for q in sorted((source_root / "merit_feddg").rglob("*.py"))},
@@ -117,7 +161,7 @@ def main():
                 print("Scheduling stop; full manifest incomplete", flush=True)
                 return
             path = args.source_run / "case-cache" / "compact_rows" / f"{fingerprint(row['id'])}.json"
-            if sha(path) != cache_hashes[row["id"]] or sha(row["image"]) != row["image_sha256"]:
+            if sha(path) != cache_hashes[row["id"]] or sha(row["image"]) != image_files[row["image"]]:
                 raise ValueError("source changed after preflight")
             try:
                 with torch.inference_mode():
