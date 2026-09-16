@@ -29,3 +29,9 @@ v2 repeats the identical metadata-selected 28 cases, all source observations and
 ## Available medical-checkpoint replication
 
 While the task-specialist weights download, repeat the same frozen28 cases/6 arms with the existing local HuatuoGPT-Vision-7B-Qwen2.5VL target checkpoint, identity `medsg-correspondence-huatuo-dev-v1`. Same Qwen source observations byte-for-byte, native Qwen pixel contract, greedy decoding. Its medical adaptation is NOT evidence of task-specific localization skill; this is an additional capability check. Local model index hash recorded; global pretraining exposure remains unknown. Results cannot be pooled with generic Qwen or presented as independent held-out validation.
+
+## Download/runtime efficiency amendment
+
+User authorized proxy-assisted download and efficient validation. Existing HTTP proxy172.17.0.1:7890 was already configured. SDK transfer replaced by aria2 multiconnection continuation, preserving3.82GiB valid contiguous prefixes and checking pinned official LFS SHA256. Small checkpoint support files complete. Direct/mirror probes have not demonstrated a faster path. No checkpoint revision or scientific arm changes.
+
+The22GiB launch gate was an engineering margin, not model memory measurement. Pinned checkpoint weights occupy15.45GiB in BF16. Permit a canary at>=18GiB free and record actual CUDA allocated/reserved peak; unchanged input budget/precision/greedy decoding. OOM aborts our job; other processes are left alone. Full-run launch follows successful interface and memory checks.
