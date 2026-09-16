@@ -1,5 +1,22 @@
 # Current status
 
+## Capability authority projection TRAIN pilot — completed (2026-09-16)
+
+- Independent worktree `/home/dbw/merit-feddg-authority`, branch
+  `implementation/capability-authority-projection-v1`, upstream `014d2ea`.
+- Necessary numerical/mapping repairs plus bounded real-model pilot and offline
+  evaluator. 900 CPU tests passed; 12/12 fresh incumbent token parity and evidence
+  delivery checks. Existing environment and cached TRAIN candidates reused.
+- Fixed 12-case TRAIN pilot: incumbent/base-pool/authority 11/12;
+  text-conditioned pool 8/12 (0 improvements, 3 harms). Authority feasible only
+  1/12, changed base-pool choice 0/12. **No demonstrated projection benefit; no
+  full-scale experiment launched.** Not full-test or clinical accuracy.
+- Successful case runtime 31.38 s + 22.03 s model loads; inherited candidate
+  generation 171.52 s separately. Full details and reproduction:
+  [authority pilot report](docs/AUTHORITY_TRAIN_PILOT.md).
+- Local logs and private outputs: `runs/authority-train-pilot-v2/`. First hash-check
+  failure preserved in v1. Other worktrees and historical results untouched.
+
 ## Native uncertainty / verifier TRAIN pilot — completed (2026-09-15)
 
 - New independent worktree `/home/dbw/merit-feddg-uncertainty`, branch

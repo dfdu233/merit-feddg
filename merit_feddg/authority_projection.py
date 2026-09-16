@@ -140,14 +140,19 @@ def project_binary_authority(
     q = np.zeros_like(p)
     target_pos = mapped_mass * target
     target_neg = mapped_mass * (1.0 - target)
-    q[pos_mask] = p[pos_mask] * (target_pos / pos_mass)
-    q[neg_mask] = p[neg_mask] * (target_neg / neg_mass)
+    scores = np.asarray(base_scores, dtype=np.float64)
+    q[pos_mask] = normalized_pool_distribution(scores[pos_mask]) * target_pos
+    q[neg_mask] = normalized_pool_distribution(scores[neg_mask]) * target_neg
     q[unk_mask] = p[unk_mask]
 
     if not np.isclose(q.sum(), 1.0, atol=1e-12, rtol=1e-10):
         raise FloatingPointError("projection lost probability mass")
     positive = q > 0
-    kl = float(np.sum(q[positive] * np.log(q[positive] / p[positive])))
+    shifted = scores - scores.max()
+    log_p = shifted - np.log(np.exp(shifted).sum())
+    kl = float(np.sum(q[positive] * (np.log(q[positive]) - log_p[positive])))
+    if not math.isfinite(kl):
+        raise FloatingPointError("nonfinite projection divergence")
     return {
         "status": "projected",
         "base_probabilities": p,
@@ -223,30 +228,32 @@ def binary_finding_group(answer: str, aliases: Sequence[str]) -> str:
     """Map a complete free-text answer to the one binary attribute under study.
 
     This conservative mapper only supports the frozen whole-image presence pilot.
-    It is not a general medical NLI system. Leading yes/no takes precedence.
-    Otherwise a finding alias must occur; explicit negation maps to negative and
-    an unnegated alias maps to positive.
+    It is not a general medical NLI system. Leading yes/no must agree with any
+    explicit finding clauses. Uncertain, historical or ambiguous clauses remain
+    unknown; negation is restricted to the clause containing the finding.
     """
     text = _normalize_text(answer)
     if not text:
         return UNKNOWN
+    cleaned_aliases = [_normalize_text(alias) for alias in aliases if str(alias).strip()]
+    labels = set()
+    for clause in re.split(r"[.;!?]|\bbut\b|\bhowever\b", text):
+        matches = [m for alias in cleaned_aliases
+                   for m in re.finditer(r"\b" + re.escape(alias) + r"\b", clause)]
+        if not matches:
+            continue
+        if re.search(r"\b(possible|possibly|may|might|could|uncertain|suspected|history|historical|previous|resolved)\b|cannot exclude|can't exclude|rule out", clause):
+            return UNKNOWN
+        # Multiple assertions in one clause cannot be reliably scoped by this mapper.
+        if re.search(r"\b(and|or|while|although)\b|,", clause):
+            return UNKNOWN
+        negative = any(re.search(pattern, clause) for pattern in _NEGATIVE_PATTERNS)
+        negative |= any(re.search(r"\b(?:no|not|without)\b", clause[:m.start()]) is not None for m in matches)
+        labels.add(NEGATIVE if negative else POSITIVE)
     leading = re.match(r"^(yes|no)\b", text)
     if leading:
-        return POSITIVE if leading.group(1) == "yes" else NEGATIVE
-
-    cleaned_aliases = [_normalize_text(alias) for alias in aliases if str(alias).strip()]
-    present = [alias for alias in cleaned_aliases if alias in text]
-    if not present:
-        return UNKNOWN
-
-    if any(re.search(pattern, text) for pattern in _NEGATIVE_PATTERNS):
-        return NEGATIVE
-    for alias in present:
-        index = text.find(alias)
-        window = text[max(0, index - 48): index]
-        if re.search(r"\b(?:no|not|without)\b", window):
-            return NEGATIVE
-    return POSITIVE
+        labels.add(POSITIVE if leading.group(1) == "yes" else NEGATIVE)
+    return next(iter(labels)) if len(labels) == 1 else UNKNOWN
 
 
 def transport_diagnostic(
