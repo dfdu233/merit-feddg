@@ -18,6 +18,7 @@ def main():
     p.add_argument('--partial-diagnostic', action='store_true')
     a = p.parse_args()
     from run_region_reencoding import sha
+
     from merit_feddg.agent_evaluate import cluster_bootstrap
     from merit_feddg.control_study import validate_outputs
     from merit_feddg.open_study import atomic_json, fingerprint
@@ -66,7 +67,7 @@ def main():
                 raise ValueError('record identity mismatch')
             validate_outputs(record, ARMS)
         sys.path.insert(0, str(a.anchor_root.resolve()))
-        from anchor.corrected_sgta.evaluate_medheval_answers import evaluate_rows, PROTOCOL_VERSION
+        from anchor.corrected_sgta.evaluate_medheval_answers import PROTOCOL_VERSION, evaluate_rows
         from anchor.medeval.evaluate_mixed_vqa_table import answer_token_recall
         scores = {}
         for arm in ARMS:

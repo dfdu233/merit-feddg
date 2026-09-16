@@ -234,6 +234,7 @@ def reencoding_case(probe, row, historical, protocol):
     exact other evidence. No target answer or target mask is inspected.
     """
     from dataclasses import replace
+
     from .capabilities import EvidenceItem
     from .capability_runtime import NativeSession, NativeState, ValueGenerationConfig
     from .control_study import prompt_config, reuse, validate_outputs

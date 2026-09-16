@@ -9,8 +9,16 @@ import torch
 from PIL import Image
 
 from merit_feddg.region_reencoding import (
-    ARMS, VIEW_ARMS, _overlap_axis, align_features, factorial_contrasts,
-    fuse_features, pixel_hash, projected_view, region_plan, region_views,
+    ARMS,
+    VIEW_ARMS,
+    _overlap_axis,
+    align_features,
+    factorial_contrasts,
+    fuse_features,
+    pixel_hash,
+    projected_view,
+    region_plan,
+    region_views,
 )
 
 
@@ -194,14 +202,15 @@ def test_hook_is_scoped_and_zero_support_is_exact():
 def test_hook_cleanup_on_exception_and_nesting():
     module=torch.nn.Identity()
     value=torch.ones(1,16,3)
-    with pytest.raises(RuntimeError,match='nested'):
-        with projected_view(module,value,np.ones(16)):
-            with projected_view(module,value,np.ones(16)):
-                pass
+    with (
+        pytest.raises(RuntimeError,match='nested'),
+        projected_view(module,value,np.ones(16)),
+        projected_view(module,value,np.ones(16)),
+    ):
+        pass
     assert not module._forward_hooks and not hasattr(module,'_merit_reencoding_active')
-    with pytest.raises(ValueError):
-        with projected_view(module,value,np.ones(16)):
-            module(torch.zeros(1,15,3))
+    with pytest.raises(ValueError), projected_view(module,value,np.ones(16)):
+        module(torch.zeros(1,15,3))
     assert not module._forward_hooks
 
 
@@ -235,6 +244,7 @@ def test_live_adapter_path_with_explicit_fake_backend(monkeypatch, tmp_path):
     import hashlib
     import json
     import types
+
     from merit_feddg.region_reencoding import reencoding_case
 
     @dataclasses.dataclass

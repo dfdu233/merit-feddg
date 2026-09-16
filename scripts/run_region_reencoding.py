@@ -48,6 +48,7 @@ def main():
         raise ValueError('positive case/time budgets required; no implicit full run')
     # These are read-only helpers from the frozen CRES runner, not its main loop.
     from run_control_evidence import check_route, image_identity, routing_origin
+
     from merit_feddg.control_study import validate_outputs
     from merit_feddg.matched_evaluation import load_manifest
     from merit_feddg.open_study import atomic_json, fingerprint
@@ -56,7 +57,7 @@ def main():
     protocol = json.loads((args.source_run/'protocol.json').read_text())
     routes = json.loads((args.source_run/'routing.json').read_text())
     if (protocol.get('n') != len(rows) or protocol.get('shards_complete') is not True
-            or set(routes) != {r['id'] for r in rows} or len(set(r['id'] for r in rows)) != len(rows)):
+            or set(routes) != {r['id'] for r in rows} or len({r['id'] for r in rows}) != len(rows)):
         raise ValueError('complete, unique, same-manifest source run required')
     origin = routing_origin(protocol)
     caches, images = {}, {}
@@ -78,6 +79,7 @@ def main():
             'hypothesis': 'native crop detail helps beyond low-detail and displaced controls'}))
         return
     import torch
+
     from merit_feddg.generalist_factory import generalist_provenance, load_generalist
     if args.anchor_root is None:
         raise ValueError('freeze existing scorer via --anchor-root before generation')
