@@ -1,5 +1,17 @@
 # Current status
 
+## Paired-support GPU1 diagnostic — completed (2026-09-16)
+
+- Current worktree: `/home/dbw/merit-feddg-paired-support`; branch
+  `experiments/paired-support-gpu1-20260916`. No active job remains.
+- Frozen 12-image, exact-test-image-disjoint diagnostic completed; generation
+  code commit `18c33c2`. All results, costs, protocol and limitations are in
+  [PAIRED_SUPPORT_GPU1_RESULTS](docs/PAIRED_SUPPORT_GPU1_RESULTS.md).
+- Decision: do not scale the same projection protocol. Next risk is wording-stable
+  semantic decisions and complementarity beyond direct specialist replacement.
+- Historical sections below describe earlier experiments, not this run's baseline.
+
+
 ## Evidence admission execution repair — bounded checks passed (2026-09-16)
 
 - Based exactly on `08f5d998`; independent worktree `/home/dbw/merit-feddg-admission`,
