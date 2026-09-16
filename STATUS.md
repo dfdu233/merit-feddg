@@ -1,5 +1,53 @@
 # Current status
 
+## CRES stopped; partial results published (2026-09-16)
+
+- Both workers stopped at the requested 2026-09-15 19:59:51 UTC deadline;
+  offline diagnostics completed. GPUs idle at verification. Do not resume.
+- Completed VQA-RAD 291/451 (142 images) and SLAKE 350/2094 (32 images).
+  These are ordered time-truncated prefixes, not full-test results.
+- CRES mixed scores 53.6295% / 55.8571%, tying deletion means. Compared with
+  compact: improvements/harms 8/7 and 21/17; both cluster CIs cross zero.
+  No evidence of incremental benefit worth the roughly 25x/22x decode cost.
+- [Published statistics and analysis](docs/results/cres-four-hour/README.md).
+  Earlier launch/deadline notes below are historical, not active jobs.
+
+## User-imposed four-hour deadline (2026-09-15)
+
+- Supersedes full-run continuation: stop both existing CRES workers at
+  **2026-09-15 19:59:51 UTC / 2026-09-16 03:59:51 Beijing**. Do not resume afterward.
+- Persistent tmux timers `cres-vqarad-deadline` (container) and
+  `cres-slake-deadline` (host merit-runner) are installed. Each verifies the exact
+  original PID start ticks, sends TERM, and escalates after five seconds only if
+  that same process remains. No unrelated processes or historical results touched.
+- After the worker lock releases, each timer runs explicit `--partial-diagnostic`
+  scoring, writing separate `partial-evaluation{,-summary}.json` inside its run.
+  Only a complete eight-arm ordered prefix is accepted; full-manifest reference
+  IDs, scorer pin and cache identity checks remain. Formal full scoring unchanged.
+- Time-truncated results are exploratory, not representative full-test scores.
+  Bootstrap intervals describe completed images only. Interrupted-case compute
+  is not captured by completed-row costs and must be noted in final analysis.
+- SLAKE full-run queue previously failed because host lacks rg; direct original
+  command was resumed successfully. Both GPU workers and both timers verified.
+  Timer logs: `runs/cres-checks/{vqarad,slake}-deadline.log`.
+
+## CRES PR #7 server execution (2026-09-15)
+
+- Independent worktree `/home/dbw/merit-feddg-cres`, starting at requested
+  `c78986e2429053077e0b8e9db7a648d3ea345c30`. Old dirty trees/results preserved.
+- 65 specified CPU regressions passed; final full suite 902 passed in 12.92 s.
+  Legacy route-key/RGB-image identity compatibility repaired with strict checks.
+- Both authorized physical GPUs passed timed CUDA checks. Real spatial canaries
+  on both datasets passed zero parity, nonzero transport, distinct controls and
+  bounded KL. No medical scoring of canaries or parameter changes.
+- `cres-vqarad-full` on container GPU0/physical GPU1 is active;
+  host `cres-slake-full` waits for the current scheduling canary to finish before
+  same-manifest continuation. Frozen VQA-RAD 451/SLAKE 2094, eight arms,
+  complete-only pinned ANCHOR evaluation queued after successful generation.
+- [Version, identities, commands, costs and acceptance](docs/CRES_SERVER_RESULTS.md).
+  Full scores/CI and superiority claims remain pending. Earlier running notes
+  below are history; previous full soft/class-text tasks are complete.
+
 ## Dual-GPU continuation — newly authorized host GPU0 (2026-09-15)
 
 - User explicitly authorized host GPU0 again. SSH and CUDA checks passed with
