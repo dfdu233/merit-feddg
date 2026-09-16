@@ -40,11 +40,13 @@ class CapabilityAuthorityContract:
     native_variable: NativeVariable
     supports: frozenset[str]
     forbids: frozenset[str]
+    entity_aliases: tuple[tuple[str, tuple[str, ...]], ...] = ()
+    requires_entity_match_for: frozenset[str] = frozenset()
 
     def __post_init__(self):
         if not self.expert_id or not self.capability or not self.scope:
             raise ValueError("authority identity, capability and scope must be nonempty")
-        unknown = (self.supports | self.forbids) - SEMANTIC_DIMENSIONS
+        unknown = (self.supports | self.forbids | self.requires_entity_match_for) - SEMANTIC_DIMENSIONS
         if unknown:
             raise ValueError(f"unknown semantic dimensions: {sorted(unknown)}")
         overlap = self.supports & self.forbids
@@ -52,12 +54,24 @@ class CapabilityAuthorityContract:
             raise ValueError(f"supported and forbidden dimensions overlap: {sorted(overlap)}")
         if not self.supports:
             raise ValueError("authority contract must support at least one dimension")
+        if not self.requires_entity_match_for <= self.supports:
+            raise ValueError("entity-match requirements must be a subset of supported dimensions")
+        names = [name for name, _ in self.entity_aliases]
+        if len(names) != len(set(names)):
+            raise ValueError("authority entity names must be unique")
+        for name, aliases in self.entity_aliases:
+            if not name.strip() or any(not alias.strip() for alias in aliases):
+                raise ValueError("authority entity names and aliases must be nonempty")
+        if self.requires_entity_match_for and not self.entity_aliases:
+            raise ValueError("entity-match requirements need an explicit native entity catalog")
 
     def to_json(self) -> dict[str, Any]:
         data = asdict(self)
         data["schema"] = "native-authority-v1"
         data["supports"] = sorted(self.supports)
         data["forbids"] = sorted(self.forbids)
+        data["requires_entity_match_for"] = sorted(self.requires_entity_match_for)
+        data["entity_aliases"] = {name: list(aliases) for name, aliases in self.entity_aliases}
         data["native_variable"]["values"] = list(self.native_variable.values)
         return data
 
@@ -69,6 +83,28 @@ def _strings(values: Any, name: str) -> tuple[str, ...]:
     if any(not v for v in result):
         raise ValueError(f"{name} contains an empty value")
     return result
+
+
+def _entity_aliases(raw: Any) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    if raw is None:
+        return ()
+    if not isinstance(raw, Mapping):
+        raise TypeError("authority_contract.entity_aliases must be a mapping")
+    result = []
+    for entity, aliases in raw.items():
+        name = str(entity).strip()
+        if not name:
+            raise ValueError("authority entity name must be nonempty")
+        if aliases is None:
+            values = ()
+        elif isinstance(aliases, (list, tuple)):
+            values = tuple(str(alias).strip() for alias in aliases)
+        else:
+            raise TypeError("authority entity aliases must be lists")
+        if any(not alias for alias in values):
+            raise ValueError("authority entity alias must be nonempty")
+        result.append((name, values))
+    return tuple(result)
 
 
 def authority_contract(expert_id: str, spec: Mapping[str, Any], capability: str):
@@ -99,11 +135,31 @@ def authority_contract(expert_id: str, spec: Mapping[str, Any], capability: str)
     forbids = frozenset(str(v).strip() for v in raw.get("forbids", ()))
     if any(not v for v in forbids):
         raise ValueError("authority_contract.forbids contains an empty value")
-    return CapabilityAuthorityContract(expert_id, capability, scope, variable, supports, forbids)
+    requires = frozenset(str(v).strip() for v in raw.get("requires_entity_match_for", ()))
+    if any(not v for v in requires):
+        raise ValueError("requires_entity_match_for contains an empty value")
+    return CapabilityAuthorityContract(
+        expert_id, capability, scope, variable, supports, forbids,
+        _entity_aliases(raw.get("entity_aliases")), requires,
+    )
 
 
-def _normalized(question: str) -> str:
-    return " ".join(re.findall(r"[a-z0-9]+", str(question).lower()))
+def _normalized(text: str) -> str:
+    return " ".join(re.findall(r"[a-z0-9]+", str(text).lower()))
+
+
+def _contains_phrase(text: str, phrase: str) -> bool:
+    needle = _normalized(phrase)
+    return bool(needle) and f" {needle} " in f" {_normalized(text)} "
+
+
+def matched_entities(question: str, contract: CapabilityAuthorityContract) -> tuple[str, ...]:
+    """Match only entities explicitly declared by the native model contract."""
+    matched = []
+    for entity, aliases in contract.entity_aliases:
+        if any(_contains_phrase(question, name) for name in (entity, *aliases)):
+            matched.append(entity)
+    return tuple(matched)
 
 
 def question_semantics(question: str) -> frozenset[str]:
@@ -152,18 +208,25 @@ def assess_authority(question: str, spec: Mapping[str, Any], capability: str,
             "schema": "native-authority-audit-v1", "declared": False,
             "status": "undeclared", "requested_dimensions": sorted(requested),
             "authorized_dimensions": [], "unsupported_dimensions": [],
+            "matched_entities": [], "entity_unmatched_dimensions": [],
             "global_transport_allowed": True, "local_intervention_allowed": False,
             "reason": "legacy_expert_without_authority_contract",
             "reliability_estimated": False,
         }
+    entities = matched_entities(question, contract)
     if not requested:
         status, authorized, unsupported = "unknown", frozenset(), frozenset()
+        entity_unmatched = frozenset()
         reason = "question_semantics_not_established"
     else:
         authorized = requested & contract.supports
         unsupported = requested - contract.supports
+        entity_unmatched = authorized & contract.requires_entity_match_for if not entities else frozenset()
+        authorized = authorized - entity_unmatched
+        unsupported = unsupported | entity_unmatched
         if not authorized:
-            status, reason = "denied", "no_requested_dimension_is_authorized"
+            status = "denied"
+            reason = "native_entity_not_declared" if entity_unmatched else "no_requested_dimension_is_authorized"
         elif unsupported:
             status, reason = "partial", "only_subset_of_requested_dimensions_authorized"
         else:
@@ -173,6 +236,8 @@ def assess_authority(question: str, spec: Mapping[str, Any], capability: str,
         "requested_dimensions": sorted(requested),
         "authorized_dimensions": sorted(authorized),
         "unsupported_dimensions": sorted(unsupported),
+        "matched_entities": list(entities),
+        "entity_unmatched_dimensions": sorted(entity_unmatched),
         # Legacy text transport can perturb the whole answer; only exact matches
         # may use it. Partial matches are reserved for a future local intervention.
         "global_transport_allowed": status == "exact",
