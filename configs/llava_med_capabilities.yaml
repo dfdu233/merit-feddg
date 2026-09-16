@@ -74,8 +74,6 @@ experts:
     prefix_invariant: true
     top_k: 1
     question_weight: 0.5
-    # Knowledge-bearing source-only variant. Set false for a no-answer ablation.
-    # Source answers never affect ranking; each remains tied to its SOURCE image.
     include_source_answers: true
     description: Retrieve one source case matched by image AND question, from another source domain and same image type. Its answer belongs only to that different image; this is an analogy, not proof about the current image.
   cxr_findings:
@@ -90,6 +88,17 @@ experts:
     prefix_invariant: true
     excluded_question_types: [count, measurement, anatomy, location]
     description: Whole-chest-radiograph disease finding scores from a small chest X-ray classifier. Not calibrated probabilities, not CT/MRI and not lesion location.
+    authority_contract:
+      schema: native-authority-v1
+      capability: classification
+      scope: cxr_findings
+      native_variable:
+        entity_type: chest_xray_finding
+        attribute: presence
+        values: [present, absent]
+        output_semantics: independent_sigmoid_score
+      supports: [finding_presence]
+      forbids: [finding_identity, anatomy_identity, location, laterality, relative_extent, measurement, count, appearance, etiology, treatment]
   cxr_anatomy:
     id: xrv/pspnet-chestxray
     adapter: xrv_anatomy
@@ -102,6 +111,17 @@ experts:
     prefix_invariant: true
     question_types: [anatomy, location, measurement, appearance]
     description: Segment lung and heart anatomy in a chest radiograph, return crop-aware masks and spatial measurements. No tumor detection, no physical size without image calibration.
+    authority_contract:
+      schema: native-authority-v1
+      capability: segmentation
+      scope: thoracic_anatomy
+      native_variable:
+        entity_type: thoracic_anatomy
+        attribute: spatial_extent
+        values: [soft_mask]
+        output_semantics: per_structure_soft_mask
+      supports: [anatomy_identity, location, laterality, relative_extent]
+      forbids: [finding_presence, finding_identity, measurement, count, appearance, etiology, treatment]
   chexagent_description:
     id: StanfordAIMI/CheXagent-2-3b
     checkpoint_path: artifacts/models/StanfordAIMI--CheXagent-2-3b
