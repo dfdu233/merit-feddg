@@ -1,0 +1,14 @@
+{
+  "base_commit": "de056a80909d0e2d479351b7c8b279326a81ba32",
+  "scope": "isolated synthetic/unit tests on newly authored files; not full repository",
+  "command": "PYTHONPATH=. python -m pytest tests/test_request_parse_study.py tests/test_request_parse_metadata.py -q",
+  "passed": 32,
+  "skipped": 1,
+  "skipped_test": "test_real_bridge_to_existing_admission",
+  "skip_reason": "complete upstream repository unavailable in local container; must run on server",
+  "python_compile": "passed",
+  "cli_help": "passed",
+  "ruff_run": false,
+  "real_parser_inference_run": false,
+  "medical_accuracy_evaluated": false
+}
