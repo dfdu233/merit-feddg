@@ -1,5 +1,24 @@
 # Current status
 
+## Native capability contract validation — boundary failure (2026-09-16)
+
+- Tested upstream `d7d37cf` in independent worktree
+  `/home/dbw/merit-feddg-contract-validation`; results branch
+  `experiments/native-contract-canary-20260916`. No changes to contract semantics.
+- 914 tests pass; focused upstream lint passes. GPU canary completed on physical
+  GPU1/container GPU0: two real expert calls, 24 LLaVA-Med calls, eight controlled
+  questions on one TRAIN image. No task-accuracy claim or references used.
+- Normal blocked routes preserve base tokens 3/3; the same forbidden packets
+  bypass the gate through inheritance, are delivered and change tokens 3/3.
+  Two mixed-entity requests are incorrectly admitted. Aorta is declared but not
+  returned by the default segmentation adapter (only lungs/heart returned).
+- Full 1793-question TRAIN routing-only audit: classifier retains 53/528 legacy
+  eligible requests; anatomy 13/88. Not a false-rejection estimate.
+- **Stop: no full benchmark run.** Next bounded repair/validation should enforce
+  actual transport and align requested entities with actual packet content.
+- [Detailed report](docs/NATIVE_CONTRACT_CANARY_RESULTS.md); private outputs and
+  logs: `runs/native-contract-canary-v1/`. No raw cases or weights published.
+
 ## Capability authority projection TRAIN pilot — completed (2026-09-16)
 
 - Publication detected concurrent remote force-update to `5c54827`, adding a
