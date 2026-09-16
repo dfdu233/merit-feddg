@@ -1,0 +1,7 @@
+# Source identity bottleneck diagnostic
+
+Identity `medsg-identity-dev-v1`, frozen after v2 scores. Same28 DEVELOPMENT cases; not new independent validation. Vector: is poor source recognition sufficient to explain failed semantic bridges? This does not assert a new graph mechanism.
+
+Source crop is derived ONLY from the visible red reference rectangle using v2 fixed red detector, trimming2 pixels inside the frame where feasible. Qwen names the cropped region (64 tokens); target grounder receives that predicted name with the same name-arm prompt and pixel protocol as v2. Context loss and resolution change make this a strong simple engineering baseline, not a clean causal decomposition of perception.
+
+A separate privileged source-name upper bound uses the SOURCE benchmark class encoded in its original filename; it supplies no target coordinates, target image labels, or reference target box. Explicit class dictionary is frozen before this run. Compare to v2 predicted-name arm on identical images and checkpoint. This oracle is a diagnosis of source-information headroom, NOT a deployable method or zero-shot score. IoU mean and accuracy>=.5, invalid=0, separate nonaligned/aligned groups. If even this oracle offers little headroom, cease relation-text architecture expansion and first establish an adequate specialist grounding tool. If crop-name matches oracle, use cropping as a baseline, not innovation. If identity improves but relation-specific effect remains absent, no graph novelty claim.
