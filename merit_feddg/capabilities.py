@@ -86,13 +86,12 @@ def validate_result(result, expert_id, request):
             raise ValueError("native payload must be a nonempty dictionary")
         if item.confidence is not None and not math.isfinite(item.confidence):
             raise ValueError("nonfinite confidence")
-        # Reject NaN, tensors, executable objects, etc. Raw native outputs remain
-        # JSON observations; no global answer vocabulary is required.
         json.dumps(asdict(item), allow_nan=False)
     return result
 
 
 def tool_descriptors(specs, row, allowed_pairs=None):
+    from .capability_contracts import assess_authority
     from .capability_routing import question_type
 
     descriptors = []
@@ -113,6 +112,12 @@ def tool_descriptors(specs, row, allowed_pairs=None):
             if allowed_pairs is not None and (name, capability, scope) not in allowed_pairs:
                 continue
             scoped_key(name, row["modality"], row["task"], capability, scope)
+            authority = assess_authority(row["question"], spec, capability, expert_id=name)
+            # A declared partial/denied contract must not enter the legacy global
+            # text/tool channel, which can perturb arbitrary answer semantics.
+            # Undeclared legacy experts preserve historical routing behavior.
+            if authority["declared"] and not authority["global_transport_allowed"]:
+                continue
             descriptors.append(
                 {
                     "expert": name,
@@ -123,6 +128,7 @@ def tool_descriptors(specs, row, allowed_pairs=None):
                         spec.get("requires_region", capability == "segmentation")
                     ),
                     "question_type": intent,
+                    "authority": authority,
                 }
             )
     return descriptors
