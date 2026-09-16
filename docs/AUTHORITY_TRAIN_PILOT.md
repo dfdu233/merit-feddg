@@ -1,5 +1,16 @@
 # Capability authority projection: real TRAIN pilot
 
+## Concurrent upstream update
+
+At publication the remote branch had been force-updated from `014d2ea` to
+`5c54827c2e61623f370cf528deb3552cfe9f0c0c`. The projection module itself is
+unchanged upstream, but four new files add documentation, tests and an official
+runner/evaluator. Its seven-arm pool, original generated token IDs and broader
+alias list differ from this already-frozen ten-arm/canonical-token pilot.
+**The numbers below do not validate that new runner or its exact protocol.**
+No merge, rebase or force-push was performed. This completed pilot is published
+separately on `experiments/authority-train-pilot-20260916` to preserve both versions.
+
 ## Version and scope
 
 2026-09-16. Remote implementation inspected at

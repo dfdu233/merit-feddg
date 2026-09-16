@@ -2,6 +2,11 @@
 
 ## Capability authority projection TRAIN pilot — completed (2026-09-16)
 
+- Publication detected concurrent remote force-update to `5c54827`, adding a
+  different seven-arm/original-token runner. That protocol is not yet validated
+  by these results. No automatic integration; this pilot is preserved on
+  `experiments/authority-train-pilot-20260916`.
+
 - Independent worktree `/home/dbw/merit-feddg-authority`, branch
   `implementation/capability-authority-projection-v1`, upstream `014d2ea`.
 - Necessary numerical/mapping repairs plus bounded real-model pilot and offline
