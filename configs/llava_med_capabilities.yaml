@@ -74,6 +74,8 @@ experts:
     prefix_invariant: true
     top_k: 1
     question_weight: 0.5
+    # Knowledge-bearing source-only variant. Set false for a no-answer ablation.
+    # Source answers never affect ranking; each remains tied to its SOURCE image.
     include_source_answers: true
     description: Retrieve one source case matched by image AND question, from another source domain and same image type. Its answer belongs only to that different image; this is an analogy, not proof about the current image.
   cxr_findings:
@@ -98,6 +100,26 @@ experts:
         values: [present, absent]
         output_semantics: independent_sigmoid_score
       supports: [finding_presence]
+      requires_entity_match_for: [finding_presence]
+      entity_aliases:
+        Atelectasis: []
+        Consolidation: []
+        Infiltration: [infiltrate]
+        Pneumothorax: []
+        Edema: [pulmonary edema]
+        Emphysema: []
+        Fibrosis: [pulmonary fibrosis]
+        Effusion: [pleural effusion]
+        Pneumonia: []
+        Pleural_Thickening: [pleural thickening]
+        Cardiomegaly: [enlarged heart]
+        Nodule: [lung nodule, pulmonary nodule]
+        Mass: [lung mass, pulmonary mass]
+        Hernia: []
+        Lung Lesion: [pulmonary lesion]
+        Fracture: []
+        Lung Opacity: [pulmonary opacity]
+        Enlarged Cardiomediastinum: [cardiomediastinal enlargement]
       forbids: [finding_identity, anatomy_identity, location, laterality, relative_extent, measurement, count, appearance, etiology, treatment]
   cxr_anatomy:
     id: xrv/pspnet-chestxray
@@ -121,6 +143,22 @@ experts:
         values: [soft_mask]
         output_semantics: per_structure_soft_mask
       supports: [anatomy_identity, location, laterality, relative_extent]
+      requires_entity_match_for: [location, laterality, relative_extent]
+      entity_aliases:
+        Left Clavicle: []
+        Right Clavicle: []
+        Left Scapula: []
+        Right Scapula: []
+        Left Lung: []
+        Right Lung: []
+        Left Hilus Pulmonis: [left hilum]
+        Right Hilus Pulmonis: [right hilum]
+        Heart: [cardiac silhouette]
+        Aorta: []
+        Facies Diaphragmatica: [diaphragm]
+        Mediastinum: []
+        Weasand: [esophagus, oesophagus]
+        Spine: [vertebral column]
       forbids: [finding_presence, finding_identity, measurement, count, appearance, etiology, treatment]
   chexagent_description:
     id: StanfordAIMI/CheXagent-2-3b
