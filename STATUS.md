@@ -1,5 +1,21 @@
 # Current status
 
+## Bit Flip discovery — awaiting scientific confirmation (2026-09-16)
+
+- Independent worktree `/home/dbw/merit-feddg-bitflip`, branch
+  `research/evidence-bitflip-v1`, based exactly on result commit `02c9397`.
+- [Chinese evidence/assumption relationship map](docs/BITFLIP_EVIDENCE_MAP.md)
+  reviews 21 research works, collision risks and the actual CRES interface.
+- Read-only trace audit: 5981/5993 steps have nonzero residuals, but only 6
+  change the base top token at the same prefix. No nonzero CRES step is KL-limited.
+- Added deterministic CPU audit tests for region-count/local-strength coupling;
+  no production algorithm or parameters changed, no GPU task resumed.
+- Recommended first question: distinguish insufficient evidence from loss of
+  task-relevant distinctions in the frozen interface. User confirmation pending;
+  mechanism and minimal implementation substrate are also not frozen yet.
+- Do not claim a new method, novelty, medical gain or completed optimization.
+  Existing CRES remains stopped; historical results are unchanged.
+
 ## CRES stopped; partial results published (2026-09-16)
 
 - Both workers stopped at the requested 2026-09-15 19:59:51 UTC deadline;

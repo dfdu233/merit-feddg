@@ -57,6 +57,29 @@ def test_source_balance_duplicate_invariance_and_question_importance():
     np.testing.assert_allclose(equal.importance, [.5, .5])
 
 
+@pytest.mark.parametrize("count", [2, 8])
+def test_audit_equal_source_mass_couples_local_update_to_region_count(count):
+    """Describe the current operator, not a claim that this allocation is optimal."""
+    items = []
+    for i in range(count):
+        values = np.zeros((4, 4), dtype=np.float32)
+        values.flat[2 * i:2 * i + 2] = 1
+        items.append(mask_item(f"region_{i}", values=values))
+    packet = spatial_packet(items, (4, 4), grid_size=4, weighting="equal")
+    assert len(packet) == count
+    np.testing.assert_allclose(packet.importance, np.ones(count) / count)
+    h = torch.arange(16, dtype=torch.float32).reshape(1, 16, 1)
+    bridge = SpatialEvidenceBridge(1, 4)
+    out = bridge(h, packet)
+    # Region zero remains the SAME two pixels. Other disjoint regions dilute
+    # its source-normalized weight: mean=.5, coefficient=1/(count+1).
+    assert out[0, 0, 0].item() == pytest.approx(.5 / (count + 1))
+    assert bridge.last_audit["max_abs_token_delta"] > 0
+    # Geometry alone cannot change a constant visual representation.
+    constant = torch.ones_like(h)
+    assert torch.equal(bridge(constant, packet), constant)
+
+
 def test_score_only_is_rejected_but_cam_is_explicitly_supported():
     item = EvidenceItem("cls", "A", "classification", "findings", {
         "findings": [{"finding": "opacity", "score": .8}],
