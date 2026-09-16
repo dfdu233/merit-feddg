@@ -43,6 +43,16 @@ def prepare(args):
     # Source files may contain additional fields; none are used for selection/prompting.
     # Caller must identify the official TRAIN manifest. This is not a new split.
     rows = read_lines(args.manifest)
+    metadata_source = {"kind": "manifest"}
+    if args.incumbent_json is not None:
+        incumbent = json.loads(args.incumbent_json.read_text())
+        if set(incumbent) != {r["id"] for r in rows}:
+            raise ValueError("incumbent/manifest ID alignment mismatch")
+        # Match the prior routing audit; inspect ONLY pre-existing input modality.
+        rows = [{**r, "modality": incumbent[r["id"]]["input_modality"], "task": "open_vqa"}
+                for r in rows]
+        metadata_source = {"kind": "incumbent_input_modality",
+                           "fingerprint": digest(args.incumbent_json.read_text())}
     eligible = [r for r in rows if r["modality"] == "cxr"]
     selected = select_questions(eligible, args.limit)
     if not selected:
@@ -53,6 +63,7 @@ def prepare(args):
               "selection": "sha256(seed=197,id,question,modality,task); CXR TRAIN only",
               "source_manifest_sha": digest(args.manifest.read_text()),
               "source_count": len(rows), "eligible_count": len(eligible),
+              "input_metadata_source": metadata_source,
               "code_hashes": code_hashes(), "max_new_tokens": args.max_new_tokens,
               "split": "train", "production_intervention": False,
               "image_hashes": {r["id"]: r.get("image_sha256") for r in eligible
@@ -64,8 +75,7 @@ def prepare(args):
     with (args.output / "review-template.jsonl").open("x", encoding="utf-8") as stream:
         for row in selected:
             obj = {**row, "reviewed": False, "reviewer": "", "gold_parse": None,
-                   "notes": "Question semantics only. No diagnosis/reference labels.",
-                   "expected_delivery": {name: None for name in EXPERTS}}
+                   "notes": "Question semantics only. No diagnosis/reference labels."}
             stream.write(json.dumps(obj, ensure_ascii=False) + "\n")
     print(json.dumps({"prepared": len(selected), "identity": frozen["identity"],
                       "planned_parser_calls": len(selected) * (1 + len(EXPERTS))}))
@@ -175,6 +185,7 @@ def main():
     parser.add_argument("action", choices=("prepare", "run"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--manifest", type=Path)
+    parser.add_argument("--incumbent-json", type=Path, help="Optional aligned prior input_modality metadata; never used for answer selection")
     parser.add_argument("--config", type=Path, default=Path("configs/llava_med_capabilities.yaml"))
     parser.add_argument("--limit", type=int, default=12)
     parser.add_argument("--max-new-tokens", type=int, default=512)

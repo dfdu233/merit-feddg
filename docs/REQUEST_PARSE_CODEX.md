@@ -37,11 +37,12 @@ download weights or use a second GPU. No training and no test-label access.
 Example commands (from the independent worktree; use the established environment):
 
 ```bash
-OPENBLAS_NUM_THREADS=1 bash scripts/with_gate_kb_env.sh -m pytest -o addopts='' -q tests/test_request_parse_study.py
+OPENBLAS_NUM_THREADS=1 bash scripts/with_gate_kb_env.sh -m pytest -o addopts='' -q tests/test_request_parse_study.py tests/test_request_parse_metadata.py
 OPENBLAS_NUM_THREADS=1 bash scripts/with_gate_kb_env.sh -m pytest -o addopts='' -q
 
 PYTHONPATH=. bash scripts/with_gate_kb_env.sh scripts/run_request_parse_study.py prepare \
   --manifest /home/dbw/merit-feddg/runs/vqarad-official-protocol-v3/data/train/manifest.jsonl \
+  --incumbent-json /home/dbw/merit-feddg/runs/vqarad-official-train-v3/transport-fixed/0379506d53573b3a4ba8eb1c1e3648604b22fdf781949f780b6b1091d3f8dbd6/compact_rows.json \
   --output runs/request-parse-pilot-v1 --limit 12
 
 # No model loaded by this preflight:
