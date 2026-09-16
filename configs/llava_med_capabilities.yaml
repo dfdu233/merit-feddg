@@ -90,6 +90,37 @@ experts:
     prefix_invariant: true
     excluded_question_types: [count, measurement, anatomy, location]
     description: Whole-chest-radiograph disease finding scores from a small chest X-ray classifier. Not calibrated probabilities, not CT/MRI and not lesion location.
+    authority_contract:
+      schema: native-authority-v1
+      capability: classification
+      scope: cxr_findings
+      native_variable:
+        entity_type: chest_xray_finding
+        attribute: presence
+        values: [present, absent]
+        output_semantics: independent_sigmoid_score
+      supports: [finding_presence]
+      requires_entity_match_for: [finding_presence]
+      entity_aliases:
+        Atelectasis: []
+        Consolidation: []
+        Infiltration: [infiltrate]
+        Pneumothorax: []
+        Edema: [pulmonary edema]
+        Emphysema: []
+        Fibrosis: [pulmonary fibrosis]
+        Effusion: [pleural effusion]
+        Pneumonia: []
+        Pleural_Thickening: [pleural thickening]
+        Cardiomegaly: [enlarged heart]
+        Nodule: [lung nodule, pulmonary nodule]
+        Mass: [lung mass, pulmonary mass]
+        Hernia: []
+        Lung Lesion: [pulmonary lesion]
+        Fracture: []
+        Lung Opacity: [pulmonary opacity]
+        Enlarged Cardiomediastinum: [cardiomediastinal enlargement]
+      forbids: [finding_identity, anatomy_identity, location, laterality, relative_extent, measurement, count, appearance, etiology, treatment]
   cxr_anatomy:
     id: xrv/pspnet-chestxray
     adapter: xrv_anatomy
@@ -102,6 +133,33 @@ experts:
     prefix_invariant: true
     question_types: [anatomy, location, measurement, appearance]
     description: Segment lung and heart anatomy in a chest radiograph, return crop-aware masks and spatial measurements. No tumor detection, no physical size without image calibration.
+    authority_contract:
+      schema: native-authority-v1
+      capability: segmentation
+      scope: thoracic_anatomy
+      native_variable:
+        entity_type: thoracic_anatomy
+        attribute: spatial_extent
+        values: [soft_mask]
+        output_semantics: per_structure_soft_mask
+      supports: [anatomy_identity, location, laterality, relative_extent]
+      requires_entity_match_for: [location, laterality, relative_extent]
+      entity_aliases:
+        Left Clavicle: []
+        Right Clavicle: []
+        Left Scapula: []
+        Right Scapula: []
+        Left Lung: []
+        Right Lung: []
+        Left Hilus Pulmonis: [left hilum]
+        Right Hilus Pulmonis: [right hilum]
+        Heart: [cardiac silhouette]
+        Aorta: []
+        Facies Diaphragmatica: [diaphragm]
+        Mediastinum: []
+        Weasand: [esophagus, oesophagus]
+        Spine: [vertebral column]
+      forbids: [finding_presence, finding_identity, measurement, count, appearance, etiology, treatment]
   chexagent_description:
     id: StanfordAIMI/CheXagent-2-3b
     checkpoint_path: artifacts/models/StanfordAIMI--CheXagent-2-3b
