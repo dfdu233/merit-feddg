@@ -10,7 +10,13 @@ from pathlib import Path
 import yaml
 
 from merit_feddg.request_parse_study import (
-    MODES, SCHEMA, audit_parse, catalog_for, digest, parse_response, parser_prompt,
+    MODES,
+    SCHEMA,
+    audit_parse,
+    catalog_for,
+    digest,
+    parse_response,
+    parser_prompt,
     select_questions,
 )
 
@@ -135,6 +141,7 @@ def run(args):
     for key in ("HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "HF_DATASETS_OFFLINE"):
         os.environ[key] = "1"
     import torch
+
     from merit_feddg.capability_contracts import assess_authority
     from merit_feddg.generalist_factory import generalist_provenance, load_generalist
 

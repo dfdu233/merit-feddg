@@ -8,8 +8,15 @@ from types import SimpleNamespace
 import pytest
 
 from merit_feddg.request_parse_study import (
-    audit_parse, canonicalize, catalog_for, compile_request, digest, fidelity,
-    parse_response, parser_prompt, select_questions,
+    audit_parse,
+    canonicalize,
+    catalog_for,
+    compile_request,
+    digest,
+    fidelity,
+    parse_response,
+    parser_prompt,
+    select_questions,
 )
 
 
