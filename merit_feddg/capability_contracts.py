@@ -7,8 +7,9 @@ estimate whether one prediction is correct.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
-from typing import Any, Mapping
+from typing import Any
 
 SEMANTIC_DIMENSIONS = frozenset({
     "finding_presence", "finding_identity", "anatomy_identity", "location",
@@ -124,7 +125,7 @@ def authority_contract(expert_id: str, spec: Mapping[str, Any], capability: str)
         raise ValueError("authority contract scope mismatch")
     native = raw.get("native_variable")
     if not isinstance(native, Mapping):
-        raise ValueError("authority contract requires native_variable")
+        raise TypeError("authority contract requires native_variable")
     variable = NativeVariable(
         entity_type=str(native.get("entity_type", "")).strip(),
         attribute=str(native.get("attribute", "")).strip(),
