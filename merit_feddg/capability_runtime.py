@@ -57,8 +57,11 @@ class ValueGenerationConfig:
     native_entry_transport: bool = False
     claim_attribute_filter: bool = False
     claim_gate_max_checks: int = 2
+    admission_mode: str = "legacy"
 
     def __post_init__(self):
+        if self.admission_mode not in {"legacy", "audit", "enforce"}:
+            raise ValueError("unknown admission mode")
         from .vector_gate import VectorGateConfig
 
         if type(self.compact_native) is not bool or type(self.compact_columns) is not bool:
@@ -142,12 +145,16 @@ def native_observation_prompt(prompt, memory):
 class NativeSession:
     """Keep the original image; predicted views are additional, not replacements."""
 
-    def __init__(self, probe, image, prompt, question, config):
+    def __init__(self, probe, image, prompt, question, config, *, authority_specs=None,
+                 evidence_request=None):
         self.probe, self.image, self.prompt, self.question = probe, image, prompt, question
         self.config = config
         self._key, self._session = None, None
         self.view_metadata = []
         self.last_transport = {}
+        self.authority_specs = authority_specs or {}
+        self.evidence_request = evidence_request
+        self.last_admission = {}
         if config.token_budgeted_evidence and not hasattr(probe, "context_token_budget"):
             raise ValueError("backend must implement actual context_token_budget")
         if (config.evidence_style == "tensor" or config.semantic_spatial) and (
@@ -159,6 +166,7 @@ class NativeSession:
         return self.probe.processor.tokenizer.decode(tokens, skip_special_tokens=True)
 
     def _tensor_session(self, items, prompt=None):
+        items = self.delivery_items(items)
         kwargs = {}
         if getattr(self.probe.tensor_bridge, "training_free", False):
             kwargs = {"question": self.question, "weighting": self.config.spatial_weighting}
@@ -168,7 +176,9 @@ class NativeSession:
         if self.config.evidence_style == "tensor":
             return self._tensor_session(presentation_items(state.items, self.question, self.config))
         # Isolated context construction must not overwrite the live transport audit.
-        temporary = NativeSession(self.probe, self.image, self.prompt, self.question, self.config)
+        temporary = NativeSession(self.probe, self.image, self.prompt, self.question, self.config,
+                                  authority_specs=self.authority_specs,
+                                  evidence_request=self.evidence_request)
         image, prompt = temporary.context(state)
         if self.config.semantic_spatial:
             visible = {(v["expert_id"], v["evidence_id"]) for v in temporary.last_transport["presented"]}
@@ -243,7 +253,23 @@ class NativeSession:
             remaining_tokens=self.config.max_new_tokens - len(state.prefix),
             semantic_check=self.assess_semantic_change if self.config.vector_gate == "multidimensional" else None)
 
+    def delivery_items(self, items):
+        from .evidence_admission import delivery_view
+
+        view, self.last_admission = delivery_view(
+            items, question=self.question, request=self.evidence_request,
+            specs=self.authority_specs, mode=self.config.admission_mode)
+        return view
+
     def context(self, state):
+        view = self.delivery_items(state.items)
+        audit = self.last_admission
+        result = self._delivery_context(replace(state, items=view))
+        if self.config.admission_mode != "legacy":
+            self.last_transport["admission"] = audit
+        return result
+
+    def _delivery_context(self, state):
         if self.config.evidence_style == "tensor":
             self.view_metadata = []
             if hasattr(self.probe, "tensor_packet"):
@@ -327,6 +353,10 @@ class NativeSession:
 
     def propose(self, state, length):
         key = fingerprint([asdict(item) for item in state.items])
+        if self.config.admission_mode != "legacy":
+            key = fingerprint([key, self.question, self.authority_specs,
+                               self.evidence_request.to_json() if self.evidence_request else None,
+                               self.config.admission_mode])
         if key != self._key:
             images, prompt = self.context(state)
             self._session = (
@@ -373,6 +403,8 @@ class CapabilityRuntime:
             raise ValueError("runtime accepts strictly label-free inference fields")
         self.session, self.pool, self.row, self.specs = session, pool, row, specs
         self.config, self.encoder = config, encoder
+        if getattr(config, "admission_mode", "legacy") != "legacy":
+            session.authority_specs = specs
         self.claim_checks_used = 0
 
     def descriptors(self, state):

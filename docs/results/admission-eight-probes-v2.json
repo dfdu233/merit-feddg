@@ -1,0 +1,40 @@
+{
+  "base_commit": "08f5d998637036b2527b0e434f0990845a573f20",
+  "identity": "66c258394f21a1b4978509256c26b85169b035caddb77f16d8c3a3eeaa180183",
+  "scope": "engineering admission, explicit authored requests, unchanged eight controlled TRAIN-image probes",
+  "complete": true,
+  "probes": 8,
+  "images": 1,
+  "cpu_tests_passed": 936,
+  "new_cpu_tests": 22,
+  "medical_accuracy_evaluated": false,
+  "automatic_parser_changed": false,
+  "delivered_probe_counts": {
+    "legacy": {"normal": 5, "cached": 8, "inherited": 8},
+    "audit": {"normal": 5, "cached": 8, "inherited": 8},
+    "enforce": {"normal": 2, "cached": 2, "inherited": 2}
+  },
+  "enforce_positive_deliveries": {"passed": 6, "total": 6},
+  "enforce_forbidden_deliveries": {"leaked": 0, "total": 18},
+  "historical_token_parity": {"passed": 24, "total": 24},
+  "audit_legacy_token_parity": {"passed": 24, "total": 24},
+  "cached_inherited_token_parity": {"passed": 24, "total": 24},
+  "enforce_normal_inherited_token_parity": {"passed": 8, "total": 8},
+  "cost": {
+    "expert_calls": 2,
+    "actor_calls": 80,
+    "expert_load_inference_seconds": 3.0358363001141697,
+    "actor_load_seconds": 11.469370199833065,
+    "generation_and_delivery_seconds": 105.67791286134161,
+    "initial_v1_extra_actor_calls": 80,
+    "initial_v1_extra_expert_calls": 2,
+    "initial_v1_timed_seconds": 63.897456729318946
+  },
+  "limitations": [
+    "Explicit complete requests supplied by trusted caller; automatic parsing not solved",
+    "Only reviewed XRV formats supported by enforce; legacy remains default",
+    "One real TRAIN image with controlled prompts, not a medical performance evaluation",
+    "Spatial packet compiler and CPU session paths checked, not a new spatial-guidance efficacy arm",
+    "Admission does not prove source correctness or generalization"
+  ]
+}

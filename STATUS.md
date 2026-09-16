@@ -1,5 +1,26 @@
 # Current status
 
+## Evidence admission execution repair — bounded checks passed (2026-09-16)
+
+- Based exactly on `08f5d998`; independent worktree `/home/dbw/merit-feddg-admission`,
+  branch `experiments/evidence-admission-20260916`. Only engineering admission
+  repaired; no new research mechanism, automatic-parser patch or benchmark run.
+- Shared immutable delivery-view filter covers text, overlay, tensor and combined
+  sessions. Explicit current-question requests intersect native contract,
+  configured outputs and actual entries. legacy default; audit retains old input;
+  enforce is opt-in and fails closed without a complete explicit request.
+- Final CPU regression: 936 passed (22 new). Same eight TRAIN-image probes:
+  0/18 forbidden deliveries; 6/6 positive deliveries across normal/cached/inherited;
+  24/24 historical token parity; 24/24 audit/legacy parity. Both legal controls
+  retain only their matching native entries. Not medical effectiveness evidence.
+- Final run `runs/admission-eight-probes-v2`, identity
+  `66c258394f21a1b4978509256c26b85169b035caddb77f16d8c3a3eeaa180183`.
+  80 real actor calls + 2 experts; timed components 120.183 s. Initial v1 replay
+  preserved separately and accounted for. No further GPU task launched.
+- [Implementation, results, limitations and commands](docs/EVIDENCE_ADMISSION_EXECUTION.md).
+  Raw packets, answers and logs stay local. Existing methods/configurations/results
+  remain untouched. Automatic parsing and broader expert support remain unresolved.
+
 ## Native capability contract validation — boundary failure (2026-09-16)
 
 - Tested upstream `d7d37cf` in independent worktree
