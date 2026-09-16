@@ -1,5 +1,17 @@
 # Current status
 
+## CRES stopped; partial results published (2026-09-16)
+
+- Both workers stopped at the requested 2026-09-15 19:59:51 UTC deadline;
+  offline diagnostics completed. GPUs idle at verification. Do not resume.
+- Completed VQA-RAD 291/451 (142 images) and SLAKE 350/2094 (32 images).
+  These are ordered time-truncated prefixes, not full-test results.
+- CRES mixed scores 53.6295% / 55.8571%, tying deletion means. Compared with
+  compact: improvements/harms 8/7 and 21/17; both cluster CIs cross zero.
+  No evidence of incremental benefit worth the roughly 25x/22x decode cost.
+- [Published statistics and analysis](docs/results/cres-four-hour/README.md).
+  Earlier launch/deadline notes below are historical, not active jobs.
+
 ## User-imposed four-hour deadline (2026-09-15)
 
 - Supersedes full-run continuation: stop both existing CRES workers at

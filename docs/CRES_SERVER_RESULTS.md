@@ -1,7 +1,9 @@
 # CRES server execution — 2026-09-15
 
-Status: real spatial scheduling accepted; full experiments launched/queued.
-No complete CRES medical score yet.
+Status (2026-09-16): both jobs stopped at the user-imposed deadline. Partial
+results and negative mechanism/cost findings are published in
+[the four-hour diagnostic report](results/cres-four-hour/README.md).
+No complete CRES full-test score exists. The launch notes below are historical.
 
 ## Version and preserved work
 
