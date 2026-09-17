@@ -1,5 +1,39 @@
 # Current status
 
+## Historical full VQA-RAD dynamic decoding — 2026-09-17
+
+- Independent branch `experiments/vqarad-historical-dynamic-20260917` based on
+  `350c313` (parent `d20c928`). User explicitly requests full TEST evaluation;
+  no parameter selection, new evidence, verifier, or admission-policy changes.
+- `scripts/run_vqarad_dynamic.py` adds historical ACD to the exact original
+  classification/generation channel branches; controls are read-only reuse of
+  completed class-text run `13a3e59c...`. Full original manifest: 451 cases.
+  Only six classification and 174 generation cases had delivered channel evidence;
+  other rows retain incumbent with explicit unavailable, not synthetic candidates.
+- Source-only/source-ACD are NOT claimed as implemented full-test arms: old
+  BiomedCLIP catalog and generated-text evidence do not supply question-matched
+  native source entropy. The previous XRV TRAIN pilot added a new expert and
+  cannot be silently substituted for this historical full-test protocol.
+- CPU regression: 23 tests passed (uncertainty, class/text, persistent scoring,
+  scheduling). Compile and diff checks passed. All 451 pixel identities verified.
+- Original provenance recorded file mtimes, which changed for five weight files.
+  Full SHA-256 matches original HF download metadata / content-addressed blob;
+  unchanged file sizes, configuration, source hashes and runtime checked. Exact
+  historical text, deletion and CAD outputs must additionally pass real canary.
+- First launch loaded weights on both host cards but stopped on the new runner's
+  erroneous file-byte image check. Corrected to the existing `pixel_digest`;
+  failed identity `6e855af5...` and logs preserved. No generated candidate from
+  that attempt is reused. Current identity:
+  `3c609e9ab859e69e3c6634edeb6dd8821765e51b3831e811013f467e3e6cc2e4`.
+- Both host cards are authorized to coexist with their existing jobs; no other
+  process stopped. Canary sessions `vqarad-acd-canary-0/1`; logs under
+  `runs/vqarad-dynamic-v1/canary-{0,1}-v2.log`. Full continuation requires both
+  canaries to pass. No complete new medical score yet.
+- Offline entry: `scripts/evaluate_vqarad_dynamic.py --run ROOT` requires complete
+  451-case output in both channels, frozen ANCHOR scorer, and exact references.
+  Reports historical text/blend/CAD, ACD, old correction/harm groups, costs and
+  image-cluster paired bootstrap. Mixed score is not clinical accuracy.
+
 ## Native uncertainty / verifier TRAIN pilot — completed (2026-09-15)
 
 - New independent worktree `/home/dbw/merit-feddg-uncertainty`, branch
