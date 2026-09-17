@@ -1,0 +1,19 @@
+{
+  "base_commit": "b0de4a04852a36a059c0e67c79f848de62361f3c",
+  "isolated_tests_passed": 35,
+  "upstream_integration_tests_skipped": 2,
+  "compile_passed": true,
+  "all_four_cli_help_passed": true,
+  "full_repository_regression_run": false,
+  "real_medical_model_run": false,
+  "weights_downloaded": false,
+  "gpu_benefit_evaluated": false,
+  "github_push_completed": true,
+  "remote_branch": "implementation/pathology-quilt-v1",
+  "limits": [
+    "authoring container could not clone the full repository because of DNS failure",
+    "remote files were later published through the connected GitHub API",
+    "not a medical efficacy result; 2 upstream integration tests still require the real repository/server environment"
+  ],
+  "python": "3.13.5"
+}

@@ -1,0 +1,23 @@
+# OPTIONAL example only. Never auto-merged into historical configs.
+# Run the offline Quilt worker before using this cache-backed factory.
+experts:
+  quilt_pathology:
+    id: wisdomik/Quilt-Llava-v1.5-7b
+    adapter: native_factory
+    factory: merit_feddg.experts.quilt_cached:build_cached_quilt
+    factory_kwargs:
+      run_dir: /ABSOLUTE/PATH/TO/pathology-quilt-pilot
+      cache_sha256: REPLACE_WITH_SHA256_OF_quilt_predictions.json
+      expert_id: quilt_pathology
+      scope: histology_question_observation
+    modalities: [pathology]
+    tasks: [open_vqa]
+    capabilities: [generation]
+    scope: histology_question_observation
+    prefix_invariant: true
+    requires_region: false
+    description: >-
+      Frozen Quilt-LLaVA answer for the exact microscopic histology image and
+      question. Unverified observation, not a calibrated diagnosis. Not gross
+      pathology. No live inference on cache miss. Prototype legacy transport only;
+      XRV-specific enforce admission does not authorize this adapter.
