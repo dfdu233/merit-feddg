@@ -42,7 +42,7 @@ def core_identity():
     return {str(p): file_sha(p) for p in sorted((CORE/'merit_feddg').rglob('*.py'))}
 
 
-def prepare(out):
+def prepare(out, transport_policy='strict'):
     from run_pathology_quilt_pilot import code_identity, scorer_identity
     if out.exists():
         raise FileExistsError('fresh formal output required')
@@ -87,6 +87,7 @@ def prepare(out):
         'canary_ids': canary, 'max_new_tokens': 1024, 'quilt_precision': 'fp16',
         'arms': ARMS, 'seed': 42, 'source_code': code_identity(), 'formal_core': core_identity(),
         'formal_adapter_sha256': file_sha(__file__), 'native_cache_hashes': cache_hashes,
+        'transport_policy': transport_policy,
         'scorer': scorer_identity('/home/dbw/ANCHOR'), 'no_test_parameter_selection': True,
         'scope': 'all 6719 IDs; Quilt only for existing microscopy routes; otherwise explicit incumbent reuse'}
     write_new(out/'frozen.json', frozen)
@@ -102,7 +103,7 @@ def verify(frozen):
         assert file_sha(frozen[name]) == frozen[name+'_sha256']
 
 
-def actor(out, canary):
+def actor(out, canary, gpu_uuid=GPU, shard_count=1, shard_index=0):
     import torch
     from transformers import set_seed
     from run_quilt_worker import assert_single_gpu
@@ -111,8 +112,10 @@ def actor(out, canary):
     from merit_feddg.generalist_factory import load_generalist
     frozen = read_json(out/'frozen.json')
     verify(frozen)
-    assert_single_gpu(torch, GPU)
-    prior = read_json(out/('quilt_canary.json' if canary else 'quilt_predictions.json'))
+    assert_single_gpu(torch, gpu_uuid)
+    prior_name = 'quilt_canary.json' if canary else ('quilt_predictions.json' if shard_count == 1
+                 else f'quilt_predictions_{shard_index}-of-{shard_count}.json')
+    prior = read_json(out/prior_name)
     assert prior['identity'] == digest(frozen) and prior['complete']
     predictions = prior['predictions']
     jobs = {(j['target_id'], j['variant']): j for j in prediction_jobs(frozen)}
@@ -123,7 +126,7 @@ def actor(out, canary):
     probe.model.eval().requires_grad_(False)
     probe.benchmark_single_block_context = True
     probe.benchmark_evidence_reserve_tokens = 64
-    write_new(out/('actor_load_'+str(time.time_ns())+'.json'), {'seconds': time.perf_counter()-started, 'gpu_uuid': GPU})
+    write_new(out/('actor_load_'+str(time.time_ns())+'.json'), {'seconds': time.perf_counter()-started, 'gpu_uuid': gpu_uuid})
     selected = {r['id']: r for r in frozen['rows']}
     allrows = {r['id']: r for r in map(json.loads, Path(frozen['manifest']).read_text().splitlines())}
     def visible(t):
@@ -137,7 +140,10 @@ def actor(out, canary):
             raise RuntimeError('empty/capped formal actor output; no fallback')
         return {'text': block.text, 'token_ids': list(block.tokens), 'seconds': time.perf_counter()-start,
                 'prompt_sha256': fingerprint(prompt)}
-    for key in frozen['canary_ids'] if canary else frozen['full_ids']:
+    eligible_lane = {r['id'] for r in frozen['rows'][shard_index::shard_count]}
+    lane = [k for i,k in enumerate(frozen['full_ids'])
+            if k in eligible_lane or (k not in selected and i % shard_count == shard_index)]
+    for key in frozen['canary_ids'] if canary else lane:
         target = out/'cases'/(key+'.json')
         if target.exists():
             assert read_json(target)['identity'] == digest(frozen)
@@ -167,7 +173,7 @@ def actor(out, canary):
         kept = tuple(e for e in raw if (e.expert_id, e.evidence_id) in allowed)
         _, retained_prompt, retained_transport = context(kept)
         assert retained_prompt == prompt and visible(retained_transport) == allowed
-        checks, calls = {}, 0
+        checks, calls, delivery = {}, 0, {}
         if key in frozen['canary_ids']:
             reproduced = answer(im, prompt, 1024)
             checks['compact_token_parity'] = reproduced['token_ids'] == incumbent['token_ids']
@@ -186,30 +192,86 @@ def actor(out, canary):
             assert record['job'] == job
             item = quilt_item(record)
             im, prompt, t = context(kept+(item,))
-            assert visible(t) == allowed | {(item.expert_id,item.evidence_id)}, 'evidence omission/displacement'
-            assert record['text'] in prompt or json.dumps(record['text'],ensure_ascii=False)[1:-1] in prompt, 'expert text truncated'
-            arms[arm] = answer(im, prompt, 1024)
-            calls += 1
+            observed = visible(t)
+            assert allowed <= observed, 'old evidence displaced'
+            delivered = (item.expert_id,item.evidence_id) in observed
+            delivery[arm] = delivered
+            if frozen.get('transport_policy', 'strict') == 'strict':
+                assert delivered, 'evidence omission/displacement'
+            if delivered:
+                assert record['text'] in prompt or json.dumps(record['text'],ensure_ascii=False)[1:-1] in prompt, 'expert text truncated'
+                arms[arm] = answer(im, prompt, 1024)
+                calls += 1
+            else:
+                # Exact formal packing behavior: do not truncate, displace, or
+                # invent evidence. Reuse only with identical input hashes.
+                assert observed == allowed and t['prompt_sha256'] == transport['prompt_sha256']
+                assert t['evidence_sha256'] == transport['evidence_sha256']
+                assert any(x['expert_id'] == item.expert_id and x['evidence_id'] == item.evidence_id
+                           and x['reason'] in ('token_budget','character_budget') for x in t['omitted'])
+                arms[arm] = dict(incumbent, reused_incumbent=True, new_actor_seconds=0)
             transports[arm] = t
             if variant == 'matched':
                 arms['quilt_alone'] = {k: record[k] for k in ('text','token_ids','seconds')}
-        write_new(target, {'identity': digest(frozen), 'id': key, 'status': 'real_candidate',
+        write_new(target, {'identity': digest(frozen), 'id': key,
+            'status': 'real_candidate' if delivery['compact_quilt'] else 'quilt_not_delivered',
+            'delivery': delivery,
             'arms': arms, 'transport': transports, 'checks': checks, 'new_actor_calls': calls,
             'wall_seconds': time.perf_counter()-start, 'peak_allocated_bytes': torch.cuda.max_memory_allocated()})
         print('ACTOR', key, calls, flush=True)
-    marker = 'actor_canary.json' if canary else 'complete.json'
+    marker = 'actor_canary.json' if canary else ('complete.json' if shard_count == 1
+              else f'actor_complete_{shard_index}-of-{shard_count}.json')
     if not canary:
-        assert {p.stem for p in (out/'cases').glob('*.json')} == set(frozen['full_ids'])
-    write_new(out/marker, {'identity': digest(frozen), 'complete': True, 'full_dataset_complete': not canary})
+        assert set(lane) <= {p.stem for p in (out/'cases').glob('*.json')}
+    write_new(out/marker, {'identity': digest(frozen), 'complete': True,
+                         'full_dataset_complete': not canary and shard_count == 1,
+                         'shard_count': shard_count, 'shard_index': shard_index})
+
+
+def merge(out, shard_count):
+    f = read_json(out/'frozen.json')
+    verify(f)
+    predictions, costs = {}, []
+    for index in range(shard_count):
+        done = read_json(out/f'actor_complete_{index}-of-{shard_count}.json')
+        part = read_json(out/f'quilt_predictions_{index}-of-{shard_count}.json')
+        for value in (done, part):
+            assert value['identity'] == digest(f) and value['complete']
+            assert value['shard_index'] == index and value['shard_count'] == shard_count
+        expected = {j['key'] for j in prediction_jobs(f)
+                    if j['target_id'] in {r['id'] for r in f['rows'][index::shard_count]}}
+        assert set(part['predictions']) == expected and not predictions.keys() & expected
+        predictions.update(part['predictions'])
+        costs.append({k:v for k,v in part.items() if k != 'predictions'})
+    assert set(predictions) == {j['key'] for j in prediction_jobs(f)}
+    paths = list((out/'cases').glob('*.json'))
+    assert {p.stem for p in paths} == set(f['full_ids'])
+    for path in paths:
+        case = read_json(path)
+        assert case['identity'] == digest(f) and case['id'] == path.stem and set(case['arms']) == set(ARMS)
+    write_new(out/'quilt_predictions.json', {'identity':digest(f), 'complete':True,
+              'predictions':predictions, 'shard_costs':costs})
+    write_new(out/'complete.json', {'identity':digest(f), 'complete':True, 'full_dataset_complete':True})
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--stage', choices=('prepare','actor'), required=True)
+    p.add_argument('--stage', choices=('prepare','actor','merge'), required=True)
     p.add_argument('--output', required=True, type=Path)
     p.add_argument('--canary', action='store_true')
+    p.add_argument('--transport-policy', choices=('strict','formal-budgeted'), default='strict')
+    p.add_argument('--gpu-uuid', default=GPU)
+    p.add_argument('--shard-count', type=int, default=1)
+    p.add_argument('--shard-index', type=int, default=0)
     args = p.parse_args()
-    prepare(args.output) if args.stage == 'prepare' else actor(args.output,args.canary)
+    if not 0 <= args.shard_index < args.shard_count or (args.canary and args.shard_count != 1):
+        p.error('invalid scheduling shard')
+    if args.stage == 'prepare':
+        prepare(args.output,args.transport_policy)
+    elif args.stage == 'merge':
+        merge(args.output,args.shard_count)
+    else:
+        actor(args.output,args.canary,args.gpu_uuid,args.shard_count,args.shard_index)
 
 
 if __name__ == '__main__':

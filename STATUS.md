@@ -1,6 +1,32 @@
 # Current status
 
-## Formal PathVQA protocol authorized and queued
+## Formal packing alignment — 2026-09-17
+
+- Read the local transcript of requested thread `01a05d29-9d0b-7121-8a53-488b8cd1a125`
+  and actual benchmark core. Its September 16 context fix is already active:
+  separate 2048 input / 32768 total limits, 64-token historical evidence reserve,
+  1024 generation cap. This was NOT the old double-reservation bug.
+- Strict v1 failed delivery: fixed cases used 1926/1921 input tokens, leaving
+  58/63; both new Quilt packets were omitted for `token_budget`. Four Quilt
+  inferences completed; no combined-method efficacy claim. Preserve v1 unchanged.
+- User requested the formal evaluation behavior. Separate v2 freezes
+  `transport_policy=formal-budgeted`: use the identical native whole-record
+  packer and log omissions; reuse incumbent only when all old evidence and
+  prompt/evidence hashes remain identical. No content/budget/threshold changes.
+  This explicitly differs from the strict pilot's mandatory-new-delivery rule;
+  it evaluates deployable budget-limited behavior, not guaranteed expert use.
+- New CPU branch tests: 8 passed (positive delivery, exact-input reuse and five
+  unsafe/failure paths). Existing complete suite: 1006 passed. GPU canary and
+  full scheduling pending below; CPU success is not medical benefit.
+- Both host GPUs now authorized. Scheduling shards do not split the dataset;
+  exact 6719 IDs are required before merge/scoring. Model identity is retained
+  across devices; actual device remains in cache/attempt provenance. No shared
+  environment upgrade, old result/config replacement, or baseline rerun.
+- Weights finished and hashes verified. Reuse complete CLIP cache via
+  `/home/dbw/ANCHOR/hf_cache`; default `/root/.cache/huggingface` lacks CLIP weights.
+  New output: `runs/pathology-quilt-formal-budgeted-v2`.
+
+## Historical v1 launch record (stopped; superseded by status above)
 
 - User explicitly chose CURRENT FORMAL evaluation, superseding the old TRAIN
   prerequisite for this separate adapter. No test-to-train relabelling.

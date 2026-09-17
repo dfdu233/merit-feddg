@@ -1,5 +1,35 @@
 # PathVQA formal Quilt experiment (2026-09-17)
 
+## V2: explicit alignment with the requested formal evaluation
+
+User subsequently requested inspecting thread
+`01a05d29-9d0b-7121-8a53-488b8cd1a125` and starting the formal evaluation.
+The local transcript and benchmark core agree: whole packets that do not fit
+are logged and omitted, not forcibly delivered. The 64-token reserve and separate
+input/output limits were already correctly applied in our strict v1 adapter.
+
+The separate `pathology-quilt-formal-budgeted-v2` run uses an explicit frozen
+`formal-budgeted` transport policy. It DOES NOT claim strict delivery acceptance:
+v1 stopped because both fixed cases omitted Quilt with only 58/63 tokens left.
+V2 retains that observation, all old evidence, every budget and packet content.
+If a new packet does not fit, exact unchanged prompt/evidence hashes are required
+before reusing incumbent; rejection reasons and zero new actor calls are recorded.
+If it fits, full expert text must be present and a real answer is generated.
+Displaced old evidence, unknown rejection, truncation and baseline parity drift
+still stop. Coverage is reported separately for matched and wrong-image arms.
+An all-reuse result is a transport limitation, never a successful expert method.
+
+Both host GPUs are now explicitly authorized. Full workers use scheduling
+`--shard-count 2 --shard-index 0/1`; both controls for one target stay on its lane.
+HostGPU1 runs through container CUDA0; hostGPU0 through the existing SSH account.
+Quilt and actor remain separate sequential processes on each lane. Actual GPU
+UUID stays in provenance, while equivalent model/cache identity excludes only
+the physical execution location. Exact disjoint prediction sets, all case IDs,
+and completion records are checked by `--stage merge --shard-count 2` before the
+unchanged main scorer runs. No new dataset partition or test-driven optimization.
+
+The original strict protocol below and its failed artifacts remain preserved.
+
 User explicitly selected the current formal evaluation protocol over the upstream
 64-token TRAIN pilot. This is a separate full TEST protocol, not relabelled TRAIN.
 No inference on this test is used to select prompts, thresholds, weights or scope.

@@ -42,12 +42,22 @@ def main():
         return {'n':len(ds),'mean_delta':sum(ds)/len(ds) if ds else None,
                 'improved':sum(d>0 for d in ds),'harmed':sum(d<0 for d in ds)}
     active = [k for k in f['full_ids'] if records[k]['status']=='real_candidate']
+    eligible = {r['id'] for r in f['rows']}
     report = {'identity':digest(f),'n':6719,'candidate_n':len(active),
         'scorer':PROTOCOL_VERSION,'scorer_hashes':f['scorer'],
         'reference_sha256':file_sha(reference_path),'metric':'mixed CLOSED accuracy / OPEN token recall; not clinical accuracy',
         'arms':{},'per_case_scores':scores,
+        'eligible_n':len(eligible), 'matched_delivery_n':len(active),
+        'wrong_image_delivery_n':sum(bool(r.get('delivery',{}).get('compact_wrong_image')) for r in records.values()),
+        'not_delivered_n':sum(r['status']=='quilt_not_delivered' for r in records.values()),
+        'eligible_candidate_coverage':len(active)/len(eligible),
+        'full_candidate_coverage':len(active)/6719,
+        'transport_policy':f.get('transport_policy','strict'),
         'actor_calls':sum(r['new_actor_calls'] for r in records.values()),
         'actor_row_wall_seconds':sum(r['wall_seconds'] for r in records.values()),
+        'inherited_incumbent_seconds':sum(r['arms']['compact']['seconds'] for r in records.values()),
+        'actor_load_seconds':sum(read_json(p)['seconds'] for p in root.glob('actor_load_*.json')),
+        'quilt_canary_cost':{k:v for k,v in read_json(root/'quilt_canary.json').items() if k not in ('predictions','model')},
         'quilt_cost':{k:v for k,v in read_json(root/'quilt_predictions.json').items() if k not in ('predictions','model')},
         'outside_scope':'incumbent reused for all arms, including quilt_alone; not expert-alone predictions outside eligibility'}
     for arm in ARMS:
