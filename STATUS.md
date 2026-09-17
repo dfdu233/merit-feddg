@@ -16,8 +16,10 @@
   This explicitly differs from the strict pilot's mandatory-new-delivery rule;
   it evaluates deployable budget-limited behavior, not guaranteed expert use.
 - New CPU branch tests: 8 passed (positive delivery, exact-input reuse and five
-  unsafe/failure paths). Existing complete suite: 1006 passed. GPU canary and
-  full scheduling pending below; CPU success is not medical benefit.
+  unsafe/failure paths). Repeated complete suite: 1014 passed. CPU success is
+  not medical benefit. Two real actor canaries reproduce incumbent token IDs
+  exactly; old packets unchanged. Matched/wrong-image Quilt delivery is 0/2
+  each, explicitly `quilt_not_delivered`, NOT a positive mechanism result.
 - Both host GPUs now authorized. Scheduling shards do not split the dataset;
   exact 6719 IDs are required before merge/scoring. Model identity is retained
   across devices; actual device remains in cache/attempt provenance. No shared
@@ -25,6 +27,14 @@
 - Weights finished and hashes verified. Reuse complete CLIP cache via
   `/home/dbw/ANCHOR/hf_cache`; default `/root/.cache/huggingface` lacks CLIP weights.
   New output: `runs/pathology-quilt-formal-budgeted-v2`.
+- Frozen v2 identity: `f46e97410e965e35c76bee43e7f4ed68e0e46c16bd490669bdc102da488b4525`.
+  Runtime commit `f309a34`; full dual-card background launch at 13:02 UTC.
+  Container tmux `quilt-formal-v2-shard0` (physical GPU1); host merit-runner tmux
+  `quilt-formal-v2-shard1` (physical GPU0). Both verified loading real models.
+  Logs inside new run: `shard-0.log`, `shard-1.log`. Each runs Quilt then actor;
+  after both complete, a locked merge checks exact IDs then runs the frozen
+  main scorer. No full scores yet. Earlier failed v1 calls are additional
+  engineering overhead, not included in v2 inference latency.
 
 ## Historical v1 launch record (stopped; superseded by status above)
 
