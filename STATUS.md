@@ -1,5 +1,60 @@
 # Current status
 
+## Formal PathVQA protocol authorized and queued
+
+- User explicitly chose CURRENT FORMAL evaluation, superseding the old TRAIN
+  prerequisite for this separate adapter. No test-to-train relabelling.
+- New formal adapter preserves upstream TRAIN entry, imports exact existing
+  formal benchmark core (source hashes pinned), reuses 6719 validated compact
+  caches, preserves canonical prompts/seed42/1024 output and evidence budgets.
+  Scope: 3821 existing microscopy routes; 2898 explicit incumbent reuse.
+- Frozen identity `5acebe5400506a0e26cce67d9103af6e744fd3539363070e0162a19a426f17b2`;
+  `runs/pathology-quilt-formal-v1`. Five arms, two fixed engineering canaries,
+  matched/wrong-image source controls. [Protocol](docs/PATHOLOGY_QUILT_FORMAL_PROTOCOL.md).
+- All 1006 CPU tests pass after adapter changes (12.63s); compile/diff checks
+  pass. Real GPU CONCH direct-vs-adapter passed, maximum absolute delta
+  1.1707462446719497e-07. Not evidence of medical performance.
+- Isolated Quilt environment now imports official loader successfully:
+  torch2.0.1cu117 reused, local Transformers4.31/tokenizers0.13.3/accelerate0.21.
+  Shared environment untouched. Existing CLIP cache verified available offline.
+- Background tmux `quilt-pathvqa-formal-gpu1` waits for our existing download
+  PID3677922, verifies pinned LFS shard hashes, then runs Quilt canary -> actor
+  canary -> complete Quilt -> complete actor -> full main scoring. Every stage
+  uses `&&`, so failed canary/resource checks prevent full launch. Logs:
+  `runs/pathology-quilt-formal-v1/pipeline.log`. CUDA_VISIBLE_DEVICES=0 means
+  authorized hostGPU1. GPU0 and other sessions untouched.
+- Download reached ~8.9 GiB at queue launch. Mirror probe redirects to official
+  service, without meaningful speed advantage; preserve partial official files.
+  Queue is live but no Quilt candidate exists yet. Do not report full scores.
+
+## Pathology Quilt server preparation — 2026-09-17
+
+- Independent branch `experiments/pathology-quilt-gpu1-20260917`, upstream
+  `implementation/pathology-quilt-v1` at `54be077`. Existing worktrees preserved.
+- User requests current-main-pipeline PathVQA evaluation, authorized host GPU1
+  only (container CUDA0, UUID `GPU-3846413a-4238-d307-b1f3-10c2dfbe002c`).
+  Bounded CUDA allocation passed; initial free memory 48,493 MiB. GPU0 untouched.
+- Focused tests: 37 passed including the two upstream integration tests; full
+  CPU regression: 1006 passed in 14.11 seconds. Four CLI help commands and
+  compilation passed. Local log: `runs/resource-preparation/cpu-tests.log`.
+- Protocol mismatch, NOT a GPU failure: upstream accepts only complete TRAIN
+  64-token semantic compact incumbents. Available formal PathVQA incumbent is
+  full TEST under current main protocol; prior development pilot is validation,
+  not a compatible complete TRAIN run. No test data relabeled, no guard bypassed.
+  Asked user whether to adapt to requested current full-test protocol (recommended)
+  or first construct the upstream old-protocol TRAIN prerequisite.
+- Official Quilt source cloned to `/home/dbw/.runtime/quilt-llava-official`,
+  revision `7e70fc39f792ac55de010eb37bff0a6d6f491c13`. Shared environment unchanged;
+  isolated `/home/dbw/.runtime/quilt-env` inherits existing torch 2.0.1 runtime,
+  installation of the official Transformers 4.31 dependency family is pending.
+- Official generic model revision `1bdf5f8b75fb26acc80b08aba7f1979e8e9b12bd`:
+  background tmux `quilt-weights-preparation` downloading missing inference files
+  into `artifacts/models/wisdomik--Quilt-Llava-v1.5-7b`; large shards total
+  14,126,069,776 bytes. Existing CLIP tower will be reused. No model inference yet.
+  Log: `runs/resource-preparation/quilt-download.log`. Check completion and full
+  content hashes before loading. Model is noncommercial; training overlap is not
+  independently ruled out. Do not claim efficacy/SOTA from tests or preparation.
+
 ## Evidence admission execution repair — bounded checks passed (2026-09-16)
 
 - Based exactly on `08f5d998`; independent worktree `/home/dbw/merit-feddg-admission`,

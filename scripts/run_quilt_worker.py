@@ -64,15 +64,26 @@ def main():
     p.add_argument("--checkpoint", type=Path, required=True)
     p.add_argument("--gpu-uuid", required=True)
     p.add_argument("--precision", choices=("fp16", "8bit", "4bit"), default="4bit")
+    p.add_argument("--formal", action="store_true", help="Explicit full-test protocol, never relabelled TRAIN")
+    p.add_argument("--canary", action="store_true", help="Formal scheduling stop at frozen engineering cases")
     args = p.parse_args()
     frozen = read_json(args.run / "frozen.json")
-    if frozen["schema"] != SCHEMA or frozen["split"] != "train":
+    formal = args.formal
+    if formal:
+        if frozen['schema'] != 'pathology-quilt-formal-v1' or frozen['split'] != 'test':
+            raise ValueError('explicit formal TEST identity required')
+        if args.precision != frozen['quilt_precision']:
+            raise ValueError('frozen precision mismatch')
+    elif frozen["schema"] != SCHEMA or frozen["split"] != "train":
         raise ValueError("frozen pathology TRAIN pilot required")
     from run_pathology_quilt_pilot import code_identity
     if frozen["source_code"] != code_identity():
         raise ValueError("implementation changed since prepare")
     final = args.run / "quilt_predictions.json"
     attempt = args.run / "quilt_attempt.json"
+    if formal:
+        attempt = args.run / ('quilt_attempt_' + str(time.time_ns()) + '.json')
+        final = args.run / ('quilt_canary.json' if args.canary else 'quilt_predictions.json')
     if final.exists() or attempt.exists():
         raise FileExistsError("do not overwrite/retry an existing worker attempt")
     for key in ("HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "HF_DATASETS_OFFLINE"):
@@ -98,7 +109,8 @@ def main():
         raise RuntimeError("wrong llava package imported")
     assert_single_gpu(torch, args.gpu_uuid)
     torch.set_num_threads(4)
-    torch.manual_seed(0)
+    seed = frozen['seed'] if formal else 0
+    torch.manual_seed(seed)
     checkpoint = args.checkpoint.expanduser().resolve()
     cfg = read_json(checkpoint / "config.json")
     if cfg.get("architectures") != ["LlavaLlamaForCausalLM"] or cfg.get("model_type") != "llava":
@@ -110,12 +122,14 @@ def main():
         "declared_model": "wisdomik/Quilt-Llava-v1.5-7b",
         "checkpoint": checkpoint_identity(checkpoint), "vision": checkpoint_identity(vision_path),
         "source": {str(f.relative_to(source)): file_sha(f) for f in sorted((source / "llava").rglob("*.py"))},
-        "precision": args.precision, "conversation": "llava_v1", "seed": 0,
+        "precision": args.precision, "conversation": "llava_v1", "seed": seed,
         "torch": torch.__version__, "transformers": transformers.__version__,
         "worker_sha256": file_sha(__file__), "gpu_uuid": args.gpu_uuid,
         "training_overlap": "not independently ruled out", "training_performed": False,
     }
     jobs = prediction_jobs(frozen)
+    if formal and args.canary:
+        jobs = [j for j in jobs if j['target_id'] in frozen['canary_ids']]
     for job in jobs:
         if file_sha(job["image"]) != job["image_file_sha256"]:
             raise ValueError("source image changed")
@@ -131,10 +145,18 @@ def main():
         torch.cuda.synchronize()
         load_seconds = time.perf_counter() - started
         torch.cuda.reset_peak_memory_stats()
-        with (args.run / "quilt_jobs.jsonl").open("x", encoding="utf-8") as log:
+        log_path = args.run / ('quilt_jobs_' + str(time.time_ns()) + '.jsonl' if formal else 'quilt_jobs.jsonl')
+        with log_path.open("x", encoding="utf-8") as log:
             import json
             for job in jobs:
                 current_key = job["key"]
+                cached_path = args.run / 'quilt-cache' / (current_key + '.json')
+                if formal and cached_path.exists():
+                    cached = read_json(cached_path)
+                    if cached['identity'] != digest(frozen) or cached['model_identity'] != digest(identity) or cached['record']['job'] != job:
+                        raise ValueError('formal Quilt cache identity mismatch')
+                    records[current_key] = cached['record']
+                    continue
                 t0 = time.perf_counter()
                 with Image.open(job["image"]) as im:
                     image = im.convert("RGB")
@@ -172,15 +194,20 @@ def main():
                           "hit_max_new_tokens": len(tokens) == frozen["max_new_tokens"],
                           "seconds": time.perf_counter() - t0}
                 records[job["key"]] = record
+                if formal:
+                    if record['hit_max_new_tokens']:
+                        raise RuntimeError('formal specialist reached output cap; preserve failure, no truncation fallback')
+                    write_new(cached_path, {'identity': digest(frozen), 'model_identity': digest(identity), 'record': record})
                 log.write(json.dumps(record, ensure_ascii=False) + "\n")
                 log.flush()
                 print("QUILT", len(records), "/", len(jobs), flush=True)
-        write_new(final, {"schema": SCHEMA, "identity": digest(frozen), "model": identity,
+        write_new(final, {"schema": frozen['schema'], "identity": digest(frozen), "model": identity,
                           "complete": True, "predictions": records, "model_load_seconds": load_seconds,
                           "actual_model_calls": len(records), "wall_seconds": time.perf_counter() - started,
                           "peak_allocated_bytes": torch.cuda.max_memory_allocated()})
     except Exception as exc:
-        write_new(args.run / "quilt_failure.json", {"type": type(exc).__name__, "message": str(exc),
+        failure = 'quilt_failure_' + str(time.time_ns()) + '.json' if formal else 'quilt_failure.json'
+        write_new(args.run / failure, {"type": type(exc).__name__, "message": str(exc),
                   "current_job": current_key, "completed_calls": len(records),
                   "wall_seconds": time.perf_counter() - started, "complete": False})
         raise
