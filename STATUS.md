@@ -1,5 +1,32 @@
 # Current status
 
+## Native Quilt consistency canary — 2026-09-17
+
+- User requires the existing MERIT calling/packing path, NOT a Quilt-only compact
+  delivery view. The unexecuted short-view scripts were removed from this new
+  worktree; old branch/results are untouched.
+- New factory reuses `QwenVqaCapabilityExpert` request/packet construction with
+  an isolated official Quilt inference backend and truthful adapter provenance.
+  Native generator default 96 output tokens; final actor retains 1024 and all
+  existing formal settings. Old standalone Quilt prompts are incompatible with
+  native observation requests, so their answers are not falsely replayed.
+- Two original fixed canaries use the actual frozen benchmark CapabilityPool,
+  SharedExpertPool, CapabilityRuntime(all_evidence), NativeSession, and packer.
+  Existing experts are replayed ONLY for an exact original CapabilityRequest;
+  order, execution, prompt/evidence hashes, and baseline token IDs must match.
+  All full raw packets use the common renderer, with no special compression,
+  budget increase, crop change, prioritization or retraining.
+- Full CPU suite: 1016 passed. Focused native adapter/pilot checks: 39 passed.
+- Host tmux `quilt-native-consistency` queued behind our `quilt-formal-v2-shard1`
+  on physical GPU0. Output `runs/native-quilt-consistency-canary`; inspect
+  `gpu-canary.log`, full tool `packing_preview` and final decode transport.
+  No native full run is authorized by the script automatically; no successful
+  GPU delivery/parity claim until actual canary artifacts establish it.
+- Important correction: the previous historical audit read only the last
+  `evidence_transport`. MERIT removes rejected packets from state and records
+  rejection in tool `packing_preview`; zero final omissions DOES NOT prove
+  no packet was rejected earlier. Preserve the old audit but narrow its claim.
+
 ## Formal packing alignment — 2026-09-17
 
 - Read the local transcript of requested thread `01a05d29-9d0b-7121-8a53-488b8cd1a125`
