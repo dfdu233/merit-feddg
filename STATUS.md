@@ -28,7 +28,15 @@
 - Both host cards are authorized to coexist with their existing jobs; no other
   process stopped. Canary sessions `vqarad-acd-canary-0/1`; logs under
   `runs/vqarad-dynamic-v1/canary-{0,1}-v2.log`. Full continuation requires both
-  canaries to pass. No complete new medical score yet.
+  canaries to pass. Both passed: one classification and one generation case per
+  card (four real candidates); exact text/deletion/CAD token parity and exact
+  cached-versus-replay full-vocabulary scores. ACD candidate decoding took
+  1.61–2.26 seconds in these cases; this is not a full-run time estimate.
+- Full workers started in host tmux `vqarad-acd-full-0/1`, sharing the same
+  frozen output root with disjoint modulo-two scheduling. Logs:
+  `runs/vqarad-dynamic-v1/full-{0,1}.log`. Offline evaluation is queued behind
+  each worker with an exclusive lock and only runs after full completion.
+  No complete new medical score yet.
 - Offline entry: `scripts/evaluate_vqarad_dynamic.py --run ROOT` requires complete
   451-case output in both channels, frozen ANCHOR scorer, and exact references.
   Reports historical text/blend/CAD, ACD, old correction/harm groups, costs and
