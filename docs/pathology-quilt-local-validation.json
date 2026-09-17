@@ -1,0 +1,18 @@
+{
+  "base_commit": "b0de4a04852a36a059c0e67c79f848de62361f3c",
+  "isolated_tests_passed": 35,
+  "upstream_integration_tests_skipped": 2,
+  "compile_passed": true,
+  "all_four_cli_help_passed": true,
+  "full_repository_regression_run": false,
+  "real_medical_model_run": false,
+  "weights_downloaded": false,
+  "gpu_benefit_evaluated": false,
+  "github_push_completed": false,
+  "limits": [
+    "authoring container could not clone full repository (DNS failure)",
+    "write actions returned Resource not found; full current GitHub schema is read-only",
+    "not a medical efficacy result; 2 upstream integration tests still required"
+  ],
+  "python": "3.13.5"
+}
