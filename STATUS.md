@@ -1,5 +1,17 @@
 # Current status
 
+## Current-main-pipeline re-score — complete
+
+User authorized current ANCHOR v13 scoring for completed dynamic VQA-RAD output.
+All 451 rows and all saved comparison arms rescored together through the main
+mixed-VQA scorer; original v11 pin/results preserved. Classification ACD
+53.9566% (same as text; +0.6652 pp vs CAD); generated-text ACD 52.3016%
+(-1.6551 pp vs text; 6 gains/14 harms). ACD matches fixed blend per-case scores
+in both channels. No demonstrated dynamic-weight benefit. Full report:
+[VQARAD_DYNAMIC_CURRENT_RESULTS](docs/VQARAD_DYNAMIC_CURRENT_RESULTS.md).
+Raw local score file: generation root below / `evaluation-current-v13.json`.
+Both host workers have finished; no further generation scheduled.
+
 ## Historical full VQA-RAD dynamic decoding — 2026-09-17
 
 - Independent branch `experiments/vqarad-historical-dynamic-20260917` based on
