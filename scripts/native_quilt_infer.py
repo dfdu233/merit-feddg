@@ -33,7 +33,14 @@ def main():
             max_new_tokens=request['max_new_tokens'],stopping_criteria=[KeywordsStoppingCriteria([stop],tokenizer,ids)])
     tokens=suffix_tokens(seq[0].tolist(),ids[0].tolist());text=tokenizer.decode(tokens,skip_special_tokens=True).strip()
     if stop and text.endswith(stop):text=text[:-len(stop)].strip()
-    if not text or len(tokens)>=request['max_new_tokens']:raise RuntimeError('empty/capped native expert output')
+    if not text or len(tokens)>=request['max_new_tokens']:
+        a.output.parent.mkdir(parents=True,exist_ok=True)
+        failure={'request':request,'text':text,'token_ids':tokens,'output_tokens':len(tokens),
+                 'empty':not bool(text),'hit_cap':len(tokens)>=request['max_new_tokens'],
+                 'load_seconds':loaded-started,'inference_seconds':time.perf_counter()-loaded,
+                 'accepted_for_inference':False}
+        with a.output.with_suffix('.failure.json').open('x') as h:json.dump(failure,h)
+        raise RuntimeError(f"native expert validation failed: empty={not bool(text)}, tokens={len(tokens)}, cap={request['max_new_tokens']}")
     output={'text':text,'input_tokens':int(ids.shape[1]),'output_tokens':len(tokens),'token_ids':tokens}
     a.output.parent.mkdir(parents=True,exist_ok=True)
     with a.output.open('x') as h:json.dump({'request':request,'output':output,'load_seconds':loaded-started,

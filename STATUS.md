@@ -1,5 +1,32 @@
 # Current status
 
+## Actual GPU validation failed — 2026-09-17
+
+- User requires agreement with the configured formal MERIT flow. Native factory
+  now follows the actual `native_chexagent` generator contract (question,
+  requested_observation, scope; generated_text/usage/unverified status), with
+  pathology wording and official Quilt backend. Expert output cap is read from
+  the existing formal CheXagent config: 64. No private short packet renderer.
+- The earlier use of optional Qwen adapter defaults (96 tokens) was NOT the
+  configured formal generator. Those attempts are superseded, preserved under
+  `runs/native-quilt-consistency-canary` and `...-diagnostic`; never merge them.
+- Real host GPU0 inference executed. Formal-contract attempt at
+  `runs/native-quilt-formal-contract-canary` fails on the first fixed case:
+  nonempty 64-token output, no EOS, incomplete trailing phrase. Raw failed
+  output/request/tokens/timing are in `native-quilt-cache/*.failure.json`;
+  marked `accepted_for_inference=false`. No empty/capped fallback accepted.
+- The native canary has NOT reached actor parity/fusion or passed delivery.
+  No repaired full run was launched. Preserving the old all_evidence engine,
+  budgets and old expert calls does not guarantee a new model obeys the native
+  observation instructions. No test-driven limit/prompt change to force success.
+- Memory scheduling only: exact native requests are prefetched in an isolated
+  Quilt process before actor loading. Engine calls are cache-only and refuse
+  any request mismatch. No simultaneous new Quilt+actor residency required.
+- Focused tests 39 passed; full prior native suite 1016 passed. A repeat full
+  suite for the corrected formal contract is logged under the new run.
+- Source committed locally earlier as fe00ddf; attempted GitHub push failed
+  because HTTPS credentials were unavailable. Do not claim remote synchronization.
+
 ## Native Quilt consistency canary — 2026-09-17
 
 - User requires the existing MERIT calling/packing path, NOT a Quilt-only compact

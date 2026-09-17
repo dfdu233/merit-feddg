@@ -9,7 +9,8 @@ import run_pathology_quilt_formal as old
 from run_quilt_worker import assert_single_gpu
 from merit_feddg.capability_runtime import CapabilityRuntime,NativeSession,ValueGenerationConfig,INFERENCE_FIELDS
 from merit_feddg.capability_experts import CapabilityPool
-from merit_feddg.capabilities import CapabilityResult,EvidenceItem
+from merit_feddg.capabilities import CapabilityResult,EvidenceItem,CapabilityRequest
+from merit_feddg.evidence_need import evidence_need
 from merit_feddg.matched_evaluation import SharedExpertPool
 from merit_feddg.generalist_factory import load_generalist
 
@@ -20,21 +21,39 @@ def main():
     source=old.ROOT/'runs/pathology-quilt-formal-budgeted-v2'
     frozen=old.read_json(source/'frozen.json');old.verify(frozen)
     protocol=old.read_json(frozen['protocol'])
+    native_budget=protocol['config']['experts']['chexagent_description']['factory_kwargs']['max_new_tokens']
     specs=protocol['config']['experts'].copy()
     specs['quilt_pathology']={'id':'/home/dbw/merit-feddg/artifacts/models/wisdomik--Quilt-Llava-v1.5-7b',
         'factory':'native_quilt_factory:build','capabilities':['generation'],'modalities':['pathology'],
         'tasks':['open_vqa'],'scope':'histology_question_observation','requires_region':False,
         'description':'Unverified image-grounded histopathology observations',
         'factory_kwargs':{'expert_id':'quilt_pathology','scope':'histology_question_observation',
-                          'output':str(a.output/'native-quilt-cache'),'gpu_uuid':a.gpu_uuid,'max_new_tokens':96}}
+                          'output':str(a.output/'native-quilt-cache'),'gpu_uuid':a.gpu_uuid,
+                          'max_new_tokens':native_budget,'cache_only':True}}
     identity=old.digest({'source':old.digest(frozen),'specs':specs,'files':{name:old.file_sha(ROOT/'scripts'/name)
         for name in ('canary_native_quilt.py','native_quilt_factory.py','native_quilt_infer.py')}})
     old.write_new(a.output/'protocol.json',{'identity':identity,'source':old.digest(frozen),'specs':specs,
         'cases':frozen['canary_ids'],'mode':'all_evidence','full_evaluation':False})
     assert_single_gpu(torch,a.gpu_uuid);torch.set_num_threads(4)
+    rows={r['id']:r for r in map(json.loads,Path(frozen['manifest']).read_text().splitlines())}
+    # all_evidence acquires tools before decoding: the native prefix is empty.
+    # Prefetch exact requests, then require cache-only inference in the engine.
+    # No model is kept resident in this process during specialist prefetch.
+    from native_quilt_factory import NativeQuiltExpert
+    spec=specs['quilt_pathology']
+    kwargs={**spec['factory_kwargs'],'cache_only':False}
+    expert=NativeQuiltExpert(spec['id'],**kwargs)
+    for key in frozen['canary_ids']:
+        row=rows[key];descriptor={'capability':'generation','scope':spec['scope']}
+        need=evidence_need(row['question'],descriptor)
+        request=CapabilityRequest(sample_id=key,image=row['image'],question=row['question'],
+            modality='pathology',task='open_vqa',domain='official-test',group_id=row['image_sha256'],
+            capability='generation',scope=spec['scope'],query=need.query,generated_prefix='')
+        result=expert.infer(request)
+        old.write_new(a.output/'prefetch'/(key+'.json'),{'request':asdict(request),'result':asdict(result)})
+        print('NATIVE_PREFETCH',key,flush=True)
     probe=load_generalist(protocol['config']['generalist'],str(ROOT/'artifacts'))
     probe.model.eval().requires_grad_(False);probe.benchmark_single_block_context=True;probe.benchmark_evidence_reserve_tokens=64
-    rows={r['id']:r for r in map(json.loads,Path(frozen['manifest']).read_text().splitlines())}
     summary=[]
     for key in frozen['canary_ids']:
         before,path=old.cached(key);assert old.file_sha(path)==frozen['native_cache_hashes'][str(path)]

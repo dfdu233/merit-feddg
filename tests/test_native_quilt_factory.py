@@ -16,14 +16,14 @@ def test_native_contract_and_request_template():
     expert=NativeQuiltExpert('local-model','quilt_pathology','histology_question_observation','out','gpu')
     class Backend:
         def generate_with_usage(self,image,prompt,max_new_tokens):
-            assert 'capability_request' in prompt and 'Describe visible observations.' in prompt
-            assert image=='image.png' and max_new_tokens==96
+            assert 'requested_observation' in prompt and 'Describe visible observations.' in prompt
+            assert image=='image.png' and max_new_tokens==64
             return {'text':'Observation.','input_tokens':30,'output_tokens':4}
     expert.probe=Backend()
     r=request();result=validate_result(expert.infer(r),'quilt_pathology',r)
     item=result.items[0]
     assert item.payload=={'generated_text':'Observation.','usage':{'input_tokens':30,'output_tokens':4},
-                          'observation_status':'unverified','empty_generation':False}
+                          'observation_status':'unverified_specialist_output','empty_generation':False}
     assert item.provenance['adapter']=='native_quilt_vqa'
     assert item.confidence is None
 
