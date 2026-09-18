@@ -1,5 +1,37 @@
 # Current status
 
+## Capability-selected expanded pool — 2026-09-18
+
+- Active independent branch `implementation/expert-coverage-v1`, initial source
+  commit `b7516a1`; remote SHA verified. No old configuration/results overwritten.
+- User requests only the new expanded-pool arm; controls reuse complete results.
+  Native MERIT+Quilt full 6719 now exists in the separate delivery-repair worktree.
+  Older entries below describe historical state, not current completion.
+- Pinned UniMed-CLIP, FLAIR, MONET and their two text backbones downloaded and
+  publisher hashes checked. Existing environment reused without upgrades. Four
+  actual CUDA smoke calls passed; full CPU regression 1026 passed. See
+  `docs/EXPERT_COVERAGE_V1.md` for capabilities and explicit coverage limitations.
+- Full unchanged PathVQA 6719 protocol:
+  `runs/pathvqa-capability-pool-v1`, identity
+  `d92252caa7d49f84e32c23ae8bdc8bbffcce96c6f68402bb7d8d848503ced0ea`.
+  Both prefetch lanes complete. Newly selected catalogs: colon12, lung10, breast3.
+  This low coverage is reported, not repaired by forcing irrelevant calls.
+- Both fixed canaries reproduced original compact token IDs and delivered all
+  selected evidence with no omissions. Both produced real nonempty candidates.
+  Canary outputs are local; these are engineering results, not efficacy claims.
+- Full generation running in persistent tmux: `coverage-full-0` in the container
+  uses host GPU1; `coverage-full-1` via merit-runner uses host GPU0. Each has one
+  authorized visible UUID, original formal actor and offline local checkpoints.
+  Logs: `runs/pathvqa-capability-pool-v1/logs/actor-{0,1}.log`.
+- After both complete, run existing environment's Python with
+  `scripts/evaluate_coverage_pathvqa.py --run runs/pathvqa-capability-pool-v1`.
+  It refuses incomplete/mismatched runs and reuses the frozen ANCHOR scorer.
+  No full score is claimed yet. Whole-pool differences include changed selection
+  of old experts; they cannot be attributed exclusively to the 25 new calls.
+- Host prefetch initially failed Git ownership checking. Retry used process-local
+  safe.directory entries for the two verified official source clones; no global
+  Git setting or weight-loading check was loosened. Failed log retained.
+
 ## Native Quilt full PathVQA running — 2026-09-18
 
 - Batch acceleration probe `runs/quilt-batch2-probe-v1` completed four fixed first jobs, separate outputs, production untouched. Official keyword stopper only supports batch1; probe used per-row official stop checks with finished-row masking and left padding. Warm serial18.69s vs batch2 13.30s (~1.405x under concurrent load), but only1/4 text/token exact; NOT deployed. Probe process exited. Do not trade historical comparability for this measured speedup. Native full scorer added via `scripts/evaluate_pathology_quilt_formal.py --native --run runs/native-quilt-full-1024-context8192-v1`; rejects incomplete lanes and checks IDs, configs, source identity and baseline cache hashes before scoring. Actual incomplete run correctly refused; full scoring still pending.
