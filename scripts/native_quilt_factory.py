@@ -8,6 +8,9 @@ import json
 from pathlib import Path
 import subprocess
 
+class DeferredRequest(Exception):
+    pass
+
 from merit_feddg.capabilities import CapabilityResult,EvidenceItem
 
 
@@ -23,6 +26,9 @@ class IsolatedQuiltBackend:
         key=hashlib.sha256(json.dumps(request,sort_keys=True).encode()).hexdigest()
         target=self.output/(key+'.json')
         if not target.exists():
+            if hasattr(self,'queued_jobs'):
+                self.queued_jobs.append({'request':request,'output':str(target)})
+                raise DeferredRequest()
             if self.cache_only:
                 raise RuntimeError('exact native request cache miss; no prompt substitution')
             subprocess.run(['/home/dbw/.runtime/quilt-env/bin/python',

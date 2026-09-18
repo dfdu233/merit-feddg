@@ -1,5 +1,14 @@
 # Current status
 
+## Native Quilt full PathVQA running — 2026-09-18
+
+- User prioritizes this task on both host48GB GPUs and explicitly released inherited constraints. Quilt expert cap1024; MERIT+Quilt input cap8192 within model position budget; actor output1024. Existing prompt, native evidence renderer, engine and scorer unchanged. This is a separately identified configuration, not identical settings to historical2048-input MERIT. No test score used for configuration selection.
+- Fixed native adapter's extraneous rejection of nonempty cap-hit expert text (retain original tokens and cap metadata). Also fixed canary active-expert set to match original matched_evaluation: optional filtering and exclusion of source_cases; previous raw config incorrectly enabled retrieval.
+- `runs/native-quilt-context8192-canary`: both fixed cases reproduced baseline token IDs, adopted Quilt evidence and generated nonempty final answers. Prior2048-input canary had0/2 adopted; prior64-token failure retained. Expert1024 canaries completed at100/182 tokens, not capped. This is engineering validation, not efficacy proof.
+- Full root `runs/native-quilt-full-1024-context8192-v1`, 6719 exact IDs split alternating0/1. HostGPU1/containerCUDA0 tmux `quilt-full-host1` runs shard0; hostGPU0 SSH merit-runner tmux `quilt-full-host0` runs shard1. On host old torch validator requires CUDA_VISIBLE_DEVICES=0 plus UUID verification; first UUID-environment attempt failed pre-inference, append log retained. HostGPU0 corrected launch uses numeric0.
+- Existing `canary_native_quilt.py --full --shard-count 2 --shard-index N` now supports full execution and identity-checked resume. Batched isolated native_quilt_infer loads Quilt once per lane then exits before actor loading. Reuses exact cached expert requests; outside frozen pathology scope reuses incumbent. All6719 contribute to eventual score; no scoring yet. Inspect per-shard protocol, cases, summary and logs before final aggregation. Full actor stages have not yet been reached/validated.
+- Focused native factory tests2 passed and scripts compile. Full source changes remain local; cloud benchmark unchanged. Do not claim full generation quality or benchmark completion from startup.
+
 ## Actual GPU validation failed — 2026-09-17
 
 - User requires agreement with the configured formal MERIT flow. Native factory
