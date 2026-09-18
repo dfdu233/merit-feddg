@@ -7,10 +7,75 @@ from pathlib import Path
 from run_pathology_quilt_formal import read_json, write_new, digest, file_sha, verify, ARMS
 
 
+def evaluate_native(root):
+    """Score the separate native dual-lane run, never the historical five arms."""
+    import copy
+    from run_pathology_quilt_formal import cached
+    from run_pathology_quilt_pilot import scorer_identity
+    source=Path('/home/dbw/merit-feddg-pathology-quilt/runs/pathology-quilt-formal-budgeted-v2')
+    frozen=read_json(source/'frozen.json')
+    assert scorer_identity('/home/dbw/ANCHOR')==frozen['scorer'], 'scorer drift'
+    expected=frozen['full_ids'];assert len(expected)==len(set(expected))==6719
+    protocols=[];records={};case_hashes={}
+    for lane in range(2):
+        directory=root/f'shard{lane}'
+        p=read_json(directory/'protocol.json');done=read_json(directory/'summary.json')
+        scripts=Path(__file__).resolve().parent
+        assert p['identity']==digest({'source':p['source'],'specs':p['specs'],'files':{
+            name:file_sha(scripts/name) for name in ('canary_native_quilt.py','native_quilt_factory.py','native_quilt_infer.py')}}), 'native source identity drift'
+        assert p['full_evaluation'] and p['source']==digest(frozen)
+        assert p['shard_count']==2 and p['shard_index']==lane
+        assert p['cases']==expected[lane::2]
+        assert done['complete'] and done['identity']==p['identity']
+        files={v.stem:v for v in (directory/'cases').glob('*.json')}
+        assert set(files)==set(p['cases']) and not records.keys() & files.keys()
+        for key,path in files.items():
+            record=read_json(path)
+            assert record['id']==key and record['identity']==p['identity']
+            assert 'merit_quilt' in record['outputs']
+            records[key]=record;case_hashes[key]=file_sha(path)
+        comparable=copy.deepcopy(p)
+        for key in ('identity','cases','shard_count','shard_index'):comparable.pop(key)
+        for key in ('output','gpu_uuid'):comparable['specs']['quilt_pathology']['factory_kwargs'].pop(key)
+        protocols.append(comparable)
+    assert protocols[0]==protocols[1], 'scientific configuration differs across shards'
+    assert set(records)==set(expected)
+    refs=read_json('/home/dbw/ANCHOR/data/pathvqa/official_test_v1.json')
+    references={str(r.get('question_id',r.get('qid',r.get('id')))):r for r in refs}
+    assert set(references)==set(expected)
+    sys.path.insert(0,'/home/dbw/ANCHOR')
+    from anchor.medeval.evaluate_mixed_vqa_table import score
+    from anchor.medeval.qualify_oe_generation import has_repetition_loop
+    outputs=[records[k]['outputs']['merit_quilt'] for k in expected]
+    baseline=[]
+    for key in expected:
+        value,path=cached(key)
+        assert file_sha(path)==frozen['native_cache_hashes'][str(path)]
+        baseline.append(value)
+    metrics={name:score([dict(references[k],text=v['text']) for k,v in zip(expected,values)])
+             for name,values in [('incumbent',baseline),('merit_quilt',outputs)]}
+    tools=[t for v in outputs for t in v['trace'] if t.get('event')=='tool' and t.get('expert')=='quilt_pathology']
+    report={'n':len(expected),'protocol':protocols[0],'metrics':metrics,
+        'coverage':{'quilt_called':len(tools),'quilt_executed':sum(bool(t['executed']) for t in tools),
+                    'quilt_adopted':sum(bool(t['adopted']) for t in tools),
+                    'incumbent_reused_outside_scope':sum(bool(r.get('reused_outside_quilt_scope')) for r in records.values())},
+        'quality':{'empty':sum(not v['text'].strip() for v in outputs),
+                   'repetition':sum(has_repetition_loop(v['text']) for v in outputs),
+                   'actor_at_1024_cap':sum(len(v['token_ids'])>=1024 for v in outputs)},
+        'case_sha256':case_hashes,'scorer':scorer_identity('/home/dbw/ANCHOR'),
+        'comparison_note':'New method uses8192 input budget vs historical incumbent2048; not a context-matched ablation. Raw results retained including failures; coverage is not quality certification.'}
+    write_new(root/'evaluation-native-main.json',report)
+    print('NATIVE FULL EVALUATION',json.dumps({'n':6719,'metrics':metrics,'quality':report['quality']}),flush=True)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--run', type=Path, required=True)
-    root = p.parse_args().run
+    p.add_argument('--native',action='store_true')
+    args=p.parse_args();root=args.run
+    if args.native:
+        evaluate_native(root)
+        return
     f = read_json(root/'frozen.json')
     verify(f)
     complete = read_json(root/'complete.json')
