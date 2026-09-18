@@ -23,20 +23,27 @@ def evaluate(root):
     paths = {f.stem: f for f in (root / 'cases').glob('*.json')}
     if set(paths) != set(ids):
         raise ValueError('missing or extra predictions')
-    records = {k: read_json(paths[k]) for k in ids}
+    records = {}
     plans = {k: read_json(root / 'plans' / (k + '.json')) for k in ids}
     baselines = {}
     for k in ids:
-        if records[k]['identity'] != p['identity'] or records[k]['id'] != k:
+        record = read_json(paths[k])
+        if record['identity'] != p['identity'] or record['id'] != k:
             raise ValueError('prediction identity mismatch')
         plan = plans[k]
         if file_sha(plan['incumbent_path']) != plan['incumbent_sha256']:
             raise ValueError('control cache changed')
-        baselines[k] = read_json(plan['incumbent_path'])['outputs']['merit_quilt']
-        if not plan['added'] and records[k]['output'] != baselines[k]:
+        baseline = read_json(plan['incumbent_path'])['outputs']['merit_quilt']
+        if not plan['added'] and record['output'] != baseline:
             raise ValueError('unaffected case was changed')
-        if plan['added'] and not records[k].get('old_evidence_preserved'):
+        if plan['added'] and not record.get('old_evidence_preserved'):
             raise ValueError('old evidence preservation failed')
+        # Native evidence can contain dense masks. Validate the full record, then
+        # retain only scoring fields rather than duplicating all masks in RAM.
+        baselines[k] = {'text': baseline['text'], 'seconds': baseline.get('seconds', 0)}
+        records[k] = {key: record[key] for key in ('status', 'new_delivered', 'new_calls') if key in record}
+        records[k]['output'] = {'text': record['output']['text'],
+                                'seconds': record['output'].get('seconds', 0)}
 
     def check_scorer():
         actual = {str(f.relative_to('/home/dbw/ANCHOR')): file_sha(f)
@@ -94,6 +101,7 @@ def evaluate(root):
                                     for k in keys)}
 
     report = {'identity': p['identity'], 'n': len(ids), 'complete': True,
+              'evaluation_script_sha256': file_sha(__file__),
               'metrics': metrics, 'vs_native_merit_quilt': paired(ids), 'eligible_cases': paired(affected),
               'image_cluster_bootstrap': cluster_bootstrap(
                   [delta[k] for k in ids], [plans[k]['row']['image_sha256'] for k in ids]),

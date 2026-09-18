@@ -24,14 +24,23 @@
   preservation and real new-evidence delivery. Breast case retains CONCH,
   BiomedParse and Quilt, then appends UniMed; lung case retains BiomedParse and
   Quilt, then appends UniMed. This is execution validation, not medical benefit.
-- Full background tmux `native-expanded-full-0` (container/hostGPU1) and
-  `native-expanded-full-1` (merit-runner/hostGPU0). Logs in run `logs/actor-{0,1}.log`.
+- Full dual-GPU run complete: 6719/6719, 25 new-evidence cases and 6694 exact
+  incumbent reuses. Both background tmux jobs exited normally. All25 new cases
+  retained old evidence and delivered new evidence; no output truncation/empty
+  answers. Fresh runtime52.989s; output materialization span253.505s, excluding
+  model loading/prefetch/canaries/inherited cost. Logs in `logs/actor-{0,1}.log`.
 - Offline scoring: `scripts/evaluate_native_expanded.py --run
   runs/native-merit-expanded-v2`. Both cached control and new outputs are rescored
   with the same scorer frozen for this new protocol. It additionally requires
   every loaded historical scorer dependency to match. The unrelated changed
   `qualify_oe_generation.py` is recorded, not silently ignored in the old run.
-  No full score yet.
+  Scoring complete: mixed31.6562% ->31.6711%, CLOSED55.6514% ->55.6811%,
+  OPEN token recall7.6253% unchanged. Improved1/harmed0/text-changed12. Image-cluster
+  95% delta CI [0,+0.045767] percentage points: weak/local evidence only.
+  Raw local `evaluation-main.json`; sanitized report `docs/NATIVE_EXPANDED_POOL_V1.md`.
+  First offline scorer retained dense masks and was stopped to reduce RAM; the
+  streaming retry keeps only scoring fields after full row verification, without
+  changing predictions, scorer functions or parameters. Memory fell to ~180MB.
 
 ## Capability-selected expanded pool — 2026-09-18
 
