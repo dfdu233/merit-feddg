@@ -1,5 +1,38 @@
 # Current status
 
+## Native MERIT, additive pool only — 2026-09-18
+
+- User corrected scope: preserve original MERIT, append experts only. Independent
+  worktree `/home/dbw/merit-feddg-native-expanded`, branch
+  `experiments/native-merit-expanded-pool-v1`; acquisition source commit `f8c008b`.
+- `scripts/run_native_expanded.py` calls the unchanged formal
+  `CapabilityRuntime.run('all_evidence')`. Restores original registration order
+  (JSON-sorted registry keys must not change it), appends eligible new contracts,
+  keeps old maximum calls/decisions and per-case input/output limits unchanged.
+  New-tool eligibility does not rank/filter old tools. No set-cover selection.
+- Exact old request/native-result replay; validates old request order, execution,
+  adoption, evidence contents and final delivery. Any eviction or drift stops.
+  Unaffected cases reuse exact complete native MERIT+Quilt outputs; no GPU reruns.
+- CPU 1026 passed (14.39s); both CLIs and lint passed. Preparation-only v1 retained
+  after loop binding/style correction; execution is solely v2.
+- Run `runs/native-merit-expanded-v2`, identity
+  `9ebac25ee8d3f9ee86361bf883742547313f5ee9699172073ecf8ae32446407e`.
+  Full6719 IDs; 25 newly eligible calls (lung10, colon12, breast3). Both new-expert
+  prefetch lanes finished. Other new modalities do not qualify on this dataset
+  under existing predicted modalities and fixed applicability contracts.
+- Both canaries passed exact baseline text/token parity, old-tool/evidence
+  preservation and real new-evidence delivery. Breast case retains CONCH,
+  BiomedParse and Quilt, then appends UniMed; lung case retains BiomedParse and
+  Quilt, then appends UniMed. This is execution validation, not medical benefit.
+- Full background tmux `native-expanded-full-0` (container/hostGPU1) and
+  `native-expanded-full-1` (merit-runner/hostGPU0). Logs in run `logs/actor-{0,1}.log`.
+- Offline scoring: `scripts/evaluate_native_expanded.py --run
+  runs/native-merit-expanded-v2`. Both cached control and new outputs are rescored
+  with the same scorer frozen for this new protocol. It additionally requires
+  every loaded historical scorer dependency to match. The unrelated changed
+  `qualify_oe_generation.py` is recorded, not silently ignored in the old run.
+  No full score yet.
+
 ## Capability-selected expanded pool — 2026-09-18
 
 - Active independent branch `implementation/expert-coverage-v1`, initial source
