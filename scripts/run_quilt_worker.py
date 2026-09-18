@@ -46,7 +46,8 @@ def assert_single_gpu(torch, uuid):
         observed = subprocess.check_output(
             ["nvidia-smi", "-i", "0", "--query-gpu=uuid", "--format=csv,noheader"],
             text=True, timeout=10).strip()
-    if str(observed) != uuid:
+    # New torch exposes the same UUID without NVIDIA's textual GPU- prefix.
+    if str(observed).removeprefix('GPU-') != uuid.removeprefix('GPU-'):
         raise RuntimeError("GPU UUID does not match authorization")
 
 

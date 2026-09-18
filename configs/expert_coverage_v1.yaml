@@ -1,0 +1,133 @@
+# A separate opt-in experiment. No historical configuration is changed.
+# Priority is an engineering tie-break, NOT accuracy/confidence or a fitted weight.
+schema: expert-coverage-v1
+max_calls: 3
+input_limit: 8192
+output_limit: 1024
+model_root: /home/dbw/merit-feddg/artifacts/models/coverage-v1
+unimed_source: /home/dbw/merit-feddg/artifacts/upstream/UniMed-CLIP-536d165
+flair_source: /home/dbw/merit-feddg/artifacts/upstream/FLAIR-d6652d5
+legacy:
+  quilt_pathology:
+    modalities: [pathology]
+    attributes: [observation, finding_identity, finding_presence, appearance, anatomy_identity]
+    priority: 20
+    source_family: Quilt
+  chexagent_description:
+    modalities: [cxr]
+    attributes: [observation, finding_identity, finding_presence, appearance]
+    priority: 20
+    source_family: CheXagent
+  conch_tissue:
+    modalities: [pathology]
+    attributes: [appearance]
+    priority: 30
+    source_family: CONCH
+  biomed_anatomy:
+    modalities: [cxr, xray, ct, mri, gross_pathology]
+    attributes: [anatomy_identity]
+    priority: 20
+    source_family: BiomedCLIP
+  cxr_findings:
+    modalities: [cxr]
+    attributes: [finding_presence, finding_identity]
+    priority: 10
+    source_family: XRV
+  cxr_anatomy:
+    modalities: [cxr]
+    attributes: [location, relative_extent, anatomy_identity]
+    priority: 10
+    source_family: XRV
+  biomedparse_objects:
+    modalities: [ct, mri, cxr, pathology, fundus, dermatology, endoscopy, oct, ultrasound]
+    attributes: [location, relative_extent]
+    priority: 20
+    source_family: BiomedParse-v1
+new:
+  unimed_lung_histology:
+    kind: unimed
+    scope: lung_histology_catalog
+    modalities: [pathology]
+    sites: [lung, pulmonary]
+    attributes: [finding_identity, finding_presence]
+    catalog_symbol: LC25000_lung
+    priority: 10
+    source_family: UniMed-LC25000
+  unimed_colon_histology:
+    kind: unimed
+    scope: colon_histology_catalog
+    modalities: [pathology]
+    sites: [colon, colonic, colorectal]
+    attributes: [finding_identity, finding_presence]
+    catalog_symbol: LC25000_colon
+    priority: 10
+    source_family: UniMed-LC25000
+  unimed_breast_histology:
+    kind: unimed
+    scope: breast_histology_catalog
+    modalities: [pathology]
+    sites: [breast, mammary]
+    attributes: [finding_identity, finding_presence]
+    catalog_symbol: BACH_prompts
+    priority: 10
+    source_family: UniMed
+  unimed_ct_anatomy:
+    kind: unimed
+    scope: ct_organ_catalog
+    modalities: [ct]
+    attributes: [anatomy_identity]
+    catalog_symbol: ct_scan_labels
+    priority: 10
+    source_family: UniMed
+  unimed_knee_meniscus:
+    kind: unimed
+    scope: knee_meniscus_catalog
+    modalities: [mri]
+    sites: [meniscus, meniscal]
+    attributes: [finding_identity, finding_presence]
+    catalog_symbol: meniscus_mri_prompts
+    priority: 10
+    source_family: UniMed
+  unimed_breast_ultrasound:
+    kind: unimed
+    scope: breast_ultrasound_catalog
+    modalities: [ultrasound]
+    sites: [breast, mammary]
+    attributes: [finding_identity, finding_presence]
+    catalog_symbol: breast_us_prompts
+    priority: 10
+    source_family: BUSI-related-unverified
+  flair_retina:
+    kind: flair
+    scope: retinal_condition_catalog
+    modalities: [fundus]
+    attributes: [finding_identity, finding_presence, appearance]
+    priority: 10
+    source_family: FLAIR-fundus-assembly
+    catalog:
+      - {name: normal, prompt: normal}
+      - {name: macular edema, prompt: macular edema}
+      - {name: diabetic retinopathy, prompt: diabetic retinopathy}
+      - {name: glaucoma, prompt: glaucoma}
+      - {name: macular hole, prompt: macular hole}
+    catalog_source: https://github.com/jusiro/FLAIR/blob/d6652d53389ff49e5f73efaccf4246e9de88d1a3/README.md
+  monet_skin:
+    kind: monet
+    scope: cutaneous_bullae_similarity
+    modalities: [dermatology]
+    attributes: [appearance, finding_presence]
+    sites: [bullae, bulla, blister, blisters]
+    priority: 10
+    source_family: MONET-medical-literature
+    catalog:
+      - {name: bullae, prompt: 'This is skin image of bullae'}
+      - {name: blister, prompt: 'This is skin image of blister'}
+      - {name: reference, prompt: 'This is skin image'}
+    catalog_source: https://github.com/suinleelab/MONET/blob/3ae0a64dcc96a6fa23c191f85d85325181caf1dd/tutorial/automatic_concept_annotation.ipynb
+unavailable:
+  medsiglip: SLAKE training-source overlap and gated terms need audit; not enabled.
+  echoclip: Requires an explicitly identified cardiac echo task; no general ultrasound claim.
+  totalsegmentator: Requires volumetric input and metadata; 2D VQA screenshots unsupported.
+  biomedparse_v2: 3D scope separate from existing 2D v1.
+  medsam2: Requires video/volume and valid prompt provenance; not automatic lesion discovery.
+  retfound: Backbone alone is not a frozen disease classifier.
