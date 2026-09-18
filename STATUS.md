@@ -19,15 +19,29 @@
 - Both fixed canaries reproduced original compact token IDs and delivered all
   selected evidence with no omissions. Both produced real nonempty candidates.
   Canary outputs are local; these are engineering results, not efficacy claims.
-- Full generation running in persistent tmux: `coverage-full-0` in the container
+- Full generation completed (6719/6719): 4014 fresh generalist candidates and
+  2705 native-incumbent reuses. No empty/capped outputs or omitted selected
+  evidence. Output-file time span is 2326 seconds; fresh actor calls total
+  4222.24 seconds across both GPUs, excluding inherited expert cost/load overhead.
+  Completed persistent tmux jobs: `coverage-full-0` in the container
   uses host GPU1; `coverage-full-1` via merit-runner uses host GPU0. Each has one
   authorized visible UUID, original formal actor and offline local checkpoints.
   Logs: `runs/pathvqa-capability-pool-v1/logs/actor-{0,1}.log`.
 - After both complete, run existing environment's Python with
   `scripts/evaluate_coverage_pathvqa.py --run runs/pathvqa-capability-pool-v1`.
-  It refuses incomplete/mismatched runs and reuses the frozen ANCHOR scorer.
+  Evaluation was attempted and stopped at frozen scorer identity verification:
+  `anchor/medeval/qualify_oe_generation.py` is the only changed file in the frozen
+  933-file ANCHOR manifest. Main metric modules match, but the strict check has not
+  been bypassed. Log: `runs/coverage-preparation/evaluation-main.log`.
   No full score is claimed yet. Whole-pool differences include changed selection
   of old experts; they cannot be attributed exclusively to the 25 new calls.
+- User clarified the object is expanded MERIT, not expert-alone predictions.
+  Current outputs do use the formal LLaVA-Med final answerer and native renderer,
+  but the new capability selector replaces original acquisition/routing and can
+  discard old evidence. Label this **MERIT + expanded pool + capability selection**,
+  not an unchanged-native-MERIT pool-only ablation. Original `all_evidence` engine
+  is not called by this runner; do not imply full original execution parity from
+  the two rendering/token-parity canaries.
 - Host prefetch initially failed Git ownership checking. Retry used process-local
   safe.directory entries for the two verified official source clones; no global
   Git setting or weight-loading check was loosened. Failed log retained.
