@@ -1,5 +1,21 @@
 # Current status
 
+## Paper-grounded Huatuo iteration — 2026-09-19
+
+- Self-Refine (NeurIPS2023) adaptation completed dev4: blind5.56%, evidence55.56%,
+  compact55.56%, baseline80.56%; no gain, preserve negative result.
+- RARR (ACL2023) native-evidence adaptation completed dev4 then unchanged confirm20.
+  On confirm20: baseline36.33%, compact33.33%, anchored minimal editor46.33%;
+  +2/-0 vs baseline, +3/-0 vs compact,20 genuinely generated candidates.
+  Small-sample signal only. Agreement gate52 AGREES/5 UNKNOWN,0 edits, all baseline
+  reuse: NOT successful gate, exclude from main method.
+- Existing environments/weights, native1024-token Huatuo protocol, original routing
+  and expert pool retained. Complete20 controls at runs/native-confirm20-v1;
+  candidate run runs/rarr-confirm20-v1. Two authorized GPUs, tmux completed.
+- Next: unchanged editor on remaining87 TRAIN-only RAD images and SLAKE TRAIN-only
+  sample, plus same-budget no-expert editor control; no test tuning or thresholds.
+  See docs/HUATUO_PAPER_GROUNDED_ITERATIONS.md and reports/*confirm20*.
+
 ## Huatuo targeted TRAIN probe — 2026-09-19
 
 - Independent `experiments/huatuo-context-admission-v1` targets Huatuo rather than

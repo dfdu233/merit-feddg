@@ -1,0 +1,256 @@
+{
+  "identity": "26452ce03e86eafea97ad122d5d9d372a55e6e6384f215cd004b4bea73336454",
+  "n": 20,
+  "pilot_only": true,
+  "metric": "Current pinned ANCHOR CLOSED parser + OPEN token recall, not clinical accuracy",
+  "scorer_version": "medheval-decoded-eval-v13-explanatory-uncertainty-review",
+  "scorer_hashes": {
+    "/home/dbw/ANCHOR/anchor/corrected_sgta/evaluate_medheval_answers.py": "ad0fb9abfebf1a0185709628835b33a052492fbe5e4828d097141282a59a21d6",
+    "/home/dbw/ANCHOR/anchor/medeval/evaluate_mixed_vqa_table.py": "7d5b7675fc0aa6455b1d60fc93dcfbb0fd04fa07e879259e483e38b7f24d99f4"
+  },
+  "reference_hash": "05fb6a3e36c91f9b26ff86df2434a3f54b6e017e534027f83b77dfcb0fffabff",
+  "arms": {
+    "generalist": {
+      "score": 0.36333333333333334,
+      "improved_vs_compact": 2,
+      "harmed_vs_compact": 1,
+      "improved_vs_generalist": 0,
+      "harmed_vs_generalist": 0,
+      "image_ci95_vs_generalist": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 20,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "image_ci95_vs_compact": {
+        "low": -0.12,
+        "high": 0.18,
+        "clusters": 20,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "empty": 0,
+      "new_candidate_calls": 0,
+      "reuse": {
+        "generated": 20
+      }
+    },
+    "compact": {
+      "score": 0.3333333333333333,
+      "improved_vs_compact": 0,
+      "harmed_vs_compact": 0,
+      "improved_vs_generalist": 1,
+      "harmed_vs_generalist": 2,
+      "image_ci95_vs_generalist": {
+        "low": -0.18,
+        "high": 0.12,
+        "clusters": 20,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "image_ci95_vs_compact": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 20,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "empty": 0,
+      "new_candidate_calls": 0,
+      "reuse": {
+        "generated": 20
+      }
+    },
+    "anchored_editor": {
+      "score": 0.4633333333333333,
+      "improved_vs_compact": 3,
+      "harmed_vs_compact": 0,
+      "improved_vs_generalist": 2,
+      "harmed_vs_generalist": 0,
+      "image_ci95_vs_generalist": {
+        "low": 0.0,
+        "high": 0.25,
+        "clusters": 20,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "image_ci95_vs_compact": {
+        "low": 0.0,
+        "high": 0.29,
+        "clusters": 20,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "empty": 0,
+      "new_candidate_calls": 20,
+      "reuse": {
+        "generated": 20
+      }
+    },
+    "rarr_agreement": {
+      "score": 0.36333333333333334,
+      "improved_vs_compact": 2,
+      "harmed_vs_compact": 1,
+      "improved_vs_generalist": 0,
+      "harmed_vs_generalist": 0,
+      "image_ci95_vs_generalist": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 20,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "image_ci95_vs_compact": {
+        "low": -0.12,
+        "high": 0.18,
+        "clusters": 20,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "empty": 0,
+      "new_candidate_calls": 0,
+      "reuse": {
+        "generated": 20
+      }
+    }
+  },
+  "gates": {
+    "relevance": {
+      "labels": {},
+      "real_calls": 0,
+      "seconds": 0
+    },
+    "scope": {
+      "labels": {},
+      "real_calls": 0,
+      "seconds": 0
+    }
+  },
+  "per_case_scores": {
+    "generalist": {
+      "vqarad-official-train-0831": 0.0,
+      "vqarad-official-train-1401": 1.0,
+      "vqarad-official-train-1783": 0.0,
+      "vqarad-official-train-0522": 0.0,
+      "vqarad-official-train-0631": 0.0,
+      "vqarad-official-train-0779": 0.0,
+      "vqarad-official-train-1552": 0.0,
+      "vqarad-official-train-1118": 0.6,
+      "vqarad-official-train-1190": 1.0,
+      "vqarad-official-train-0705": 0.0,
+      "vqarad-official-train-1211": 0.0,
+      "vqarad-official-train-1574": 0.0,
+      "vqarad-official-train-1066": 0.0,
+      "vqarad-official-train-1210": 1.0,
+      "vqarad-official-train-1441": 0.6666666666666666,
+      "vqarad-official-train-0231": 0.0,
+      "vqarad-official-train-0749": 0.0,
+      "vqarad-official-train-1033": 1.0,
+      "vqarad-official-train-1408": 1.0,
+      "vqarad-official-train-0215": 1.0
+    },
+    "compact": {
+      "vqarad-official-train-0831": 0.0,
+      "vqarad-official-train-1401": 1.0,
+      "vqarad-official-train-1783": 0.0,
+      "vqarad-official-train-0522": 0.0,
+      "vqarad-official-train-0631": 0.0,
+      "vqarad-official-train-0779": 0.0,
+      "vqarad-official-train-1552": 0.0,
+      "vqarad-official-train-1118": 0.0,
+      "vqarad-official-train-1190": 1.0,
+      "vqarad-official-train-0705": 0.0,
+      "vqarad-official-train-1211": 1.0,
+      "vqarad-official-train-1574": 0.0,
+      "vqarad-official-train-1066": 0.0,
+      "vqarad-official-train-1210": 1.0,
+      "vqarad-official-train-1441": 0.6666666666666666,
+      "vqarad-official-train-0231": 0.0,
+      "vqarad-official-train-0749": 0.0,
+      "vqarad-official-train-1033": 0.0,
+      "vqarad-official-train-1408": 1.0,
+      "vqarad-official-train-0215": 1.0
+    },
+    "anchored_editor": {
+      "vqarad-official-train-0831": 0.0,
+      "vqarad-official-train-1401": 1.0,
+      "vqarad-official-train-1783": 0.0,
+      "vqarad-official-train-0522": 1.0,
+      "vqarad-official-train-0631": 0.0,
+      "vqarad-official-train-0779": 0.0,
+      "vqarad-official-train-1552": 0.0,
+      "vqarad-official-train-1118": 0.6,
+      "vqarad-official-train-1190": 1.0,
+      "vqarad-official-train-0705": 0.0,
+      "vqarad-official-train-1211": 1.0,
+      "vqarad-official-train-1574": 0.0,
+      "vqarad-official-train-1066": 0.0,
+      "vqarad-official-train-1210": 1.0,
+      "vqarad-official-train-1441": 0.6666666666666666,
+      "vqarad-official-train-0231": 0.0,
+      "vqarad-official-train-0749": 0.0,
+      "vqarad-official-train-1033": 1.0,
+      "vqarad-official-train-1408": 1.0,
+      "vqarad-official-train-0215": 1.0
+    },
+    "rarr_agreement": {
+      "vqarad-official-train-0831": 0.0,
+      "vqarad-official-train-1401": 1.0,
+      "vqarad-official-train-1783": 0.0,
+      "vqarad-official-train-0522": 0.0,
+      "vqarad-official-train-0631": 0.0,
+      "vqarad-official-train-0779": 0.0,
+      "vqarad-official-train-1552": 0.0,
+      "vqarad-official-train-1118": 0.6,
+      "vqarad-official-train-1190": 1.0,
+      "vqarad-official-train-0705": 0.0,
+      "vqarad-official-train-1211": 0.0,
+      "vqarad-official-train-1574": 0.0,
+      "vqarad-official-train-1066": 0.0,
+      "vqarad-official-train-1210": 1.0,
+      "vqarad-official-train-1441": 0.6666666666666666,
+      "vqarad-official-train-0231": 0.0,
+      "vqarad-official-train-0749": 0.0,
+      "vqarad-official-train-1033": 1.0,
+      "vqarad-official-train-1408": 1.0,
+      "vqarad-official-train-0215": 1.0
+    }
+  },
+  "cost_limit": "Successful v5 calls only; earlier failed-run wall/call costs not fully captured, so these are not total project costs or isolated throughput.",
+  "privacy": "No patient questions, answers, images, native packets or token IDs.",
+  "candidate_cost": {
+    "identity": "61e5c566964f27bb4f166f070016c0e8c48c6d33ff3221548ced8c7a6e8e9ca9",
+    "calls": 77,
+    "seconds": 151.2861169045791,
+    "stages": {
+      "anchored_editor": 20,
+      "agreement:cxr_findings": 16,
+      "agreement:chexagent_description": 18,
+      "agreement:biomedparse_objects": 18,
+      "agreement:biomed_anatomy": 2,
+      "agreement:unimed_ct_anatomy": 1,
+      "agreement:cxr_anatomy": 2
+    }
+  },
+  "successful_run_cost": {
+    "generalist_seconds": 11.004931575618684,
+    "compact_outer_seconds": 25.95487996400334,
+    "new_candidate_seconds": 0,
+    "actor_model_load_seconds": 19.183512478135526,
+    "parity_calls": 1,
+    "parity_passed": 1,
+    "parity_seconds": null,
+    "native_expert_prefetch_cache_records": 59,
+    "native_expert_prefetch_seconds": null,
+    "missing_costs": "Route/model-load/expert-prefetch/parity phase wall times not fully instrumented; not zero and not included in a total speedup claim."
+  }
+}

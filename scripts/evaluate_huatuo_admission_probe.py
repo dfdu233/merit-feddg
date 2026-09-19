@@ -8,14 +8,18 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, '/home/dbw/ANCHOR')
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from anchor.corrected_sgta.evaluate_medheval_answers import PROTOCOL_VERSION, evaluate_rows
 from anchor.medeval.evaluate_mixed_vqa_table import answer_token_recall
+
+from merit_feddg.agent_evaluate import cluster_bootstrap
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--candidate-run', type=Path)
     args = parser.parse_args()
     read = lambda p: json.loads(p.read_text())
     protocol = read(args.run / 'protocol.json')
@@ -27,13 +31,37 @@ def main():
     cases = {k: read(v) for k, v in files.items()}
     if any(not v['complete'] or v['identity'] != protocol['identity'] for v in cases.values()):
         raise ValueError('Incomplete cases')
+    arms = ['generalist', 'compact', 'relevance', 'scope']
+    candidate_cost = None
+    if args.candidate_run:
+        candidate_protocol = read(args.candidate_run / 'protocol.json')
+        candidate_complete = read(args.candidate_run / 'complete.json')
+        if candidate_protocol['base_identity'] != protocol['identity'] or candidate_complete['identity'] != candidate_protocol['identity']:
+            raise ValueError('Candidate/control identity mismatch')
+        candidate_files = {p.stem:p for p in (args.candidate_run/'cases').glob('*.json')}
+        if set(candidate_files) != set(rows):
+            raise ValueError('Candidate ID set differs')
+        calls = []
+        for key, path in candidate_files.items():
+            candidate = read(path)
+            if not candidate['complete'] or candidate['identity'] != candidate_protocol['identity']:
+                raise ValueError('Incomplete candidate')
+            for arm, value in candidate['arms'].items():
+                if arm in cases[key]['arms']:
+                    raise ValueError('Candidate must not overwrite old arms')
+                cases[key]['arms'][arm] = dict(value, new_answer_calls=int(not value.get('reused_generalist', False)))
+            calls.extend(candidate['calls'])
+        arms = ['generalist', 'compact'] + candidate_protocol['arms']
+        candidate_cost = {'identity':candidate_protocol['identity'], 'calls':len(calls),
+                          'seconds':sum(v['seconds'] for v in calls),
+                          'stages':dict(collections.Counter(v['stage'] for v in calls))}
     ref_path = Path('/home/dbw/merit-feddg/runs/vqarad-official-protocol-v3/data/train/references.json')
     refs = read(ref_path)
     scorer_paths = [Path('/home/dbw/ANCHOR/anchor/corrected_sgta') / 'evaluate_medheval_answers.py',
                     Path('/home/dbw/ANCHOR/anchor/medeval/evaluate_mixed_vqa_table.py')]
     hashes = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in scorer_paths}
     scores = {}
-    for arm in ('generalist', 'compact', 'relevance', 'scope'):
+    for arm in arms:
         source = [{'qid': k, 'question': r['question'], 'answer_type': r['answer_type'],
                    'answer': refs[k][0], 'text': cases[k]['arms'][arm]['text']} for k, r in rows.items()]
         details = {r['question_id']: r for r in evaluate_rows(source)['details']}
@@ -47,15 +75,24 @@ def main():
         'cost_limit': 'Successful v5 calls only; earlier failed-run wall/call costs not fully captured, '
                       'so these are not total project costs or isolated throughput.',
         'privacy': 'No patient questions, answers, images, native packets or token IDs.'}
+    result['candidate_cost'] = candidate_cost
     for arm, values in scores.items():
         result['arms'][arm] = {'score': statistics.mean(values.values()),
             'improved_vs_compact': sum(v > scores['compact'][k] for k, v in values.items()),
             'harmed_vs_compact': sum(v < scores['compact'][k] for k, v in values.items()),
+            'improved_vs_generalist': sum(v > scores['generalist'][k] for k, v in values.items()),
+            'harmed_vs_generalist': sum(v < scores['generalist'][k] for k, v in values.items()),
+            'image_ci95_vs_generalist': cluster_bootstrap(
+                [v-scores['generalist'][k] for k,v in values.items()],
+                [rows[k]['image_sha256'] for k in values]),
+            'image_ci95_vs_compact': cluster_bootstrap(
+                [v-scores['compact'][k] for k,v in values.items()],
+                [rows[k]['image_sha256'] for k in values]),
             'empty': sum(not r['arms'][arm]['text'] for r in cases.values()),
             'new_candidate_calls': sum(r['arms'][arm].get('new_answer_calls', 0) for r in cases.values()),
             'reuse': dict(collections.Counter(r['arms'][arm].get('reuse', 'generated') for r in cases.values()))}
     for policy in ('relevance', 'scope'):
-        judgments = [v for r in cases.values() for v in r['gates'][policy]]
+        judgments = [v for r in cases.values() for v in r.get('gates', {}).get(policy, [])]
         result['gates'][policy] = {'labels': dict(collections.Counter(v['label'] for v in judgments)),
             'real_calls': len(judgments), 'seconds': sum(v['seconds'] for v in judgments)}
     result['successful_run_cost'] = {
@@ -63,7 +100,7 @@ def main():
         'compact_outer_seconds': sum(r['compact_raw']['wall_seconds'] for r in cases.values()),
         'new_candidate_seconds': sum(r['arms'][arm]['seconds'] for r in cases.values()
                                     for arm in ('relevance', 'scope')
-                                    if r['arms'][arm]['new_answer_calls']),
+                                    if arm in r['arms'] and r['arms'][arm]['new_answer_calls']),
         'actor_model_load_seconds': read(args.run / 'model-load.json')['seconds'],
         'parity_calls': sum('compact_parity' in r for r in cases.values()),
         'parity_passed': sum(r.get('compact_parity', False) for r in cases.values()),

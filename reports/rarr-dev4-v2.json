@@ -1,0 +1,195 @@
+{
+  "identity": "2f0d08b805d426560ace36bd5c8efd527b14609743296ffa45dca126176b4621",
+  "n": 4,
+  "pilot_only": true,
+  "metric": "Current pinned ANCHOR CLOSED parser + OPEN token recall, not clinical accuracy",
+  "scorer_version": "medheval-decoded-eval-v13-explanatory-uncertainty-review",
+  "scorer_hashes": {
+    "/home/dbw/ANCHOR/anchor/corrected_sgta/evaluate_medheval_answers.py": "ad0fb9abfebf1a0185709628835b33a052492fbe5e4828d097141282a59a21d6",
+    "/home/dbw/ANCHOR/anchor/medeval/evaluate_mixed_vqa_table.py": "7d5b7675fc0aa6455b1d60fc93dcfbb0fd04fa07e879259e483e38b7f24d99f4"
+  },
+  "reference_hash": "05fb6a3e36c91f9b26ff86df2434a3f54b6e017e534027f83b77dfcb0fffabff",
+  "arms": {
+    "generalist": {
+      "score": 0.8055555555555556,
+      "improved_vs_compact": 1,
+      "harmed_vs_compact": 0,
+      "improved_vs_generalist": 0,
+      "harmed_vs_generalist": 0,
+      "image_ci95_vs_generalist": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 4,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "image_ci95_vs_compact": {
+        "low": 0.0,
+        "high": 0.75,
+        "clusters": 4,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "empty": 0,
+      "new_candidate_calls": 0,
+      "reuse": {
+        "generated": 4
+      }
+    },
+    "compact": {
+      "score": 0.5555555555555556,
+      "improved_vs_compact": 0,
+      "harmed_vs_compact": 0,
+      "improved_vs_generalist": 0,
+      "harmed_vs_generalist": 1,
+      "image_ci95_vs_generalist": {
+        "low": -0.75,
+        "high": 0.0,
+        "clusters": 4,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "image_ci95_vs_compact": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 4,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "empty": 0,
+      "new_candidate_calls": 0,
+      "reuse": {
+        "generated": 4
+      }
+    },
+    "anchored_editor": {
+      "score": 0.8055555555555556,
+      "improved_vs_compact": 1,
+      "harmed_vs_compact": 0,
+      "improved_vs_generalist": 0,
+      "harmed_vs_generalist": 0,
+      "image_ci95_vs_generalist": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 4,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "image_ci95_vs_compact": {
+        "low": 0.0,
+        "high": 0.75,
+        "clusters": 4,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "empty": 0,
+      "new_candidate_calls": 4,
+      "reuse": {
+        "generated": 4
+      }
+    },
+    "rarr_agreement": {
+      "score": 0.8055555555555556,
+      "improved_vs_compact": 1,
+      "harmed_vs_compact": 0,
+      "improved_vs_generalist": 0,
+      "harmed_vs_generalist": 0,
+      "image_ci95_vs_generalist": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 4,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "image_ci95_vs_compact": {
+        "low": 0.0,
+        "high": 0.75,
+        "clusters": 4,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "empty": 0,
+      "new_candidate_calls": 0,
+      "reuse": {
+        "generated": 4
+      }
+    }
+  },
+  "gates": {
+    "relevance": {
+      "labels": {
+        "A": 9,
+        "C": 3
+      },
+      "real_calls": 12,
+      "seconds": 4.862368235597387
+    },
+    "scope": {
+      "labels": {
+        "A": 7,
+        "C": 5
+      },
+      "real_calls": 12,
+      "seconds": 5.248496757354587
+    }
+  },
+  "per_case_scores": {
+    "generalist": {
+      "vqarad-official-train-0094": 1.0,
+      "vqarad-official-train-1149": 1.0,
+      "vqarad-official-train-1192": 0.2222222222222222,
+      "vqarad-official-train-1344": 1.0
+    },
+    "compact": {
+      "vqarad-official-train-0094": 1.0,
+      "vqarad-official-train-1149": 0.0,
+      "vqarad-official-train-1192": 0.2222222222222222,
+      "vqarad-official-train-1344": 1.0
+    },
+    "anchored_editor": {
+      "vqarad-official-train-0094": 1.0,
+      "vqarad-official-train-1149": 1.0,
+      "vqarad-official-train-1192": 0.2222222222222222,
+      "vqarad-official-train-1344": 1.0
+    },
+    "rarr_agreement": {
+      "vqarad-official-train-0094": 1.0,
+      "vqarad-official-train-1149": 1.0,
+      "vqarad-official-train-1192": 0.2222222222222222,
+      "vqarad-official-train-1344": 1.0
+    }
+  },
+  "cost_limit": "Successful v5 calls only; earlier failed-run wall/call costs not fully captured, so these are not total project costs or isolated throughput.",
+  "privacy": "No patient questions, answers, images, native packets or token IDs.",
+  "candidate_cost": {
+    "identity": "06351c2cf5d9b44fbedb56d2d89958bd44a5c545f4d5914fc1438fe4415eef89",
+    "calls": 16,
+    "seconds": 50.50231973058544,
+    "stages": {
+      "anchored_editor": 4,
+      "agreement:cxr_findings": 4,
+      "agreement:chexagent_description": 4,
+      "agreement:biomedparse_objects": 4
+    }
+  },
+  "successful_run_cost": {
+    "generalist_seconds": 10.565101606072858,
+    "compact_outer_seconds": 10.748608473688364,
+    "new_candidate_seconds": 9.433806526008993,
+    "actor_model_load_seconds": 10.487821724964306,
+    "parity_calls": 1,
+    "parity_passed": 1,
+    "parity_seconds": null,
+    "native_expert_prefetch_cache_records": 12,
+    "native_expert_prefetch_seconds": null,
+    "missing_costs": "Route/model-load/expert-prefetch/parity phase wall times not fully instrumented; not zero and not included in a total speedup claim."
+  }
+}
