@@ -159,3 +159,90 @@ text mismatch. v4 uses the original engine's exact stripped text serialization,
 with raw block text additionally logged, not a tolerant parity comparison.
 Raw logs and generated patient-related text remain in `runs/pilot-v4`; only this
 aggregate report and the sanitized summary are tracked. All old methods untouched.
+
+## Follow-up: serialization is not a sufficient explanation
+
+**Evidence update:** user authorized continuation. The prior failure did not
+distinguish JSON-container behavior from editing behavior. A new diagnostic used
+the first8 already-frozen TRAIN-only images, with no reference access. It changed
+only the final draft container from JSON string to plain text. Same question,
+instruction wording, model,64-token answer budget, original image and evidence.
+Original generalist/compact were also replayed. Empty outputs were explicitly
+recorded as diagnostic failures, never returned as successful clinical predictions.
+
+**Affinity map / Bit Flip:** this remains a RARR-inspired engineering substrate,
+not a research innovation. The nearest-neighbor assumption being examined is that
+the chosen generator can execute a preservation edit. JSON-only causation is
+weakened by the measured results; no broader impossibility claim follows.
+
+**Vector / core versus periphery:** does removing JSON serialization fix empty
+revision output? Core is one serialization contrast; all evidence acquisition,
+routing, scoring, weights and thresholds remain untouched. No new expert or judge.
+
+**Minimum experiment:** run6 arms on8 fixed images, exact historical parity and
+identical evidence required. Runtime/parity/evidence mismatch stops. The two
+representations were frozen together before GPU execution; there was no third
+variant or answer-score-driven prompt search. Execute commit `5e52261`, identity
+`59ef87eeec744dcdab555ce4115e12d29ea92655cc0d708ca60d2f4f6b170156`.
+
+The process stopped on case7 at an evidence-displacement check, after6 complete
+records. Counts below describe ONLY those same6 records, not a completed8-case
+result and not accuracy:
+
+| Diagnostic arm | Nonempty outputs / same6 completed cases |
+|---|---:|
+| Original generalist | 6/6 |
+| Original compact | 6/6 |
+| JSON draft, no evidence | 5/6 |
+| JSON draft, same evidence | 6/6 |
+| Plain draft, no evidence | 2/6 |
+| Plain draft, same evidence | 3/6 |
+
+All14 original control calls across7 started cases reproduced exact text and
+tokens. The earlier JSON empty answer reappeared unchanged. Plain serialization
+introduces more empty answers in the matched prefix, rather than fixing the issue.
+The8 empty calls produce immediateEOS (7) or whitespace+EOS (1). Nonempty output
+is not evidence of a useful edit, and no clinical labels were loaded to score it.
+
+Case7 reveals a different problem: original compact input1880 + answer reserve64
+fits the2048 limit. Full JSON revision input2014 +64 exceeds it by30; plain input
+2011 +64 exceeds it by27. Packing drops the existing CheXagent description while
+retaining the anatomy packet. The equality check stopped BEFORE generating this
+unmatched evidence arm. The8th image received no model call. No context enlargement
+or evidence deletion was accepted to turn this into a successful comparison.
+
+**Engineering improvement:** added whole-diagnostic CPU token-only preflight to
+`scripts/probe_revision_format.py`. It uses the same official Mistral conversation
+template/tokenizer and declared fixed patch expansion; it rejects unsupported
+visual formats. Compared against all39 persisted real GPU calls: context accounting,
+presented evidence and evidence hashes match exactly. The new preflight, in a fresh
+output `runs/format-preflight-v3`, correctly identifies the2 displaced-evidence arms
+before loading model weights or making any model call. This does not claim CUDA
+validation or a medical decision rule. Earlier raw results remain unchanged.
+
+Commands (same existing offline environment as above):
+
+```bash
+# Actual completed/blocked GPU diagnostic, before adding whole-run preflight:
+PYTHONPATH=. /home/dbw/merit-feddg/.venv/bin/python scripts/probe_revision_format.py \
+  --output runs/format-probe-v2 --gpu-uuid GPU-3846413a-4238-d307-b1f3-10c2dfbe002c
+# New guard: expected nonzero exit; zero inference calls, detailed local audit saved:
+PYTHONPATH=. /home/dbw/merit-feddg/.venv/bin/python scripts/probe_revision_format.py \
+  --output runs/format-preflight-v3 --gpu-uuid GPU-3846413a-4238-d307-b1f3-10c2dfbe002c \
+  --check-only
+```
+
+Actual inference39calls,42.876s; weight load11.740s. Per-arm persistence now retains
+timings even for a partially completed case. Real cached expert outputs were reused;
+zero new expert calls does not mean zero specialist involvement. Both memory checks
+and context-capacity checks are engineering guards, not confidence thresholds.
+GPU1 used, model released after stop; occupied GPU0 PMC process not interrupted.
+
+**Novelty collision / velocity / re-vector:** no novelty claim; no full-run score.
+New knowledge is that simply changing the draft container does not fix this
+checkpoint's editing behavior, and extra instructions can change evidence delivery
+even with unchanged raw packets. Stop this prompt substrate; do not keep adding
+instructions or suppressEOS to claim benefit. The next uncertainty is whether a
+capability-bound evidence intervention can be effective without relying on this
+fragile edit instruction. That requires a separately frozen experiment, not a
+continuation of these failed results or a claim that Gate is now reliable.

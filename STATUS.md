@@ -1,5 +1,32 @@
 # Current status
 
+## Revision-format diagnosis — 2026-09-19 (supersedes next-step plan below)
+
+- Continued on the independent anchored-revision branch. GPU diagnostic execution
+  commit `5e52261`, run `runs/format-probe-v2`, identity
+  `59ef87eeec744dcdab555ce4115e12d29ea92655cc0d708ca60d2f4f6b170156`.
+  Fixed first8 prior TRAIN-only images, no references, no clinical scoring. Only
+  draft JSON/plain serialization changed; original instructions and evidence fixed.
+- Six cases completed all6 diagnostic arms; stopped on the7th before evidence
+  revision because packing would remove CheXagent. On the matched completed6:
+  generalist/compact nonempty6/6 each, JSON no-evidence5/6, JSON evidence6/6,
+  plain no-evidence2/6, plain evidence3/6. These are nonempty-output counts, NOT
+  accuracies. Fourteen historical control replays across7 started cases matched
+  both text and tokens. The original empty JSON control reproduced exactly.
+- Budget cause verified: full JSON revision input2014+64>2048, plain2011+64>2048;
+  old compact1880+64 fits. Both added prompts displace the CheXagent record.
+  No generation performed with that mismatched evidence. No full8 diagnostic
+  result, full24 pilot metric, or method efficacy claim.
+- Engineering improvement: `probe_revision_format.py` now audits every planned
+  context BEFORE GPU/model loading, using official conversation/tokenizer + fixed
+  patch count. Real CPU verification matches all39 persisted GPU-call contexts
+  and evidence hashes. `runs/format-preflight-v3` correctly blocks both invalid
+  arms with0 model calls. This guard is not a medical Gate or GPU validation.
+- Last inference exited, GPU1 model released; GPU0's PMC job untouched.39 actual
+  model calls42.876s + load11.740s,0 new expert calls (real native cache reused).
+  No third prompt variant, EOS suppression, budget expansion or fallback adopted.
+  See appended diagnosis in `docs/ANCHORED_REVISION_TRAIN.md` and sanitized JSON.
+
 ## Anchored revision TRAIN pilot — 2026-09-19 (stopped; no promotion)
 
 - Independent branch `experiments/anchored-revision-train-v1`, execution commit

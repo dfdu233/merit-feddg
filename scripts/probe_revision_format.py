@@ -7,8 +7,10 @@ import argparse
 import json
 import os
 import subprocess
+import sys
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 from run_anchored_revision_train import GPUS, ROOT, read, resources, sha
 
@@ -22,6 +24,74 @@ def plain_draft_prompt(original_prompt, draft):
     if not rendered.endswith(suffix):
         raise ValueError('Original draft serialization changed')
     return rendered[:-len(suffix)] + 'Draft answer:\n' + draft
+
+
+def audit_contexts(selected, rows, compact, generalist, source):
+    """Token-only preflight for this pinned single-image LLaVA protocol.
+
+    Same official conversation/tokenizer and fixed patch expansion, no image
+    preprocessing or model weights. Validated against 39 recorded GPU contexts.
+    Fail closed for other visual formats instead of estimating their lengths.
+    """
+    from transformers import AutoTokenizer
+
+    from merit_feddg.capabilities import EvidenceItem
+    from merit_feddg.capability_runtime import NativeSession, NativeState, ValueGenerationConfig
+    from merit_feddg.matched_evaluation import generation_prompt
+    spec = source['config']['generalist']
+    config = read(Path(spec['checkpoint_path']) / 'config.json')
+    vision = read(Path(spec['vision_tower_path']) / 'config.json')['vision_config']
+    if (spec['backend'] != 'llava_med' or config.get('mm_use_im_start_end', False)
+            or config.get('mm_vision_select_feature', 'patch') != 'patch'):
+        raise ValueError('Token-only audit supports only the pinned single-image patch protocol')
+    patches = (vision['image_size'] // vision['patch_size']) ** 2
+    limit = min(config[k] for k in ('max_position_embeddings', 'tokenizer_model_max_length')
+                if k in config)
+    sys.path.insert(0, spec['source_path'])
+    from llava.constants import DEFAULT_IMAGE_TOKEN, IMAGE_TOKEN_INDEX
+    from llava.conversation import conv_templates
+    from llava.mm_utils import tokenizer_image_token
+    tokenizer = AutoTokenizer.from_pretrained(
+        spec['checkpoint_path'], use_fast=False, local_files_only=True)
+
+    def measure(image, prompt, reserve):
+        conv = conv_templates['mistral_instruct'].copy()
+        question = str(prompt).replace(DEFAULT_IMAGE_TOKEN, '').strip()
+        conv.append_message(conv.roles[0], DEFAULT_IMAGE_TOKEN + '\n' + question)
+        conv.append_message(conv.roles[1], None)
+        ids = tokenizer_image_token(conv.get_prompt(), tokenizer, IMAGE_TOKEN_INDEX)
+        count = len(ids) + ids.count(IMAGE_TOKEN_INDEX) * (patches - 1)
+        return {'input_tokens': count, 'reserved_tokens': reserve, 'context_limit': limit,
+                'remaining_tokens': limit - count - reserve, 'fits': count + reserve <= limit}
+
+    probe, audits, blocked = SimpleNamespace(context_token_budget=measure), {}, []
+    for key in selected:
+        row, old, base = rows[key], compact[key], generalist[key]
+        gen = ValueGenerationConfig(**old['generation_config'])
+        if gen.semantic_spatial or gen.visual_views or gen.evidence_style != 'semantic':
+            raise ValueError('Unexpected historical visual protocol')
+        items = tuple(EvidenceItem(**e) for e in old['evidence'])
+        prompt = generation_prompt(row, source['config'])
+        rendered = revision_prompt(prompt, base['text'])
+        plain = plain_draft_prompt(prompt, base['text'])
+        case = {}
+        for name, instruction, evidence in (
+            ('generalist', prompt, ()), ('compact', prompt, items),
+            ('json_none', rendered, ()), ('json_evidence', rendered, items),
+            ('plain_none', plain, ()), ('plain_evidence', plain, items),
+        ):
+            generation = ValueGenerationConfig(**base['generation_config']) if name == 'generalist' else gen
+            session = NativeSession(probe, row['image'], instruction, row['question'], generation)
+            session.context(NativeState(items=evidence))
+            case[name] = session.last_transport
+            if name.endswith('_evidence') and (
+                case[name]['evidence_sha256'] != case['compact']['evidence_sha256']
+                or case[name]['presented'] != case['compact']['presented']
+            ):
+                blocked.append({'id': key, 'arm': name, 'reason': 'evidence_displacement'})
+        audits[key] = case
+    return {'cases': audits, 'blocked': blocked, 'model_calls': 0,
+            'gpu_inference_validated': False, 'references_loaded': False}
 
 
 def main():
@@ -48,6 +118,10 @@ def main():
     if not frozen.exists():
         atomic_json(frozen, cfg)
     print('PREFLIGHT', identity, len(selected), flush=True)
+    audit = audit_contexts(selected, rows, compact, generalist, source)
+    atomic_json(a.output / 'preflight-transport.json', {'identity': identity, **audit})
+    if audit['blocked']:
+        raise RuntimeError('Whole diagnostic blocked before GPU: evidence would be displaced')
     if a.check_only:
         return
     device = subprocess.check_output(['nvidia-smi', '-i', '0', '--query-gpu=uuid',
