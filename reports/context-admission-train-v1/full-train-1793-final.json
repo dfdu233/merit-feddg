@@ -1,0 +1,397 @@
+{
+  "identity": "e3d338c11b73acb5b8876a9ca03c898620095a5e67449a85555567f4736ade3b",
+  "n": 1793,
+  "full_train": true,
+  "test_benchmark": false,
+  "scorer": "medheval-decoded-eval-v13-explanatory-uncertainty-review",
+  "scorers": {
+    "anchor/corrected_sgta/evaluate_medheval_answers.py": "ad0fb9abfebf1a0185709628835b33a052492fbe5e4828d097141282a59a21d6",
+    "anchor/medeval/evaluate_mixed_vqa_table.py": "7d5b7675fc0aa6455b1d60fc93dcfbb0fd04fa07e879259e483e38b7f24d99f4"
+  },
+  "original_scorers": {
+    "anchor/corrected_sgta/evaluate_medheval_answers.py": "ad0fb9abfebf1a0185709628835b33a052492fbe5e4828d097141282a59a21d6",
+    "anchor/medeval/evaluate_mixed_vqa_table.py": "7d5b7675fc0aa6455b1d60fc93dcfbb0fd04fa07e879259e483e38b7f24d99f4"
+  },
+  "explicit_rescore_pin": null,
+  "references_sha256": "05fb6a3e36c91f9b26ff86df2434a3f54b6e017e534027f83b77dfcb0fffabff",
+  "metric": "Pinned current ANCHOR CLOSED parser + OPEN answer-token-recall; CLOSED includes explanatory parsing, not leading-token-only strict EM; not clinical accuracy",
+  "unavailable_scoring": "Explicit engineering-unavailable arms get 0 only in failure-inclusive task score. No answer is filled in the raw output; available-only paired cohort also reported.",
+  "original_compact_gain_cases": 126,
+  "original_compact_harm_cases": 48,
+  "arms": {
+    "generalist": {
+      "failure_inclusive_score": 0.44029662009305065,
+      "unavailable": 0,
+      "empty": 0,
+      "vs_generalist": {
+        "n": 1793,
+        "delta": 0.0,
+        "improved": 0,
+        "harmed": 0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "vs_compact": {
+        "n": 1793,
+        "delta": -0.040966654031350073,
+        "improved": 48,
+        "harmed": 126,
+        "image_ci95": {
+          "low": -0.056678335457803763,
+          "high": -0.025636757065095227,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "available_only_vs_compact": {
+        "n": 1793,
+        "delta": -0.040966654031350073,
+        "improved": 48,
+        "harmed": 126,
+        "image_ci95": {
+          "low": -0.056678335457803763,
+          "high": -0.025636757065095227,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "text_changes_from_generalist": 0,
+      "original_gains_retained": 0,
+      "original_harms_recovered": 48,
+      "new_answer_calls": 0,
+      "new_answer_seconds": 0,
+      "reuse_counts": {
+        "same_full_train_historical": 1793
+      }
+    },
+    "compact": {
+      "failure_inclusive_score": 0.48126327412440073,
+      "unavailable": 0,
+      "empty": 0,
+      "vs_generalist": {
+        "n": 1793,
+        "delta": 0.040966654031350073,
+        "improved": 126,
+        "harmed": 48,
+        "image_ci95": {
+          "low": 0.02563675706509519,
+          "high": 0.05667833545780374,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "vs_compact": {
+        "n": 1793,
+        "delta": 0.0,
+        "improved": 0,
+        "harmed": 0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "available_only_vs_compact": {
+        "n": 1793,
+        "delta": 0.0,
+        "improved": 0,
+        "harmed": 0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "text_changes_from_generalist": 550,
+      "original_gains_retained": 126,
+      "original_harms_recovered": 0,
+      "new_answer_calls": 0,
+      "new_answer_seconds": 0,
+      "reuse_counts": {
+        "same_full_train_historical": 1793
+      }
+    },
+    "relevance": {
+      "failure_inclusive_score": 0.48126327412440073,
+      "unavailable": 0,
+      "empty": 0,
+      "vs_generalist": {
+        "n": 1793,
+        "delta": 0.040966654031350073,
+        "improved": 126,
+        "harmed": 48,
+        "image_ci95": {
+          "low": 0.02563675706509519,
+          "high": 0.05667833545780374,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "vs_compact": {
+        "n": 1793,
+        "delta": 0.0,
+        "improved": 0,
+        "harmed": 0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "available_only_vs_compact": {
+        "n": 1793,
+        "delta": 0.0,
+        "improved": 0,
+        "harmed": 0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "text_changes_from_generalist": 550,
+      "original_gains_retained": 126,
+      "original_harms_recovered": 0,
+      "new_answer_calls": 0,
+      "new_answer_seconds": 0,
+      "reuse_counts": {
+        "no_admitted_packets": 1147,
+        "all_original_packets": 646
+      }
+    },
+    "scope": {
+      "failure_inclusive_score": 0.48126327412440073,
+      "unavailable": 0,
+      "empty": 0,
+      "vs_generalist": {
+        "n": 1793,
+        "delta": 0.040966654031350073,
+        "improved": 126,
+        "harmed": 48,
+        "image_ci95": {
+          "low": 0.02563675706509519,
+          "high": 0.05667833545780374,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "vs_compact": {
+        "n": 1793,
+        "delta": 0.0,
+        "improved": 0,
+        "harmed": 0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "available_only_vs_compact": {
+        "n": 1793,
+        "delta": 0.0,
+        "improved": 0,
+        "harmed": 0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "text_changes_from_generalist": 550,
+      "original_gains_retained": 126,
+      "original_harms_recovered": 0,
+      "new_answer_calls": 0,
+      "new_answer_seconds": 0,
+      "reuse_counts": {
+        "no_admitted_packets": 1147,
+        "all_original_packets": 646
+      }
+    },
+    "scope_complement": {
+      "failure_inclusive_score": 0.44029662009305065,
+      "unavailable": 0,
+      "empty": 0,
+      "vs_generalist": {
+        "n": 1793,
+        "delta": 0.0,
+        "improved": 0,
+        "harmed": 0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "vs_compact": {
+        "n": 1793,
+        "delta": -0.040966654031350073,
+        "improved": 48,
+        "harmed": 126,
+        "image_ci95": {
+          "low": -0.056678335457803763,
+          "high": -0.025636757065095227,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "available_only_vs_compact": {
+        "n": 1793,
+        "delta": -0.040966654031350073,
+        "improved": 48,
+        "harmed": 126,
+        "image_ci95": {
+          "low": -0.056678335457803763,
+          "high": -0.025636757065095227,
+          "clusters": 313,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "text_changes_from_generalist": 0,
+      "original_gains_retained": 0,
+      "original_harms_recovered": 48,
+      "new_answer_calls": 0,
+      "new_answer_seconds": 0,
+      "reuse_counts": {
+        "no_admitted_packets": 1793
+      }
+    }
+  },
+  "gates": {
+    "relevance": {
+      "labels": {
+        "A": 734
+      },
+      "reasons": {
+        "model_categorical": 734
+      },
+      "real_model_calls": 734,
+      "seconds": 312.23476738948375,
+      "packet_count": 734,
+      "correctness_accuracy_measured": false
+    },
+    "scope": {
+      "labels": {
+        "A": 734
+      },
+      "reasons": {
+        "model_categorical": 734
+      },
+      "real_model_calls": 734,
+      "seconds": 331.7248151428066,
+      "packet_count": 734,
+      "correctness_accuracy_measured": false
+    }
+  },
+  "cost": {
+    "new_expert_calls": 0,
+    "real_native_cache_reused": true,
+    "load_seconds": 28.379652919713408,
+    "new_answer_seconds": 0,
+    "gate_seconds": 643.9595825322904,
+    "inherited_seconds_by_arm": {
+      "generalist": 929.2825340329437,
+      "compact": 1098.0468132029055,
+      "relevance": 1085.1228452525102,
+      "scope": 1085.1228452525102,
+      "scope_complement": 929.2825340329437
+    },
+    "canary_parity_seconds": 11.33166253962554,
+    "note": "Shared warm inference with concurrent external jobs; not isolated end-to-end throughput."
+  },
+  "inherited_tool_audit": {
+    "historical_expert_calls": 1270,
+    "historical_controller_calls": 1270,
+    "tool_trace_seconds": 72.99696914409287,
+    "tool_reasons": {
+      "empty_or_unusable_evidence": 536,
+      "ok": 734
+    },
+    "note": "Historical trace costs, not newly executed. May include native cache reuse; do not sum blindly with outer timings."
+  },
+  "delivery_audit": {
+    "cases_with_packets": 646,
+    "packet_distribution": {
+      "0": 1147,
+      "1": 558,
+      "2": 88
+    },
+    "parity_checks": 10,
+    "parity_passed": 10,
+    "genuinely_new_candidate_cases": {
+      "generalist": 0,
+      "compact": 0,
+      "relevance": 0,
+      "scope": 0,
+      "scope_complement": 0
+    }
+  },
+  "privacy": "Aggregates only. No questions, answers, patient text, images or raw evidence.",
+  "expert_groups_observational_not_causal": {
+    "no_delivered_packets": {
+      "n": 1147,
+      "compact_improves_generalist": 0,
+      "compact_harms_generalist": 0
+    },
+    "chexagent_description": {
+      "n": 529,
+      "compact_improves_generalist": 114,
+      "compact_harms_generalist": 33
+    },
+    "chexagent_description+cxr_anatomy": {
+      "n": 80,
+      "compact_improves_generalist": 8,
+      "compact_harms_generalist": 10
+    },
+    "biomed_anatomy": {
+      "n": 29,
+      "compact_improves_generalist": 4,
+      "compact_harms_generalist": 4
+    },
+    "biomed_anatomy+chexagent_description": {
+      "n": 8,
+      "compact_improves_generalist": 0,
+      "compact_harms_generalist": 1
+    }
+  }
+}

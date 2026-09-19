@@ -1,0 +1,284 @@
+{
+  "identity": "7d0dc7b744c57074bd9b69326073d98e90722ec959c88241d507d777b6e65824",
+  "n": 24,
+  "full_train": false,
+  "test_benchmark": false,
+  "scorer": "medheval-decoded-eval-v13-explanatory-uncertainty-review",
+  "scorers": {
+    "anchor/corrected_sgta/evaluate_medheval_answers.py": "ad0fb9abfebf1a0185709628835b33a052492fbe5e4828d097141282a59a21d6",
+    "anchor/medeval/evaluate_mixed_vqa_table.py": "7d5b7675fc0aa6455b1d60fc93dcfbb0fd04fa07e879259e483e38b7f24d99f4"
+  },
+  "original_scorers": {
+    "anchor/corrected_sgta/evaluate_medheval_answers.py": "962b7549b8f52438e7fa68aa16b3dd23312e74a7c3613057e16c0ef63f721934",
+    "anchor/medeval/evaluate_mixed_vqa_table.py": "7d5b7675fc0aa6455b1d60fc93dcfbb0fd04fa07e879259e483e38b7f24d99f4"
+  },
+  "explicit_rescore_pin": "configs/context-admission-current-scorer.json",
+  "references_sha256": "05fb6a3e36c91f9b26ff86df2434a3f54b6e017e534027f83b77dfcb0fffabff",
+  "metric": "Pinned current ANCHOR CLOSED parser + OPEN answer-token-recall; CLOSED includes explanatory parsing, not leading-token-only strict EM; not clinical accuracy",
+  "unavailable_scoring": "Explicit engineering-unavailable arms get 0 only in failure-inclusive task score. No answer is filled in the raw output; available-only paired cohort also reported.",
+  "original_compact_gain_cases": 2,
+  "original_compact_harm_cases": 3,
+  "arms": {
+    "generalist": {
+      "failure_inclusive_score": 0.3351851851851852,
+      "unavailable": 0,
+      "empty": 0,
+      "vs_generalist": {
+        "n": 24,
+        "delta": 0.0,
+        "improved": 0,
+        "harmed": 0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 24,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "vs_compact": {
+        "n": 24,
+        "delta": -0.024074074074074078,
+        "improved": 3,
+        "harmed": 2,
+        "image_ci95": {
+          "low": -0.18150462962962963,
+          "high": 0.11018518518518518,
+          "clusters": 24,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "available_only_vs_compact": {
+        "n": 24,
+        "delta": -0.024074074074074078,
+        "improved": 3,
+        "harmed": 2,
+        "image_ci95": {
+          "low": -0.18150462962962963,
+          "high": 0.11018518518518518,
+          "clusters": 24,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "text_changes_from_generalist": 0,
+      "original_gains_retained": 0,
+      "original_harms_recovered": 3,
+      "new_answer_calls": 0,
+      "new_answer_seconds": 0,
+      "reuse_counts": {
+        "True": 24
+      }
+    },
+    "compact": {
+      "failure_inclusive_score": 0.3592592592592593,
+      "unavailable": 0,
+      "empty": 0,
+      "vs_generalist": {
+        "n": 24,
+        "delta": 0.024074074074074078,
+        "improved": 2,
+        "harmed": 3,
+        "image_ci95": {
+          "low": -0.11018518518518518,
+          "high": 0.18150462962962952,
+          "clusters": 24,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "vs_compact": {
+        "n": 24,
+        "delta": 0.0,
+        "improved": 0,
+        "harmed": 0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 24,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "available_only_vs_compact": {
+        "n": 24,
+        "delta": 0.0,
+        "improved": 0,
+        "harmed": 0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 24,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "text_changes_from_generalist": 22,
+      "original_gains_retained": 2,
+      "original_harms_recovered": 0,
+      "new_answer_calls": 0,
+      "new_answer_seconds": 0,
+      "reuse_counts": {
+        "True": 24
+      }
+    },
+    "revision_no_evidence": {
+      "failure_inclusive_score": 0.2518518518518518,
+      "unavailable": 0,
+      "empty": 3,
+      "vs_generalist": {
+        "n": 24,
+        "delta": -0.08333333333333333,
+        "improved": 0,
+        "harmed": 2,
+        "image_ci95": {
+          "low": -0.20833333333333334,
+          "high": 0.0,
+          "clusters": 24,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "vs_compact": {
+        "n": 24,
+        "delta": -0.10740740740740741,
+        "improved": 2,
+        "harmed": 3,
+        "image_ci95": {
+          "low": -0.25,
+          "high": 0.01759259259259259,
+          "clusters": 24,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "available_only_vs_compact": {
+        "n": 24,
+        "delta": -0.10740740740740741,
+        "improved": 2,
+        "harmed": 3,
+        "image_ci95": {
+          "low": -0.25,
+          "high": 0.01759259259259259,
+          "clusters": 24,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "text_changes_from_generalist": 24,
+      "original_gains_retained": 0,
+      "original_harms_recovered": 2,
+      "new_answer_calls": 20,
+      "new_answer_seconds": 26.304402148351073,
+      "reuse_counts": {
+        "True": 4,
+        "False": 20
+      }
+    },
+    "revision_evidence": {
+      "failure_inclusive_score": 0.2101851851851852,
+      "unavailable": 1,
+      "empty": 5,
+      "vs_generalist": {
+        "n": 24,
+        "delta": -0.125,
+        "improved": 0,
+        "harmed": 3,
+        "image_ci95": {
+          "low": -0.2916666666666667,
+          "high": 0.0,
+          "clusters": 24,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "vs_compact": {
+        "n": 24,
+        "delta": -0.14907407407407408,
+        "improved": 3,
+        "harmed": 5,
+        "image_ci95": {
+          "low": -0.3481481481481481,
+          "high": 0.02685185185185185,
+          "clusters": 24,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "available_only_vs_compact": {
+        "n": 23,
+        "delta": -0.15555555555555556,
+        "improved": 3,
+        "harmed": 5,
+        "image_ci95": {
+          "low": -0.34782608695652173,
+          "high": 0.03673913043478247,
+          "clusters": 23,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "text_changes_from_generalist": 21,
+      "original_gains_retained": 0,
+      "original_harms_recovered": 3,
+      "new_answer_calls": 20,
+      "new_answer_seconds": 23.66242131101899,
+      "reuse_counts": {
+        "True": 3,
+        "False": 21
+      }
+    }
+  },
+  "gates": {},
+  "cost": {
+    "new_expert_calls": 0,
+    "real_native_cache_reused": true,
+    "load_seconds": 12.432794723892584,
+    "new_answer_seconds": 49.96682345937006,
+    "gate_seconds": 0,
+    "inherited_seconds_by_arm": {
+      "generalist": 12.931341130053625,
+      "compact": 18.705875178333372,
+      "revision_no_evidence": 4.487064275657758,
+      "revision_evidence": 4.819271641084924
+    },
+    "canary_parity_seconds": 0,
+    "note": "Shared warm inference with concurrent external jobs; not isolated end-to-end throughput."
+  },
+  "inherited_tool_audit": {
+    "historical_expert_calls": 46,
+    "historical_controller_calls": 46,
+    "tool_trace_seconds": 2.6516303167445585,
+    "tool_reasons": {
+      "empty_or_unusable_evidence": 20,
+      "ok": 26
+    },
+    "note": "Historical trace costs, not newly executed. May include native cache reuse; do not sum blindly with outer timings."
+  },
+  "delivery_audit": {
+    "cases_with_packets": null,
+    "packet_distribution": null,
+    "parity_checks": 0,
+    "parity_passed": 0,
+    "genuinely_new_candidate_cases": {
+      "generalist": 0,
+      "compact": 0,
+      "revision_no_evidence": 20,
+      "revision_evidence": 20
+    }
+  },
+  "privacy": "Aggregates only. No questions, answers, patient text, images or raw evidence."
+}

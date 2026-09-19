@@ -1,5 +1,24 @@
 # Current status
 
+## Context admission completed — 2026-09-19
+
+- Independent branch `experiments/context-admission-train-v1`, execution source
+  `53c1274`, base `3349259`. Both authorized GPUs completed all 1793 TRAIN rows;
+  exact merge and pinned offline evaluation passed. No test benchmark run.
+- Generalist 44.0297%, compact 48.1263%, relevance 48.1263%, scope 48.1263%,
+  rejected-complement 44.0297%, under current CLOSED parser + OPEN recall.
+  Both gates accepted all734 packets: zero new candidate answers, zero repair of
+  the48 original harms; 126 original gains retained only through unchanged reuse.
+  Additional1468 judge calls cost643.96s. This is a negative gate result.
+- Old24 revision terminal audit also finished, preserving empty/unavailable
+  outputs: compact35.93%, no-evidence revision25.19%, evidence revision21.02%.
+  Explicit current-scorer repin; historical scorer/results remain unchanged.
+- CPU1032 passed,10/10 real control parity checks passed. No training, threshold
+  fitting, environment upgrade, old-output overwrite or automatic merge.
+- See [results and limitations](docs/CONTEXT_ADMISSION_RESULTS.md) and
+  [literature synthesis](docs/CONTEXT_ADMISSION_RESEARCH.md). No efficacy or novelty
+  claim. Full TRAIN is not image-disjoint from official test.
+
 ## Revision-format diagnosis — 2026-09-19 (supersedes next-step plan below)
 
 - Continued on the independent anchored-revision branch. GPU diagnostic execution

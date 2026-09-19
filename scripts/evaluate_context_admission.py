@@ -72,7 +72,7 @@ def main():
         'original_scorers':source['scorers'],
         'explicit_rescore_pin':str(a.scorer_pin) if a.scorer_pin else None,
         'references_sha256':sha(DATA/'train/references.json'),
-        'metric':'ANCHOR strict CLOSED + OPEN answer-token-recall; not clinical accuracy',
+        'metric':'Pinned current ANCHOR CLOSED parser + OPEN answer-token-recall; not clinical accuracy',
         'unavailable_scoring':'Explicit engineering-unavailable arms get 0 only in failure-inclusive '
             'task score. No answer is filled in the raw output; available-only paired cohort also reported.',
         'original_compact_gain_cases':len(gain),'original_compact_harm_cases':len(harm),
