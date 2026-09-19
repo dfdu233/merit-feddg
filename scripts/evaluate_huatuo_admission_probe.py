@@ -56,6 +56,7 @@ def main():
                 cases[key]['arms'][arm] = dict(value, new_answer_calls=value.get(
                     'new_answer_calls', int(not value.get('reused_generalist', False))))
             calls.extend(candidate['calls'])
+            calls.extend(c['format_completion'] for c in candidate['calls'] if 'format_completion' in c)
         candidate_arms = candidate_protocol.get('arms', sorted(read(next(iter(candidate_files.values())))['arms']))
         if any(set(read(p)['arms']) != set(candidate_arms) for p in candidate_files.values()):
             raise ValueError('Candidate arm set differs between cases')

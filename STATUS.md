@@ -1,5 +1,25 @@
 # Current status
 
+## Official VQA-RAD451 TEST completed and scored — 2026-09-20
+
+- Final451/451 complete on two GPUs, merged exact IDs; frozen scoring done.
+  Baseline62.8193%, native MERIT57.1558%, critic60.3434%. Baseline/MERIT
+  recomputations match independent official stored scores within1e-12.
+- Critic vs Baseline9 gains/18 harms, -2.4760pp; paired203-image95% CI
+  [-4.7464,-0.3720]pp. Versus MERIT35 gains/14 harms,+3.1876pp. Cannot claim
+  Baseline preservation or successful general medical Gate.
+- Strict-parser v1 stopped at373. Explicit v2 same-token-prefix finite terminal
+  continuation repaired3 malformed responses, within original512 budget.
+ 373 prior selected answers identical.349 comparisons+3 completion calls;
+ 102 identical-text skips. Extra format calls recorded, never a free fallback.
+- Total recorded model-call1020.2948s (summed across GPUs/attempts, not wall time),
+  four loads31.8305s extra. Old generation cost unknown, not zero. Final original
+  answer reuse Baseline380/MERIT71; no new patient answer generation.
+- Final runs/critic-single-vqarad451-test-v2, evaluation.json complete.
+  Report docs/HUATUO_VQARAD451_TEST_FINAL.md; public numerical artifact
+  reports/huatuo-single-critic-vqarad451-test.json. CPU1053/focused21/Ruff passed.
+  Both inference jobs finished; earlier failure/output history preserved.
+
 ## Frozen VQA-RAD451 TEST single-critic evaluation started — 2026-09-20
 
 - User explicitly chose current single-call critic vs original Huatuo-MERIT and

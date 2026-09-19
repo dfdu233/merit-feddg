@@ -102,6 +102,8 @@ def main():
     p.add_argument('--shard-count', type=int, default=1)
     p.add_argument('--shard-index', type=int, default=0)
     p.add_argument('--merge-only', action='store_true')
+    p.add_argument('--complete-verdict', action='store_true',
+                   help='Bounded same-prefix finite-label continuation on invalid verdict only')
     p.add_argument('--image-control', choices=['original', 'cyclic_next'], default='original',
                    help='cyclic_next is a deliberately mismatched image diagnostic, never a patient prediction')
     a = p.parse_args()
@@ -144,11 +146,18 @@ def main():
     elif a.decision_channel == 'critic_reasoned':
         raise ValueError('Native critic prompt requires the independent critic backend')
     cfg['verdict_parser'] = 'consistent_explicit_terminal_bracket_v2'
+    if a.complete_verdict:
+        if a.judge != 'llava_critic' or a.decision_channel != 'critic_reasoned':
+            raise ValueError('Format continuation requires the reasoned independent critic')
+        cfg['format_completion'] = {
+            'policy':'on_invalid_only; exact generated prefix minus EOS; append Final verdict; finite ABC',
+            'source_sha256':native.sha(Path(__file__).parent/'critic_verdict_completion.py'),
+            'extra_comparison':False,'original_budget_preserved':True}
     reused = {}
     if a.reuse_judgments:
         old = native.read(a.reuse_judgments/'protocol.json')
         comparable = lambda d: {k:v for k,v in d.items()
-            if k not in ('identity', 'source_sha256', 'verdict_parser', 'reused_judgments')}
+            if k not in ('identity', 'source_sha256', 'verdict_parser', 'reused_judgments', 'format_completion')}
         if comparable(old) != comparable(cfg):
             raise ValueError('Cannot reuse different model, inputs, ordering or generation protocol')
         snapshots = {}
@@ -194,7 +203,10 @@ def main():
     torch.set_num_threads(4)
     start = time.perf_counter()
     if a.judge == 'llava_critic':
-        from llava_critic_backend import LlavaCritic
+        if a.complete_verdict:
+            from critic_verdict_completion import CompletingCritic as LlavaCritic
+        else:
+            from llava_critic_backend import LlavaCritic
         model = LlavaCritic(a.critic_attention)
     else:
         model = checked.HuatuoGeneralist(source['base']['generalist']['checkpoint_path'])
@@ -257,7 +269,19 @@ def main():
                         raise ValueError('Invalid finite action; never silently KEEP')
                     out['verdicts'].append(response['text'])
                 else:
-                    out['verdicts'].append(verdict(response['text']))
+                    try:
+                        label = verdict(response['text'])
+                    except ValueError:
+                        if not a.complete_verdict:
+                            raise
+                        if 'format_completion' not in call:
+                            call['format_completion'] = model.complete_verdict(
+                                visual['image'], prompt, response, cfg['judge_tokens'])
+                        label = call['format_completion']['usage']['text']
+                        if label not in ('A','B','C'):
+                            raise ValueError('Invalid constrained terminal label')
+                        native.atomic_json(a.output/'progress'/(row['id']+'.json'), out)
+                    out['verdicts'].append(label)
             chosen, reason = (single_selection(out['verdicts'][0], orders[0])
                 if a.comparison_orders == 'single' else selection(*out['verdicts']))
         out.update(selected=chosen, reason=reason, complete=True)
