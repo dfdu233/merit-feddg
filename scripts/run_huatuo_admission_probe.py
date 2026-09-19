@@ -156,6 +156,7 @@ def main():
             if not out['compact_parity']:
                 native.atomic_json(path, out)
                 raise RuntimeError('Native MERIT token/text replay parity failed')
+        native.atomic_json(a.output / 'native-controls' / (row['id'] + '.json'), out)
         for policy in ('relevance', 'scope'):
             judgments = []
             for item in items:

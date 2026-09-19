@@ -44,7 +44,7 @@ def admission_prompt(question, item, spec, policy):
             'not itself a reason to reject. Judge applicability, not medical truth. '
         )
     payload = {'question': question, 'specialist_definition': definition,
-               'native_observation': compact_records((item,), geometry=False)[0]}
+               'native_observation': compact_records((item,))[0]}
     return header + rule + '\n' + json.dumps(payload, ensure_ascii=False, separators=(',', ':'))
 
 

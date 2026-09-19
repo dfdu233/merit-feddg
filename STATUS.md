@@ -1,5 +1,23 @@
 # Current status
 
+## Huatuo targeted TRAIN probe — 2026-09-19
+
+- Independent `experiments/huatuo-context-admission-v1` targets Huatuo rather than
+  extrapolating the LLaVA result. Fixed first4 prior TRAIN-only-image probes;
+  native Huatuo routing, original expanded experts/all_evidence, formal1024-token
+  generation. HostGPU0 background run `runs/huatuo-train-admission-v5` COMPLETE.
+- Native12 expert outputs, exact first compact replay, no empty final answers.
+  Relevance admits9/12, scope7/12; real new candidates3/4 and1/4 respectively.
+  Diagnostic mixed scores: generalist80.56%, compact55.56%, relevance30.56%,
+  scope55.56%. Neither gate repairs the original harm; relevance introduces1.
+  Four examples are not benchmark efficacy evidence. Do not scale these gates.
+- Observed raw classification-score-to-diagnostic-claim misuse survives relevance
+  filtering. Next question is faithful native claim strength, not another
+  test-conditioned admission threshold. SLAKE optimization not yet run.
+- Existing environments/weights reused; failed paths and interface mismatches
+  preserved, compatibility fix only. Detailed results, source dependencies,
+  missing cost instrumentation: [Huatuo probe](docs/HUATUO_ADMISSION_PROBE.md).
+
 ## Context admission completed — 2026-09-19
 
 - Independent branch `experiments/context-admission-train-v1`, execution source
