@@ -21,7 +21,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dataset', choices=['vqa_rad', 'slake'], required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--exclude-schedule', type=Path,
+                        help='Exclude all pixels of an already inspected TRAIN schedule')
+    parser.add_argument('--max-images', type=int,
+                        help='Fixed scheduling count, never selected by scores')
     args = parser.parse_args()
+    if args.max_images is not None and args.max_images < 1:
+        raise ValueError('Positive fixed image count required')
     if args.output.exists():
         raise FileExistsError('Preserve frozen scheduling inputs')
     cache = {}
@@ -63,12 +69,24 @@ def main():
                 'q_lang':r['q_lang'],'task':'open_vqa','benchmark_prompt':prompt})
             refs[key] = [str(r['answer'])]
         limit = 64
+    if args.exclude_schedule:
+        previous = json.loads(args.exclude_schedule.read_text())
+        if previous['dataset'] != args.dataset:
+            raise ValueError('Excluded schedule dataset mismatch')
+        used_ids = set(previous['ids'])
+        if not used_ids <= {r['id'] for r in rows}:
+            raise ValueError('Excluded schedule contains unknown TRAIN IDs')
+        excluded |= {r['pixel_sha256'] for r in rows if r['id'] in used_ids}
+    if args.max_images is not None:
+        limit = args.max_images
     groups = {}
     for row in rows:
         if row['pixel_sha256'] not in excluded:
             groups.setdefault(row['pixel_sha256'], []).append(row)
     selected = [min(group,key=lambda r:hashlib.sha256(r['id'].encode()).hexdigest())['id']
                 for _,group in sorted(groups.items())]
+    if args.max_images is not None and len(selected) < args.max_images:
+        raise ValueError('Insufficient unused TRAIN images; do not silently shrink')
     if limit:
         selected = selected[:limit]
     if len(refs) != len(rows) or len({r['id'] for r in rows}) != len(rows):
@@ -81,6 +99,12 @@ def main():
         'selection':'one minimum SHA256(id) question per eligible pixel image; image-hash order; no scores',
         'excluded_test_and_used_image_count':len(excluded),'patient_disjoint':'unknown',
         'source_train_sha256':digest(train),'source_test_sha256':digest(test)})
+    if args.exclude_schedule:
+        atomic_json(args.output/'confirmation-exclusion.json', {
+            'excluded_schedule_sha256': digest(args.exclude_schedule),
+            'excluded_schedule': str(args.exclude_schedule.resolve()),
+            'frozen_count': limit, 'method': 'pixel exclusion before hash-order scheduling',
+            'labels_used_for_selection': False})
     print(args.dataset, 'full_manifest',len(rows),'scheduled',len(selected),'images',len(groups))
 
 

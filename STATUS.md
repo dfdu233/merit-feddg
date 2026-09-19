@@ -1,5 +1,25 @@
 # Current status
 
+## Frozen larger TRAIN confirmation queued — 2026-09-19
+
+- User chose larger TRAIN confirmation, not TEST. Fixed128 SLAKE pixels absent
+  from prior64 development images; test pixels excluded. Hash-order selection,
+  one question/image, no scores. Full9835-row label-free manifest retained.
+- Original candidate generator and explanation-first critic unchanged; no
+  prior64 output overwritten. New native preflight identity
+  e45860e3a4ed5dbafeedb88037801318a59ed2a8f9f5602f9e71e6ebe2a4c9a6 passed.
+- tmux `merit-critic-slake128-confirm` waits for hostGPU1/containerCUDA0 free
+  memory>=44000MiB (resource requirement, NOT a medical gate threshold), then
+  route/experts/native candidates/critic/offline scorer in sequence. Stops on
+  failure. Both GPUs currently busy with other jobs; inference not yet started.
+- Inputs runs/inputs-slake128-confirm; native runs/native-slake128-confirm-v1;
+  critic runs/critic-reasoned-slake128-confirm-v1. Logs runs/critic-preparation/
+  confirm128-*.log. Expected sanitized report reports/critic-reasoned-slake128-confirm-v1.json
+  only after complete checks. Pixel overlap128 vs64=0 verified. Patient isolation
+  unknown; these are TRAIN confirmation images, not clinical validation.
+- VQA87 reuse preflight also passed, but its GPU job was NOT launched: priority
+  is the user's fresh larger TRAIN confirmation. Old development results retained.
+
 ## Explanation-first critic complete development diagnosis — 2026-09-19
 
 - Added optional `critic_reasoned` official-layout-plus-verdict interface; old
