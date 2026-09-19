@@ -1,5 +1,32 @@
 # Current status
 
+## Dual-GPU confirmation completed — 2026-09-20
+
+- SLAKE128 new TRAIN images complete on hostGPU1; original Baseline58.6068%,
+  compact57.4349%, single critic59.7786%. Improve/harm10/7 vs Baseline;
+  delta95% image CI[-3.9063,+6.4453]pp. No established significance.
+- VQA87 existing development complete on hostGPU0:60.3448/53.4483/58.0460%;
+  critic improve/harm0/2 vs Baseline. Does not preserve all Baseline performance.
+- Calls66/47,223.4649/134.7163s. No repeated judge calls for saved outputs;
+  SLAKE final parser accepts consistent repeated mention with explicit terminal
+  verdict, never conflicting decisions. Full raw history preserved; replay of
+  VQA47 under new parser leaves every verdict unchanged.
+- Final SLAKE runs/critic-single-slake128-confirm-v4; RAD runs/critic-single-vqa87-v1.
+  Sanitized reports/single-critic-{slake128-confirm,vqa87-dev}.json and
+  docs/HUATUO_SINGLE_CALL_FINAL_RESULTS.md. Both jobs complete; no TEST launched.
+
+## Either authorized GPU may resume — 2026-09-20
+
+- User reaffirmed both host GPUs. Last free memory GPU0=14900MiB,
+  GPU1=19005MiB; neither meets existing24000MiB start check.
+- Replaced only our old GPU0 waiting queue with host tmux
+  merit-critic-resume-gpu0 and container tmux merit-critic-resume-gpu1.
+  First sufficiently free card acquires a shared OS flock and resumes the
+  same v3 output; no duplicate workers or new data partition. This is two-card
+  eligibility, NOT simultaneous model sharding or pooled VRAM. Other jobs untouched.
+- Both queues persist outside VSCode. Logs gpu0-resume.log/gpu1-resume.log in
+  runs/critic-single-slake128-confirm-v3. Model/method/scorer unchanged.
+
 ## Single-call parser recovery queued — 2026-09-19
 
 - Native128 controls complete; single-call criticv1 stopped after45 complete

@@ -40,6 +40,9 @@ def test_valid_verdict():
     assert module.verdict('Verdict: [B].') == 'B'
     assert module.verdict('- [A] if first is better\n- [B] if second is better\n'
                           '- [C] if tied\nThe verdict is [[C]].') == 'C'
+    assert module.verdict('The correct answer is [B].\n\nVerdict: [[B]]') == 'B'
+    with pytest.raises(ValueError):
+        module.verdict('The correct answer is [A].\n\nVerdict: [[B]]')
 
 
 @pytest.mark.parametrize('text', ['[A] then [[B]]', '[A] [A]', '[[[A]]]', '[A]]', '[[A]', 'A', '[D]'])

@@ -20,6 +20,10 @@ def verdict(text):
     text = re.sub(r'(?m)^\s*-\s*\[[ABC]\]\s+if\b[^\n]*', '', text)
     matches = re.findall(r'(?<!\[)(?:\[\[([ABC])\]\]|\[([ABC])\])(?!\])', text)
     labels = [a or b for a, b in matches]
+    if len(labels) > 1 and len(set(labels)) == 1:
+        terminal = re.search(r'(?im)^\s*(?:final\s+)?verdict:\s*(?:\[\[([ABC])\]\]|\[([ABC])\])[.\s]*$', text)
+        if terminal and (terminal.group(1) or terminal.group(2)) == labels[0]:
+            return labels[0]
     if len(labels) != 1:
         raise ValueError('Malformed pairwise verdict; no implicit fallback')
     return labels[0]
@@ -131,7 +135,7 @@ def main():
         cfg['critic']['decision_channel'] = a.decision_channel
     elif a.decision_channel == 'critic_reasoned':
         raise ValueError('Native critic prompt requires the independent critic backend')
-    cfg['verdict_parser'] = 'unique_single_or_double_bracket_v1'
+    cfg['verdict_parser'] = 'consistent_explicit_terminal_bracket_v2'
     reused = {}
     if a.reuse_judgments:
         old = native.read(a.reuse_judgments/'protocol.json')
