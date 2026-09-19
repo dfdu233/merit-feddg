@@ -1,5 +1,23 @@
 # Current status
 
+## Independent critic real canary — 2026-09-19
+
+- All four pinned weights downloaded and SHA256 verified. Real hostGPU1
+  inference completed fixed first8 of existing SLAKE64 TRAIN development rows.
+- v1 legacy metadata config failed startup; v2 exact weights loaded but finite
+  decoding failed. Both preserved. v3 uses BF16, explicit attention mask/EOS,
+  removes only the verified legacy metadata stub, checks runtime helper identity
+  and nonfinite returned logits. No shared dependency changes.
+- Actual load missing/unexpected/mismatched/error keys all empty. Eight judge
+  calls received native five-tile384px original-image inputs; four rows skipped
+  because original answers match. Judged pairs AA/AA/AA/AB; final all8 Baseline.
+- No gain: zero answer changes/improvements/harms by exact reuse. No full score,
+  no full64 or TEST expansion. Calls8.0497s plus successful loads25.9513s;
+  preparation/failed attempts and inherited candidate costs remain extra.
+- Focused10 tests and Ruff passed after fixes. Sanitized report:
+  reports/critic-slake8-v3.json. Need separate native free-form interface check
+  before attributing this negative result to independent judging generally.
+
 ## Frozen independent critic preparation — 2026-09-19
 
 - Branch `experiments/huatuo-independent-critic-v1`, base c080b826. Fixed

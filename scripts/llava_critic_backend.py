@@ -47,7 +47,7 @@ def identity():
         'vision_source': 'all 421 visual parameters embedded in critic checkpoint', 'weights_sha256': hashes,
         'upstream_commit': subprocess.check_output(['git','-C',str(UPSTREAM),'rev-parse','HEAD'], text=True).strip(),
         'source_sha256': source, 'checkpoint_config_sha256': sha(CHECKPOINT/'config.json'),
-        'dtype': 'float16', 'attention': 'eager', 'template': 'qwen_1_5',
+        'dtype': 'bfloat16', 'attention': 'eager', 'template': 'qwen_1_5',
         'training': False, 'decision_channel': 'finite_choice',
         'note': 'Closed-label adaptation; not official free-form critic reproduction'}
 
@@ -61,9 +61,15 @@ class LlavaCritic:
         self.torch = torch
         self.tokenizer = AutoTokenizer.from_pretrained(str(CHECKPOINT), local_files_only=True)
         config = LlavaQwenConfig.from_pretrained(str(CHECKPOINT), local_files_only=True)
+        # Legacy export contains a metadata-only Llama stub, not a decoder.
+        # Native LLaVA-Qwen uses top-level Qwen2 parameters; modern Transformers
+        # otherwise mistakes this dict for a nested PretrainedConfig.
+        if getattr(config, 'text_config', None) != {'model_type': 'llama'}:
+            raise ValueError('Unexpected legacy text_config; inspect before adapting')
+        del config.text_config
         config.vision_weights_in_main_checkpoint = True
         self.model, info = LlavaQwenForCausalLM.from_pretrained(
-            str(CHECKPOINT), config=config, local_files_only=True, dtype=torch.float16,
+            str(CHECKPOINT), config=config, local_files_only=True, dtype=torch.bfloat16,
             device_map={'': 'cuda:0'}, attn_implementation='eager', output_loading_info=True)
         if any(info.get(k) for k in ('missing_keys','unexpected_keys','mismatched_keys','error_msgs')):
             raise RuntimeError('Critic weight loading is not exact: '+repr(info))
@@ -73,7 +79,7 @@ class LlavaCritic:
         # Official builder trims Qwen padding rows to the actual tokenizer size.
         self.model.resize_token_embeddings(len(self.tokenizer))
         self.model.eval().requires_grad_(False)
-        self.model.get_vision_tower().to(device='cuda:0', dtype=torch.float16)
+        self.model.get_vision_tower().to(device='cuda:0', dtype=torch.bfloat16)
         self.image_processor = self.model.get_vision_tower().image_processor
         self.context_limit = min(int(config.max_position_embeddings), int(config.tokenizer_model_max_length))
         self.loading_info = dict(info, original_vocab_rows=original_rows,
@@ -91,7 +97,7 @@ class LlavaCritic:
         conversation.append_message(conversation.roles[1], None)
         ids = tokenizer_image_token(conversation.get_prompt(), self.tokenizer, IMAGE_TOKEN_INDEX,
                                     return_tensors='pt').unsqueeze(0).to('cuda:0')
-        pixels = [x.to(device='cuda:0', dtype=self.torch.float16)
+        pixels = [x.to(device='cuda:0', dtype=self.torch.bfloat16)
                   for x in process_images([image], self.image_processor, self.model.config)]
         if int((ids == IMAGE_TOKEN_INDEX).sum()) != 1 or len(pixels) != 1:
             raise ValueError('Expected one original image, with native anyres crops')
@@ -107,7 +113,11 @@ class LlavaCritic:
                 'input_tokens_upper_bound': upper, 'context_limit': self.context_limit}
 
     def generate_with_usage(self, image, prompt, max_new_tokens=8, *, allowed_texts=None):
+        import merit_feddg.constrained as constraint_module
         from merit_feddg.constrained import finite_choice_constraint
+        expected = Path(__file__).resolve().parents[1]/'merit_feddg/constrained.py'
+        if sha(constraint_module.__file__) != sha(expected):
+            raise ValueError('Runtime finite-choice helper differs from recorded source')
         ids, pixels, size, upper = self._inputs(image, prompt)
         if upper+max_new_tokens > self.context_limit:
             raise ValueError('Critic context unavailable; do not truncate answers or image')
@@ -117,9 +127,13 @@ class LlavaCritic:
                 self.tokenizer, allowed_texts, eos_token_id=self.tokenizer.eos_token_id)
         with self.torch.inference_mode():
             result = self.model.generate(ids, images=pixels, image_sizes=[size],
+                attention_mask=self.torch.ones_like(ids),
                 do_sample=False, num_beams=1, use_cache=True, max_new_tokens=max_new_tokens,
                 return_dict_in_generate=True, output_scores=True,
-                pad_token_id=self.tokenizer.eos_token_id, **options)
+                pad_token_id=self.tokenizer.eos_token_id,
+                eos_token_id=self.tokenizer.eos_token_id, **options)
+        if any(self.torch.isnan(s).any() or self.torch.isposinf(s).any() for s in result.scores):
+            raise ValueError('Nonfinite critic logits; do not treat as a medical verdict')
         token_ids = result.sequences[0].tolist()
         text = self.tokenizer.decode(token_ids, skip_special_tokens=True).strip()
         if allowed_texts and text not in allowed_texts:

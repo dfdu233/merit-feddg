@@ -1,5 +1,35 @@
 # Independent frozen multimodal critic: preparation, not efficacy evidence
 
+## Update: real eight-case canary completed, no expansion
+
+All four weight downloads and pinned hashes succeeded. Failed v1 startup was
+caused by the legacy `text_config={model_type:llama}` metadata stub, which modern
+Transformers treats as a real nested config. Only this exact stub is removed;
+top-level native Qwen2 architecture/weights are unchanged. v2 loaded every weight
+exactly, then failed finite decoding. v3 uses BF16 instead of FP16, explicit
+attention mask/EOS and a nonfinite-output check. These changes were bundled:
+we have NOT isolated the cause of the v2 decoding error, and do not claim proven
+FP16 overflow. Both failures remain locally preserved in separate roots.
+
+v3 completed the first2 and then first8 rows of the unchanged SLAKE64 schedule.
+All missing/unexpected/mismatched/error lists are empty. Four rows required no
+judge because candidates are identical. Four differing pairs generated eight
+real calls, with native original-image tensors `[5,3,384,384]`; finite judgments
+were AA, AA, AA, AB across forward/reverse orders. Final selections all preserve
+Baseline. Improvement/harm0/0 follows exact original-answer reuse, NOT successful
+medical verification. No full score, CI, or superiority claim is warranted.
+
+Calls cost8.0497s and two successful loads25.9513s. Failed v2 load alone cost
+12.2305s; downloads, failed inference/startup and original candidate costs are
+additional, incompletely timed costs. See reports/critic-slake8-v3.json.
+Ten focused CPU tests and Ruff passed after fixes. Full64 and TEST were NOT
+started. The finite-choice interface shows a position-preference warning in
+three of four judged pairs; a separate official free-form interface check is
+needed before concluding that the pretrained critic itself is ineffective.
+
+The following preparation record describes the earlier checkpoint, not current
+download status.
+
 2026-09-19. Branch `experiments/huatuo-independent-critic-v1`, based on
 `c080b826dff6a19075b222e9c566e56f1c20ec99`. Prior methods/results preserved.
 
