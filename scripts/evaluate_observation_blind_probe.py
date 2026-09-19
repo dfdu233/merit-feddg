@@ -54,19 +54,27 @@ def main():
             result['arms'][arm]['selection'] = dict(collections.Counter(c['conditions'][arm]['selected'] for c in cases.values()))
             result['arms'][arm]['sum_mean_selection_disagreement'] = sum(
                 ('compact' if c['conditions'][arm]['scores']['compact']['sum'] > c['conditions'][arm]['scores']['generalist']['sum'] else 'generalist')
-                != c['conditions'][arm]['selected'] for c in cases.values())
+                != c['conditions'][arm]['selected'] for c in cases.values() if c['conditions'][arm]['scores'])
+            result['arms'][arm]['unavailable'] = sum('unavailable' in c['conditions'][arm] for c in cases.values())
+        eligible = [k for k in rows if cases[k]['observation']['available']]
+        result['arms'][arm]['eligible_score'] = statistics.mean(s[k] for k in eligible) if eligible else None
+        result['arms'][arm]['eligible_gains_vs_baseline'] = sum(s[k] > scores['generalist'][k] for k in eligible)
+        result['arms'][arm]['eligible_harms_vs_baseline'] = sum(s[k] < scores['generalist'][k] for k in eligible)
     calls = [v for c in cases.values() for v in c['calls']]
     result['calls'] = {'count':len(calls),'seconds':sum(v['seconds'] for v in calls),
         'per_arm_seconds':{a:sum(v['seconds'] for v in calls if v['stage']==a) for a in config['arms']},
         'load_seconds':sum(read(p)['seconds'] for p in OUT.glob('load-*.json')),
         'peak_allocated_bytes':max(c['peak_memory_bytes'] for c in cases.values())}
-    result['coverage'] = {'real_crops':len(cases),'normal_inherited_parity':sum(c['normal_inherited_view_parity'] for c in cases.values()),
+    result['calls']['inherited_candidate_seconds'] = {
+        arm:sum(original[k]['arms'][arm]['seconds'] for k in rows) for arm in ('generalist','compact')}
+    result['calls']['inherited_cost_note'] = 'Historical saved runner seconds, not rerun this round; compact and compact_raw describe the same call and are not double-counted. Any unrecorded historical costs remain unknown.'
+    result['coverage'] = {'real_crops':sum(c['observation']['available'] for c in cases.values()),'normal_inherited_parity':sum(c['normal_inherited_view_parity'] for c in cases.values()),
         'native_input_parity':sum(c['native_single_image_parity'] for c in cases.values()),
         'different_candidate_texts':sum(original[k]['arms']['generalist']['text'] != original[k]['arms']['compact']['text'] for k in rows),
         'new_answer_generation':0,'raw_candidate_reuse':2*len(cases),
         'crop_vs_fullview_choice_changes':sum(c['conditions']['native_crop']['selected'] != c['conditions']['full_view_control']['selected'] for c in cases.values())}
     write(OUT/'evaluation.json',result)
-    write(ROOT/'reports/observation-blind-slake8-v1.json',result)
+    write(ROOT/'reports'/(OUT.name+'.json'),result)
     print(json.dumps(result,ensure_ascii=False,indent=2))
 
 

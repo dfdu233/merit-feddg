@@ -1,0 +1,162 @@
+{
+  "identity": "99ce7d059863f5a004c88f2e3eacb607d237197bee42bd88a9329764ccff5507",
+  "n": 128,
+  "pilot_only": true,
+  "metric": "Frozen ANCHOR CLOSED parser + OPEN token recall; not clinical accuracy",
+  "scorer_hashes": {
+    "evaluate_medheval_answers.py": "ad0fb9abfebf1a0185709628835b33a052492fbe5e4828d097141282a59a21d6",
+    "evaluate_mixed_vqa_table.py": "7d5b7675fc0aa6455b1d60fc93dcfbb0fd04fa07e879259e483e38b7f24d99f4"
+  },
+  "arms": {
+    "generalist": {
+      "score": 0.5860677083333333,
+      "gains_vs_baseline": 0,
+      "harms_vs_baseline": 0,
+      "ci95_delta_vs_baseline": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 128,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "eligible_score": 0.5454545454545454,
+      "eligible_gains_vs_baseline": 0,
+      "eligible_harms_vs_baseline": 0
+    },
+    "compact": {
+      "score": 0.5743489583333333,
+      "gains_vs_baseline": 14,
+      "harms_vs_baseline": 14,
+      "ci95_delta_vs_baseline": {
+        "low": -0.0859375,
+        "high": 0.056640625,
+        "clusters": 128,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "eligible_score": 0.36363636363636365,
+      "eligible_gains_vs_baseline": 1,
+      "eligible_harms_vs_baseline": 3
+    },
+    "image_only": {
+      "score": 0.5958333333333333,
+      "gains_vs_baseline": 2,
+      "harms_vs_baseline": 0,
+      "ci95_delta_vs_baseline": {
+        "low": 0.0,
+        "high": 0.02734375,
+        "clusters": 128,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "selection": {
+        "generalist": 123,
+        "compact": 5
+      },
+      "sum_mean_selection_disagreement": 6,
+      "unavailable": 0,
+      "eligible_score": 0.5454545454545454,
+      "eligible_gains_vs_baseline": 0,
+      "eligible_harms_vs_baseline": 0
+    },
+    "segmentation_text": {
+      "score": 0.5860677083333333,
+      "gains_vs_baseline": 0,
+      "harms_vs_baseline": 0,
+      "ci95_delta_vs_baseline": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 128,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "selection": {
+        "generalist": 128
+      },
+      "sum_mean_selection_disagreement": 0,
+      "unavailable": 117,
+      "eligible_score": 0.5454545454545454,
+      "eligible_gains_vs_baseline": 0,
+      "eligible_harms_vs_baseline": 0
+    },
+    "native_crop": {
+      "score": 0.5860677083333333,
+      "gains_vs_baseline": 0,
+      "harms_vs_baseline": 0,
+      "ci95_delta_vs_baseline": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 128,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "selection": {
+        "generalist": 128
+      },
+      "sum_mean_selection_disagreement": 0,
+      "unavailable": 117,
+      "eligible_score": 0.5454545454545454,
+      "eligible_gains_vs_baseline": 0,
+      "eligible_harms_vs_baseline": 0
+    },
+    "full_view_control": {
+      "score": 0.5860677083333333,
+      "gains_vs_baseline": 0,
+      "harms_vs_baseline": 0,
+      "ci95_delta_vs_baseline": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 128,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "selection": {
+        "generalist": 128
+      },
+      "sum_mean_selection_disagreement": 0,
+      "unavailable": 117,
+      "eligible_score": 0.5454545454545454,
+      "eligible_gains_vs_baseline": 0,
+      "eligible_harms_vs_baseline": 0
+    }
+  },
+  "calls": {
+    "count": 322,
+    "seconds": 32.83397859195247,
+    "per_arm_seconds": {
+      "image_only": 22.104477556189522,
+      "segmentation_text": 2.4673252904322,
+      "native_crop": 4.133841935079545,
+      "full_view_control": 4.128333810251206
+    },
+    "load_seconds": 18.289440050022677,
+    "peak_allocated_bytes": 19383659008,
+    "inherited_candidate_seconds": {
+      "generalist": 33.6968153140042,
+      "compact": 133.24032144993544
+    },
+    "inherited_cost_note": "Historical saved runner seconds, not rerun this round; compact and compact_raw describe the same call and are not double-counted. Any unrecorded historical costs remain unknown."
+  },
+  "coverage": {
+    "real_crops": 11,
+    "normal_inherited_parity": 128,
+    "native_input_parity": 128,
+    "different_candidate_texts": 66,
+    "new_answer_generation": 0,
+    "raw_candidate_reuse": 256,
+    "crop_vs_fullview_choice_changes": 0
+  },
+  "limitations": [
+    "Previously inspected TRAIN images; not holdout",
+    "English exact-name anatomy selection",
+    "Full-answer likelihood; claim-level selector not implemented",
+    "No classification/text expert efficacy experiment",
+    "Original candidate/routing/segmentation costs inherited, not zero"
+  ]
+}

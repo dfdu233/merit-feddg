@@ -1,5 +1,21 @@
 # Current status
 
+## Expanded observation-blind TRAIN diagnostic complete — 2026-09-19 UTC
+
+- User-requested expansion completed all 128 existing SLAKE TRAIN cases;
+  original 8-case results preserved. Same likelihood rule and candidate pool.
+- Baseline 58.6068%, native MERIT 57.4349%, image-only ranking 59.5833%
+  (2 score increases / 0 decreases; image-cluster delta CI [0, 2.7344] pp).
+  Both increases are Chinese OPEN token-recall changes, not verified clinical
+  corrections. No SOTA or generalization claim.
+- Only 11 real applicable crops. All observation rankers chose Baseline on
+  those 11; the other 117 rows explicitly unavailable/fallback. No spatial
+  gain. Full-queue fallback equality is not evidence of a successful gate.
+- 36 relevant CPU tests passed; 322 real scoring calls completed; 32.834 s
+  scoring + 18.289 s loading, excluding other overhead and inherited costs.
+- Details: [TRAIN128 report](docs/OBSERVATION_BLIND_TRAIN128_RESULTS.md),
+  [aggregate](reports/observation-blind-slake128-v1.json).
+
 ## Observation-mediated TRAIN diagnostic complete — 2026-09-19 UTC
 
 - Isolated `experiments/observation-blind-train-v1`, based on783350d. No old
