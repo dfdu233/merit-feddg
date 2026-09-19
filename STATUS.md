@@ -1,5 +1,21 @@
 # Current status
 
+## Frozen independent critic preparation — 2026-09-19
+
+- Branch `experiments/huatuo-independent-critic-v1`, base c080b826. Fixed
+  original Huatuo candidates; optional official pretrained LLaVA-Critic backend.
+  No training, numeric admission threshold, TEST tuning or shared upgrades.
+- Download in tmux `merit-critic-aria2`; full checkpoint identity is mandatory
+  before inference. Embedded421 visual keys structurally matched; strict actual
+  weight load and real canary remain pending. No new efficacy result.
+- Existing1040 CPU tests passed, additional focused10/10 passed, Ruff/CLI passed.
+  HostGPU1 is the idle authorized device; hostGPU0 has another active workload.
+- Next: first2 existing SLAKE64 TRAIN development cases, inspect actual calls,
+  then8-case stop; no automatic full benchmark. Details and command:
+  docs/HUATUO_INDEPENDENT_CRITIC.md. Old methods/results unchanged.
+- Persistent `merit-critic-canary` is queued behind the current download process;
+  it runs only2 cases, with strict checkpoint checks and a1800-second timeout.
+
 ## Theory-grounded judge interface diagnosis — 2026-09-19
 
 - Independent `experiments/huatuo-judge-channel-v1`, parent5d827db. Reviewed14

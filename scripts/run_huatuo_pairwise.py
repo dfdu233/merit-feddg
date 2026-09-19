@@ -1,8 +1,8 @@
 """TRAIN development: image-grounded pairwise selection, not answer rewriting.
 
 Adapted from FastChat's two-order pairwise judge (NeurIPS 2023) and
-LLaVA-Critic's image/question/two-answer input (CVPR 2025). Uses existing
-Huatuo, NOT the pretrained LLaVA-Critic checkpoint; no reproduction claim.
+LLaVA-Critic's image/question/two-answer input (CVPR 2025). Supports existing
+Huatuo or a frozen independent LLaVA-Critic judge; no reproduction claim.
 """
 import argparse
 import json
@@ -55,6 +55,7 @@ def main():
     p.add_argument('--canary-cases', type=int)
     p.add_argument('--check-only', action='store_true')
     p.add_argument('--decision-channel', choices=['free_text', 'finite_choice'], default='free_text')
+    p.add_argument('--judge', choices=['huatuo', 'llava_critic'], default='huatuo')
     p.add_argument('--image-control', choices=['original', 'cyclic_next'], default='original',
                    help='cyclic_next is a deliberately mismatched image diagnostic, never a patient prediction')
     a = p.parse_args()
@@ -67,7 +68,7 @@ def main():
                       source['base']['huatuo_canary_sources']).items():
         if native.sha(path) != sha:
             raise ValueError('Frozen native dependency changed: '+path)
-    cfg = {'method': 'two-order image-grounded Huatuo pairwise selection',
+    cfg = {'method': 'two-order image-grounded pairwise selection',
         'source_sha256': native.sha(__file__), 'base_identity': source['identity'],
         'ids': [r['id'] for r in source['rows']],
         'judge_tokens': 8 if a.decision_channel == 'finite_choice' else 512,
@@ -81,6 +82,12 @@ def main():
         'policy': 'select compact only if both orderings select compact; ties/disagreement keep baseline',
         'raw_expert_context_to_judge': False, 'new_answer_generation': False,
         'evaluation_status': 'development; these TRAIN images have already been inspected'}
+    cfg['judge'] = a.judge
+    if a.judge == 'llava_critic':
+        if a.decision_channel != 'finite_choice':
+            raise ValueError('This experiment freezes the finite-choice interface')
+        from llava_critic_backend import identity as critic_identity
+        cfg['critic'] = critic_identity()
     identity = native.fingerprint(cfg)
     protocol = {'identity': identity, **cfg}
     pp = a.output/'protocol.json'
@@ -99,8 +106,17 @@ def main():
     from transformers import set_seed
     torch.set_num_threads(4)
     start = time.perf_counter()
-    model = checked.HuatuoGeneralist(source['base']['generalist']['checkpoint_path'])
-    native.atomic_json(a.output/'load.json', {'seconds': time.perf_counter()-start})
+    if a.judge == 'llava_critic':
+        from llava_critic_backend import LlavaCritic
+        model = LlavaCritic()
+    else:
+        model = checked.HuatuoGeneralist(source['base']['generalist']['checkpoint_path'])
+    load_record = {'seconds': time.perf_counter()-start,
+                   'weight_loading': getattr(model, 'loading_info', None)}
+    load_path = a.output/'load.json'
+    if load_path.exists():
+        load_path = a.output/('load-resume-'+str(time.time_ns())+'.json')
+    native.atomic_json(load_path, load_record)
     for index, row in enumerate(source['rows'][:a.canary_cases]):
         path = a.output/'cases'/(row['id']+'.json')
         if path.exists():

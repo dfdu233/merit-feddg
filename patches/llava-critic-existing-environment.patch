@@ -1,0 +1,33 @@
+diff --git a/llava/model/multimodal_encoder/siglip_encoder.py b/llava/model/multimodal_encoder/siglip_encoder.py
+index f1e101a..6d43dbe 100755
+--- a/llava/model/multimodal_encoder/siglip_encoder.py
++++ b/llava/model/multimodal_encoder/siglip_encoder.py
+@@ -547,7 +547,14 @@ def __init__(self, vision_tower, vision_tower_cfg, delay_load=False):
+ 
+         self.image_processor = SigLipImageProcessor()
+ 
+-        if not delay_load:
++        if getattr(vision_tower_cfg, "vision_weights_in_main_checkpoint", False):
++            # Caller must verify complete checkpoint coverage before inference.
++            self.vision_tower = SigLipVisionModel(self.config)
++            del self.vision_tower.vision_model.encoder.layers[-1:]
++            self.vision_tower.vision_model.head = nn.Identity()
++            self.vision_tower.requires_grad_(False)
++            self.is_loaded = True
++        elif not delay_load:
+             rank0_print(f"Loading vision tower: {vision_tower}")
+             self.load_model()
+         elif getattr(vision_tower_cfg, "unfreeze_mm_vision_tower", False):
+diff --git a/llava/model/multimodal_resampler/qformer.py b/llava/model/multimodal_resampler/qformer.py
+index b86754c..3bbf4ce 100755
+--- a/llava/model/multimodal_resampler/qformer.py
++++ b/llava/model/multimodal_resampler/qformer.py
+@@ -38,6 +38,8 @@
+ )
+ from transformers.modeling_utils import (
+     PreTrainedModel,
++)
++from transformers.pytorch_utils import (
+     apply_chunking_to_forward,
+     find_pruneable_heads_and_indices,
+     prune_linear_layer,
