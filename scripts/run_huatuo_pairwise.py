@@ -15,7 +15,11 @@ from pathlib import Path
 
 
 def verdict(text):
-    labels = re.findall(r'\[\[([ABC])\]\]', text)
+    # Conditional option-list echoes are not verdicts; a separate explicit
+    # bracketed decision is still required. Do not choose among actual conflicts.
+    text = re.sub(r'(?m)^\s*-\s*\[[ABC]\]\s+if\b[^\n]*', '', text)
+    matches = re.findall(r'(?<!\[)(?:\[\[([ABC])\]\]|\[([ABC])\])(?!\])', text)
+    labels = [a or b for a, b in matches]
     if len(labels) != 1:
         raise ValueError('Malformed pairwise verdict; no implicit fallback')
     return labels[0]
@@ -89,6 +93,8 @@ def main():
     p.add_argument('--judge', choices=['huatuo', 'llava_critic'], default='huatuo')
     p.add_argument('--comparison-orders', choices=['single', 'double'], default='double')
     p.add_argument('--critic-attention', choices=['eager', 'sdpa'], default='eager')
+    p.add_argument('--reuse-judgments', type=Path,
+                   help='Reparse immutable saved calls from an otherwise identical run')
     p.add_argument('--image-control', choices=['original', 'cyclic_next'], default='original',
                    help='cyclic_next is a deliberately mismatched image diagnostic, never a patient prediction')
     a = p.parse_args()
@@ -125,6 +131,26 @@ def main():
         cfg['critic']['decision_channel'] = a.decision_channel
     elif a.decision_channel == 'critic_reasoned':
         raise ValueError('Native critic prompt requires the independent critic backend')
+    cfg['verdict_parser'] = 'unique_single_or_double_bracket_v1'
+    reused = {}
+    if a.reuse_judgments:
+        old = native.read(a.reuse_judgments/'protocol.json')
+        comparable = lambda d: {k:v for k,v in d.items()
+            if k not in ('identity', 'source_sha256', 'verdict_parser', 'reused_judgments')}
+        if comparable(old) != comparable(cfg):
+            raise ValueError('Cannot reuse different model, inputs, ordering or generation protocol')
+        snapshots = {}
+        for key in cfg['ids']:
+            candidates = [a.reuse_judgments/folder/(key+'.json') for folder in ('cases', 'progress')]
+            saved_path = next((f for f in candidates if f.exists()), None)
+            if saved_path is not None:
+                value = native.read(saved_path)
+                if value['identity'] != old['identity'] or value['id'] != key:
+                    raise ValueError('Reused judgment identity mismatch')
+                reused[key] = value
+                snapshots[str(saved_path.resolve())] = native.sha(saved_path)
+        cfg['reused_judgments'] = {'identity': old['identity'],
+            'protocol_sha256': native.sha(a.reuse_judgments/'protocol.json'), 'files': snapshots}
     identity = native.fingerprint(cfg)
     protocol = {'identity': identity, **cfg}
     pp = a.output/'protocol.json'
@@ -177,7 +203,11 @@ def main():
             chosen, reason = 'generalist', 'identical_text_no_selection_opportunity'
         else:
             orders = comparison_orders(row['id'], a.comparison_orders)
-            for order in orders:
+            cached = reused.get(row['id'])
+            if cached and (cached['delivered_image_sha256'] != visual['image_sha256'] or
+                           cached['delivered_image_id'] != visual['id']):
+                raise ValueError('Reused call image mismatch')
+            for call_index, order in enumerate(orders):
                 prompt = comparison_prompt(row['question'], answers[order[0]]['text'],
                                            answers[order[1]]['text'], a.decision_channel)
                 if not model.context_token_budget(visual['image'], prompt, cfg['judge_tokens'])['fits']:
@@ -185,8 +215,16 @@ def main():
                 set_seed(42)
                 start = time.perf_counter()
                 kwargs = {'allowed_texts': ('A', 'B', 'C')} if a.decision_channel == 'finite_choice' else {}
-                response = model.generate_with_usage(visual['image'], prompt, cfg['judge_tokens'], **kwargs)
-                out['calls'].append({'order': order, 'seconds': time.perf_counter()-start, 'usage': response})
+                if cached and call_index < len(cached['calls']):
+                    call = dict(cached['calls'][call_index])
+                    if tuple(call['order']) != tuple(order):
+                        raise ValueError('Reused candidate order mismatch')
+                    response = call['usage']
+                    call['reused_judgment'] = True
+                else:
+                    response = model.generate_with_usage(visual['image'], prompt, cfg['judge_tokens'], **kwargs)
+                    call = {'order': order, 'seconds': time.perf_counter()-start, 'usage': response}
+                out['calls'].append(call)
                 native.atomic_json(a.output/'progress'/(row['id']+'.json'), out)
                 if a.decision_channel == 'finite_choice':
                     if response['text'] not in ('A', 'B', 'C'):

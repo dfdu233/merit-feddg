@@ -1,5 +1,24 @@
 # Current status
 
+## Single-call parser recovery queued — 2026-09-19
+
+- Native128 controls complete; single-call criticv1 stopped after45 complete
+  cases because the next saved response used [A] instead of [[A]]. No fallback.
+- Parser now accepts exactly one single/double bracket verdict; ignores explicit
+  conditional option-list echoes, rejects duplicate/conflicting/missing labels.
+  Replayed21 completed real calls: all45 existing selections unchanged. The saved
+  failed call now parses A without new inference. Model/prompt/order unchanged.
+- `--reuse-judgments` requires matching model, inputs, call order and generation
+  protocol, records immutable source-file hashes, replays raw calls with original
+  costs, and creates new output identity. Old files preserved. New runv3 (v2
+  was preflight-only) at runs/critic-single-slake128-confirm-v3.
+- HostGPU0 tmux merit-critic-slake128-resume waits for >=24000MiB free, then
+  resumes and scores only upon complete128. Last check GPU0 free14900MiB,
+  GPU1 free18614MiB, other workloads untouched. No new generated cases yet.
+- Full1051 CPU tests, focused19 and Ruff passed. Current native128 frozen scores
+  Baseline58.6068%, compact57.4349%; no complete critic score. Format repair is
+  not a medical-effect improvement or a second comparison.
+
 ## User-requested single-call two-device execution — 2026-09-19
 
 - User requested immediate execution on both authorized host GPUs and no second

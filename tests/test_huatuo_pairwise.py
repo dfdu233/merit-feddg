@@ -36,6 +36,16 @@ def test_malformed_not_keep(text):
 def test_valid_verdict():
     assert module.verdict('The second answer fits the image.\n[[B]]\n') == 'B'
     assert module.verdict('[[C]] for a tie. The two answers agree.') == 'C'
+    assert module.verdict('Hence, the better answer is [A] for the first response.') == 'A'
+    assert module.verdict('Verdict: [B].') == 'B'
+    assert module.verdict('- [A] if first is better\n- [B] if second is better\n'
+                          '- [C] if tied\nThe verdict is [[C]].') == 'C'
+
+
+@pytest.mark.parametrize('text', ['[A] then [[B]]', '[A] [A]', '[[[A]]]', '[A]]', '[[A]', 'A', '[D]'])
+def test_ambiguous_brackets_rejected(text):
+    with pytest.raises(ValueError):
+        module.verdict(text)
 
 
 def test_channel_preserves_candidate_content():
