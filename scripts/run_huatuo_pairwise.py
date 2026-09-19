@@ -5,6 +5,7 @@ LLaVA-Critic's image/question/two-answer input (CVPR 2025). Supports existing
 Huatuo or a frozen independent LLaVA-Critic judge; no reproduction claim.
 """
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -29,6 +30,24 @@ def selection(forward, reverse):
     if winners == ['generalist', 'generalist']:
         return 'generalist', 'order_consistent_generalist'
     return 'generalist', 'tie_or_order_inconsistent'
+
+
+def comparison_orders(case_id, mode):
+    normal = ('generalist', 'compact')
+    reverse = ('compact', 'generalist')
+    if mode == 'single':
+        # Label-free deterministic positioning, no second judge call.
+        return [reverse if int(hashlib.sha256(case_id.encode()).hexdigest(), 16) % 2 else normal]
+    if mode != 'double':
+        raise ValueError('Unknown comparison order mode')
+    return [normal, reverse]
+
+
+def single_selection(label, order):
+    if label not in ('A', 'B', 'C'):
+        raise ValueError('Invalid single verdict')
+    return ('generalist', 'single_tie') if label == 'C' else (
+        order[0 if label == 'A' else 1], 'single_judge_choice')
 
 
 def comparison_prompt(question, first, second, channel):
@@ -68,6 +87,8 @@ def main():
     p.add_argument('--check-only', action='store_true')
     p.add_argument('--decision-channel', choices=['free_text', 'finite_choice', 'critic_reasoned'], default='free_text')
     p.add_argument('--judge', choices=['huatuo', 'llava_critic'], default='huatuo')
+    p.add_argument('--comparison-orders', choices=['single', 'double'], default='double')
+    p.add_argument('--critic-attention', choices=['eager', 'sdpa'], default='eager')
     p.add_argument('--image-control', choices=['original', 'cyclic_next'], default='original',
                    help='cyclic_next is a deliberately mismatched image diagnostic, never a patient prediction')
     a = p.parse_args()
@@ -95,9 +116,12 @@ def main():
         'raw_expert_context_to_judge': False, 'new_answer_generation': False,
         'evaluation_status': 'development; these TRAIN images have already been inspected'}
     cfg['judge'] = a.judge
+    cfg['comparison_orders'] = a.comparison_orders
+    if a.comparison_orders == 'single':
+        cfg['policy'] = 'one judge call, SHA256(id) parity orders candidates; tie keeps generalist'
     if a.judge == 'llava_critic':
         from llava_critic_backend import identity as critic_identity
-        cfg['critic'] = critic_identity()
+        cfg['critic'] = critic_identity(a.critic_attention)
         cfg['critic']['decision_channel'] = a.decision_channel
     elif a.decision_channel == 'critic_reasoned':
         raise ValueError('Native critic prompt requires the independent critic backend')
@@ -121,7 +145,7 @@ def main():
     start = time.perf_counter()
     if a.judge == 'llava_critic':
         from llava_critic_backend import LlavaCritic
-        model = LlavaCritic()
+        model = LlavaCritic(a.critic_attention)
     else:
         model = checked.HuatuoGeneralist(source['base']['generalist']['checkpoint_path'])
     load_record = {'seconds': time.perf_counter()-start,
@@ -152,7 +176,8 @@ def main():
         if answers['generalist']['text'] == answers['compact']['text']:
             chosen, reason = 'generalist', 'identical_text_no_selection_opportunity'
         else:
-            for order in [('generalist','compact'), ('compact','generalist')]:
+            orders = comparison_orders(row['id'], a.comparison_orders)
+            for order in orders:
                 prompt = comparison_prompt(row['question'], answers[order[0]]['text'],
                                            answers[order[1]]['text'], a.decision_channel)
                 if not model.context_token_budget(visual['image'], prompt, cfg['judge_tokens'])['fits']:
@@ -169,7 +194,8 @@ def main():
                     out['verdicts'].append(response['text'])
                 else:
                     out['verdicts'].append(verdict(response['text']))
-            chosen, reason = selection(*out['verdicts'])
+            chosen, reason = (single_selection(out['verdicts'][0], orders[0])
+                if a.comparison_orders == 'single' else selection(*out['verdicts']))
         out.update(selected=chosen, reason=reason, complete=True)
         out['arms']['pairwise_selected'] = dict(answers[chosen], reuse=chosen, new_answer_calls=0)
         native.atomic_json(path, out)

@@ -1,5 +1,30 @@
 # Current status
 
+## User-requested single-call two-device execution — 2026-09-19
+
+- User requested immediate execution on both authorized host GPUs and no second
+  comparison. Added `--comparison-orders single`: one label-free SHA256(id)
+  parity-chosen candidate order, one explanation/verdict, ties keep generalist.
+  Old double-order default retained. Single-order is a DIFFERENT selection
+  protocol; no robustness/noninferiority guarantee and no pooling with old scores.
+- Added optional SDPA for critic to fit concurrent workloads; eager default
+  retained. Strict identical checkpoint checks remain. HostGPU0 real8-case
+  canary passed,4 calls (four identical candidates skipped),13.9866s; never more
+  than one call/case. No numerical parity claim between attention backends.
+- Original waiting-only tmux stopped (only our own queue). HostGPU1 now runs
+  native route/experts/admission, hostGPU0 queues critic after complete native
+  controls. Model dependency prevents simultaneous stages for the same case pool.
+- Fixed missing artifacts symlink to existing weights. This also restored
+  chexagent_description and biomedparse_objects to the registry. Failed nativev1
+  preserved; nativev2 reroutes all128. Registry matches previous64 except output
+  paths/device UUID; generation config identical. Nativev2 identity
+  9602d9844e9ff3fcd464ceced136d77b3108b1046ebda1fad2c5cdf6b95665ff.
+- Active local tmux merit-native-slake128; host tmux merit-critic-slake128-single.
+  Native runs/native-slake128-confirm-v2; critic runs/critic-single-slake128-confirm-v1.
+  Score will be written there as evaluation.json, only after complete checks.
+  Old queue naming below is historical. First corrected route128/128 done;
+  expert stage started. Full1044 CPU tests, focused12 and Ruff passed.
+
 ## Frozen larger TRAIN confirmation queued — 2026-09-19
 
 - User chose larger TRAIN confirmation, not TEST. Fixed128 SLAKE pixels absent

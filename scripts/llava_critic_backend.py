@@ -29,7 +29,9 @@ def sha(path):
     return h.hexdigest()
 
 
-def identity():
+def identity(attention='eager'):
+    if attention not in ('eager', 'sdpa'):
+        raise ValueError('Unsupported attention backend')
     index = json.loads((CHECKPOINT/'model.safetensors.index.json').read_text())
     weights = sorted(set(index['weight_map'].values()))
     hashes = {}
@@ -47,13 +49,15 @@ def identity():
         'vision_source': 'all 421 visual parameters embedded in critic checkpoint', 'weights_sha256': hashes,
         'upstream_commit': subprocess.check_output(['git','-C',str(UPSTREAM),'rev-parse','HEAD'], text=True).strip(),
         'source_sha256': source, 'checkpoint_config_sha256': sha(CHECKPOINT/'config.json'),
-        'dtype': 'bfloat16', 'attention': 'eager', 'template': 'qwen_1_5',
+        'dtype': 'bfloat16', 'attention': attention, 'template': 'qwen_1_5',
         'training': False, 'decision_channel': 'finite_choice',
         'note': 'Closed-label adaptation; not official free-form critic reproduction'}
 
 
 class LlavaCritic:
-    def __init__(self):
+    def __init__(self, attention='eager'):
+        if attention not in ('eager', 'sdpa'):
+            raise ValueError('Unsupported attention backend')
         sys.path.insert(0, str(UPSTREAM))
         import torch
         from llava.model.language_model.llava_qwen import LlavaQwenConfig, LlavaQwenForCausalLM
@@ -70,7 +74,7 @@ class LlavaCritic:
         config.vision_weights_in_main_checkpoint = True
         self.model, info = LlavaQwenForCausalLM.from_pretrained(
             str(CHECKPOINT), config=config, local_files_only=True, dtype=torch.bfloat16,
-            device_map={'': 'cuda:0'}, attn_implementation='eager', output_loading_info=True)
+            device_map={'': 'cuda:0'}, attn_implementation=attention, output_loading_info=True)
         if any(info.get(k) for k in ('missing_keys','unexpected_keys','mismatched_keys','error_msgs')):
             raise RuntimeError('Critic weight loading is not exact: '+repr(info))
         original_rows = self.model.get_input_embeddings().weight.shape[0]

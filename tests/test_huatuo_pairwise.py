@@ -15,6 +15,18 @@ def test_order_mapping():
         assert module.selection(*pair) == ('generalist', 'tie_or_order_inconsistent')
 
 
+def test_single_order_is_deterministic_and_maps_actual_order():
+    for case_id in ['case1', 'case2', 'case3']:
+        order = module.comparison_orders(case_id, 'single')
+        assert order == module.comparison_orders(case_id, 'single')
+        assert len(order) == 1
+        assert module.single_selection('A', order[0])[0] == order[0][0]
+        assert module.single_selection('B', order[0])[0] == order[0][1]
+        assert module.single_selection('C', order[0])[0] == 'generalist'
+    with pytest.raises(ValueError):
+        module.single_selection('bad', ('generalist', 'compact'))
+
+
 @pytest.mark.parametrize('text', ['A', '[[A]] or [[B]]', '[[C]] then [[C]]', '', '[[D]]'])
 def test_malformed_not_keep(text):
     with pytest.raises(ValueError):
