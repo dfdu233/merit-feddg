@@ -51,12 +51,24 @@ def main():
             for arm, value in candidate['arms'].items():
                 if arm in cases[key]['arms']:
                     raise ValueError('Candidate must not overwrite old arms')
-                cases[key]['arms'][arm] = dict(value, new_answer_calls=int(not value.get('reused_generalist', False)))
+                cases[key]['arms'][arm] = dict(value, new_answer_calls=value.get(
+                    'new_answer_calls', int(not value.get('reused_generalist', False))))
             calls.extend(candidate['calls'])
-        arms = ['generalist', 'compact'] + candidate_protocol['arms']
+        candidate_arms = candidate_protocol.get('arms', sorted(read(next(iter(candidate_files.values())))['arms']))
+        if any(set(read(p)['arms']) != set(candidate_arms) for p in candidate_files.values()):
+            raise ValueError('Candidate arm set differs between cases')
+        arms = ['generalist', 'compact'] + candidate_arms
         candidate_cost = {'identity':candidate_protocol['identity'], 'calls':len(calls),
                           'seconds':sum(v['seconds'] for v in calls),
-                          'stages':dict(collections.Counter(v['stage'] for v in calls))}
+                          'stages':dict(collections.Counter(v.get('stage', 'pairwise_judge') for v in calls))}
+        if 'decision_channel' in candidate_protocol:
+            candidate_cost['selection_audit'] = {
+                'channel': candidate_protocol['decision_channel'],
+                'reasons': dict(collections.Counter(read(p)['reason'] for p in candidate_files.values())),
+                'selected': dict(collections.Counter(read(p)['selected'] for p in candidate_files.values())),
+                'labels': dict(collections.Counter(v for p in candidate_files.values() for v in read(p)['verdicts'])),
+                'medical_confidence_calibrated': False,
+            }
     ref_path = args.references
     refs = read(ref_path)
     scorer_paths = [Path('/home/dbw/ANCHOR/anchor/corrected_sgta') / 'evaluate_medheval_answers.py',

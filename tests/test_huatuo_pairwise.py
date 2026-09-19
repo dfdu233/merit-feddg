@@ -24,3 +24,12 @@ def test_malformed_not_keep(text):
 def test_valid_verdict():
     assert module.verdict('The second answer fits the image.\n[[B]]\n') == 'B'
     assert module.verdict('[[C]] for a tie. The two answers agree.') == 'C'
+
+
+def test_channel_preserves_candidate_content():
+    import json
+    for channel in ('finite_choice', 'free_text'):
+        p = module.comparison_prompt('图像?', '原答案', '候选', channel)
+        assert json.loads(p.split('\n', 1)[1]) == {'question': '图像?', 'A': '原答案', 'B': '候选'}
+    with pytest.raises(ValueError):
+        module.comparison_prompt('q', 'a', 'b', 'guess')
