@@ -33,3 +33,12 @@ def test_channel_preserves_candidate_content():
         assert json.loads(p.split('\n', 1)[1]) == {'question': '图像?', 'A': '原答案', 'B': '候选'}
     with pytest.raises(ValueError):
         module.comparison_prompt('q', 'a', 'b', 'guess')
+
+
+def test_reasoned_critic_preserves_candidates_and_explicit_verdict():
+    prompt = module.comparison_prompt('图像?', '原答案', '候选', 'critic_reasoned')
+    assert 'Question: [图像?]' in prompt
+    assert 'The first response: [原答案]' in prompt
+    assert 'The second response: [候选]' in prompt
+    assert 'Neither response is a reference answer' in prompt
+    assert all(label in prompt for label in ('[[A]]', '[[B]]', '[[C]]'))

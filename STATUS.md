@@ -1,5 +1,21 @@
 # Current status
 
+## Explanation-first critic complete development diagnosis — 2026-09-19
+
+- Added optional `critic_reasoned` official-layout-plus-verdict interface; old
+  modes preserved. Eight-case canary then unchanged full SLAKE64 TRAIN completed
+  on hostGPU1 with strict weights/image checks and frozen offline ANCHOR scoring.
+- Score53.9583%, Baseline52.8646%, compact52.9167%; improve/harm3/2 vs Baseline,
+  5/5 vs compact. Image paired95% delta CI[-4.3750,+6.8789]pp spans zero.
+- Some deltas are language/parser effects. Generic judge still favors detail
+  and mistakes absence of apparent evidence for absence of disease. No validated
+  clinical improvement; no TEST scaling. Complete report/docs preserved.
+-68 calls255.5981s, two loads24.7518s; compact selected10/64, original54/64.
+  Thirty identical candidates skip;21 ties/order inconsistencies. Two allocator
+  retry warnings recovered without skipping cases or changing configuration.
+- Full1043 CPU tests, focused11 and Ruff passed. Own GPU job completed.
+  docs/HUATUO_CRITIC_REASONED_RESULTS.md; reports/critic-reasoned-slake64-v1.json.
+
 ## Independent critic real canary — 2026-09-19
 
 - All four pinned weights downloaded and SHA256 verified. Real hostGPU1

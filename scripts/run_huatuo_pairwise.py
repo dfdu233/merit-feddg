@@ -32,6 +32,18 @@ def selection(forward, reverse):
 
 
 def comparison_prompt(question, first, second, channel):
+    if channel == 'critic_reasoned':
+        # Official LLaVA-Critic pairwise layout, plus explicit machine verdict.
+        # This is an adaptation: neither paper reproduction nor confidence.
+        return ('Given an image and a corresponding question, please serve as an unbiased '
+            'and fair judge to evaluate the quality of the answers provided by a Large '
+            'Multimodal Model (LMM). Determine which answer is better and explain your '
+            'reasoning with specific details. Your task is provided as follows:\n'
+            f'Question: [{question}]\nThe first response: [{first}]\n'
+            f'The second response: [{second}]\n'
+            'Neither response is a reference answer. After your explanation, end with '
+            'exactly one verdict: [[A]] if the first response is better, [[B]] if the '
+            'second response is better, or [[C]] if tied or not distinguishable.\nASSISTANT:\n')
     instruction = ('Compare two answers to the question using the original image. Judge factual '
         'correctness and relevance, not answer order, verbosity, or writing style. Neither '
         'answer is a reference. ')
@@ -54,7 +66,7 @@ def main():
     p.add_argument('--gpu-uuid')
     p.add_argument('--canary-cases', type=int)
     p.add_argument('--check-only', action='store_true')
-    p.add_argument('--decision-channel', choices=['free_text', 'finite_choice'], default='free_text')
+    p.add_argument('--decision-channel', choices=['free_text', 'finite_choice', 'critic_reasoned'], default='free_text')
     p.add_argument('--judge', choices=['huatuo', 'llava_critic'], default='huatuo')
     p.add_argument('--image-control', choices=['original', 'cyclic_next'], default='original',
                    help='cyclic_next is a deliberately mismatched image diagnostic, never a patient prediction')
@@ -84,10 +96,11 @@ def main():
         'evaluation_status': 'development; these TRAIN images have already been inspected'}
     cfg['judge'] = a.judge
     if a.judge == 'llava_critic':
-        if a.decision_channel != 'finite_choice':
-            raise ValueError('This experiment freezes the finite-choice interface')
         from llava_critic_backend import identity as critic_identity
         cfg['critic'] = critic_identity()
+        cfg['critic']['decision_channel'] = a.decision_channel
+    elif a.decision_channel == 'critic_reasoned':
+        raise ValueError('Native critic prompt requires the independent critic backend')
     identity = native.fingerprint(cfg)
     protocol = {'identity': identity, **cfg}
     pp = a.output/'protocol.json'
