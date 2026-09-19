@@ -24,6 +24,10 @@
   Score will be written there as evaluation.json, only after complete checks.
   Old queue naming below is historical. First corrected route128/128 done;
   expert stage started. Full1044 CPU tests, focused12 and Ruff passed.
+- Expert stage produced88 cache entries before discovering a second missing
+  relative link, upstream/BiomedParse-v1. Added non-overwriting upstream link to
+  existing server source and resumed nativev2 experts with completed caches.
+  Failed log preserved; new logs confirm128-v2-*-resume1.log. No re-download.
 
 ## Frozen larger TRAIN confirmation queued — 2026-09-19
 
