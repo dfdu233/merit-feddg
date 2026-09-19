@@ -1,0 +1,134 @@
+{
+  "identity": "d1f2415fac6ca0d9db6023ee585d6a5c47e69e363605ee7c83e49828759d6bfe",
+  "n": 8,
+  "pilot_only": true,
+  "metric": "Frozen ANCHOR CLOSED parser + OPEN token recall; not clinical accuracy",
+  "scorer_hashes": {
+    "evaluate_medheval_answers.py": "ad0fb9abfebf1a0185709628835b33a052492fbe5e4828d097141282a59a21d6",
+    "evaluate_mixed_vqa_table.py": "7d5b7675fc0aa6455b1d60fc93dcfbb0fd04fa07e879259e483e38b7f24d99f4"
+  },
+  "arms": {
+    "generalist": {
+      "score": 0.375,
+      "gains_vs_baseline": 0,
+      "harms_vs_baseline": 0,
+      "ci95_delta_vs_baseline": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 8,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      }
+    },
+    "compact": {
+      "score": 0.25,
+      "gains_vs_baseline": 1,
+      "harms_vs_baseline": 2,
+      "ci95_delta_vs_baseline": {
+        "low": -0.5,
+        "high": 0.25,
+        "clusters": 8,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      }
+    },
+    "image_only": {
+      "score": 0.375,
+      "gains_vs_baseline": 0,
+      "harms_vs_baseline": 0,
+      "ci95_delta_vs_baseline": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 8,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "selection": {
+        "generalist": 8
+      },
+      "sum_mean_selection_disagreement": 0
+    },
+    "segmentation_text": {
+      "score": 0.375,
+      "gains_vs_baseline": 0,
+      "harms_vs_baseline": 0,
+      "ci95_delta_vs_baseline": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 8,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "selection": {
+        "generalist": 8
+      },
+      "sum_mean_selection_disagreement": 0
+    },
+    "native_crop": {
+      "score": 0.375,
+      "gains_vs_baseline": 0,
+      "harms_vs_baseline": 0,
+      "ci95_delta_vs_baseline": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 8,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "selection": {
+        "generalist": 8
+      },
+      "sum_mean_selection_disagreement": 0
+    },
+    "full_view_control": {
+      "score": 0.375,
+      "gains_vs_baseline": 0,
+      "harms_vs_baseline": 0,
+      "ci95_delta_vs_baseline": {
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 8,
+        "unit": "image",
+        "sample_weighted": true,
+        "informative_ci": true
+      },
+      "selection": {
+        "generalist": 8
+      },
+      "sum_mean_selection_disagreement": 0
+    }
+  },
+  "calls": {
+    "count": 64,
+    "seconds": 10.198848029365763,
+    "per_arm_seconds": {
+      "image_only": 2.3768547270447016,
+      "segmentation_text": 1.8108330487739295,
+      "native_crop": 3.0153537867590785,
+      "full_view_control": 2.9958064667880535
+    },
+    "load_seconds": 40.87509823101573,
+    "peak_allocated_bytes": 19383659008
+  },
+  "coverage": {
+    "real_crops": 8,
+    "normal_inherited_parity": 8,
+    "native_input_parity": 8,
+    "different_candidate_texts": 6,
+    "new_answer_generation": 0,
+    "raw_candidate_reuse": 16,
+    "crop_vs_fullview_choice_changes": 0
+  },
+  "limitations": [
+    "Previously inspected TRAIN images; not holdout",
+    "English exact-name anatomy selection",
+    "Full-answer likelihood; claim-level selector not implemented",
+    "No classification/text expert efficacy experiment",
+    "Original candidate/routing/segmentation costs inherited, not zero"
+  ]
+}

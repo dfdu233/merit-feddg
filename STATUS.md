@@ -1,5 +1,21 @@
 # Current status
 
+## Observation-mediated TRAIN diagnostic complete — 2026-09-19 UTC
+
+- Isolated `experiments/observation-blind-train-v1`, based on783350d. No old
+  worktrees/configurations/results modified; no dependency or weight changes.
+- Fixed8 existing SLAKE TRAIN-image cases complete on authorized hostGPU1.
+  Native original+crop genuinely delivered as two images;61 CPU tests passed,
+ 8 input/inheritance parity checks and64 native CE-aligned scoring calls passed.
+- Baseline37.5%, MERIT25.0%; image-only/text/crop/full-view rankings all37.5%
+  and all retain Baseline. MERIT1 gain/2 harms; gain not retained. This is NOT a
+  successful Gate, segmentation medical benefit, or full-dataset result.
+- Stopped expansion. Full-answer phrasing effects remain; claim-level selector
+  and classification/text-expert efficacy are not implemented/tested here.
+- Details: docs/OBSERVATION_BLIND_TRAIN8_RESULTS.md; sanitized aggregate
+  reports/observation-blind-slake8-v1.json; raw runs/observation-blind-slake8-v1.
+  All jobs finished. Scoring10.199s, loads40.875s, historical costs additional.
+
 ## Official VQA-RAD451 TEST completed and scored — 2026-09-20
 
 - Final451/451 complete on two GPUs, merged exact IDs; frozen scoring done.
