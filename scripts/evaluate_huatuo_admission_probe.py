@@ -37,6 +37,8 @@ def main():
     candidate_cost = None
     if args.candidate_run:
         candidate_protocol = read(args.candidate_run / 'protocol.json')
+        if candidate_protocol.get('image_control', 'original') != 'original':
+            raise ValueError('Mismatched-image diagnostic must not be scored as patient predictions')
         candidate_complete = read(args.candidate_run / 'complete.json')
         if candidate_protocol['base_identity'] != protocol['identity'] or candidate_complete['identity'] != candidate_protocol['identity']:
             raise ValueError('Candidate/control identity mismatch')

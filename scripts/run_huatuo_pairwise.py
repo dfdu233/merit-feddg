@@ -55,6 +55,8 @@ def main():
     p.add_argument('--canary-cases', type=int)
     p.add_argument('--check-only', action='store_true')
     p.add_argument('--decision-channel', choices=['free_text', 'finite_choice'], default='free_text')
+    p.add_argument('--image-control', choices=['original', 'cyclic_next'], default='original',
+                   help='cyclic_next is a deliberately mismatched image diagnostic, never a patient prediction')
     a = p.parse_args()
     import run_huatuo_admission_probe as setup
     native, checked = setup.native, setup.checked
@@ -71,6 +73,8 @@ def main():
         'judge_tokens': 8 if a.decision_channel == 'finite_choice' else 512,
         'decision_channel': a.decision_channel,
         'decision_labels_are_calibrated_confidence': False,
+        'image_control': a.image_control,
+        'patient_prediction': a.image_control == 'original',
         'control_hashes': {r['id']: native.sha(a.base/'cases'/(r['id']+'.json')) for r in source['rows']},
         'official_code': 'lm-sys/FastChat@587d5cfa1609a43d192cedb8441cac3c17db105d',
         'training': False, 'numeric_threshold': False, 'references_at_inference': False,
@@ -97,7 +101,7 @@ def main():
     start = time.perf_counter()
     model = checked.HuatuoGeneralist(source['base']['generalist']['checkpoint_path'])
     native.atomic_json(a.output/'load.json', {'seconds': time.perf_counter()-start})
-    for row in source['rows'][:a.canary_cases]:
+    for index, row in enumerate(source['rows'][:a.canary_cases]):
         path = a.output/'cases'/(row['id']+'.json')
         if path.exists():
             if native.read(path)['identity'] != identity or not native.read(path)['complete']:
@@ -105,22 +109,29 @@ def main():
             continue
         if native.sha(row['image']) != row['image_sha256']:
             raise ValueError('Image changed')
+        visual = row if a.image_control == 'original' else source['rows'][(index+1) % len(source['rows'])]
+        if native.sha(visual['image']) != visual['image_sha256']:
+            raise ValueError('Control image changed')
+        if a.image_control != 'original' and visual.get('pixel_sha256', visual['image_sha256']) == row.get('pixel_sha256', row['image_sha256']):
+            raise ValueError('Mismatched image control must actually differ')
         prior = native.read(a.base/'cases'/(row['id']+'.json'))
         answers = prior['arms']
         out = {'id': row['id'], 'identity': identity, 'complete': False,
-               'calls': [], 'verdicts': [], 'arms': {}}
+               'calls': [], 'verdicts': [], 'arms': {},
+               'image_control': a.image_control, 'delivered_image_id': visual['id'],
+               'delivered_image_sha256': visual['image_sha256']}
         if answers['generalist']['text'] == answers['compact']['text']:
             chosen, reason = 'generalist', 'identical_text_no_selection_opportunity'
         else:
             for order in [('generalist','compact'), ('compact','generalist')]:
                 prompt = comparison_prompt(row['question'], answers[order[0]]['text'],
                                            answers[order[1]]['text'], a.decision_channel)
-                if not model.context_token_budget(row['image'], prompt, cfg['judge_tokens'])['fits']:
+                if not model.context_token_budget(visual['image'], prompt, cfg['judge_tokens'])['fits']:
                     raise RuntimeError('Judge context exceeds budget; do not truncate answers')
                 set_seed(42)
                 start = time.perf_counter()
                 kwargs = {'allowed_texts': ('A', 'B', 'C')} if a.decision_channel == 'finite_choice' else {}
-                response = model.generate_with_usage(row['image'], prompt, cfg['judge_tokens'], **kwargs)
+                response = model.generate_with_usage(visual['image'], prompt, cfg['judge_tokens'], **kwargs)
                 out['calls'].append({'order': order, 'seconds': time.perf_counter()-start, 'usage': response})
                 native.atomic_json(a.output/'progress'/(row['id']+'.json'), out)
                 if a.decision_channel == 'finite_choice':

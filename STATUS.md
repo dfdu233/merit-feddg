@@ -1,5 +1,28 @@
 # Current status
 
+## Theory-grounded judge interface diagnosis — 2026-09-19
+
+- Independent `experiments/huatuo-judge-channel-v1`, parent5d827db. Reviewed14
+  verified papers across context noise, self-correction and multimodal judging;
+  report: docs/HUATUO_GATE_THEORY_AND_OPTIMIZATION.md. No training/thresholds.
+- Implemented finite A/B/C decisions through existing native constrained
+  decoding, preserving free-text mode and both original answer candidates.
+  Dual-GPU canary8+8 passed, then complete existing TRAIN development87+64.
+  Original generation/routing/experts were reused, not rerun. No TEST run.
+- Scores: RAD Baseline60.3448, compact53.4483, selector59.1954%; SLAKE52.8646,
+  52.9167,50.8333%. Selector improve/harm vs Baseline0/1 and3/4. All162 judge
+  calls returned valid labels, but no net efficacy gain. Selection is reuse,
+  not new answer generation. No full-test scaling justified.
+- Offline two-candidate oracle62.6437/62.2917%: RAD also limited by candidate
+  quality; SLAKE retains more selection headroom. Oracle never used online.
+- Explicit cyclic wrong-image diagnostic complete87+64; raw two-order labels
+  change19/47 and22/34 judged cases, final selections8/47 and9/34. Neither
+  invariance nor change is proof of image-grounded correctness. Scorer rejects
+  mismatched-image runs as patient predictions. Report in reports/.
+- All own GPU probes complete; other jobs untouched. Final1040 CPU tests,
+  focused22 tests, Ruff and whitespace checks passed. Wrong-image scorer
+  rejection and public report identities verified. No efficacy claim.
+
 ## Independent larger Huatuo confirmation — 2026-09-19
 
 - Frozen RARR-inspired editor, unchanged from confirm20, with same-budget blind

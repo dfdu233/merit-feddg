@@ -1,0 +1,34 @@
+{
+  "diagnostic_only": true,
+  "patient_predictions": false,
+  "method": "Cyclic next image in frozen TRAIN schedule; question and candidate answers unchanged",
+  "limitations": "Invariance is not proof of image neglect; some comparisons are resolvable from text. No clinical score of mismatched images.",
+  "datasets": {
+    "vqa87": {
+      "n": 87,
+      "judged_pairs": 47,
+      "identical_text_skips": 40,
+      "same_two_order_verdicts": 28,
+      "same_final_selection": 39,
+      "different_final_selection": 8,
+      "mismatched_calls": 94,
+      "mismatched_call_seconds": 15.003486049594358,
+      "normal_identity": "ec0c9875b7dd2c6ac248e845f14cac78f22290306dd1bd33a7c47b8874fffa43",
+      "control_identity": "be6dfeac126d397524c46b20a4bec040991381919c363ef5f9eb6ebe6b2db30c",
+      "base_identity": "050cd806e43ac424183dcb7ffbc1b4775fe01c34ffe7dc4b0d05bb60a1ae1203"
+    },
+    "slake64": {
+      "n": 64,
+      "judged_pairs": 34,
+      "identical_text_skips": 30,
+      "same_two_order_verdicts": 12,
+      "same_final_selection": 25,
+      "different_final_selection": 9,
+      "mismatched_calls": 68,
+      "mismatched_call_seconds": 16.975355389295146,
+      "normal_identity": "826d4cd25ff19c7517a99ee6de1e62f1a4908cf4254f1aa5f9b8ed585b1627d1",
+      "control_identity": "faf193de9476ccb4305f6224c853bb3ddf24fa1467d447168484c1aa419e0c89",
+      "base_identity": "905c822687d3d52ce4826f9f04de3a378c55897424c92f6c6f00c116c1de64ce"
+    }
+  }
+}
