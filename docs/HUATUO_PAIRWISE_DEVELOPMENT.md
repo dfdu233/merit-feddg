@@ -48,3 +48,30 @@ requested final position. No score was produced. v2 accepts exactly one such
 explicit label irrespective of position; missing, unknown or multiple labels
 still fail. It never infers a label from explanatory prose. Failed v1 outputs
 are preserved, and v2 has separate roots and a different source identity.
+
+## Actual v2 outcome: failed canary, no efficacy claim
+
+- VQA-RAD:6 cases complete, then the7th emits both B and C.8 recorded judge
+  calls including the failed case,23.5524 s cumulative. Three completed cases
+  have identical answer texts; the others keep generalist after judgments.
+- SLAKE:1 case complete, then the2nd emits both A and B.3 recorded judge calls,
+  8.3351 s cumulative. The completed case keeps generalist on a tie.
+- Neither scheduled8-case canary completes; no complete marker or full-score
+  evaluation is produced. No candidate is selected over Baseline in completed
+  cases. This is NOT successful protection or a reliable gate. Multiple labels
+  are not repaired by extracting the first one or guessing from the explanation.
+- v1 recorded5.0974 s and3.5042 s of failed judge calls, also not zero cost.
+  Model loading and native inherited costs are additional.
+
+## Independent critic readiness, not an implemented result
+
+Official LLaVA-NeXT source cloned at
+`bce12e479bc4dfee2b9c50c88137b01ff51bd483` in the existing untracked artifacts
+area. CPU import with current torch2.14.0 / transformers4.57.6 fails because
+upstream imports `apply_chunking_to_forward` from an unavailable old
+`transformers.modeling_utils` location. No shared dependency was upgraded and
+no weights were downloaded in this checkpoint. Final CPU regression:1039 tests
+passed; all affected scripts and the added test pass Ruff and diff whitespace
+checks. A dedicated compatibility path
+and real inference validation are still required before claiming the critic
+is available. It must not be counted among evaluated methods here.

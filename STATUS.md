@@ -18,6 +18,14 @@
   unique pixel schedules checked; editor instruction identical to confirm20.
 - Report: docs/HUATUO_ANCHORED_CONFIRMATION.md; sanitized complete SLAKE results:
   reports/anchored-slake64-v1.json. Raw data remain server-only.
+- Pairwise-selection follow-up (FastChat/MT-Bench two-order mechanism, existing
+  Huatuo judge) failed real canary: RAD6 complete then ambiguous7th; SLAKE1
+  complete then ambiguous2nd. No full score or scaling. All own probe jobs have
+  stopped; unrelated jobs untouched. See docs/HUATUO_PAIRWISE_DEVELOPMENT.md.
+- Official independent LLaVA-Critic source inspected; current environment has
+  an upstream Transformers import incompatibility. No weights downloaded,
+  no shared upgrades. Compatibility + real inference is a remaining next step,
+  not an active or successfully evaluated experiment.
 
 ## Paper-grounded Huatuo iteration — 2026-09-19
 
