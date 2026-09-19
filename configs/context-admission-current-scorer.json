@@ -1,0 +1,8 @@
+{
+  "purpose": "Explicit all-arm rescoring of the terminal 24-case audit, not an overwrite of its historical scorer identity. Same current evaluator as the new full TRAIN comparison.",
+  "review": "Current ANCHOR code includes Unicode normalization, native answer-type routing, explanatory binary and uncertainty parsing, and multiple-choice parsing revisions. Historical file hash differs despite the same v13 label. No scorer code was edited for this experiment; scores from different pins must not be mixed.",
+  "scorers": {
+    "anchor/corrected_sgta/evaluate_medheval_answers.py": "ad0fb9abfebf1a0185709628835b33a052492fbe5e4828d097141282a59a21d6",
+    "anchor/medeval/evaluate_mixed_vqa_table.py": "7d5b7675fc0aa6455b1d60fc93dcfbb0fd04fa07e879259e483e38b7f24d99f4"
+  }
+}
