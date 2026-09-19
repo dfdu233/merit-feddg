@@ -99,9 +99,14 @@ def main():
     p.add_argument('--critic-attention', choices=['eager', 'sdpa'], default='eager')
     p.add_argument('--reuse-judgments', type=Path,
                    help='Reparse immutable saved calls from an otherwise identical run')
+    p.add_argument('--shard-count', type=int, default=1)
+    p.add_argument('--shard-index', type=int, default=0)
+    p.add_argument('--merge-only', action='store_true')
     p.add_argument('--image-control', choices=['original', 'cyclic_next'], default='original',
                    help='cyclic_next is a deliberately mismatched image diagnostic, never a patient prediction')
     a = p.parse_args()
+    if a.shard_count < 1 or not 0 <= a.shard_index < a.shard_count:
+        raise ValueError('Invalid scheduling shard')
     import run_huatuo_admission_probe as setup
     native, checked = setup.native, setup.checked
     source = native.read(a.base/'protocol.json')
@@ -126,6 +131,9 @@ def main():
         'raw_expert_context_to_judge': False, 'new_answer_generation': False,
         'evaluation_status': 'development; these TRAIN images have already been inspected'}
     cfg['judge'] = a.judge
+    cfg['scheduler_shards'] = a.shard_count
+    if source.get('formal_reuse'):
+        cfg['evaluation_status'] = 'frozen official full TEST evaluation; no score-based changes'
     cfg['comparison_orders'] = a.comparison_orders
     if a.comparison_orders == 'single':
         cfg['policy'] = 'one judge call, SHA256(id) parity orders candidates; tie keeps generalist'
@@ -160,14 +168,26 @@ def main():
     pp = a.output/'protocol.json'
     if pp.exists() and native.read(pp) != protocol:
         raise ValueError('Preserve old identity')
-    native.atomic_json(pp, protocol)
+    if not pp.exists():
+        native.atomic_json(pp, protocol)
     print('PREFLIGHT', identity, len(source['rows']), flush=True)
     if a.check_only:
         return
+    if a.merge_only:
+        files = list((a.output/'cases').glob('*.json'))
+        if {f.stem for f in files} != set(cfg['ids']) or any(
+                not native.read(f)['complete'] or native.read(f)['identity'] != identity for f in files):
+            raise ValueError('Merge requires exact complete ID set and identity')
+        native.atomic_json(a.output/'complete.json', {'identity':identity,'n':len(files)})
+        print('MERGED',len(files),flush=True)
+        return
     allowed = ('GPU-3846413a-4238-d307-b1f3-10c2dfbe002c', 'GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023')
-    device = subprocess.check_output(['nvidia-smi','-i','0','--query-gpu=uuid','--format=csv,noheader'],text=True,timeout=10).strip()
-    free = int(subprocess.check_output(['nvidia-smi','-i','0','--query-gpu=memory.free','--format=csv,noheader,nounits'],text=True,timeout=10).strip())
-    if a.gpu_uuid not in allowed or device != a.gpu_uuid or os.environ.get('CUDA_VISIBLE_DEVICES') != '0' or free < 24000:
+    visible = os.environ.get('CUDA_VISIBLE_DEVICES')
+    if visible not in ('0','1'):
+        raise RuntimeError('Exactly one explicit device required')
+    device = subprocess.check_output(['nvidia-smi','-i',visible,'--query-gpu=uuid','--format=csv,noheader'],text=True,timeout=10).strip()
+    free = int(subprocess.check_output(['nvidia-smi','-i',visible,'--query-gpu=memory.free','--format=csv,noheader,nounits'],text=True,timeout=10).strip())
+    if a.gpu_uuid not in allowed or device != a.gpu_uuid or free < 24000:
         raise RuntimeError('GPU mapping/headroom failed')
     import torch
     from transformers import set_seed
@@ -180,11 +200,13 @@ def main():
         model = checked.HuatuoGeneralist(source['base']['generalist']['checkpoint_path'])
     load_record = {'seconds': time.perf_counter()-start,
                    'weight_loading': getattr(model, 'loading_info', None)}
-    load_path = a.output/'load.json'
+    load_path = a.output/('load.json' if a.shard_count == 1 else f'load-shard-{a.shard_index}.json')
     if load_path.exists():
         load_path = a.output/('load-resume-'+str(time.time_ns())+'.json')
     native.atomic_json(load_path, load_record)
     for index, row in enumerate(source['rows'][:a.canary_cases]):
+        if index % a.shard_count != a.shard_index:
+            continue
         path = a.output/'cases'/(row['id']+'.json')
         if path.exists():
             if native.read(path)['identity'] != identity or not native.read(path)['complete']:
@@ -242,6 +264,11 @@ def main():
         out['arms']['pairwise_selected'] = dict(answers[chosen], reuse=chosen, new_answer_calls=0)
         native.atomic_json(path, out)
         print('DONE', row['id'], chosen, reason, flush=True)
+    if a.shard_count > 1:
+        native.atomic_json(a.output/f'shard-{a.shard_index}-stopped.json',
+                           {'identity':identity,'canary_cases':a.canary_cases})
+        print('SHARD STOP',a.shard_index,'requires complete merge',flush=True)
+        return
     files = list((a.output/'cases').glob('*.json'))
     if {f.stem for f in files} == set(cfg['ids']) and all(native.read(f)['complete'] and native.read(f)['identity']==identity for f in files):
         native.atomic_json(a.output/'complete.json', {'identity': identity, 'n': len(files)})

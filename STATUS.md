@@ -1,5 +1,24 @@
 # Current status
 
+## Frozen VQA-RAD451 TEST single-critic evaluation started — 2026-09-20
+
+- User explicitly chose current single-call critic vs original Huatuo-MERIT and
+  Baseline on full official TEST451. No TEST score-based method changes.
+- Reused full official Huatuo greedy and original MERIT451 predictions; exact
+  IDs/image bytes/questions/common prompts/budgets1024/frozen sources checked.
+  New label-free wrapped controls runs/formal-vqarad451-controls-v1; identity
+  c9b7b988101470f7c8a59f168e99b0c0369635b61d5f499d4034bf42d55d860a.
+  References stored separately for offline scorer. No original generation rerun.
+- HostGPU0/1 genuinely parallel on disjoint scheduling indexes226/225 of same
+  full manifest.349 pairs differ;102 skip identical candidates. Same frozen
+  critic/prompt/single-order policy/SDPA/parser, no duplicate judging.
+- New shared output runs/critic-single-vqarad451-test-v1 identity
+  3cfb723677cd039feaaf12b07ce263e4bc352a870f414eb0e4e7afa1fa202746.
+  Host tmux merit-critic-vqarad451-0/-1; local merge-score tmux
+  merit-critic-vqarad451-score. Explicit merge requires complete451 exact IDs.
+- CPU1051 and focused19 tests/Ruff passed. Official candidate timing unavailable
+  in raw exports is null, not zero. First real cases saved; no full score yet.
+
 ## Dual-GPU confirmation completed — 2026-09-20
 
 - SLAKE128 new TRAIN images complete on hostGPU1; original Baseline58.6068%,

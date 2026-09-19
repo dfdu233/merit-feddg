@@ -83,7 +83,7 @@ def main():
         details = {r['question_id']: r for r in evaluate_rows(source)['details']}
         scores[arm] = {k: float(details[k]['correct']) if r['answer_type'] == 'closed' else
                       answer_token_recall(cases[k]['arms'][arm]['text'], refs[k][0]) for k, r in rows.items()}
-    result = {'identity': protocol['identity'], 'n': len(rows), 'pilot_only': True,
+    result = {'identity': protocol['identity'], 'n': len(rows), 'pilot_only': not protocol.get('formal_reuse', False),
         'metric': 'Current pinned ANCHOR CLOSED parser + OPEN token recall, not clinical accuracy',
         'scorer_version': PROTOCOL_VERSION, 'scorer_hashes': hashes,
         'reference_hash': hashlib.sha256(ref_path.read_bytes()).hexdigest(),
@@ -132,6 +132,10 @@ def main():
         'native_expert_prefetch_seconds': None,
         'missing_costs': 'Route/model-load/expert-prefetch/parity phase wall times not fully instrumented; '
                          'not zero and not included in a total speedup claim.',
+    } if not protocol.get('formal_reuse') else {
+        'reused_formal_candidates': True,
+        'generalist_seconds': None, 'compact_outer_seconds': None,
+        'missing_costs': 'Original formal exports do not contain complete execution timings; not zero.',
     }
     if any(hashlib.sha256(p.read_bytes()).hexdigest() != hashes[str(p)] for p in scorer_paths):
         raise ValueError('Scorer changed during evaluation')
