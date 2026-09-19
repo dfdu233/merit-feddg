@@ -60,6 +60,8 @@ def resources():
         'no_training': True, 'no_decision_threshold': True,
         'literature': 'RARR ACL2023 editor preservation principle; NOT full RARR replication',
     }
+    # Provenance contains file-stat tuples; JSON reloads them as lists.
+    cfg = json.loads(json.dumps(cfg))
     return cfg, {r['id']: r for r in rows}, old, base, protocol
 
 
@@ -147,7 +149,9 @@ def main():
             with torch.inference_mode():
                 block = probe.new_answer_session(image, compiled).propose(
                     (), count=1, length=generation.max_new_tokens)[0]
-            value = {'text': block.text, 'token_ids': list(block.tokens),
+            # Exact original CapabilityRuntime output serialization (not a relaxed comparison).
+            value = {'text': session.decode(block.tokens).strip(), 'raw_block_text': block.text,
+                     'token_ids': list(block.tokens),
                      'seconds': time.perf_counter() - t, 'finished': block.finished,
                      'transport': session.last_transport, 'input_prompt_sha256':
                      hashlib.sha256(compiled.encode()).hexdigest(), 'model_calls': 1}
