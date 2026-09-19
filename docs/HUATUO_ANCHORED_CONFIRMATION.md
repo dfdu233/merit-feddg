@@ -77,6 +77,34 @@ Editor identity: `c6614721d2db98a000e24184cb93d9e0699ade85080375b710e706e29d36bb
 Raw server-only roots: `runs/native-slake64-v1`, `runs/editor-slake64-v1`.
 Public reports contain IDs and numerical outcomes, never images or raw answers.
 
-VQA-RAD 87-image confirmation is still running at this report checkpoint; no
-partial score is presented as its full result. The completed SLAKE failure does
-not change the frozen VQA-RAD prompt or scoring rules.
+## Complete VQA-RAD 87-image result
+
+| Arm | Score | Improve/harm vs Baseline | Improve/harm vs compact |
+|---|---:|---:|---:|
+| Generalist Baseline | 60.3448% | — | 9 / 2 |
+| Original compact MERIT | 53.4483% | 2 / 9 | — |
+| Blind anchored editor | 48.4674% | 11 / 22 | 15 / 18 |
+| Evidence anchored editor | 56.5134% | 7 / 11 | 12 / 8 |
+
+All 87 cases completed both real candidate calls, no empty outputs. The editor
+recovers +3.0651 pp over compact, but remains -3.8314 pp below Baseline. Its
+image-cluster 95% bootstrap intervals are [-6.8966,+12.2605] pp versus compact,
+[-13.0268,+4.9808] pp versus Baseline and [-1.1494,+17.2414] pp versus blind
+editing. It improves 12 and harms 5 relative to blind editing. This is not a
+reliable improvement beyond Baseline and does not support full test scaling.
+
+174 additional calls cost 406.9660 s cumulatively, separately from native
+generalist194.3568 s and compact outer223.2506 s. Missing routing/prefetch and
+failed-attempt cost limitations above apply. Actual candidate coverage is100%.
+Both datasets passed their first-case exact compact replay check (2/2 total),
+not an assertion that every case was generated twice for parity.
+
+Native identity: `050cd806e43ac424183dcb7ffbc1b4775fe01c34ffe7dc4b0d05bb60a1ae1203`.
+Editor identity: `2d6e522e00ff4391715096c38526c1c8e79f617f2a2bfc8d9af655dc5640b351`.
+Public numerical report: `reports/anchored-vqa87-v1.json`.
+
+The editor mechanism is now a negative larger confirmation, despite earlier20
+positive results. Do not optimize prompts on these images and call their scores
+an independent confirmation again. The next small development question is whether
+pairwise selection can avoid unnecessary answer rewriting; it is a separate
+experiment, not a retroactive repair of this result.

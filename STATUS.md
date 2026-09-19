@@ -3,8 +3,11 @@
 ## Independent larger Huatuo confirmation — 2026-09-19
 
 - Frozen RARR-inspired editor, unchanged from confirm20, with same-budget blind
-  editor control. VQA-RAD87 TRAIN-only images on hostGPU1 is running; native
-  controls complete. SLAKE64 TRAIN-only images on hostGPU0 is fully complete.
+  editor control. VQA-RAD87 TRAIN-only images on hostGPU1 and SLAKE64 TRAIN-only
+  images on hostGPU0 are fully complete, including frozen offline scoring.
+- VQA-RAD Baseline60.3448%, compact53.4483%, blind48.4674%, editor56.5134%.
+  Editor +7/-11 vs Baseline, +12/-8 vs compact;87/87 real candidates. Neither
+  dataset confirms improvement over Baseline; do not scale this editor to test.
 - SLAKE Baseline52.8646%, compact52.9167%, blind48.6979%, editor49.4792%.
   Editor +3/-6 vs Baseline, +8/-12 vs compact;64/64 real candidates. Negative
   confirmation, no justification to scale this method to the full test set.
