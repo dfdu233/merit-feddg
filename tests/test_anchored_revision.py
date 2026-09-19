@@ -1,4 +1,5 @@
 import copy
+from pathlib import Path
 
 import pytest
 
@@ -45,3 +46,15 @@ def test_delivery_failure_is_not_silent_fallback():
     assert_same_delivery(a, copy.deepcopy(a))
     with pytest.raises(ValueError):
         assert_same_delivery(a, {'presented': []})
+
+
+def test_format_diagnostic_changes_only_draft_container(monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / 'scripts'))
+    from probe_revision_format import plain_draft_prompt
+    original, draft = 'A generic question', 'A "draft"\nwith a second line'
+    encoded = revision_prompt(original, draft)
+    plain = plain_draft_prompt(original, draft)
+    assert encoded.split('Draft answer (JSON string): ')[0] == plain.split('Draft answer:\n')[0]
+    assert plain.endswith(draft)
+    with pytest.raises(ValueError):
+        plain_draft_prompt(original, '')
