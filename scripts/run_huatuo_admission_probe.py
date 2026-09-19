@@ -5,6 +5,7 @@ No references are read by this program. No patient data is exported to git.
 """
 import argparse
 import json
+import os
 import sys
 import time
 from dataclasses import asdict
@@ -29,7 +30,12 @@ def rows(a):
     from anchor.corrected_sgta.protocol_v2 import build_prompt
 
     from merit_feddg.open_data import pixel_digest
-    selected = native.read(SELECTION)['selected'][:4]
+    start = int(os.environ.get('HUATUO_TRAIN_CASE_START', '0'))
+    count = int(os.environ.get('HUATUO_TRAIN_CASE_COUNT', '4'))
+    candidates = native.read(SELECTION)['selected']
+    if start < 0 or count < 1 or start + count > len(candidates):
+        raise ValueError('Invalid scheduling slice of existing TRAIN probe')
+    selected = candidates[start:start + count]
     all_rows = {r['id']: r for r in map(json.loads, (DATA / 'train/manifest.jsonl').read_text().splitlines())}
     test_images = {r['image_sha256'] for r in map(json.loads, (DATA / 'test/manifest.jsonl').read_text().splitlines())}
     result = []
@@ -64,7 +70,10 @@ def protocol(a):
     payload = {'method': 'Huatuo native MERIT plus isolated packet admission',
         'rows': rows(a), 'base': base, 'registry': specs, 'coverage_config': config,
         'excluded': excluded, 'generation_config': asdict(arm),
-        'selection': 'first4 pre-existing fixed TRAIN-only-image probe IDs; not scores',
+        'selection': 'predeclared scheduling slice of existing TRAIN-only-image probe; not scores',
+        'schedule_start': int(os.environ.get('HUATUO_TRAIN_CASE_START', '0')),
+        'schedule_count': int(os.environ.get('HUATUO_TRAIN_CASE_COUNT', '4')),
+        'native_only': os.environ.get('HUATUO_NATIVE_ONLY') == '1',
         'source': {str(p): native.sha(p) for p in paths},
         'formal_sources': {str(p): native.sha(p) for p in (native.FORMAL / 'merit_feddg').glob('*.py')},
         'manifest_sha256': native.sha(DATA / 'train/manifest.jsonl'),
@@ -157,7 +166,7 @@ def main():
                 native.atomic_json(path, out)
                 raise RuntimeError('Native MERIT token/text replay parity failed')
         native.atomic_json(a.output / 'native-controls' / (row['id'] + '.json'), out)
-        for policy in ('relevance', 'scope'):
+        for policy in (() if os.environ.get('HUATUO_NATIVE_ONLY') == '1' else ('relevance', 'scope')):
             judgments = []
             for item in items:
                 prompt = admission_prompt(row['question'], item, specs[item.expert_id], policy)
