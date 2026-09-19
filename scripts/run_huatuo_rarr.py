@@ -33,6 +33,7 @@ def main():
     p.add_argument('--shard-index', type=int, default=0)
     p.add_argument('--shard-count', type=int, default=1)
     p.add_argument('--merge-only', action='store_true')
+    p.add_argument('--editors-only', action='store_true', help='Frozen editor with matched no-evidence control; omit failed agreement gate')
     a = p.parse_args()
     source = native.read(a.base / 'protocol.json')
     if native.read(a.base / 'complete.json')['identity'] != source['identity']:
@@ -45,7 +46,8 @@ def main():
         'source_sha256': native.sha(__file__), 'base': str(a.base.resolve()),
         'base_identity': source['identity'], 'ids': [r['id'] for r in source['rows']],
         'control_hashes': {r['id']: native.sha(a.base / 'cases' / (r['id']+'.json')) for r in source['rows']},
-        'arms': ['anchored_editor', 'rarr_agreement'], 'gate_tokens': 256, 'answer_tokens': 1024,
+        'arms': ['anchored_blind_editor','anchored_editor'] if a.editors_only else ['anchored_editor', 'rarr_agreement'],
+        'gate_tokens': 256, 'answer_tokens': 1024,
         'paper': 'https://aclanthology.org/2023.acl-long.910/',
         'official_code': 'anthonywchen/RARR@51a1a10fe5bada837a368f98cb55288ac5168c9e',
         'numeric_threshold': False, 'training': False, 'reference_at_inference': False,
@@ -122,9 +124,11 @@ def main():
             'and their native score or measurement semantics must not be strengthened into an unsupported '
             'factual claim. Do not rewrite merely for style. Return only the final answer to the original '
             'question.\nDraft answer: ')
+        if a.editors_only:
+            out['arms']['anchored_blind_editor'] = generate(row['benchmark_prompt']+edit_instruction+json.dumps(draft['text']),1024,'anchored_blind_editor')
         out['arms']['anchored_editor'] = generate(compiled+edit_instruction+json.dumps(draft['text']),1024,'anchored_editor')
         current = draft
-        for item in items:
+        for item in (() if a.editors_only else items):
             spec = source['registry'][item.expert_id]
             definition = {k:spec[k] for k in ('description','scope','capabilities','modalities') if k in spec}
             data = {'question':row['question'],'draft_answer':current['text'],
@@ -142,7 +146,8 @@ def main():
             if label == 'DISAGREES':
                 edit = row['benchmark_prompt']+'\nSpecialist observation: '+json.dumps(data['observation'],ensure_ascii=False)
                 current = generate(edit+edit_instruction+json.dumps(current['text']),1024,'editor:'+item.expert_id)
-        out['arms']['rarr_agreement'] = dict(current, reused_generalist=current is draft)
+        if not a.editors_only:
+            out['arms']['rarr_agreement'] = dict(current, reused_generalist=current is draft)
         out['complete'] = True
         native.atomic_json(path,out)
         print('DONE',row['id'],out['decisions'],flush=True)

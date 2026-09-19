@@ -20,6 +20,8 @@ def main():
     parser.add_argument('--run', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--candidate-run', type=Path)
+    parser.add_argument('--references', type=Path,
+        default=Path('/home/dbw/merit-feddg/runs/vqarad-official-protocol-v3/data/train/references.json'))
     args = parser.parse_args()
     read = lambda p: json.loads(p.read_text())
     protocol = read(args.run / 'protocol.json')
@@ -55,7 +57,7 @@ def main():
         candidate_cost = {'identity':candidate_protocol['identity'], 'calls':len(calls),
                           'seconds':sum(v['seconds'] for v in calls),
                           'stages':dict(collections.Counter(v['stage'] for v in calls))}
-    ref_path = Path('/home/dbw/merit-feddg/runs/vqarad-official-protocol-v3/data/train/references.json')
+    ref_path = args.references
     refs = read(ref_path)
     scorer_paths = [Path('/home/dbw/ANCHOR/anchor/corrected_sgta') / 'evaluate_medheval_answers.py',
                     Path('/home/dbw/ANCHOR/anchor/medeval/evaluate_mixed_vqa_table.py')]
@@ -72,7 +74,7 @@ def main():
         'scorer_version': PROTOCOL_VERSION, 'scorer_hashes': hashes,
         'reference_hash': hashlib.sha256(ref_path.read_bytes()).hexdigest(),
         'arms': {}, 'gates': {}, 'per_case_scores': scores,
-        'cost_limit': 'Successful v5 calls only; earlier failed-run wall/call costs not fully captured, '
+        'cost_limit': 'Recorded completed-run calls only; earlier failed-run wall/call costs not fully captured, '
                       'so these are not total project costs or isolated throughput.',
         'privacy': 'No patient questions, answers, images, native packets or token IDs.'}
     result['candidate_cost'] = candidate_cost
@@ -91,6 +93,13 @@ def main():
             'empty': sum(not r['arms'][arm]['text'] for r in cases.values()),
             'new_candidate_calls': sum(r['arms'][arm].get('new_answer_calls', 0) for r in cases.values()),
             'reuse': dict(collections.Counter(r['arms'][arm].get('reuse', 'generated') for r in cases.values()))}
+        if 'anchored_blind_editor' in scores:
+            blind = scores['anchored_blind_editor']
+            result['arms'][arm]['improved_vs_blind_editor'] = sum(v > blind[k] for k, v in values.items())
+            result['arms'][arm]['harmed_vs_blind_editor'] = sum(v < blind[k] for k, v in values.items())
+            result['arms'][arm]['image_ci95_vs_blind_editor'] = cluster_bootstrap(
+                [v-blind[k] for k, v in values.items()],
+                [rows[k].get('pixel_sha256', rows[k]['image_sha256']) for k in values])
     for policy in ('relevance', 'scope'):
         judgments = [v for r in cases.values() for v in r.get('gates', {}).get(policy, [])]
         result['gates'][policy] = {'labels': dict(collections.Counter(v['label'] for v in judgments)),

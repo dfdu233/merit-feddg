@@ -1,5 +1,21 @@
 # Current status
 
+## Independent larger Huatuo confirmation — 2026-09-19
+
+- Frozen RARR-inspired editor, unchanged from confirm20, with same-budget blind
+  editor control. VQA-RAD87 TRAIN-only images on hostGPU1 is running; native
+  controls complete. SLAKE64 TRAIN-only images on hostGPU0 is fully complete.
+- SLAKE Baseline52.8646%, compact52.9167%, blind48.6979%, editor49.4792%.
+  Editor +3/-6 vs Baseline, +8/-12 vs compact;64/64 real candidates. Negative
+  confirmation, no justification to scale this method to the full test set.
+- Current-score harm includes both categorical changes and language-sensitive
+  lexical scoring.14 no-evidence cases also degrade under rewriting; do not
+  attribute every harm to expert contamination. No rules changed mid-run.
+- CPU1032 tests passed; Ruff passed; full label-free input/reference IDs and
+  unique pixel schedules checked; editor instruction identical to confirm20.
+- Report: docs/HUATUO_ANCHORED_CONFIRMATION.md; sanitized complete SLAKE results:
+  reports/anchored-slake64-v1.json. Raw data remain server-only.
+
 ## Paper-grounded Huatuo iteration — 2026-09-19
 
 - Self-Refine (NeurIPS2023) adaptation completed dev4: blind5.56%, evidence55.56%,

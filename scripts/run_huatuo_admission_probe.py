@@ -30,6 +30,19 @@ def rows(a):
     from anchor.corrected_sgta.protocol_v2 import build_prompt
 
     from merit_feddg.open_data import pixel_digest
+    if os.environ.get('HUATUO_TRAIN_MANIFEST'):
+        manifest = Path(os.environ['HUATUO_TRAIN_MANIFEST'])
+        schedule = native.read(Path(os.environ['HUATUO_TRAIN_SCHEDULE']))
+        if schedule['dataset'] != a.dataset:
+            raise ValueError('Schedule dataset mismatch')
+        values = {r['id']:r for r in map(json.loads,manifest.read_text().splitlines())}
+        selected = [values[k] for k in schedule['ids']]
+        for row in selected:
+            if set(row) & {'answer','answers','label','reference','references'}:
+                raise ValueError('Labels in generation manifest')
+            if native.sha(row['image']) != row['image_sha256'] or pixel_digest(row['image']) != row['pixel_sha256']:
+                raise ValueError('Scheduled image changed')
+        return selected
     start = int(os.environ.get('HUATUO_TRAIN_CASE_START', '0'))
     count = int(os.environ.get('HUATUO_TRAIN_CASE_COUNT', '4'))
     candidates = native.read(SELECTION)['selected']
@@ -70,14 +83,15 @@ def protocol(a):
     payload = {'method': 'Huatuo native MERIT plus isolated packet admission',
         'rows': rows(a), 'base': base, 'registry': specs, 'coverage_config': config,
         'excluded': excluded, 'generation_config': asdict(arm),
-        'selection': 'predeclared scheduling slice of existing TRAIN-only-image probe; not scores',
-        'schedule_start': int(os.environ.get('HUATUO_TRAIN_CASE_START', '0')),
-        'schedule_count': int(os.environ.get('HUATUO_TRAIN_CASE_COUNT', '4')),
+        'selection': 'explicit label-free full-TRAIN manifest and fixed image schedule' if os.environ.get('HUATUO_TRAIN_MANIFEST') else 'predeclared scheduling slice of existing TRAIN-only-image probe; not scores',
+        'schedule_start': None if os.environ.get('HUATUO_TRAIN_MANIFEST') else int(os.environ.get('HUATUO_TRAIN_CASE_START', '0')),
+        'schedule_count': len(rows(a)),
         'native_only': os.environ.get('HUATUO_NATIVE_ONLY') == '1',
         'source': {str(p): native.sha(p) for p in paths},
         'formal_sources': {str(p): native.sha(p) for p in (native.FORMAL / 'merit_feddg').glob('*.py')},
-        'manifest_sha256': native.sha(DATA / 'train/manifest.jsonl'),
-        'test_image_exclusion_sha256': native.sha(DATA / 'test/manifest.jsonl'),
+        'manifest_sha256': native.sha(Path(os.environ.get('HUATUO_TRAIN_MANIFEST', DATA / 'train/manifest.jsonl'))),
+        'schedule_sha256': native.sha(os.environ['HUATUO_TRAIN_SCHEDULE']) if os.environ.get('HUATUO_TRAIN_SCHEDULE') else None,
+        'test_image_exclusion_sha256': native.read(os.environ['HUATUO_TRAIN_SCHEDULE'])['source_test_sha256'] if os.environ.get('HUATUO_TRAIN_SCHEDULE') else native.sha(DATA / 'test/manifest.jsonl'),
         'gate': 'same prior frozen prompts; relevance A/C/D, scope A/B/C/D; 8 tokens; no threshold',
         'new_training': False, 'no_test_tuning': True}
     identity = native.fingerprint(payload)
@@ -93,7 +107,7 @@ def protocol(a):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--stage', choices=['check', 'route', 'experts', 'admission'], required=True)
-    p.add_argument('--dataset', choices=['vqa_rad'], default='vqa_rad')
+    p.add_argument('--dataset', choices=['vqa_rad','slake'], default='vqa_rad')
     p.add_argument('--gpu-uuid', required=True)
     p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
