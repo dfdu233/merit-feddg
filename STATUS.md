@@ -1,5 +1,36 @@
 # Current status
 
+## Anchored revision TRAIN pilot — 2026-09-19 (stopped; no promotion)
+
+- Independent branch `experiments/anchored-revision-train-v1`, execution commit
+  `e09cc66109537628a2b96db3bee8f64c65a8001a`, based on `5889907`.
+  Engineering ablation of RARR's preservation-oriented edit, not a new Gate or
+  scientific Bit Flip. No training, threshold rule, yes/no specialization, new
+  weights or package upgrades. See `docs/ANCHORED_REVISION_TRAIN.md` for literature
+  source-code inspection, frozen hypotheses and actual results.
+- CPU regression: **1029 passed in 16.48s**; Ruff, CLI and repeat check-only pass.
+  Frozen 24 distinct TRAIN-only images selected without labels; 15 open / 9 closed,
+  22 CXR / 1 CT / 1 MRI. This is not evidence of general cross-modality coverage.
+- Real GPU execution on host GPU1 (container CUDA0); first 2 canaries passed exact
+  historical text/token replay for both controls and unchanged evidence delivery.
+  Continued frozen pilot, then STOPPED at case 4: no-evidence revision emitted
+  `[28705, 2]` (whitespace/EOS). Context751 + reserved64 < 2048; not OOM/overflow.
+  Evidence-bearing revision on that fourth case was NOT executed.
+- Three complete four-arm records, 3/3 evidence hashes identical between compact
+  and evidence revision. Revisions mostly copy the original with unwanted answer
+  headings; no demonstrated medical correction. Original compact, not revision,
+  hit the64-token cap once. No 24-case score/CI or improvement/harm counts published.
+  Offline evaluator correctly refuses incomplete coverage. No automatic full run.
+- Local raw results `runs/pilot-v4/`; earlier v1/v2 preparation and v3 serialization
+  failure retained. Necessary fixes: provenance tuple/list round trip, and exact
+  original `session.decode(tokens).strip()` output serialization. Tokens unchanged;
+  no parity tolerance relaxed. No other worktree or previous result overwritten.
+- Host GPU0 remains occupied by PMC (~34GB); it was not interrupted. GPU1 pilot
+  exited and released its model. Both-card execution was therefore not achieved.
+  Remaining direction: source feedback reliability versus generator editing
+  capability must be separated before further Gate claims or full evaluation.
+
+
 ## Native MERIT, additive pool only — 2026-09-18
 
 - User corrected scope: preserve original MERIT, append experts only. Independent

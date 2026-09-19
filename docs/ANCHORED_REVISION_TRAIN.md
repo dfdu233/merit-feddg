@@ -79,10 +79,83 @@ do not call a new prompt a research breakthrough.
 Worktree `/home/dbw/merit-feddg-anchored-revision`, base commit `5889907`;
 branch `experiments/anchored-revision-train-v1`. Existing source/dirty worktrees untouched.
 Use the existing research Python and local model cache; no packages installed/upgraded.
-`scripts/run_anchored_revision_train.py --output runs/pilot-v2 --check-only` freezes
+`scripts/run_anchored_revision_train.py --output runs/pilot-v4 --check-only` freezes
 inputs and code without loading reference labels. `--max-cases 2` is a scheduling
 stop, not a new selection. Remove it to continue the identical pilot. Shard flags
 only schedule disjoint cases, not change the identity.
 GPU0 is occupied by PMC; do not terminate it without explicit direction. GPU1 has
 room for the pilot, checked at launch. Memory headroom is an engineering resource
 check, never a medical decision threshold. Raw patient data and outputs stay local.
+
+## Actual outcome: stopped before full pilot completion
+
+Execution commit `e09cc66109537628a2b96db3bee8f64c65a8001a`.
+Experiment identity
+`4f655115ddcdbc25c3743a5cf085c2a7cb1e042417b43c012d202f4b4cb8b009`.
+All 1,029 CPU tests pass (16.48s), Ruff/diff check and CLI pass. Repeated preflight
+matches. The incomplete-scoring negative check correctly rejects missing cases.
+
+Commands used from the independent worktree:
+
+```bash
+PYTHONPATH=. /home/dbw/merit-feddg/.venv/bin/python \
+  scripts/run_anchored_revision_train.py --output runs/pilot-v4 --check-only
+# Executed inside detached tmux; no dependency changes or downloads:
+env CUDA_VISIBLE_DEVICES=0 OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 PYTHONPATH=. \
+  HF_HOME=/home/dbw/ANCHOR/hf_cache HF_HUB_CACHE=/home/dbw/ANCHOR/hf_cache/hub \
+  TRANSFORMERS_CACHE=/home/dbw/ANCHOR/hf_cache/hub \
+  HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false \
+  /home/dbw/merit-feddg/.venv/bin/python -u scripts/run_anchored_revision_train.py \
+  --output runs/pilot-v4 --gpu-uuid GPU-3846413a-4238-d307-b1f3-10c2dfbe002c \
+  --max-cases 2
+# After inspecting both real canaries, same command without --max-cases 2.
+```
+
+The first two canaries and a third pilot example completed all four arms, including
+exact original control text/token replay. All three evidence SHA256 values match
+between compact and anchored evidence revision: no evidence displaced by the draft.
+The fourth example stopped at `revision_no_evidence`: tokens `[28705, 2]`, empty
+decoded answer. Actual input751/reserved64/context2048 excludes a context-overflow
+explanation. No crash/OOM was hidden as negative medical evidence. The failing
+case's evidence-bearing revision was not reached.
+
+| Arm | Complete records | Timed generation seconds, sum | Output tokens, sum | Non-EOS completions |
+|---|---:|---:|---:|---:|
+| Original generalist | 3 | 4.578 | 67 | 0 |
+| Original compact MERIT | 3 | 5.477 | 106 | 1 |
+| Anchored revision, no evidence | 3 | 4.230 | 88 | 0 |
+| Anchored revision, same evidence | 3 | 4.819 | 91 | 0 |
+
+These are completed-record timing diagnostics, NOT a partial accuracy table.
+Two loads cost24.173s, complete-record wall time19.827s, failing call0.257s.
+There were15 generation calls including both controls on the fourth case; only13
+have individual persisted timings (12 complete-record calls + failure). The old
+compact/generalist inherited times for completed cases are3.054/1.600s, not matched
+fresh end-to-end latency. New expert calls0 because exact native outputs were
+reused, not because experts were absent. No cost advantage is established.
+
+Manual behavior inspection without reference-based selection: the first two
+examples mostly repeated the draft with an unwanted `Final answer (JSON string)`
+heading; the third similarly copied broad anatomical content. Text differences
+are not evidence of useful corrections. The one cap hit belongs to the original
+compact control, not the revision arm. The selected cohort is 22CXR/1CT/1MRI,
+15open/9closed; the executed prefix cannot establish modality-general efficacy.
+
+**Result / belief update:** the editing instruction is executable and evidence
+delivery remains intact, but the frozen medical generator did not reliably follow
+the edit-output contract. H1 is unestablished, not confirmed by unchanged answers.
+The full24-case accuracy, gain retention, harm recovery and image CI are unavailable.
+No references were loaded to score this incomplete pilot. Stop, do not scale.
+
+**Residual uncertainty / next Vector:** a generic preservation prompt does not
+establish source reliability or a reliable Gate. Before choosing a stronger editor
+or a different evidence-admission mechanism, separate editing ability from expert
+correctness on independent development examples. No new prompt was selected using
+these outcomes; no larger experiment queued. This pilot does not test Huatuo.
+
+Failure history retained locally: v1 preparation; v2 tuple-vs-list serialized
+provenance resume mismatch before GPU inference; v3 token-exact but trailing-space
+text mismatch. v4 uses the original engine's exact stripped text serialization,
+with raw block text additionally logged, not a tolerant parity comparison.
+Raw logs and generated patient-related text remain in `runs/pilot-v4`; only this
+aggregate report and the sanitized summary are tracked. All old methods untouched.
