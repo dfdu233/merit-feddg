@@ -433,3 +433,89 @@ def test_real_tiny_mistral_inputs_embeds_continuation_has_visual_context():
     for position, token in enumerate(block.tokens):
         scores = session.next_scores((7, 8) + block.tokens[:position])
         assert int(scores.argmax()) == token
+
+
+
+def test_incremental_cursor_prefills_once_and_advances_persistent_cache():
+    torch = pytest.importorskip("torch")
+
+    class FakeModel:
+        def __init__(self):
+            self.generation_config = SimpleNamespace(
+                forced_eos_token_id=None,
+                forced_bos_token_id=None,
+                forced_decoder_ids=None,
+                exponential_decay_length_penalty=None,
+                begin_suppress_tokens=None,
+                bad_words_ids=None,
+                constraints=None,
+                force_words_ids=None,
+                sequence_bias=None,
+                min_length=0,
+                min_new_tokens=0,
+                no_repeat_ngram_size=0,
+                encoder_no_repeat_ngram_size=0,
+                repetition_penalty=1.0,
+                num_beams=1,
+            )
+            self.weight = torch.zeros((4, 2))
+            self.calls = []
+
+        def get_input_embeddings(self):
+            return SimpleNamespace(weight=self.weight)
+
+        def prepare_inputs_labels_for_multimodal(
+            self,
+            input_ids,
+            _position_ids,
+            attention_mask,
+            _past,
+            _labels,
+            _images,
+            image_sizes=None,
+        ):
+            embeds = torch.zeros((1, 5, 2))
+            mask = torch.ones((1, 5), dtype=attention_mask.dtype)
+            self.calls.append(("prepare", tuple(input_ids.shape), image_sizes))
+            return None, None, mask, None, embeds, None
+
+        def __call__(
+            self,
+            input_ids=None,
+            inputs_embeds=None,
+            attention_mask=None,
+            past_key_values=None,
+            **_kwargs,
+        ):
+            if inputs_embeds is not None:
+                logits = torch.zeros((1, inputs_embeds.shape[1], 4))
+                logits[0, -1] = torch.tensor([1.0, 2.0, 3.0, 4.0])
+                cache = ("prefill", inputs_embeds.shape[1])
+                self.calls.append(("prefill", int(attention_mask.shape[1])))
+            else:
+                token = int(input_ids[0, 0])
+                logits = torch.tensor([[[token, token + 1, token + 2, token + 3]]], dtype=torch.float32)
+                cache = ("step", token)
+                self.calls.append(("step", token, int(attention_mask.shape[1]), past_key_values))
+            return SimpleNamespace(logits=logits, past_key_values=cache)
+
+    model = FakeModel()
+    generalist = SimpleNamespace(torch=torch, model=model)
+    session = SimpleNamespace(
+        generalist=generalist,
+        inputs={
+            "inputs": torch.tensor([[1, -200, 2]], dtype=torch.long),
+            "attention_mask": torch.ones((1, 3), dtype=torch.long),
+            "images": torch.zeros((1, 3, 2, 2)),
+            "image_sizes": [(2, 2)],
+        },
+        _evidence_context=lambda: module.nullcontext(),
+    )
+    cursor = module.LlavaMedIncrementalCursor(session)
+    assert cursor.forward_calls == 1
+    assert cursor.scores().tolist() == [1.0, 2.0, 3.0, 4.0]
+    cursor.commit(7)
+    assert cursor.forward_calls == 2
+    assert cursor.tokens == [7]
+    assert cursor.scores().tolist() == [7.0, 8.0, 9.0, 10.0]
+    assert model.calls[-1][0:3] == ("step", 7, 6)
