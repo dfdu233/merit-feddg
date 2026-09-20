@@ -94,11 +94,15 @@ def test_medcpt_retriever_reads_real_kb_contract_without_patient_truth(tmp_path,
     )
     result = expert.infer(request())
     assert result.reason == "ok"
-    references = result.items[0].payload["references"]
-    assert references[0]["document_id"] == "PMID:2"
-    assert references[0]["patient_specific_claim"] == "not_established"
-    assert result.items[0].confidence is None
-    assert result.items[0].provenance["target_answers_used"] is False
+    assert len(result.items) == 2
+    first = result.items[0]
+    reference = first.payload["references"][0]
+    assert reference["document_id"] == "PMID:2"
+    assert reference["patient_specific_claim"] == "not_established"
+    assert reference["retrieval_rank"] == 1
+    assert first.confidence is None
+    assert first.provenance["target_answers_used"] is False
+    assert result.items[0].evidence_id != result.items[1].evidence_id
 
 
 def test_medcpt_missing_model_has_actionable_download_hint(tmp_path):
@@ -176,3 +180,25 @@ def test_builder_limit_is_exact_with_fake_article_encoder(tmp_path, monkeypatch)
     )
     assert payload["documents"] == 5
     assert sum(shard["count"] for shard in payload["shards"]) == 5
+
+
+def test_medcpt_documents_are_atomic_for_whole_record_token_packing(tmp_path, monkeypatch):
+    query, root = write_kb(tmp_path)
+    expert = MedCPTRetrievalExpert(
+        str(query),
+        "medcpt",
+        str(root / "manifest.json"),
+        candidate_k=3,
+        top_k=3,
+    )
+    monkeypatch.setattr(
+        expert,
+        "_query_embedding",
+        lambda _text: np.r_[np.array([1.0], dtype=np.float32), np.zeros(767, dtype=np.float32)],
+    )
+    result = expert.infer(request())
+    assert len(result.items) == 3
+    assert all(len(item.payload["references"]) == 1 for item in result.items)
+    assert [
+        item.payload["references"][0]["retrieval_rank"] for item in result.items
+    ] == [1, 2, 3]
