@@ -1,0 +1,22 @@
+{
+  "scope": "32 source TRAIN cases, paired same input and same hardware per case; not official TEST accuracy",
+  "primary": "existing source-typed mixed CE correctness + OE answer-token recall; no new formatting rules",
+  "auxiliary": [
+    "generic exact match",
+    "token F1",
+    "paired gain/harm",
+    "rescue retention relative to each unprotected arm",
+    "actual delivered fault-group counts",
+    "first-eight-prefix clean/corrupt decision retention, conditional on same clean BARD prefix"
+  ],
+  "not_claimed": [
+    "clinical correctness certificate",
+    "sequence-level adversarial robustness",
+    "joint-all corruption robustness",
+    "benchmark superiority or statistical significance"
+  ],
+  "frozen_evaluator_sources": {
+    "/home/dbw/ANCHOR/anchor/corrected_sgta/evaluate_medheval_answers.py": "ad0fb9abfebf1a0185709628835b33a052492fbe5e4828d097141282a59a21d6",
+    "/home/dbw/ANCHOR/anchor/medeval/evaluate_mixed_vqa_table.py": "7d5b7675fc0aa6455b1d60fc93dcfbb0fd04fa07e879259e483e38b7f24d99f4"
+  }
+}

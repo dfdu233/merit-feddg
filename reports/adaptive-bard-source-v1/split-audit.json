@@ -1,0 +1,166 @@
+{
+  "selection": "16 each; ascending SHA256(adaptive-source-v1:index:question); no correctness selection",
+  "vqarad_answer_type": "question-prefix auxiliary verb rule; no answer read by inference",
+  "cases": [
+    {
+      "id": "vqarad-train-554",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 554
+    },
+    {
+      "id": "vqarad-train-880",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 880
+    },
+    {
+      "id": "vqarad-train-1346",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 1346
+    },
+    {
+      "id": "vqarad-train-1493",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 1493
+    },
+    {
+      "id": "vqarad-train-164",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 164
+    },
+    {
+      "id": "vqarad-train-649",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 649
+    },
+    {
+      "id": "vqarad-train-1088",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 1088
+    },
+    {
+      "id": "vqarad-train-1082",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 1082
+    },
+    {
+      "id": "vqarad-train-899",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 899
+    },
+    {
+      "id": "vqarad-train-724",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 724
+    },
+    {
+      "id": "vqarad-train-760",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 760
+    },
+    {
+      "id": "vqarad-train-1178",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 1178
+    },
+    {
+      "id": "vqarad-train-1784",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 1784
+    },
+    {
+      "id": "vqarad-train-414",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 414
+    },
+    {
+      "id": "vqarad-train-768",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 768
+    },
+    {
+      "id": "vqarad-train-1118",
+      "source": "/home/dbw/data/VQA-RAD/data/train-00000-of-00001-eb8844602202be60.parquet",
+      "index": 1118
+    },
+    {
+      "id": "slake-train-3489",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 3489
+    },
+    {
+      "id": "slake-train-3420",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 3420
+    },
+    {
+      "id": "slake-train-3430",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 3430
+    },
+    {
+      "id": "slake-train-4151",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 4151
+    },
+    {
+      "id": "slake-train-559",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 559
+    },
+    {
+      "id": "slake-train-3538",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 3538
+    },
+    {
+      "id": "slake-train-2860",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 2860
+    },
+    {
+      "id": "slake-train-1602",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 1602
+    },
+    {
+      "id": "slake-train-1139",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 1139
+    },
+    {
+      "id": "slake-train-1538",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 1538
+    },
+    {
+      "id": "slake-train-4735",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 4735
+    },
+    {
+      "id": "slake-train-4466",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 4466
+    },
+    {
+      "id": "slake-train-1523",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 1523
+    },
+    {
+      "id": "slake-train-2240",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 2240
+    },
+    {
+      "id": "slake-train-3828",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 3828
+    },
+    {
+      "id": "slake-train-1512",
+      "source": "/home/dbw/data/SLAKE/train.json",
+      "qid": 1512
+    }
+  ]
+}

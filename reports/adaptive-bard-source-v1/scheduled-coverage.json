@@ -1,0 +1,593 @@
+{
+  "schema": "bard-scheduled-coverage-v1",
+  "n": 32,
+  "fault_group_histogram": {
+    "0": 0,
+    "1": 0,
+    "2": 21,
+    "3+": 11
+  },
+  "by_modality": {
+    "cxr": {
+      "n": 10,
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3+": 10,
+      "retrieval_cases": 10
+    },
+    "ct": {
+      "n": 16,
+      "0": 0,
+      "1": 0,
+      "2": 15,
+      "3+": 1,
+      "retrieval_cases": 16
+    },
+    "mri": {
+      "n": 6,
+      "0": 0,
+      "1": 0,
+      "2": 6,
+      "3+": 0,
+      "retrieval_cases": 6
+    }
+  },
+  "cases": [
+    {
+      "id": "vqarad-train-554",
+      "modality": "cxr",
+      "fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 4,
+      "visual_fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "robust"
+    },
+    {
+      "id": "vqarad-train-880",
+      "modality": "cxr",
+      "fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 4,
+      "visual_fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "robust"
+    },
+    {
+      "id": "vqarad-train-1346",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "vqarad-train-1493",
+      "modality": "mri",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "vqarad-train-164",
+      "modality": "cxr",
+      "fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 4,
+      "visual_fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "robust"
+    },
+    {
+      "id": "vqarad-train-649",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "vqarad-train-1088",
+      "modality": "cxr",
+      "fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 4,
+      "visual_fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "robust"
+    },
+    {
+      "id": "vqarad-train-1082",
+      "modality": "cxr",
+      "fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 4,
+      "visual_fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "robust"
+    },
+    {
+      "id": "vqarad-train-899",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "vqarad-train-724",
+      "modality": "ct",
+      "fault_groups": [
+        "biomed_anatomy",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 3,
+      "visual_fault_groups": [
+        "biomed_anatomy",
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "robust"
+    },
+    {
+      "id": "vqarad-train-760",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "vqarad-train-1178",
+      "modality": "mri",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "vqarad-train-1784",
+      "modality": "cxr",
+      "fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 4,
+      "visual_fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "robust"
+    },
+    {
+      "id": "vqarad-train-414",
+      "modality": "cxr",
+      "fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 4,
+      "visual_fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "robust"
+    },
+    {
+      "id": "vqarad-train-768",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "vqarad-train-1118",
+      "modality": "cxr",
+      "fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 4,
+      "visual_fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "robust"
+    },
+    {
+      "id": "slake-train-3489",
+      "modality": "mri",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-3420",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-3430",
+      "modality": "mri",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-4151",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-559",
+      "modality": "cxr",
+      "fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 4,
+      "visual_fault_groups": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "robust"
+    },
+    {
+      "id": "slake-train-3538",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-2860",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-1602",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-1139",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-1538",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-4735",
+      "modality": "mri",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-4466",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-1523",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-2240",
+      "modality": "cxr",
+      "fault_groups": [
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 3,
+      "visual_fault_groups": [
+        "chexagent_description",
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "robust"
+    },
+    {
+      "id": "slake-train-3828",
+      "modality": "mri",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    },
+    {
+      "id": "slake-train-1512",
+      "modality": "ct",
+      "fault_groups": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "fault_group_count": 2,
+      "visual_fault_groups": [
+        "biomedparse_objects"
+      ],
+      "retrieval_fault_groups": [
+        "medcpt_pubmed"
+      ],
+      "adaptive_mode": "pair_unanimous"
+    }
+  ],
+  "answers_loaded": false,
+  "references_loaded": false,
+  "expert_outputs_loaded": false
+}

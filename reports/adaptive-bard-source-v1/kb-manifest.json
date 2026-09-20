@@ -1,0 +1,31 @@
+{
+  "schema": "merit-medcpt-kb-v1",
+  "source": "official_ncbi_medcpt_precomputed_pubmed",
+  "documents": 851839,
+  "duplicates_or_no_abstract_skipped": 141633,
+  "embedding_dim": 768,
+  "article_encoder": "official_precomputed_MedCPT_Article_Encoder",
+  "sqlite": "documents.sqlite3",
+  "sqlite_sha256": "51289ffe1ccea42580735fc40f341f6aea9a42a71a18001816f2c2ee9d6c4049",
+  "shards": [
+    {
+      "source_chunk": 36,
+      "embedding": "embeddings/chunk-036.npy",
+      "rowids": "rowids/chunk-036.npy",
+      "count": 851839,
+      "embedding_sha256": "28a4eafa913fa1077052917e564de08baf24be3876e5530e29b09af17756e761",
+      "rowids_sha256": "b8237fce34020615d211d70406d79eff2440e6d2919790f9d497a0be9cc04fc6"
+    }
+  ],
+  "faiss": null,
+  "source_assets": [
+    {
+      "chunk": 36,
+      "embeddings_sha256": "1c76b1f8c64145721ee07026013e7dac3efe054e80c919169350ad407743fea3",
+      "pmids_sha256": "a977fa5f0a8dfa4db8f5826c1233d42002ba8e2b945be1aee25b47bf5ca1ecc6",
+      "content_sha256": "9327a996f2e61387ad38bbc2cc95bc3d43872b12caeff0e69b144899ec2156bc"
+    }
+  ],
+  "target_answers_used": false,
+  "fingerprint": "sha256:15705c27d2ea2e43b1fcfc68a24372d87c38c80679789c0006499ac874bab16d"
+}

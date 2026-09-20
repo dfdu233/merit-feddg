@@ -56,9 +56,9 @@ def routed_rows(original, config, root, identity, artifacts, routing_json=None):
             "modality": "mixed",
             "capability": "classification",
             "task": row.get("task", "open_vqa"),
-            "domain": "official-test",
+            "domain": row.get("domain", "official-test"),
             "domain_kind": "official_dataset_split",
-            "role": "target",
+            "role": row.get("role", "target"),
             "group_id": row["image_sha256"],
             "image_sha256": row["image_sha256"],
         }

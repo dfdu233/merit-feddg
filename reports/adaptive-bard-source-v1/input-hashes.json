@@ -1,0 +1,6 @@
+{
+  "source.jsonl": "95eb7f9615d23f993b2796bdb4d085625370a1575dd4a6376c480fc557f3ad9d",
+  "references.json": "d9fbf7ccd99d40cad9edebd80d385641bfb3549863e853061ac3980a38c28465",
+  "config.yaml": "0d3f8c62b6ba02d944dbcd7d59a33f585777b8c5e7093bb692d4edb8285147a7",
+  "run_adaptive_bard_canary.py": "b8a8c1eb71b460ddc725a098ed8946f83f81197afc972e5fa58c6295183fcf79"
+}
