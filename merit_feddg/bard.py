@@ -284,6 +284,117 @@ def single_fault_probe(base_scores, expert_scores, config: BARDConfig):
     }
 
 
+
+
+def decode_bard_bundle(
+    base_session,
+    expert_sessions: Mapping[str, object],
+    *,
+    max_tokens: int,
+    config: BARDConfig,
+):
+    """Run matched mean/geomedian/BARD arms while sharing identical-prefix scores.
+
+    This is an experiment-efficiency optimization only.  Each arm keeps its own
+    committed prefix.  Scores are reused only when two arms have exactly the
+    same token prefix, so the mathematical definition of each arm is unchanged.
+    """
+    if type(max_tokens) is not int or max_tokens < 1:
+        raise ValueError("max_tokens must be positive")
+    names = list(expert_sessions)
+    if len(names) != len(set(names)):
+        raise ValueError("expert branch names must be unique")
+    policies = {
+        "isolated_mean": {"aggregation": "mean", "bounded": False},
+        "isolated_geomedian": {"aggregation": "geometric_median", "bounded": False},
+        "bard": {"aggregation": "geometric_median", "bounded": True},
+    }
+    states = {
+        name: {"prefix": [], "trace": [], "finished": False}
+        for name in policies
+    }
+    score_calls = 0
+
+    for _step in range(max_tokens):
+        active = [name for name, state in states.items() if not state["finished"]]
+        if not active:
+            break
+        grouped = {}
+        for name in active:
+            grouped.setdefault(tuple(states[name]["prefix"]), []).append(name)
+        for prefix_tuple, members in grouped.items():
+            prefix = list(prefix_tuple)
+            base_scores = base_session.next_scores(prefix)
+            need_experts = any(
+                not (
+                    policies[name]["bounded"]
+                    and len(names) == 1
+                    and config.single_expert_policy == "baseline"
+                )
+                for name in members
+            )
+            expert_scores = (
+                [expert_sessions[name].next_scores(prefix) for name in names]
+                if need_experts
+                else []
+            )
+            score_calls += 1 + len(expert_scores)
+            for method in members:
+                bounded = policies[method]["bounded"]
+                if bounded and len(names) == 1 and not expert_scores:
+                    base_logp, _ = _log_probs(base_scores)
+                    token = int(np.argmax(base_logp))
+                    audit = {
+                        "reason": "single_expert_unidentifiable",
+                        "committed": False,
+                        "base_token": token,
+                        "candidate_token": token,
+                        "selected_token": token,
+                        "expert_count": 1,
+                        "fault_budget": config.fault_budget,
+                        "effective_fault_budget": 0,
+                        "required_experts": 2,
+                        "consensus_mode": "single",
+                        "medical_correctness_guaranteed": False,
+                    }
+                else:
+                    token, audit = bard_step(
+                        base_scores,
+                        expert_scores,
+                        config,
+                        aggregation=policies[method]["aggregation"],
+                        bounded_commit=bounded,
+                    )
+                    if method == "bard" and expert_scores:
+                        audit["fault_probe"] = single_fault_probe(
+                            base_scores, expert_scores, config
+                        )
+                audit["step"] = len(states[method]["prefix"])
+                audit["experts"] = names
+                states[method]["trace"].append(audit)
+                states[method]["prefix"].append(int(token))
+                if token in base_session.eos_ids or len(states[method]["prefix"]) >= max_tokens:
+                    states[method]["finished"] = True
+
+    outputs = {}
+    for method, state in states.items():
+        outputs[method] = {
+            "text": base_session.decode(state["prefix"]).strip(),
+            "token_ids": list(state["prefix"]),
+            "trace": state["trace"],
+            "expert_branches": names,
+            "structural_fallback": bool(
+                method == "bard"
+                and len(names) == 1
+                and config.single_expert_policy == "baseline"
+            ),
+            "fault_budget": config.fault_budget,
+            "aggregation": policies[method]["aggregation"],
+            "bounded_commit": policies[method]["bounded"],
+            "shared_score_calls_bundle": score_calls,
+        }
+    return outputs
+
 def decode_bard(
     base_session,
     expert_sessions: Mapping[str, object],
