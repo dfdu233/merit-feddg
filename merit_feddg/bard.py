@@ -173,7 +173,7 @@ def _decision_from_residuals(
         committed, reason = True, "unprotected_aggregate"
     elif n < required_experts:
         committed, reason = False, "insufficient_byzantine_redundancy"
-    elif supporters < support_needed or conservative_margin <= 0.0:
+    elif aggregate_margin <= 0.0 or supporters < support_needed or conservative_margin <= 0.0:
         committed, reason = False, "insufficient_branch_consensus"
     else:
         committed, reason = True, "bounded_fault_consensus"
