@@ -261,14 +261,14 @@ class MedCPTRetrievalExpert:
                     source_ids = np.load(self.kb_root / source_path, mmap_mode="r")
                     if source_ids.shape != rowids.shape:
                         raise ValueError("knowledge-base source-id shape does not match rowids")
-                    for source_id in per_source:
+                    for source_id, values in per_source.items():
                         positions = np.flatnonzero(np.asarray(source_ids) == source_id)
                         if not positions.size:
                             continue
                         local = self._topk(scores[positions], per_source_k)
                         for local_index in local:
                             index = int(positions[local_index])
-                            per_source[source_id].append(
+                            values.append(
                                 (
                                     float(scores[index]),
                                     int(rowids[index]),
