@@ -188,6 +188,67 @@ def main():
         )
     atomic_json(root / "schedule.json", schedule)
 
+    # Coverage is answer-blind and known before any specialist model is loaded.
+    coverage_cases = []
+    histogram = {"0": 0, "1": 0, "2": 0, "3+": 0}
+    modality_counts = {}
+    for row in rows:
+        descriptors = schedule[row["id"]]
+        groups = []
+        visual_groups = []
+        retrieval_groups = []
+        for descriptor in descriptors:
+            expert = descriptor["expert"]
+            group = str(specs[expert].get("fault_group", expert)).strip()
+            if group not in groups:
+                groups.append(group)
+            target = retrieval_groups if descriptor["capability"] == "retrieval" else visual_groups
+            if group not in target:
+                target.append(group)
+        key = str(len(groups)) if len(groups) < 3 else "3+"
+        histogram[key] += 1
+        modality = row["modality"]
+        stats = modality_counts.setdefault(
+            modality,
+            {"n": 0, "0": 0, "1": 0, "2": 0, "3+": 0, "retrieval_cases": 0},
+        )
+        stats["n"] += 1
+        stats[key] += 1
+        stats["retrieval_cases"] += int(bool(retrieval_groups))
+        coverage_cases.append(
+            {
+                "id": row["id"],
+                "modality": modality,
+                "fault_groups": groups,
+                "fault_group_count": len(groups),
+                "visual_fault_groups": visual_groups,
+                "retrieval_fault_groups": retrieval_groups,
+                "adaptive_mode": (
+                    "generalist"
+                    if len(groups) <= 1
+                    else "pair_unanimous"
+                    if len(groups) == 2
+                    else "robust"
+                ),
+            }
+        )
+    coverage = {
+        "schema": "bard-scheduled-coverage-v1",
+        "n": len(rows),
+        "fault_group_histogram": histogram,
+        "by_modality": modality_counts,
+        "cases": coverage_cases,
+        "answers_loaded": False,
+        "references_loaded": False,
+        "expert_outputs_loaded": False,
+    }
+    atomic_json(root / "coverage.json", coverage)
+    print(
+        "scheduled BARD fault-group coverage: "
+        + " ".join(f"{key}={value}" for key, value in histogram.items()),
+        flush=True,
+    )
+
     from merit_feddg.capability_experts import CapabilityPool
 
     summary = {}
@@ -247,6 +308,10 @@ def main():
         "excluded": excluded,
         "routing": routing_audit,
         "summary": summary,
+        "coverage": {
+            "fault_group_histogram": coverage["fault_group_histogram"],
+            "by_modality": coverage["by_modality"],
+        },
         "references_loaded": False,
         "answers_loaded": False,
         "expert_major_execution": True,
