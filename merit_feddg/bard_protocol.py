@@ -4,7 +4,8 @@ from __future__ import annotations
 from dataclasses import asdict
 from time import perf_counter
 
-from .bard import BARDConfig, decode_bard, decode_bard_bundle as decode_bundle
+from .bard import BARDConfig, decode_bard
+from .bard import decode_bard_bundle as decode_bundle
 
 BARD_METHODS = ("isolated_mean", "isolated_geomedian", "bard")
 
