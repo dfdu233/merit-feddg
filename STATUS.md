@@ -1,3 +1,14 @@
+# Official TEST evaluation preparation — GPU0 (2026-09-20 UTC)
+
+- User explicitly authorized both complete official TEST datasets: VQA-RAD451 + SLAKE2094 (English1061/Chinese1033). Fixed C project/layout_average, no retuning or READY claim. Previous TRAIN results remain unchanged below.
+- New entrypoints `scripts/prepare_algorithm_test.py` and `scripts/run_algorithm_test.py` verify existing full baseline/native caches and invoke the unchanged chain worker/scorer. TRAIN guards remain unchanged.
+- First plan `runs/official-test2545-gpu0-v1` (`c9a02c15…`) stopped before any forward: generic JSON key sorting changed nested evidence field order/array ordinals and therefore historical prompt identity. Model load occurred; new forwards0; TEST attempt1 retained.
+- Repair preserves original nested field order, adds all-case original prompt hash verification and a regression test. 95 tests passed. Preparing verified inputs under `runs/official-test2545-inputs-v2`; no active GPU worker during this preparation.
+- Next: freeze successor with `--previous-test runs/official-test2545-gpu0-v1`, preserving attempts and historical44791 forwards, launch on host GPU0 UUID `GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023`, check real canaries and complete/scored coverage.
+- Original cumulative cap200000 remains in force. An asynchronous question asks whether to raise it to1000000 for full TEST; no affirmative answer received yet. Never treat silence as approval.
+
+---
+
 # Expansion complete — host GPU0, 151/151 added and 279 pooled (2026-09-20 UTC)
 
 - Latest user authorization allowed host GPU0, superseding the earlier GPU1-only restriction. GPU1 C-attempt-2 had failed resource ownership before model loading (0 forwards/8.767s); preserved in the migration. No other job was stopped.

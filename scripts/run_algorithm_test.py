@@ -17,7 +17,7 @@ from merit_feddg.algorithm_chain.storage import (read, write, digest, fingerprin
 from merit_feddg.algorithm_chain.cli import invoke_child, validate_predictions
 
 
-def freeze(inputs, predecessor, output, max_total_forwards):
+def freeze(inputs, predecessor, output, max_total_forwards, previous_test=None):
     if output.exists():
         raise FileExistsError('Use a new explicit TEST evaluation directory')
     prior, state = read(predecessor/'plan.json'), read(predecessor/'state.json')
@@ -29,6 +29,30 @@ def freeze(inputs, predecessor, output, max_total_forwards):
     spent += sum(x['forwards'] for x in state.get('preflight_costs', []))
     if spent != state['forwards_used'] or max_total_forwards <= spent:
         raise ValueError('Invalid inherited forward ledger or remaining budget')
+    inherited_test_attempts, test_lineage = 0, None
+    if previous_test:
+        previous, previous_state = read(previous_test/'plan.json'), read(previous_test/'state.json')
+        if (fingerprint({k:v for k,v in previous.items() if k!='identity'}) != previous['identity']
+                or previous_state['plan_sha'] != previous['identity']
+                or previous_state['status'] != 'BLOCKED_TEST_TECHNICAL'):
+            raise ValueError('Only a preserved technical failure can be repaired')
+        if (previous['candidate'] != state['candidate'] or previous['runtime'] != prior['runtime']
+                or previous['predecessor_plan_sha'] != prior['identity']):
+            raise ValueError('TEST repair cannot change the candidate or model')
+        for path, sha in prior['code_pins'].items():
+            if previous['code_pins'].get(path) != sha:
+                raise ValueError('TEST repair must retain the inherited scientific code')
+        previous_used = read(previous_test/'budget.json')['used'] if (previous_test/'budget.json').exists() else 0
+        if previous_used != previous_state['new_forwards']:
+            raise ValueError('Previous TEST cost changed')
+        spent = previous['inherited_forwards'] + previous_used
+        inherited_test_attempts = previous_state['attempts']
+        if inherited_test_attempts >= 3 or spent >= max_total_forwards:
+            raise ValueError('TEST attempt/forward budget exhausted')
+        test_lineage = dict(directory=str(previous_test),plan_sha=previous['identity'],
+            state_sha256=digest(previous_test/'state.json'),new_forwards=previous_used,
+            inherited_test_attempts=inherited_test_attempts,
+            reason='Preserve nested evidence field order during cache adaptation; no decoder change')
     for entry in state['history']:
         if digest(predecessor/entry['directory']/'decision.json') != entry['report_sha']:
             raise ValueError('Historical decision changed')
@@ -62,6 +86,7 @@ def freeze(inputs, predecessor, output, max_total_forwards):
         policy=prior['policy'],max_total_forwards=max_total_forwards,inherited_forwards=spent,
         predecessor_plan_sha=prior['identity'],predecessor_state_sha256=digest(predecessor/'state.json'),
         inherited_attempts=state['attempts'],new_evaluation_max_attempts=3,
+        previous_test=test_lineage,
         interpretation='Full fixed-candidate TEST measurement after a failed development screen; not independent confirmation or retuning')
     plan['identity'] = fingerprint(plan)
     job = dict(schema='merit-explicit-official-test-job-v1',node='TEST',candidate=plan['candidate'],
@@ -70,7 +95,7 @@ def freeze(inputs, predecessor, output, max_total_forwards):
     write(output/'plan.json',plan)
     write(output/'input-job.json',job)
     write(output/'scoring-config.json',scorer)
-    write(output/'state.json',dict(status='FROZEN_TEST',attempts=0,inherited_forwards=spent,
+    write(output/'state.json',dict(status='FROZEN_TEST',attempts=inherited_test_attempts,inherited_forwards=spent,
                                    plan_sha=plan['identity'],job_sha=fingerprint(job),new_forwards=0))
     print('FROZEN OFFICIAL TEST',plan['identity'],flush=True)
 
@@ -125,10 +150,12 @@ if __name__ == '__main__':
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--inputs',type=Path)
     p.add_argument('--predecessor',type=Path)
+    p.add_argument('--previous-test',type=Path)
     p.add_argument('--max-total-forwards',type=int,default=200000)
     a=p.parse_args()
     if a.command=='freeze':
         if not a.inputs or not a.predecessor: p.error('freeze requires inputs and predecessor')
-        freeze(a.inputs.resolve(),a.predecessor.resolve(),a.output.resolve(),a.max_total_forwards)
+        freeze(a.inputs.resolve(),a.predecessor.resolve(),a.output.resolve(),a.max_total_forwards,
+               a.previous_test.resolve() if a.previous_test else None)
     else:
         run(a.output.resolve())

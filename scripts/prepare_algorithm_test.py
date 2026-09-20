@@ -4,8 +4,12 @@ Explicit TEST evaluation only. Does not relax the TRAIN chain's source contract.
 Reference answers are exported separately for the isolated offline scorer.
 """
 import argparse
+import hashlib
+import json
+import os
 from pathlib import Path
 import sys
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -13,6 +17,24 @@ sys.path.append('/home/dbw/ANCHOR')
 from anchor.corrected_sgta.protocol_v2 import build_prompt
 from merit_feddg.algorithm_chain.storage import (read, write, digest, fingerprint,
                                                pin_files, pixel_hash, safe_name)
+from merit_feddg.capabilities import EvidenceItem
+from merit_feddg.capability_runtime import ValueGenerationConfig, presentation_items
+from merit_feddg.compact_evidence import compact_records, compact_prompt
+
+
+def write_case(path, value):
+    """Payload dictionary order is part of the historical compact prompt."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix='.test-case-', dir=path.parent)
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8') as stream:
+            json.dump(value, stream, ensure_ascii=False, allow_nan=False, separators=(',', ':'))
+            stream.write('\n')
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.link(tmp, path)
+    finally:
+        Path(tmp).unlink(missing_ok=True)
 
 
 def prepare(output):
@@ -28,7 +50,6 @@ def prepare(output):
         manifest = anchor/'corrected_runs/paper_baselines_v1/merit_common_protocol_v1'/(dataset+'.jsonl')
         canonical = (anchor/'data/vqa_rad/official_test_full_v1.json' if dataset == 'vqa_rad'
                      else Path('/home/dbw/data/SLAKE/test.json'))
-        import json
         rows = [json.loads(s) for s in manifest.read_text().splitlines()]
         gold = {str(r['id'] if dataset == 'vqa_rad' else r['qid']): r for r in read(canonical)}
         answers = [json.loads(s) for s in (baseline/'answers.jsonl').read_text().splitlines()]
@@ -57,6 +78,7 @@ def prepare(output):
             raise ValueError('Historical baseline adapter/prompt/model configuration changed')
         source = output/dataset
         cohort = dataset+'-official-test'
+        config = ValueGenerationConfig(**mp['generation_config'])
         adapted, records = [], []
         originals = {str(p): digest(p) for p in [manifest, native/'protocol.json',
                      native/'actor-complete.json', baseline/'answers.jsonl', baseline/'generation_config.json']}
@@ -81,6 +103,15 @@ def prepare(output):
                 raise ValueError('Historical expert failure')
             if not any(t.get('event') == 'decode' and 'evidence_transport' in t for t in traces):
                 raise ValueError('Missing historical native transport')
+            transport = [t['evidence_transport'] for t in traces
+                         if t.get('event') == 'decode' and 'evidence_transport' in t][-1]
+            visible = {(x['expert_id'],x['evidence_id']) for x in transport['presented']}
+            memory = compact_records(presentation_items(tuple(EvidenceItem(**x) for x in m['output']['evidence']),
+                                     row['question'],config),geometry=config.compact_geometry)
+            memory = [x for x in memory if (x['expert_id'],x['evidence_id']) in visible]
+            prompt = compact_prompt(row['benchmark_prompt'],memory,columns=config.compact_columns)
+            if hashlib.sha256(prompt.encode()).hexdigest() != transport['prompt_sha256']:
+                raise ValueError('Original native compact prompt cannot be reproduced: '+key)
             for arm in [dict(text=b['text'], token_ids=meta['generated_token_ids']), m['output']]:
                 if not arm['token_ids'] or not isinstance(arm['text'], str) or not arm['text'].strip():
                     raise ValueError('Incomplete cached answer')
@@ -90,7 +121,7 @@ def prepare(output):
             pixel, shape = pixel_cache[row['image']]
             adapted.append(dict(id=key, complete=True, compact_raw=m['output'],
                 arms=dict(generalist=dict(text=b['text'],token_ids=meta['generated_token_ids']),
-                          compact=m['output']), reused_only=True))
+                          compact=dict(text=m['output']['text'],token_ids=m['output']['token_ids'])), reused_only=True))
             records.append(dict(id=cohort+':'+key, source_id=key, pixel_sha256=pixel,
                                 image_size=shape, image_sha256=row['image_sha256']))
         # Identity explicitly says TEST and verified adaptation, never a fake new native execution.
@@ -103,7 +134,7 @@ def prepare(output):
         write(source/'protocol.json', dict(identity=identity, **payload))
         for case, record in zip(adapted, records):
             path = source/'cases'/(case['id']+'.json')
-            write(path, dict(identity=identity, **case))
+            write_case(path, dict(identity=identity, **case))
             record['case_sha256'] = digest(path)
         write(source/'complete.json', dict(identity=identity,n=expected,reused_only=True,
             meaning='All original complete outputs validated and adapted; zero new answer generation'))
