@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from time import perf_counter
 
-from .bard import BARDConfig, decode_bard
+from .bard import BARDConfig, decode_bard, decode_bard_incremental
 from .bard import decode_bard_bundle as decode_bundle
 
 BARD_METHODS = ("isolated_mean", "isolated_geomedian", "bard")
@@ -314,3 +314,86 @@ def run_bard_bundle(native_session, acquisition, bard_config):
             "bundle_amortized_across_methods": list(BARD_METHODS),
         }
     return outputs
+
+def validate_incremental_parity(base_session, expert_sessions, prefix_tokens, *, max_steps=8):
+    """Require persistent-KV argmax parity on every actual receiver branch."""
+    if type(max_steps) is not int or max_steps < 1:
+        raise ValueError("max_steps must be positive")
+    prefix = [int(token) for token in prefix_tokens[:max_steps]]
+    sessions = {"generalist": base_session, **dict(expert_sessions)}
+    reports = {}
+    for name, session in sessions.items():
+        if not hasattr(session, "incremental_parity"):
+            raise ValueError(f"receiver session {name} has no incremental parity implementation")
+        reports[name] = session.incremental_parity(prefix)
+    return {
+        "prefix_tokens": prefix,
+        "branches": reports,
+        "all_argmax_equal": all(
+            report["all_argmax_equal"] for report in reports.values()
+        ),
+        "max_abs_logit_delta": max(
+            report["max_abs_logit_delta"] for report in reports.values()
+        ),
+        "fast_path_allowed": all(
+            report["all_argmax_equal"] for report in reports.values()
+        ),
+    }
+
+
+def run_bard_incremental_method(
+    native_session,
+    acquisition,
+    bard_config,
+    *,
+    parity_tokens,
+    parity_steps=8,
+):
+    """Run persistent-KV BARD only after branch-complete replay parity succeeds."""
+    config = BARDConfig(**bard_config)
+    base, experts, transport = build_isolated_sessions(
+        native_session, acquisition["groups"]
+    )
+    parity = validate_incremental_parity(
+        base, experts, parity_tokens, max_steps=parity_steps
+    )
+    if not parity["fast_path_allowed"]:
+        raise RuntimeError(
+            "persistent-KV BARD parity failed; keep the production replay decoder"
+        )
+    base_stream = base.new_incremental_stream()
+    expert_streams = {
+        name: session.new_incremental_stream()
+        for name, session in experts.items()
+    }
+    started = perf_counter()
+    result = decode_bard_incremental(
+        base_stream,
+        expert_streams,
+        max_tokens=native_session.config.max_new_tokens,
+        config=config,
+        fault_probe=True,
+    )
+    decode_seconds = perf_counter() - started
+    return {
+        **result,
+        "finished": bool(
+            result["token_ids"] and result["token_ids"][-1] in base.eos_ids
+        ),
+        "seconds": decode_seconds,
+        "expert_calls": acquisition["native_requests"],
+        "controller_calls": 0,
+        "probe_model_calls": 0,
+        "probe_seconds": 0.0,
+        "controller_output_tokens": 0,
+        "evidence": [
+            asdict(item)
+            for values in acquisition["groups"].values()
+            for item in values
+        ],
+        "isolated_transport": transport,
+        "incremental_parity": parity,
+        "fast_path_activated": True,
+        "medical_correctness_guaranteed": False,
+    }
+
