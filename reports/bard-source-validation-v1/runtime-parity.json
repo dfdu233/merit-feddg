@@ -1,0 +1,92 @@
+[
+  {
+    "case_id": "slake-train-2719",
+    "method": "generalist",
+    "token_parity": true,
+    "host_torch": "2.0.1+cu117",
+    "cloud_torch": "2.8.0+cu128",
+    "host_peak_bytes": 17978887168,
+    "cloud_peak_bytes": 17923948032
+  },
+  {
+    "case_id": "slake-train-2719",
+    "method": "joint_all",
+    "token_parity": false,
+    "host_torch": "2.0.1+cu117",
+    "cloud_torch": "2.8.0+cu128",
+    "host_peak_bytes": 20098877952,
+    "cloud_peak_bytes": 20042767360
+  },
+  {
+    "case_id": "slake-train-2719",
+    "method": "isolated_mean",
+    "token_parity": true,
+    "host_torch": "2.0.1+cu117",
+    "cloud_torch": "2.8.0+cu128",
+    "host_peak_bytes": 18816707584,
+    "cloud_peak_bytes": 18760973312
+  },
+  {
+    "case_id": "slake-train-2719",
+    "method": "isolated_geomedian",
+    "token_parity": true,
+    "host_torch": "2.0.1+cu117",
+    "cloud_torch": "2.8.0+cu128",
+    "host_peak_bytes": 18816707584,
+    "cloud_peak_bytes": 18760973312
+  },
+  {
+    "case_id": "slake-train-2719",
+    "method": "bard",
+    "token_parity": true,
+    "host_torch": "2.0.1+cu117",
+    "cloud_torch": "2.8.0+cu128",
+    "host_peak_bytes": 18816707584,
+    "cloud_peak_bytes": 18760973312
+  },
+  {
+    "case_id": "slake-train-1922",
+    "method": "generalist",
+    "token_parity": true,
+    "host_torch": "2.0.1+cu117",
+    "cloud_torch": "2.8.0+cu128",
+    "host_peak_bytes": 17978887168,
+    "cloud_peak_bytes": 17923948032
+  },
+  {
+    "case_id": "slake-train-1922",
+    "method": "joint_all",
+    "token_parity": true,
+    "host_torch": "2.0.1+cu117",
+    "cloud_torch": "2.8.0+cu128",
+    "host_peak_bytes": 20066056704,
+    "cloud_peak_bytes": 20013916672
+  },
+  {
+    "case_id": "slake-train-1922",
+    "method": "isolated_mean",
+    "token_parity": true,
+    "host_torch": "2.0.1+cu117",
+    "cloud_torch": "2.8.0+cu128",
+    "host_peak_bytes": 18808261120,
+    "cloud_peak_bytes": 18751555072
+  },
+  {
+    "case_id": "slake-train-1922",
+    "method": "isolated_geomedian",
+    "token_parity": true,
+    "host_torch": "2.0.1+cu117",
+    "cloud_torch": "2.8.0+cu128",
+    "host_peak_bytes": 18808261120,
+    "cloud_peak_bytes": 18751555072
+  },
+  {
+    "case_id": "slake-train-1922",
+    "method": "bard",
+    "token_parity": true,
+    "host_torch": "2.0.1+cu117",
+    "cloud_torch": "2.8.0+cu128",
+    "host_peak_bytes": 18808261120,
+    "cloud_peak_bytes": 18751555072
+  }
+]

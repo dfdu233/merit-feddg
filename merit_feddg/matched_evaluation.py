@@ -40,7 +40,8 @@ def load_manifest(path, *, include_answer_type=True):
         if answer_type not in allowed:
             raise ValueError(f"answer_type {answer_type!r} is incompatible with task {task!r}")
         normalized.append({key: row[key] for key in ("id", "image", "question", "image_sha256")}
-                          | {"answer_type": answer_type, "task": task})
+                          | {"answer_type": answer_type, "task": task}
+                          | {key: row[key] for key in ("role", "domain", "domain_kind") if key in row})
     return normalized
 
 
@@ -373,8 +374,8 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
     rows = [{"id": r["id"], "image": r["image"], "question": r["question"],
              "modality": "mixed",
              "capability": "classification", "task": r.get("task", "open_vqa"),
-             "domain": "official-test",
-             "domain_kind": "official_dataset_split", "role": "target",
+             "domain": r.get("domain", "official-test"),
+             "domain_kind": r.get("domain_kind", "official_dataset_split"), "role": r.get("role", "target"),
              "group_id": r["image_sha256"], "image_sha256": r["image_sha256"]} for r in original]
     rows = rows[shard_index::shard_count]
     if reused_routes is None:

@@ -62,6 +62,17 @@ def test_f1_requires_four_branches():
     assert audit["reason"] == "insufficient_byzantine_redundancy"
 
 
+def test_same_fault_comparators_expose_mean_failure_without_extra_forwards():
+    base = np.array([4.0, 3.0])
+    experts = [np.array([1.0, 8.0]) for _ in range(4)]
+    result = single_fault_probe(base, experts, BARDConfig())
+    comparisons = result["comparators_at_same_prefix_and_fault"]
+    assert result["extra_model_forwards"] == 0
+    assert all(v["same_as_clean"] for v in result["single_faults"])
+    assert all(not v["same_as_clean"] for v in comparisons["isolated_mean"]["single_faults"])
+    assert all(v["same_as_clean"] for v in comparisons["isolated_geomedian"]["single_faults"])
+
+
 def test_f1_commits_with_three_of_four_supporters_despite_one_outlier():
     config = BARDConfig(fault_budget=1)
     experts = [

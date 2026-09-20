@@ -1,0 +1,981 @@
+{
+  "dataset": "SLAKE TRAIN",
+  "selection": {
+    "ids": [
+      "slake-train-2422",
+      "slake-train-1509",
+      "slake-train-5036",
+      "slake-train-6950",
+      "slake-train-3338",
+      "slake-train-4685",
+      "slake-train-3994",
+      "slake-train-5911",
+      "slake-train-2719",
+      "slake-train-1922"
+    ],
+    "active_ids": [
+      "slake-train-2719",
+      "slake-train-1922"
+    ],
+    "source": "/home/dbw/merit-feddg-huatuo-critic/runs/native-slake128-confirm-v2",
+    "source_protocol_sha256": "353c57d4d633c0b5f7f8736a62ae5d9b0d383a982e78fec4123e71558b8efa1e",
+    "label_selection": false
+  },
+  "summary": {
+    "first8": {
+      "n": 8,
+      "arms": {
+        "joint_all": {
+          "frozen_mixed": 0.4375,
+          "content_recall": 0.4375
+        },
+        "bard": {
+          "frozen_mixed": 0.375,
+          "content_recall": 0.375
+        },
+        "generalist": {
+          "frozen_mixed": 0.375,
+          "content_recall": 0.375
+        },
+        "isolated_mean": {
+          "frozen_mixed": 0.4375,
+          "content_recall": 0.4375
+        },
+        "isolated_geomedian": {
+          "frozen_mixed": 0.3125,
+          "content_recall": 0.375
+        }
+      },
+      "paired": {
+        "joint_all": {
+          "gains": 1,
+          "harms": 0
+        },
+        "bard": {
+          "gains": 0,
+          "harms": 0
+        },
+        "generalist": {
+          "gains": 0,
+          "harms": 0
+        },
+        "isolated_mean": {
+          "gains": 1,
+          "harms": 0
+        },
+        "isolated_geomedian": {
+          "gains": 1,
+          "harms": 1
+        }
+      }
+    },
+    "four_node2": {
+      "n": 2,
+      "arms": {
+        "joint_all": {
+          "frozen_mixed": 0.5,
+          "content_recall": 0.5
+        },
+        "bard": {
+          "frozen_mixed": 0.0,
+          "content_recall": 0.0
+        },
+        "generalist": {
+          "frozen_mixed": 0.0,
+          "content_recall": 0.0
+        },
+        "isolated_mean": {
+          "frozen_mixed": 0.5,
+          "content_recall": 0.5
+        },
+        "isolated_geomedian": {
+          "frozen_mixed": 0.0,
+          "content_recall": 0.0
+        }
+      },
+      "paired": {
+        "joint_all": {
+          "gains": 1,
+          "harms": 0
+        },
+        "bard": {
+          "gains": 0,
+          "harms": 0
+        },
+        "generalist": {
+          "gains": 0,
+          "harms": 0
+        },
+        "isolated_mean": {
+          "gains": 1,
+          "harms": 0
+        },
+        "isolated_geomedian": {
+          "gains": 0,
+          "harms": 0
+        }
+      }
+    },
+    "enriched10": {
+      "n": 10,
+      "arms": {
+        "joint_all": {
+          "frozen_mixed": 0.45,
+          "content_recall": 0.45
+        },
+        "bard": {
+          "frozen_mixed": 0.3,
+          "content_recall": 0.3
+        },
+        "generalist": {
+          "frozen_mixed": 0.3,
+          "content_recall": 0.3
+        },
+        "isolated_mean": {
+          "frozen_mixed": 0.45,
+          "content_recall": 0.45
+        },
+        "isolated_geomedian": {
+          "frozen_mixed": 0.25,
+          "content_recall": 0.3
+        }
+      },
+      "paired": {
+        "joint_all": {
+          "gains": 2,
+          "harms": 0
+        },
+        "bard": {
+          "gains": 0,
+          "harms": 0
+        },
+        "generalist": {
+          "gains": 0,
+          "harms": 0
+        },
+        "isolated_mean": {
+          "gains": 2,
+          "harms": 0
+        },
+        "isolated_geomedian": {
+          "gains": 1,
+          "harms": 1
+        }
+      }
+    }
+  },
+  "cases": {
+    "slake-train-2422": {
+      "clean": {
+        "joint_all": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 4,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "bard": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 4,
+          "finished": true,
+          "expert_nodes": 3,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "generalist": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 4,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "isolated_mean": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 5,
+          "finished": true,
+          "expert_nodes": 3,
+          "structural_fallback": false,
+          "commits": 1
+        },
+        "isolated_geomedian": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.5
+          },
+          "token_count": 5,
+          "finished": true,
+          "expert_nodes": 3,
+          "structural_fallback": false,
+          "commits": 2
+        }
+      },
+      "faults": [],
+      "native_parity": true
+    },
+    "slake-train-1509": {
+      "clean": {
+        "joint_all": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "bard": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 1,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "generalist": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "isolated_mean": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 1,
+          "structural_fallback": false,
+          "commits": 1
+        },
+        "isolated_geomedian": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 1,
+          "structural_fallback": false,
+          "commits": 1
+        }
+      },
+      "faults": [],
+      "native_parity": true
+    },
+    "slake-train-5036": {
+      "clean": {
+        "joint_all": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 6,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "bard": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 3,
+          "finished": true,
+          "expert_nodes": 1,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "generalist": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 3,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "isolated_mean": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 6,
+          "finished": true,
+          "expert_nodes": 1,
+          "structural_fallback": false,
+          "commits": 3
+        },
+        "isolated_geomedian": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 6,
+          "finished": true,
+          "expert_nodes": 1,
+          "structural_fallback": false,
+          "commits": 3
+        }
+      },
+      "faults": [],
+      "native_parity": true
+    },
+    "slake-train-6950": {
+      "clean": {
+        "joint_all": {
+          "scores": {
+            "frozen_mixed": 0.5,
+            "content_recall": 0.5
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "bard": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 3,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "generalist": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "isolated_mean": {
+          "scores": {
+            "frozen_mixed": 0.5,
+            "content_recall": 0.5
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 3,
+          "structural_fallback": false,
+          "commits": 1
+        },
+        "isolated_geomedian": {
+          "scores": {
+            "frozen_mixed": 0.5,
+            "content_recall": 0.5
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 3,
+          "structural_fallback": false,
+          "commits": 1
+        }
+      },
+      "faults": [],
+      "native_parity": true
+    },
+    "slake-train-3338": {
+      "clean": {
+        "joint_all": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 9,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "bard": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 9,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "generalist": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 9,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "isolated_mean": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 9,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": false,
+          "commits": 0
+        },
+        "isolated_geomedian": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 9,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": false,
+          "commits": 0
+        }
+      },
+      "faults": [],
+      "native_parity": true
+    },
+    "slake-train-4685": {
+      "clean": {
+        "joint_all": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "bard": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "generalist": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "isolated_mean": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": false,
+          "commits": 0
+        },
+        "isolated_geomedian": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": false,
+          "commits": 0
+        }
+      },
+      "faults": [],
+      "native_parity": true
+    },
+    "slake-train-3994": {
+      "clean": {
+        "joint_all": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 13,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "bard": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 13,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "generalist": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 13,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "isolated_mean": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 13,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": false,
+          "commits": 0
+        },
+        "isolated_geomedian": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 13,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": false,
+          "commits": 0
+        }
+      },
+      "faults": [],
+      "native_parity": true
+    },
+    "slake-train-5911": {
+      "clean": {
+        "joint_all": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 6,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "bard": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 3,
+          "finished": true,
+          "expert_nodes": 1,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "generalist": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 3,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "isolated_mean": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 6,
+          "finished": true,
+          "expert_nodes": 1,
+          "structural_fallback": false,
+          "commits": 1
+        },
+        "isolated_geomedian": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 6,
+          "finished": true,
+          "expert_nodes": 1,
+          "structural_fallback": false,
+          "commits": 1
+        }
+      },
+      "faults": [],
+      "native_parity": true
+    },
+    "slake-train-2719": {
+      "clean": {
+        "joint_all": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 3,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "bard": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 3,
+          "finished": true,
+          "expert_nodes": 4,
+          "structural_fallback": false,
+          "commits": 1
+        },
+        "generalist": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "isolated_mean": {
+          "scores": {
+            "frozen_mixed": 1.0,
+            "content_recall": 1.0
+          },
+          "token_count": 3,
+          "finished": true,
+          "expert_nodes": 4,
+          "structural_fallback": false,
+          "commits": 2
+        },
+        "isolated_geomedian": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 3,
+          "finished": true,
+          "expert_nodes": 4,
+          "structural_fallback": false,
+          "commits": 1
+        }
+      },
+      "faults": [
+        {
+          "method": "isolated_geomedian",
+          "expert": "chexagent_description",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "bard",
+          "expert": "cxr_anatomy",
+          "same_clean_tokens": false,
+          "same_baseline_tokens": false,
+          "content_recall": 1.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "isolated_mean",
+          "expert": "chexagent_description",
+          "same_clean_tokens": false,
+          "same_baseline_tokens": true,
+          "content_recall": 0.0,
+          "model_forwards": 10
+        },
+        {
+          "method": "isolated_geomedian",
+          "expert": "biomedparse_objects",
+          "same_clean_tokens": false,
+          "same_baseline_tokens": false,
+          "content_recall": 1.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "isolated_geomedian",
+          "expert": "cxr_findings",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "isolated_geomedian",
+          "expert": "cxr_anatomy",
+          "same_clean_tokens": false,
+          "same_baseline_tokens": false,
+          "content_recall": 1.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "isolated_mean",
+          "expert": "cxr_anatomy",
+          "same_clean_tokens": false,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 10
+        },
+        {
+          "method": "bard",
+          "expert": "cxr_findings",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "isolated_mean",
+          "expert": "biomedparse_objects",
+          "same_clean_tokens": false,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 10
+        },
+        {
+          "method": "isolated_mean",
+          "expert": "cxr_findings",
+          "same_clean_tokens": false,
+          "same_baseline_tokens": true,
+          "content_recall": 0.0,
+          "model_forwards": 10
+        },
+        {
+          "method": "bard",
+          "expert": "chexagent_description",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "bard",
+          "expert": "biomedparse_objects",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        }
+      ],
+      "native_parity": true
+    },
+    "slake-train-1922": {
+      "clean": {
+        "joint_all": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 3,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "bard": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 3,
+          "finished": true,
+          "expert_nodes": 4,
+          "structural_fallback": false,
+          "commits": 1
+        },
+        "generalist": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 2,
+          "finished": true,
+          "expert_nodes": 0,
+          "structural_fallback": true,
+          "commits": 0
+        },
+        "isolated_mean": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 3,
+          "finished": true,
+          "expert_nodes": 4,
+          "structural_fallback": false,
+          "commits": 1
+        },
+        "isolated_geomedian": {
+          "scores": {
+            "frozen_mixed": 0.0,
+            "content_recall": 0.0
+          },
+          "token_count": 3,
+          "finished": true,
+          "expert_nodes": 4,
+          "structural_fallback": false,
+          "commits": 1
+        }
+      },
+      "faults": [
+        {
+          "method": "isolated_geomedian",
+          "expert": "chexagent_description",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "bard",
+          "expert": "cxr_anatomy",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "isolated_mean",
+          "expert": "chexagent_description",
+          "same_clean_tokens": false,
+          "same_baseline_tokens": true,
+          "content_recall": 0.0,
+          "model_forwards": 10
+        },
+        {
+          "method": "isolated_geomedian",
+          "expert": "biomedparse_objects",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "isolated_geomedian",
+          "expert": "cxr_findings",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "isolated_geomedian",
+          "expert": "cxr_anatomy",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "isolated_mean",
+          "expert": "cxr_anatomy",
+          "same_clean_tokens": false,
+          "same_baseline_tokens": true,
+          "content_recall": 0.0,
+          "model_forwards": 10
+        },
+        {
+          "method": "bard",
+          "expert": "cxr_findings",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "isolated_mean",
+          "expert": "biomedparse_objects",
+          "same_clean_tokens": false,
+          "same_baseline_tokens": true,
+          "content_recall": 0.0,
+          "model_forwards": 10
+        },
+        {
+          "method": "isolated_mean",
+          "expert": "cxr_findings",
+          "same_clean_tokens": false,
+          "same_baseline_tokens": true,
+          "content_recall": 0.0,
+          "model_forwards": 10
+        },
+        {
+          "method": "bard",
+          "expert": "chexagent_description",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        },
+        {
+          "method": "bard",
+          "expert": "biomedparse_objects",
+          "same_clean_tokens": true,
+          "same_baseline_tokens": false,
+          "content_recall": 0.0,
+          "model_forwards": 15
+        }
+      ],
+      "native_parity": true
+    }
+  },
+  "scorer_version": "medheval-decoded-eval-v13-explanatory-uncertainty-review",
+  "scorer_sha256": {
+    "/home/dbw/ANCHOR/anchor/corrected_sgta/evaluate_medheval_answers.py": "ad0fb9abfebf1a0185709628835b33a052492fbe5e4828d097141282a59a21d6",
+    "/home/dbw/ANCHOR/anchor/medeval/evaluate_mixed_vqa_table.py": "7d5b7675fc0aa6455b1d60fc93dcfbb0fd04fa07e879259e483e38b7f24d99f4"
+  },
+  "warning": "Source enriched small pilot, not TEST accuracy. Frozen mixed CLOSED parser unsuitable for some non-binary CLOSED labels; content recall separately shown. Lexical metric can penalize semantically correct Chinese translation.",
+  "measured_language_forwards": 742,
+  "peak_allocated_bytes": 20042767360
+}

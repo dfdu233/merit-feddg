@@ -1,0 +1,8 @@
+{
+  "scripts/huatuo_bard_receiver.py": "eda8b2085c67767dbd051fc326fdec6c0e9e87046b3f59152e6218609a583a67",
+  "scripts/run_bard_packet_probe.py": "52701197d6827fbaba576aa4699dfc4f06c07f49e54941b0ffbb2623d3d28e6d",
+  "merit_feddg/bard.py": "32d6d08bd170217814f37c5b0c10670ccefe774f2c916feef8a0e877be616203",
+  "merit_feddg/bard_protocol.py": "0d2b0b9f060f0eac7784fed7674a7aa0578c919beb0b3cb6d87ae9fc9d8482ef",
+  "/home/dbw/ANCHOR/anchor/corrected_sgta/models_oe.py": "bf4b9b968cec24e4835b26f7b79edd50aa5d5412205d37b7f411bdc4835ef76f",
+  "/home/dbw/HuatuoGPT-Vision/cli.py": "b1e431af96d0285cc375ef1cd41baa0445246e30b6badca00411d7343129fa79"
+}

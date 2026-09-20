@@ -229,6 +229,12 @@ def single_fault_probe(base_scores, expert_scores, config: BARDConfig):
     base, mask, residuals = _prepare(base_scores, expert_scores)
     clean_token, clean = _decision_from_residuals(base, mask, residuals, config)
     probes = []
+    comparisons = {}
+    for name, aggregation in (("isolated_mean", "mean"), ("isolated_geomedian", "geometric_median")):
+        token, _ = _decision_from_residuals(
+            base, mask, residuals, config, aggregation=aggregation, bounded_commit=False
+        )
+        comparisons[name] = {"clean_token": int(token), "single_faults": []}
     for index in range(residuals.shape[0]):
         corrupted = residuals.copy()
         row = corrupted[index]
@@ -246,6 +252,16 @@ def single_fault_probe(base_scores, expert_scores, config: BARDConfig):
             corrupted[index, target] = magnitude
             corrupted[index, source] = -magnitude
         token, audit = _decision_from_residuals(base, mask, corrupted, config)
+        for name, aggregation in (("isolated_mean", "mean"), ("isolated_geomedian", "geometric_median")):
+            other, _ = _decision_from_residuals(
+                base, mask, corrupted, config, aggregation=aggregation, bounded_commit=False
+            )
+            comparisons[name]["single_faults"].append({
+                "expert_index": index,
+                "selected_token": int(other),
+                "same_as_clean": bool(other == comparisons[name]["clean_token"]),
+                "fallback_to_base": bool(other == clean["base_token"]),
+            })
         probes.append(
             {
                 "expert_index": index,
@@ -261,6 +277,8 @@ def single_fault_probe(base_scores, expert_scores, config: BARDConfig):
         "clean": clean,
         "single_faults": probes,
         "extra_model_forwards": 0,
+        "comparators_at_same_prefix_and_fault": comparisons,
+        "scope": "one-step diagnostic on the BARD trajectory, not corrupted free generation",
         "fault_model": "one sign-reversed arbitrary receiver residual",
     }
 

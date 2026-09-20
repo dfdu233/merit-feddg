@@ -1,3 +1,17 @@
+# Current: BARD / HuatuoGPT source validation (2026-09-20)
+
+Completed requested fast validation on cloud dual5090 and both host GPUs. User prioritizes HuatuoGPT, VQA-RAD and SLAKE; old C remains stopped. See docs/BARD_SOURCE_VALIDATION_20260920.md and reports/bard-source-validation-v1/huatuo-native-budget.json for execution truth.
+
+16 Huatuo cases executed,15 official TRAIN retained after split audit (one inherited proxy-source case is actually TEST and is quarantined). Five clean arms,1024-token native budget; all outputs EOS-finished and native Generalist parity passed. BARD equals Baseline after punctuation/case normalization on15/15 TRAIN cases, with12 structural fallbacks. Two SLAKE mean gains retained by BARD:0/2. No full TEST launch justified. Peak5090 allocated18.67GiB (receiver with cached expert packets).
+
+All primary jobs complete. LLaVA auxiliary16-case pilot was stopped for Huatuo priority after10 complete BARD cases; preserve partial outputs, never label it complete. Raw runs under runs/bard-source-v1 (ignored). Final implementation validation below report includes15 targeted tests, changed-file Ruff, and17-task real replay parity after cleanup.
+
+Cloud workspace /home/dbw/merit-feddg-bard-validation; Python /root/autodl-tmp/merit-env/bin/python. Original host uses /home/dbw/.runtime/miniconda3/envs/huatuo/bin/python. Preserve unrelated GPU0 training. Do not resume old C or launch TEST automatically.
+
+---
+
+The following is inherited historical project state, not current running-job authority.
+
 # Current status
 
 ## Locally rescored cross-method tables and representative cases (2026-09-11)

@@ -1,0 +1,25 @@
+{
+  "counted_huatuo_receiver_language_forwards": {
+    "huatuo-cloud": 221,
+    "huatuo-slake": 742,
+    "huatuo-vqa": 1117,
+    "huatuo-native-budget": 2876,
+    "huatuo-host-check": 104,
+    "final-code-check": 212
+  },
+  "sum": 5272,
+  "includes": "Native control, clean/fault decoder calls, repeated prefill actually hooked",
+  "excludes": "Native expert acquisition forwards and uninstrumented LLaVA auxiliary work; not a total-all-model counter",
+  "cloud_runtime": "torch2.8.0+cu128, transformers4.37.2, eager Qwen2 attention",
+  "host_runtime": "torch2.0.1+cu117, transformers4.37.2",
+  "cloud_native_cli_sha256": "a1ffa33a38a9ade5b165e8ed681c1cee56ac133651bdf58b355d9ae1911737be",
+  "change": "Cloud native loader previously forced eager for Blackwell compatibility;1/10 host/cloud clean-arm outputs differ, kept in runtime-parity.json",
+  "primary_run": {
+    "clean_arms": 80,
+    "fault_arms": 24,
+    "actual_receiver_language_forwards": 2876,
+    "case_count_executed": 16,
+    "primary_train_count": 15,
+    "excluded_official_test_count": 1
+  }
+}

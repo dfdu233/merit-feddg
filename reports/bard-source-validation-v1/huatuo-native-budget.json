@@ -1,0 +1,962 @@
+{
+  "model": "HuatuoGPT-Vision-7B",
+  "budget": 1024,
+  "scope": "15 official TRAIN cases primary;16 executed with one inherited proxy-source TEST case quarantined after split audit. Small native-packet replay pilot; not official TEST accuracy.",
+  "metric": "reference-token recall (content diagnostic, every case; first reference). No format correctness gate. Lexical metric misses semantic equivalence and may overcredit extra incorrect claims.",
+  "selection": {
+    "slake": {
+      "ids": [
+        "slake-train-2422",
+        "slake-train-1509",
+        "slake-train-5036",
+        "slake-train-6950",
+        "slake-train-3338",
+        "slake-train-4685",
+        "slake-train-3994",
+        "slake-train-5911",
+        "slake-train-2719",
+        "slake-train-1922"
+      ],
+      "active_ids": [
+        "slake-train-2719",
+        "slake-train-1922"
+      ],
+      "source": "/home/dbw/merit-feddg-huatuo-critic/runs/native-slake128-confirm-v2",
+      "source_protocol_sha256": "353c57d4d633c0b5f7f8736a62ae5d9b0d383a982e78fec4123e71558b8efa1e",
+      "label_selection": false
+    },
+    "vqa": {
+      "ids": [
+        "vqarad-017cf58e54447c1fd710-8e6c9e4dc146",
+        "vqarad-224a477094d20268a555-0b5bd11be0ed",
+        "vqarad-56d96964caade2a6e301-6674b5fd441c",
+        "vqarad-6d7babdf1c92b575cece-3d46c4a96cfc",
+        "vqarad-b9c14f55bccd14627fe3-8a45357ac421",
+        "vqarad-e9639c4f30051a960f42-acaa6b6c17c5"
+      ],
+      "n": 6,
+      "selection": "completed acquisition availability snapshot; no answer/score selection"
+    }
+  },
+  "summary": {
+    "slake_first8": {
+      "n": 8,
+      "score": {
+        "generalist": 0.375,
+        "joint_all": 0.4375,
+        "isolated_mean": 0.4375,
+        "isolated_geomedian": 0.375,
+        "bard": 0.375
+      },
+      "paired": {
+        "generalist": {
+          "gains": 0,
+          "harms": 0
+        },
+        "joint_all": {
+          "gains": 1,
+          "harms": 0
+        },
+        "isolated_mean": {
+          "gains": 1,
+          "harms": 0
+        },
+        "isolated_geomedian": {
+          "gains": 1,
+          "harms": 1
+        },
+        "bard": {
+          "gains": 0,
+          "harms": 0
+        }
+      },
+      "bard_structural_fallback": 8,
+      "bard_same_normalized_answer_as_baseline": 8,
+      "mean_gains": 1,
+      "mean_gains_retained_by_bard": 0
+    },
+    "slake_four_node2": {
+      "n": 2,
+      "score": {
+        "generalist": 0.0,
+        "joint_all": 0.5,
+        "isolated_mean": 0.5,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "paired": {
+        "generalist": {
+          "gains": 0,
+          "harms": 0
+        },
+        "joint_all": {
+          "gains": 1,
+          "harms": 0
+        },
+        "isolated_mean": {
+          "gains": 1,
+          "harms": 0
+        },
+        "isolated_geomedian": {
+          "gains": 0,
+          "harms": 0
+        },
+        "bard": {
+          "gains": 0,
+          "harms": 0
+        }
+      },
+      "bard_structural_fallback": 0,
+      "bard_same_normalized_answer_as_baseline": 2,
+      "mean_gains": 1,
+      "mean_gains_retained_by_bard": 0
+    },
+    "slake_enriched10": {
+      "n": 10,
+      "score": {
+        "generalist": 0.3,
+        "joint_all": 0.45,
+        "isolated_mean": 0.45,
+        "isolated_geomedian": 0.3,
+        "bard": 0.3
+      },
+      "paired": {
+        "generalist": {
+          "gains": 0,
+          "harms": 0
+        },
+        "joint_all": {
+          "gains": 2,
+          "harms": 0
+        },
+        "isolated_mean": {
+          "gains": 2,
+          "harms": 0
+        },
+        "isolated_geomedian": {
+          "gains": 1,
+          "harms": 1
+        },
+        "bard": {
+          "gains": 0,
+          "harms": 0
+        }
+      },
+      "bard_structural_fallback": 8,
+      "bard_same_normalized_answer_as_baseline": 10,
+      "mean_gains": 2,
+      "mean_gains_retained_by_bard": 0
+    },
+    "vqarad_availability6": {
+      "n": 6,
+      "score": {
+        "generalist": 0.6666666666666666,
+        "joint_all": 0.3888888888888889,
+        "isolated_mean": 0.4444444444444444,
+        "isolated_geomedian": 0.4444444444444444,
+        "bard": 0.6666666666666666
+      },
+      "paired": {
+        "generalist": {
+          "gains": 0,
+          "harms": 0
+        },
+        "joint_all": {
+          "gains": 1,
+          "harms": 2
+        },
+        "isolated_mean": {
+          "gains": 0,
+          "harms": 2
+        },
+        "isolated_geomedian": {
+          "gains": 0,
+          "harms": 2
+        },
+        "bard": {
+          "gains": 0,
+          "harms": 0
+        }
+      },
+      "bard_structural_fallback": 5,
+      "bard_same_normalized_answer_as_baseline": 6,
+      "mean_gains": 0,
+      "mean_gains_retained_by_bard": 0,
+      "scope": "MIXED OFFICIAL SPLITS: inherited source proxy, one official TEST row. Excluded from primary TRAIN conclusion."
+    },
+    "vqarad_official_train5": {
+      "n": 5,
+      "score": {
+        "generalist": 0.6,
+        "joint_all": 0.4666666666666667,
+        "isolated_mean": 0.5333333333333333,
+        "isolated_geomedian": 0.5333333333333333,
+        "bard": 0.6
+      },
+      "paired": {
+        "generalist": {
+          "gains": 0,
+          "harms": 0
+        },
+        "joint_all": {
+          "gains": 1,
+          "harms": 1
+        },
+        "isolated_mean": {
+          "gains": 0,
+          "harms": 1
+        },
+        "isolated_geomedian": {
+          "gains": 0,
+          "harms": 1
+        },
+        "bard": {
+          "gains": 0,
+          "harms": 0
+        }
+      },
+      "bard_structural_fallback": 4,
+      "bard_same_normalized_answer_as_baseline": 5
+    }
+  },
+  "fault_summary_slake_2_cases_8_node_interventions": {
+    "isolated_mean": {
+      "n": 8,
+      "normalized_clean_retained": 4,
+      "mean_reference_token_recall": 0.0,
+      "harmful_score_flips": 4,
+      "helpful_score_flips": 0,
+      "same_baseline_normalized_answer": 6
+    },
+    "isolated_geomedian": {
+      "n": 8,
+      "normalized_clean_retained": 6,
+      "mean_reference_token_recall": 0.25,
+      "harmful_score_flips": 0,
+      "helpful_score_flips": 2,
+      "same_baseline_normalized_answer": 6
+    },
+    "bard": {
+      "n": 8,
+      "normalized_clean_retained": 7,
+      "mean_reference_token_recall": 0.125,
+      "harmful_score_flips": 0,
+      "helpful_score_flips": 1,
+      "same_baseline_normalized_answer": 7
+    }
+  },
+  "cases": {
+    "slake-train-2422": {
+      "dataset": "SLAKE",
+      "reference_token_recall": {
+        "joint_all": 1.0,
+        "bard": 1.0,
+        "generalist": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 0.5
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 4,
+        "bard": 4,
+        "generalist": 4,
+        "isolated_mean": 5,
+        "isolated_geomedian": 5
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 3,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 3,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "slake-train-1509": {
+      "dataset": "SLAKE",
+      "reference_token_recall": {
+        "joint_all": 0.0,
+        "bard": 0.0,
+        "generalist": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 2,
+        "bard": 2,
+        "generalist": 2,
+        "isolated_mean": 2,
+        "isolated_geomedian": 2
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 1,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 1,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "slake-train-5036": {
+      "dataset": "SLAKE",
+      "reference_token_recall": {
+        "joint_all": 0.0,
+        "bard": 0.0,
+        "generalist": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 6,
+        "bard": 3,
+        "generalist": 3,
+        "isolated_mean": 6,
+        "isolated_geomedian": 6
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 1,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 1,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "slake-train-6950": {
+      "dataset": "SLAKE",
+      "reference_token_recall": {
+        "joint_all": 0.5,
+        "bard": 0.0,
+        "generalist": 0.0,
+        "isolated_mean": 0.5,
+        "isolated_geomedian": 0.5
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 2,
+        "bard": 2,
+        "generalist": 2,
+        "isolated_mean": 2,
+        "isolated_geomedian": 2
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 3,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 3,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "slake-train-3338": {
+      "dataset": "SLAKE",
+      "reference_token_recall": {
+        "joint_all": 0.0,
+        "bard": 0.0,
+        "generalist": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 9,
+        "bard": 9,
+        "generalist": 9,
+        "isolated_mean": 9,
+        "isolated_geomedian": 9
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 0,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 0,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "slake-train-4685": {
+      "dataset": "SLAKE",
+      "reference_token_recall": {
+        "joint_all": 1.0,
+        "bard": 1.0,
+        "generalist": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 2,
+        "bard": 2,
+        "generalist": 2,
+        "isolated_mean": 2,
+        "isolated_geomedian": 2
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 0,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 0,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "slake-train-3994": {
+      "dataset": "SLAKE",
+      "reference_token_recall": {
+        "joint_all": 0.0,
+        "bard": 0.0,
+        "generalist": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 13,
+        "bard": 13,
+        "generalist": 13,
+        "isolated_mean": 13,
+        "isolated_geomedian": 13
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 0,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 0,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "slake-train-5911": {
+      "dataset": "SLAKE",
+      "reference_token_recall": {
+        "joint_all": 1.0,
+        "bard": 1.0,
+        "generalist": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 6,
+        "bard": 3,
+        "generalist": 3,
+        "isolated_mean": 6,
+        "isolated_geomedian": 6
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 1,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 1,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "slake-train-2719": {
+      "dataset": "SLAKE",
+      "reference_token_recall": {
+        "joint_all": 1.0,
+        "bard": 0.0,
+        "generalist": 0.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 0.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 3,
+        "bard": 3,
+        "generalist": 2,
+        "isolated_mean": 3,
+        "isolated_geomedian": 3
+      },
+      "bard_token_parity_with_base": false,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 4,
+      "bard_structural_fallback": false,
+      "bard_commit_tokens": 1,
+      "joint_expert_nodes": 4,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [
+        {
+          "method": "isolated_geomedian",
+          "faulted_expert": "chexagent_description",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "bard",
+          "faulted_expert": "cxr_anatomy",
+          "same_clean_tokens": false,
+          "same_clean_normalized_answer": false,
+          "same_baseline_normalized_answer": false,
+          "reference_token_recall": 1.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "isolated_mean",
+          "faulted_expert": "chexagent_description",
+          "same_clean_tokens": false,
+          "same_clean_normalized_answer": false,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 1.0
+        },
+        {
+          "method": "isolated_geomedian",
+          "faulted_expert": "biomedparse_objects",
+          "same_clean_tokens": false,
+          "same_clean_normalized_answer": false,
+          "same_baseline_normalized_answer": false,
+          "reference_token_recall": 1.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "isolated_geomedian",
+          "faulted_expert": "cxr_findings",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "isolated_geomedian",
+          "faulted_expert": "cxr_anatomy",
+          "same_clean_tokens": false,
+          "same_clean_normalized_answer": false,
+          "same_baseline_normalized_answer": false,
+          "reference_token_recall": 1.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "isolated_mean",
+          "faulted_expert": "cxr_anatomy",
+          "same_clean_tokens": false,
+          "same_clean_normalized_answer": false,
+          "same_baseline_normalized_answer": false,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 1.0
+        },
+        {
+          "method": "bard",
+          "faulted_expert": "cxr_findings",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "isolated_mean",
+          "faulted_expert": "biomedparse_objects",
+          "same_clean_tokens": false,
+          "same_clean_normalized_answer": false,
+          "same_baseline_normalized_answer": false,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 1.0
+        },
+        {
+          "method": "isolated_mean",
+          "faulted_expert": "cxr_findings",
+          "same_clean_tokens": false,
+          "same_clean_normalized_answer": false,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 1.0
+        },
+        {
+          "method": "bard",
+          "faulted_expert": "chexagent_description",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "bard",
+          "faulted_expert": "biomedparse_objects",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        }
+      ],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "slake-train-1922": {
+      "dataset": "SLAKE",
+      "reference_token_recall": {
+        "joint_all": 0.0,
+        "bard": 0.0,
+        "generalist": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 3,
+        "bard": 3,
+        "generalist": 2,
+        "isolated_mean": 3,
+        "isolated_geomedian": 3
+      },
+      "bard_token_parity_with_base": false,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 4,
+      "bard_structural_fallback": false,
+      "bard_commit_tokens": 1,
+      "joint_expert_nodes": 4,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [
+        {
+          "method": "isolated_geomedian",
+          "faulted_expert": "chexagent_description",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "bard",
+          "faulted_expert": "cxr_anatomy",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "isolated_mean",
+          "faulted_expert": "chexagent_description",
+          "same_clean_tokens": false,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "isolated_geomedian",
+          "faulted_expert": "biomedparse_objects",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "isolated_geomedian",
+          "faulted_expert": "cxr_findings",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "isolated_geomedian",
+          "faulted_expert": "cxr_anatomy",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "isolated_mean",
+          "faulted_expert": "cxr_anatomy",
+          "same_clean_tokens": false,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "bard",
+          "faulted_expert": "cxr_findings",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "isolated_mean",
+          "faulted_expert": "biomedparse_objects",
+          "same_clean_tokens": false,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "isolated_mean",
+          "faulted_expert": "cxr_findings",
+          "same_clean_tokens": false,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "bard",
+          "faulted_expert": "chexagent_description",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        },
+        {
+          "method": "bard",
+          "faulted_expert": "biomedparse_objects",
+          "same_clean_tokens": true,
+          "same_clean_normalized_answer": true,
+          "same_baseline_normalized_answer": true,
+          "reference_token_recall": 0.0,
+          "clean_reference_token_recall": 0.0
+        }
+      ],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "vqarad-017cf58e54447c1fd710-8e6c9e4dc146": {
+      "dataset": "VQA-RAD",
+      "reference_token_recall": {
+        "joint_all": 0.3333333333333333,
+        "bard": 0.3333333333333333,
+        "generalist": 0.3333333333333333,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 217,
+        "bard": 92,
+        "generalist": 92,
+        "isolated_mean": 132,
+        "isolated_geomedian": 191
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 3,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 3,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "vqarad-224a477094d20268a555-0b5bd11be0ed": {
+      "dataset": "VQA-RAD",
+      "reference_token_recall": {
+        "joint_all": 0.0,
+        "bard": 1.0,
+        "generalist": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 2,
+        "bard": 3,
+        "generalist": 3,
+        "isolated_mean": 3,
+        "isolated_geomedian": 3
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 3,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 3,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "vqarad-56d96964caade2a6e301-6674b5fd441c": {
+      "dataset": "VQA-RAD",
+      "reference_token_recall": {
+        "joint_all": 1.0,
+        "bard": 1.0,
+        "generalist": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 10,
+        "bard": 10,
+        "generalist": 10,
+        "isolated_mean": 10,
+        "isolated_geomedian": 10
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 3,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 3,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "vqarad-6d7babdf1c92b575cece-3d46c4a96cfc": {
+      "dataset": "VQA-RAD",
+      "reference_token_recall": {
+        "joint_all": 0.0,
+        "bard": 1.0,
+        "generalist": 1.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 10,
+        "bard": 10,
+        "generalist": 10,
+        "isolated_mean": 10,
+        "isolated_geomedian": 10
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 3,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 3,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "test",
+      "included_in_primary_train": false
+    },
+    "vqarad-b9c14f55bccd14627fe3-8a45357ac421": {
+      "dataset": "VQA-RAD",
+      "reference_token_recall": {
+        "joint_all": 1.0,
+        "bard": 0.6666666666666666,
+        "generalist": 0.6666666666666666,
+        "isolated_mean": 0.6666666666666666,
+        "isolated_geomedian": 0.6666666666666666
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 5,
+        "bard": 3,
+        "generalist": 3,
+        "isolated_mean": 3,
+        "isolated_geomedian": 3
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 3,
+      "bard_structural_fallback": true,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 3,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    },
+    "vqarad-e9639c4f30051a960f42-acaa6b6c17c5": {
+      "dataset": "VQA-RAD",
+      "reference_token_recall": {
+        "joint_all": 0.0,
+        "bard": 0.0,
+        "generalist": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0
+      },
+      "native_control_exact_token_parity": true,
+      "all_arms_eos_finished": true,
+      "token_counts": {
+        "joint_all": 2,
+        "bard": 2,
+        "generalist": 2,
+        "isolated_mean": 2,
+        "isolated_geomedian": 2
+      },
+      "bard_token_parity_with_base": true,
+      "bard_normalized_answer_equals_base": true,
+      "bard_expert_nodes": 4,
+      "bard_structural_fallback": false,
+      "bard_commit_tokens": 0,
+      "joint_expert_nodes": 4,
+      "joint_isolated_expert_set_equal": true,
+      "joint_omission_count": 0,
+      "faults": [],
+      "official_split": "train",
+      "included_in_primary_train": true
+    }
+  },
+  "measured_receiver_language_forwards": 2876,
+  "peak_allocated_bytes": 20042767360,
+  "clinical_efficacy_demonstrated": false,
+  "full_test_launched": false,
+  "split_incident": {
+    "discovered": "post-generation official parquet question+image-byte audit",
+    "excluded_test_ids": [
+      "vqarad-6d7babdf1c92b575cece-3d46c4a96cfc"
+    ],
+    "primary_train_n": 15,
+    "all_executed_n": 16,
+    "algorithm_or_parameters_changed_after_test_exposure": false,
+    "action": "Quarantine this case from TRAIN primary; do not claim unexposed official TEST going forward. No full TEST run launched."
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "n": 17,
+  "same_tokens": 17,
+  "tasks": [
+    {
+      "task": "12",
+      "token_parity": true
+    },
+    {
+      "task": "10",
+      "token_parity": true
+    },
+    {
+      "task": "01",
+      "token_parity": true
+    },
+    {
+      "task": "11",
+      "token_parity": true
+    },
+    {
+      "task": "15",
+      "token_parity": true
+    },
+    {
+      "task": "06",
+      "token_parity": true
+    },
+    {
+      "task": "04",
+      "token_parity": true
+    },
+    {
+      "task": "00",
+      "token_parity": true
+    },
+    {
+      "task": "09",
+      "token_parity": true
+    },
+    {
+      "task": "08",
+      "token_parity": true
+    },
+    {
+      "task": "07",
+      "token_parity": true
+    },
+    {
+      "task": "14",
+      "token_parity": true
+    },
+    {
+      "task": "05",
+      "token_parity": true
+    },
+    {
+      "task": "02",
+      "token_parity": true
+    },
+    {
+      "task": "13",
+      "token_parity": true
+    },
+    {
+      "task": "16",
+      "token_parity": true
+    },
+    {
+      "task": "03",
+      "token_parity": true
+    }
+  ],
+  "final_script_hashes": {
+    "scripts/huatuo_bard_receiver.py": "fc158a352fdcdcd48ec0efab28eda5bdccf4a10fe9ddc999754df3687d889320",
+    "scripts/run_bard_packet_probe.py": "3ad26d4d79cd4614ab55c07cb60386087812bada9bf5e0ddb59f1ae80c4ab082"
+  }
+}
