@@ -166,15 +166,17 @@ def test_huatuo_spatial_session_hits_native_mm_projector_hook():
                 "use_cache": True,
             }
 
-    packet = SimpleNamespace(
-        regions=np.asarray([[1.0, 1.0, 0.0, 0.0]], dtype=np.float32),
-        importance=np.asarray([1.0], dtype=np.float32),
-        labels=("left",),
-        weighting="equal",
-        sources=(("seg", "mask"),),
-    )
-    packet.__class__.__len__ = lambda self: len(self.regions)
+    class Packet:
+        regions = np.asarray([[1.0, 1.0, 0.0, 0.0]], dtype=np.float32)
+        importance = np.asarray([1.0], dtype=np.float32)
+        labels = ("left",)
+        weighting = "equal"
+        sources = (("seg", "mask"),)
 
+        def __len__(self):
+            return len(self.regions)
+
+    packet = Packet()
     generalist = Generalist()
     plain = HuatuoVisionAnswerSession(generalist, "image", "q")
     spatial = HuatuoVisionAnswerSession(generalist, "image", "q", packet)
