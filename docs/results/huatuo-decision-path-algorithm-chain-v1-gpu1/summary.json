@@ -1,0 +1,68 @@
+{
+  "status": "BLOCKED_TECHNICAL",
+  "ready_for_scale": false,
+  "scientific_verdict": null,
+  "plan_sha": "3b7703020cbd480a68c40378fd728be64c01e32e77f392ed3b9e38a8cb0bc1f5",
+  "predecessor_plan_sha": "24b0c1e910978243905e6b750e176cd514b7cc39ca6fcdb549ab2528aea762a3",
+  "gpu_uuid": "GPU-3846413a-4238-d307-b1f3-10c2dfbe002c",
+  "executed_path": [
+    "A-attempt-1: GPU0 resource failure",
+    "A-attempt-2: GPU1 complete queue, diagnostic technical failure"
+  ],
+  "coverage": {
+    "planned": 128,
+    "processed": 128,
+    "successful_diagnostics": 127,
+    "diagnostic_counts": {
+      "same_answer": 62,
+      "divergence": 65,
+      "failed": 1
+    },
+    "scored": 128,
+    "native_canary_completed": 2
+  },
+  "attempts_used": {
+    "A": 2
+  },
+  "remaining_A_retries": 0,
+  "forwards_used": 1046,
+  "max_total_forwards": 200000,
+  "arm_scores": {
+    "generalist": 0.5860677083333333,
+    "compact": 0.5743489583333333
+  },
+  "candidate_scores": null,
+  "control_scores": null,
+  "original_gains": 14,
+  "original_harms": 14,
+  "repaired_harms": null,
+  "retained_gains": null,
+  "new_harms": null,
+  "cost": {
+    "inherited_failed_worker_wall_seconds": 9.41202688217163,
+    "data_audit_seconds": 38.98802977311425,
+    "runtime_file_hash_seconds": 8.750896396115422,
+    "worker_wall_seconds": 215.66504001617432,
+    "offline_scoring_seconds": 0.13347077369689941,
+    "model_load_and_preflight_seconds": 26.144437358016148,
+    "preparation_seconds": 19.964480835478753,
+    "canary_seconds": 2.9297957608941942,
+    "canary_forwards": 36,
+    "diagnostic_seconds": 152.20288143563084,
+    "diagnostic_forwards": 1010,
+    "failed_diagnostic_seconds": 0.653209435986355,
+    "failed_diagnostic_forwards": 6,
+    "peak_diagnostic_allocated_bytes": 26613560832,
+    "canary_generated_tokens": 30,
+    "candidate_forwards": 0,
+    "control_forwards": 0,
+    "note": "Model load artifact includes preflight/runtime hashing. Phase seconds are synchronized. Canary token count includes native/off/audit output streams, excludes shadow reference streams. Diagnostic peak excludes uninstrumented canary peak. Durable per-forward budget writes add implementation overhead. Cached baseline deployment latency is unknown."
+  },
+  "diagnostic_errors": {
+    "Full-prefix and cached decision parity failed": 1
+  },
+  "reason": "Frozen localization rejects any failed diagnostic; complete-prefix and cached decision parity failed. Both A attempts consumed, no reset or third retry. No candidate selected; B/C/D/E not reached.",
+  "no_test_inference": true,
+  "no_parameter_training": true,
+  "background_processes_active": false
+}

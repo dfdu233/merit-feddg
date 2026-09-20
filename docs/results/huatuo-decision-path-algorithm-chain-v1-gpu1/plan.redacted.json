@@ -1,0 +1,75 @@
+{
+  "schema": "merit-algorithm-chain-v1",
+  "policy": {
+    "alpha": 0.05,
+    "bootstrap_repetitions": 4000,
+    "cohort_noninferiority_margin": 0.02,
+    "diagnostic_prefix_tokens": 16,
+    "max_damage_rate": 0.1,
+    "max_node_attempts": 2,
+    "max_seconds_per_case": 10.0,
+    "max_total_forwards": 200000,
+    "min_confirmation_cohorts": 2,
+    "min_confirmation_images": 64,
+    "min_delta": 0.005,
+    "min_development_images": 32,
+    "min_gain_retention": 0.75,
+    "min_images_per_cohort": 24,
+    "min_localization_images": 8,
+    "min_original_gains": 3,
+    "min_original_harms": 3,
+    "min_repaired_harms": 1,
+    "seed": 0
+  },
+  "development": [
+    {
+      "name": "slake-dev",
+      "dataset": "slake",
+      "split": "train",
+      "planned_n": 128,
+      "source_identity": "9602d9844e9ff3fcd464ceced136d77b3108b1046ebda1fad2c5cdf6b95665ff"
+    }
+  ],
+  "confirmation": [],
+  "extension": [],
+  "generation": {
+    "slake-dev": {
+      "do_sample": false,
+      "eos_token_id": 151643,
+      "max_new_tokens": 1024,
+      "min_new_tokens": 1,
+      "num_beams": 1,
+      "pad_token_id": 151643,
+      "repetition_penalty": 1.2,
+      "use_cache": true
+    }
+  },
+  "runtime": {
+    "factory": "anchor.corrected_sgta.models_oe:HuatuoOEAdapter",
+    "checkpoint": "HuatuoGPT-Vision-7B",
+    "gpu_uuid": "GPU-3846413a-4238-d307-b1f3-10c2dfbe002c"
+  },
+  "scorer": {
+    "protocol": "Frozen evaluate_rows CLOSED + answer_token_recall OPEN first reference"
+  },
+  "original_plan_identity": "24b0c1e910978243905e6b750e176cd514b7cc39ca6fcdb549ab2528aea762a3",
+  "redactions": [
+    "Absolute image and reference locations, source sample IDs, full registry and patient/study mappings omitted.",
+    "This public plan is descriptive, not a replacement for the immutable local executable plan."
+  ],
+  "plan_identity": "3b7703020cbd480a68c40378fd728be64c01e32e77f392ed3b9e38a8cb0bc1f5",
+  "identity": "3b7703020cbd480a68c40378fd728be64c01e32e77f392ed3b9e38a8cb0bc1f5",
+  "device_migration": {
+    "attempts_inherited": {
+      "A": 1
+    },
+    "forwards_inherited": 0,
+    "migration_script_sha256": "a0d97c55bd413d3b402035833a7dde552c42d78dba86384b97dd1c2531ac82d1",
+    "predecessor_gpu_uuid": "GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023",
+    "predecessor_plan_sha": "24b0c1e910978243905e6b750e176cd514b7cc39ca6fcdb549ab2528aea762a3",
+    "predecessor_state_sha256": "ab2698a3f4ed9798697f3adf9150be987f82b221ccb694321cdc25415fc4c484",
+    "reason": "User authorized now-idle host GPU1; prior GPU0 ownership guard failed before model load",
+    "successor_gpu_uuid": "GPU-3846413a-4238-d307-b1f3-10c2dfbe002c"
+  },
+  "gpu_uuid": "GPU-3846413a-4238-d307-b1f3-10c2dfbe002c"
+}

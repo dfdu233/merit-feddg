@@ -1,0 +1,20 @@
+{
+  "inherited_failed_worker_wall_seconds": 9.41202688217163,
+  "data_audit_seconds": 38.98802977311425,
+  "runtime_file_hash_seconds": 8.750896396115422,
+  "worker_wall_seconds": 215.66504001617432,
+  "offline_scoring_seconds": 0.13347077369689941,
+  "model_load_and_preflight_seconds": 26.144437358016148,
+  "preparation_seconds": 19.964480835478753,
+  "canary_seconds": 2.9297957608941942,
+  "canary_forwards": 36,
+  "diagnostic_seconds": 152.20288143563084,
+  "diagnostic_forwards": 1010,
+  "failed_diagnostic_seconds": 0.653209435986355,
+  "failed_diagnostic_forwards": 6,
+  "peak_diagnostic_allocated_bytes": 26613560832,
+  "canary_generated_tokens": 30,
+  "candidate_forwards": 0,
+  "control_forwards": 0,
+  "note": "Model load artifact includes preflight/runtime hashing. Phase seconds are synchronized. Canary token count includes native/off/audit output streams, excludes shadow reference streams. Diagnostic peak excludes uninstrumented canary peak. Durable per-forward budget writes add implementation overhead. Cached baseline deployment latency is unknown."
+}

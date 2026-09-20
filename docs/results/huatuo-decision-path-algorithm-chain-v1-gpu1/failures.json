@@ -1,0 +1,20 @@
+{
+  "inherited": [
+    {
+      "node": "A",
+      "attempt": 1,
+      "scope": "pre-model device check",
+      "returncode": 1,
+      "model_cases_attempted": 0,
+      "error": "Another compute process owns the authorized GPU; no job is killed"
+    }
+  ],
+  "current": [
+    {
+      "case_sha256": "61cbc16b9420e51a04ff6a2036e50e795c9553142be481df0eb0b2246253b93e",
+      "error": "Full-prefix and cached decision parity failed",
+      "forwards": 6,
+      "seconds": 0.653209435986355
+    }
+  ]
+}

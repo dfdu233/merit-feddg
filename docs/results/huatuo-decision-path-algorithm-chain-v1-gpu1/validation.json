@@ -1,0 +1,29 @@
+{
+  "chain_tests": "82 passed in 3.81s",
+  "migration_tests": "5 passed in 0.15s",
+  "combined_tests": "120 passed in 4.14s",
+  "combined_files": [
+    "tests/test_algorithm_chain.py",
+    "tests/test_algorithm_chain_controller.py",
+    "tests/test_chain_device_migration.py",
+    "tests/test_pathway_restore.py"
+  ],
+  "native_canary": [
+    {
+      "audit": true,
+      "compact": true,
+      "expert_exposed": true,
+      "generalist": true
+    },
+    {
+      "audit": true,
+      "compact": true,
+      "expert_exposed": true,
+      "generalist": true
+    }
+  ],
+  "historical_transport_verified": 128,
+  "compile": true,
+  "shell_syntax": true,
+  "diff_check": true
+}

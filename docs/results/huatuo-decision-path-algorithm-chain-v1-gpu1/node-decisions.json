@@ -1,0 +1,16 @@
+[
+  {
+    "job_sha": "3f3867c93e7e4f983bfcf513e19ec56b9ba2d281ceee73a1841caa12d711ee61",
+    "node": "A",
+    "reason": "Inference child failed; see durable log/exit",
+    "stage_forwards": 0,
+    "verdict": "technical_failure"
+  },
+  {
+    "job_sha": "337717e7726c0b0f88d3d2c7b5b8ec13a17569969777ef45e493737aa33aeb94",
+    "node": "A",
+    "reason": "Diagnostic forward failed",
+    "stage_forwards": 1046,
+    "verdict": "technical_failure"
+  }
+]

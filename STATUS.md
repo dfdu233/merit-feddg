@@ -1,3 +1,13 @@
+# Decision-path chain — GPU1 A queue complete, technical stop (2026-09-20 UTC)
+
+- GPU1 UUID `GPU-3846413a-4238-d307-b1f3-10c2dfbe002c` was verified idle and used for real Huatuo inference. Device-only successor preserves the original failure, scientific/code pins and budget; standard retry grants A attempt 2.
+- A processed 128/128, scored 128/128, native canary 2/2 passed. Diagnostics: 65 divergence, 62 same-answer, 1 full-prefix/cached decision parity failure. Controller terminal: **BLOCKED_TECHNICAL**. Both A attempts consumed; no third retry or manual B/C bypass.
+- 1046 forwards, GPU1 worker 215.665 s, diagnostic peak 24.79 GiB. No candidate/control generated, no READY_FOR_SCALE. GPU released; no background chain jobs.
+- Frozen cached-arm scores: generalist 58.6068%, compact 57.4349%; 14 original gains/14 harms. Candidate repair/retention unavailable. Successful-subset direction intervals do not override the failure.
+- 120 combined CPU tests passed. Full results, lineage, costs, failures and all planned cases: [GPU1 result package](docs/results/huatuo-decision-path-algorithm-chain-v1-gpu1/README.md). Original resource-block report below is historical and remains preserved.
+
+---
+
 # Decision-path algorithm chain — actual resource block (2026-09-20 UTC)
 
 Independent branch `experiments/huatuo-decision-path-algorithm-chain-v1`, requested implementation `5066828`; generation fix frozen at `5d51ef2`.

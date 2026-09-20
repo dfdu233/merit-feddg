@@ -1,0 +1,75 @@
+{
+  "note": "Complete diagnostic subset only. Missing diagnostics invalidate the planned A gate; these descriptive intervals select no layer and authorize no B/C transition.",
+  "sites": {
+    "8": {
+      "all": {
+        "mean": 0.0025030276072876795,
+        "lower": -0.026029536663554606,
+        "upper": 0.03318642043907732,
+        "groups": 28,
+        "n": 28,
+        "sufficient": true,
+        "alpha": 0.025,
+        "repetitions": 4000,
+        "seed": 0
+      },
+      "original_gains": {
+        "mean": -0.03059416902916772,
+        "lower": -0.05656767566688359,
+        "upper": -0.0077447122428566115,
+        "groups": 14,
+        "n": 14,
+        "sufficient": true,
+        "alpha": 0.025,
+        "repetitions": 4000,
+        "seed": 0
+      },
+      "original_harms": {
+        "mean": 0.03560022424374308,
+        "lower": -0.009519388613158038,
+        "upper": 0.08604772710241378,
+        "groups": 14,
+        "n": 14,
+        "sufficient": true,
+        "alpha": 0.025,
+        "repetitions": 4000,
+        "seed": 0
+      }
+    },
+    "17": {
+      "all": {
+        "mean": 0.023690511738615378,
+        "lower": -0.07142586636889194,
+        "upper": 0.12007041290468938,
+        "groups": 28,
+        "n": 28,
+        "sufficient": true,
+        "alpha": 0.025,
+        "repetitions": 4000,
+        "seed": 0
+      },
+      "original_gains": {
+        "mean": -0.12627932189830712,
+        "lower": -0.22067996100855192,
+        "upper": -0.051828979331600876,
+        "groups": 14,
+        "n": 14,
+        "sufficient": true,
+        "alpha": 0.025,
+        "repetitions": 4000,
+        "seed": 0
+      },
+      "original_harms": {
+        "mean": 0.17366034537553787,
+        "lower": 0.054983139543661054,
+        "upper": 0.29928483980973936,
+        "groups": 14,
+        "n": 14,
+        "sufficient": true,
+        "alpha": 0.025,
+        "repetitions": 4000,
+        "seed": 0
+      }
+    }
+  }
+}
