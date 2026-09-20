@@ -22,39 +22,53 @@ def acquire_expert_groups(runtime):
 
     initial = NativeState()
     candidates = runtime.descriptors(initial)
-    # The Byzantine unit is expert_id.  Spend the fixed call budget on distinct
-    # nodes first; only then acquire a second capability from an already counted
-    # node.  This is deterministic and answer-blind.
+
+    def fault_node(descriptor):
+        expert = descriptor["expert"]
+        group = runtime.specs[expert].get("fault_group", expert)
+        if not isinstance(group, str) or not group.strip():
+            raise ValueError(f"expert {expert}: fault_group must be a nonempty string")
+        return group.strip()
+
+    # The robust node is a declared failure-correlation group, not blindly a
+    # tool name. Spend the fixed call budget on distinct nodes first; only then
+    # acquire another capability/model from a node already counted once.
     primary, repeated, seen = [], [], set()
     for descriptor in candidates:
-        if descriptor["expert"] in seen:
+        node = fault_node(descriptor)
+        if node in seen:
             repeated.append(descriptor)
         else:
-            seen.add(descriptor["expert"])
+            seen.add(node)
             primary.append(descriptor)
     descriptors = (primary + repeated)[: runtime.config.max_expert_calls]
-    groups, events, order = {}, [], []
+    groups, events, order, members = {}, [], [], {}
     started = perf_counter()
     for descriptor in descriptors:
         expert = descriptor["expert"]
-        if expert not in groups:
-            groups[expert] = []
-            order.append(expert)
+        node = fault_node(descriptor)
+        if node not in groups:
+            groups[node] = []
+            members[node] = []
+            order.append(node)
+        if expert not in members[node]:
+            members[node].append(expert)
         state, event = runtime.execute(initial, descriptor)
-        events.append(event)
+        events.append({**event, "fault_group": node})
         existing = {
-            (item.expert_id, item.evidence_id) for item in groups[expert]
+            (item.expert_id, item.evidence_id) for item in groups[node]
         }
         for item in state.items:
             key = (item.expert_id, item.evidence_id)
             if key not in existing:
-                groups[expert].append(item)
+                groups[node].append(item)
                 existing.add(key)
     groups = {
-        expert: tuple(groups[expert])
-        for expert in order
-        if groups[expert]
+        node: tuple(groups[node])
+        for node in order
+        if groups[node]
     }
+    members = {node: members[node] for node in groups}
     return {
         "groups": groups,
         "events": events,
@@ -62,8 +76,9 @@ def acquire_expert_groups(runtime):
         "seconds": perf_counter() - started,
         "selection": (
             "compatible descriptors under frozen max_expert_calls; distinct "
-            "expert_id nodes first, then repeated capabilities"
+            "declared fault_group nodes first, then repeated capabilities"
         ),
+        "fault_group_members": members,
         "answer_labels_used": False,
     }
 
@@ -85,7 +100,7 @@ def build_isolated_sessions(native_session, groups):
     probe = native_session.probe
     base = probe.new_answer_session(native_session.image, native_session.prompt)
     sessions, audits = {}, {}
-    for expert, items in groups.items():
+    for node, items in groups.items():
         # Reuse the normal matched-evaluation packer, but never put packets from
         # two experts in one receiver branch.
         temporary = type(native_session)(
@@ -105,15 +120,14 @@ def build_isolated_sessions(native_session, groups):
             for item in items
             if (item.expert_id, item.evidence_id) in presented
         )
-        audits[expert] = {
+        audits[node] = {
             "requested_items": len(items),
             "presented_items": len(visible),
             "transport": temporary.last_transport,
         }
         if not visible:
             continue
-        if {item.expert_id for item in visible} != {expert}:
-            raise ValueError("isolated branch contains evidence from another expert")
+        visible_experts = sorted({item.expert_id for item in visible})
 
         spatial_records = 0
         spatial_rejected = []
@@ -127,7 +141,7 @@ def build_isolated_sessions(native_session, groups):
             spatial_records = len(packet)
             spatial_rejected = list(packet.rejected)
             if spatial_records:
-                sessions[expert] = probe.new_tensor_answer_session(
+                sessions[node] = probe.new_tensor_answer_session(
                     native_session.image,
                     prompt,
                     visible,
@@ -135,10 +149,12 @@ def build_isolated_sessions(native_session, groups):
                     weighting=config.spatial_weighting,
                 )
             else:
-                sessions[expert] = probe.new_answer_session(image, prompt)
+                sessions[node] = probe.new_answer_session(image, prompt)
         else:
-            sessions[expert] = probe.new_answer_session(image, prompt)
-        audits[expert].update(
+            sessions[node] = probe.new_answer_session(image, prompt)
+        audits[node].update(
+            fault_group=node,
+            member_experts=visible_experts,
             receiver_channel=(
                 "semantic_plus_native_spatial" if spatial_records else "semantic"
             ),
@@ -204,13 +220,14 @@ def run_bard_method(native_session, acquisition, bard_config, method):
             "seconds": acquisition["seconds"],
             "selection": acquisition["selection"],
             "events": acquisition["events"],
+            "fault_group_members": acquisition.get("fault_group_members", {}),
         },
         "byzantine_model": {
             "declared_fault_budget": config.fault_budget,
             "centralized_condition": "f < n/2",
             "single_expert_policy": config.single_expert_policy,
             "two_expert_policy": config.pair_policy,
-            "node": "expert_id",
+            "node": "fault_group",
             "medical_correctness_guaranteed": False,
         },
     }
@@ -268,7 +285,7 @@ def run_bard_bundle(native_session, acquisition, bard_config):
                 "centralized_condition": "f < n/2",
                 "single_expert_policy": config.single_expert_policy,
                 "two_expert_policy": config.pair_policy,
-                "node": "expert_id",
+                "node": "fault_group",
                 "medical_correctness_guaranteed": False,
             },
             "bundle_decode_seconds": decode_seconds,
