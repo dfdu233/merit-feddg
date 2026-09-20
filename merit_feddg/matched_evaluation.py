@@ -122,6 +122,28 @@ class SharedExpertPool:
 
 def experiment_arms(decoder, protocol):
     """Declare matched arms without consulting case metadata or answer types."""
+    if protocol == "bard":
+        if (decoder.evidence_style != "semantic" or not decoder.token_budgeted_evidence
+                or decoder.visual_views or decoder.semantic_spatial
+                or decoder.native_entry_transport):
+            raise ValueError("bard requires intact token-budgeted semantic-only packets")
+        common = replace(
+            decoder,
+            compact_native=True,
+            compact_columns=True,
+            block_tokens=decoder.max_new_tokens,
+            vector_gate="off",
+            behavior_probe="off",
+            claim_attribute_filter=False,
+            uncertainty_from_probe=False,
+            semantic_spatial=False,
+        )
+        return {
+            name: common for name in (
+                "generalist", "joint_all", "isolated_mean",
+                "isolated_geomedian", "bard"
+            )
+        }
     if protocol == "verified_packets":
         if decoder.evidence_style != "semantic" or decoder.native_entry_transport or decoder.semantic_spatial:
             raise ValueError("verified_packets requires intact semantic-only packets")
@@ -233,6 +255,10 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
         raise ValueError("shard_index must be in [0, shard_count)")
     if protocol == "native_claims" and config.get("prompt_contract") != "anchor-ce-v1":
         raise ValueError("native_claims requires the frozen ANCHOR CE/OE prompt contract")
+    if protocol == "bard" and config.get("prompt_contract") not in {
+        "anchor-ce-v1", "anchor-task-v1"
+    }:
+        raise ValueError("bard requires a frozen ANCHOR answer contract")
     if protocol == "verified_packets":
         if config.get("prompt_contract", "legacy_suffix") not in {
             "legacy_suffix", "anchor-ce-v1", "anchor-task-v1"
@@ -240,13 +266,17 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             raise ValueError("verified_packets requires a declared legacy or ANCHOR prompt contract")
         if not config.get("answer_verifiers"):
             raise ValueError("verified_packets requires explicitly configured frozen verifiers")
-    elif reuse_generalist or reuse_expert_run:
-        raise ValueError("cross-run reuse is restricted to verified_packets")
+    elif (reuse_generalist or reuse_expert_run) and protocol not in {"verified_packets", "bard"}:
+        raise ValueError("cross-run reuse is restricted to verified_packets/bard")
     config["generalist"] = resolve_generalist_spec(config["generalist"])
     config["generalist"]["deterministic_image_padding"] = True
     decoder = ValueGenerationConfig(**config["capability_value"]["generation"])
     arms = experiment_arms(decoder, protocol)
     methods = {name: asdict(arm) for name, arm in arms.items()}
+    bard_config = None
+    if protocol == "bard":
+        from .bard import BARDConfig
+        bard_config = BARDConfig(**config.get("bard", {}))
     vector = protocol in {"vector", "spatial"}
     frozen_spatial = vector or protocol in {"semantic_spatial", "native_claims"}
     if frozen_spatial and (not config["generalist"].get("training_free_spatial")
@@ -365,6 +395,7 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                          ((fallback_expert_root / fingerprint(row["id"]), reuse_expert_audit["identity"]),))
             shared_pool = SharedExpertPool(pool, root / "expert-cache" / fingerprint(row["id"]),
                                            identity, fallbacks)
+            bard_acquisition = None
             for method, arm in arms.items():
                 path = root / "case-cache" / method / f"{fingerprint(row['id'])}.json"
                 cached = load_cached(path, identity)
@@ -372,6 +403,22 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                     if method == "generalist" and reused_generalist is not None:
                         cached = copy.deepcopy(reused_generalist[row["id"]])
                         cached["reuse_provenance"] = reuse_generalist_audit
+                    elif protocol == "bard" and method in {
+                        "isolated_mean", "isolated_geomedian", "bard"
+                    }:
+                        from .bard_protocol import acquire_expert_groups, run_bard_method
+                        prompt = prompt_by_id[row["id"]]
+                        session = NativeSession(
+                            probe, row["image"], prompt, row["question"], arm
+                        )
+                        if bard_acquisition is None:
+                            acquisition_engine = CapabilityRuntime(
+                                session, shared_pool, row, specs, arm, None
+                            )
+                            bard_acquisition = acquire_expert_groups(acquisition_engine)
+                        cached = run_bard_method(
+                            session, bard_acquisition, config.get("bard", {}), method
+                        )
                     elif method == "compact_verified":
                         from .answer_arbitration import arbitrate_output, load_verifier
                         candidate = outputs["compact_all"][row["id"]]
@@ -399,7 +446,11 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                         prompt = prompt_by_id[row["id"]]
                         session = NativeSession(probe, row["image"], prompt, row["question"], arm)
                         engine = CapabilityRuntime(session, shared_pool, row, specs, arm, None)
-                        cached = engine.run("generalist" if method == "generalist" else "all_evidence")
+                        cached = engine.run(
+                            "generalist"
+                            if method == "generalist"
+                            else "all_evidence"
+                        )
                     cached["generation_config"] = asdict(arm)
                     cached["input_modality"] = row["modality"]
                     cached["available_experts"] = sorted({d["expert"] for d in tool_descriptors(specs, row)})
@@ -412,14 +463,30 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             "identity": identity, "n": len(original), "methods": list(methods), "config": config,
             "experiment_protocol": protocol, "arm_configs": methods,
             "bridge_requires_pretraining": False, "gate_fitted": False,
-            "collaboration_training_free": frozen_spatial or protocol == "verified_packets",
+            "collaboration_training_free": frozen_spatial or protocol in {"verified_packets", "bard"},
             "answer_arbitration": "external_frozen_image_text" if verifier_specs else None,
             "verifier_provenance": verifier_provenance,
             "reuse_generalist": reuse_generalist_audit,
             "reuse_expert_run": reuse_expert_audit,
             "vector_gate_unit": "native_entry" if protocol == "native_claims" else ("acquired_expert_result" if frozen_spatial else None),
             "vector_gate_control": "paired_local_blur_translation" if protocol == "native_claims" else ("same_size_image_channel_mean" if frozen_spatial else None),
-            "semantic_channel": "existing_frozen_token_embeddings" if protocol in {"semantic_spatial", "native_claims"} else None,
+            "semantic_channel": "existing_frozen_token_embeddings"
+                if protocol in {"semantic_spatial", "native_claims", "bard"} else None,
+            "byzantine_fault_model": (
+                {
+                    "fault_budget": bard_config.fault_budget,
+                    "node": "expert_id",
+                    "required_nodes_for_commit": (
+                        3 * bard_config.fault_budget + 1
+                        if bard_config.fault_budget else 1
+                    ),
+                    "aggregation": bard_config.aggregation,
+                    "fault_probe_scale": bard_config.fault_probe_scale,
+                    "fault_probe_is_diagnostic_only": True,
+                    "medical_correctness_guaranteed": False,
+                }
+                if bard_config is not None else None
+            ),
             "excluded": excluded, "baseline_regenerated": reused_generalist is None,
             "dataset_partitioned": False,
             "references_loaded_for_generation": False, "calibration_or_policy_fitted": False,
@@ -427,9 +494,19 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                 "anchor-ce-v1", "anchor-task-v1"
             },
             "output_grammar": config.get("prompt_contract", "legacy_suffix"),
-            "limitations": ["No clinical efficacy claim until fixed reference evaluation.",
-                            "Packing may change delivered subsets; compare transport before attributing channel effects.",
-                            "Warm/cached expert timings are not comparable across sequential arms."]}
+            "limitations": [
+                "No clinical efficacy claim until fixed reference evaluation.",
+                "Packing may change delivered subsets; compare transport before attributing channel effects.",
+                "Warm/cached expert timings are not comparable across sequential arms.",
+                *(
+                    [
+                        "BARD bounded-fault consensus is not a proof that any medical answer is correct.",
+                        "A uniquely correct single expert can be rejected when independent redundancy is absent.",
+                        "Fault injection uses receiver residuals only and never enters production selection.",
+                    ]
+                    if protocol == "bard" else []
+                ),
+            ]}
         atomic_json(work_root / "protocol.json", {**protocol_payload,
                                                    "shard_index": shard_index,
                                                    "shard_count": shard_count,
@@ -450,7 +527,14 @@ def main():
     parser.add_argument("--config", default="configs/matched_vector_gate.yaml")
     parser.add_argument("--output", default="runs/matched-spatial")
     parser.add_argument("--artifacts", default="artifacts")
-    parser.add_argument("--protocol", choices=("text", "vector", "spatial", "semantic_spatial", "native_claims", "verified_packets"), default="spatial")
+    parser.add_argument(
+        "--protocol",
+        choices=(
+            "text", "vector", "spatial", "semantic_spatial",
+            "native_claims", "verified_packets", "bard"
+        ),
+        default="spatial",
+    )
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--shard-count", type=int, default=1)
     parser.add_argument("--reuse-generalist")
