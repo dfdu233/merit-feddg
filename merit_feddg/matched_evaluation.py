@@ -278,7 +278,7 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
         from .bard import BARDConfig
         bard_config = BARDConfig(**config.get("bard", {}))
     vector = protocol in {"vector", "spatial"}
-    frozen_spatial = vector or protocol in {"semantic_spatial", "native_claims"}
+    frozen_spatial = vector or protocol in {"semantic_spatial", "native_claims", "bard"}
     if frozen_spatial and (not config["generalist"].get("training_free_spatial")
                    or config["generalist"].get("tensor_bridge_checkpoint")):
         raise ValueError("vector/spatial experiment requires training_free_spatial, never a trained bridge")
@@ -474,12 +474,11 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                 if protocol in {"semantic_spatial", "native_claims", "bard"} else None,
             "byzantine_fault_model": (
                 {
-                    "fault_budget": bard_config.fault_budget,
+                    "declared_fault_budget": bard_config.fault_budget,
+                    "centralized_robust_condition": "f < n/2",
+                    "single_expert_policy": bard_config.single_expert_policy,
+                    "two_expert_policy": bard_config.pair_policy,
                     "node": "expert_id",
-                    "required_nodes_for_commit": (
-                        3 * bard_config.fault_budget + 1
-                        if bard_config.fault_budget else 1
-                    ),
                     "aggregation": bard_config.aggregation,
                     "fault_probe_scale": bard_config.fault_probe_scale,
                     "fault_probe_is_diagnostic_only": True,
