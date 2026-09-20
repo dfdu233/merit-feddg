@@ -439,3 +439,100 @@ def test_retrieval_expands_but_does_not_displace_patient_image_fault_groups():
     ]
     selected = select_bard_descriptors(candidates, specs, 4)
     assert [value["expert"] for value in selected][-1] == "retrieval"
+
+
+
+class IncrementalCursor:
+    def __init__(self, session, offset=0.0):
+        self.session = session
+        self.offset = offset
+        self.prefix = []
+        self.forward_calls = 1
+
+    def scores(self):
+        values = np.asarray(self.session.rows[len(self.prefix)], dtype=float).copy()
+        values += self.offset
+        return values
+
+    def commit(self, token):
+        self.prefix.append(int(token))
+        self.forward_calls += 1
+        return self.scores()
+
+
+class IncrementalScoreSession(ScoreSession):
+    def __init__(self, rows, offset=0.0):
+        super().__init__(rows)
+        self.offset = offset
+
+    def open_incremental_cursor(self):
+        return IncrementalCursor(self, self.offset)
+
+
+def test_incremental_receiver_canary_accepts_branchwide_logit_offsets():
+    config = BARDConfig(
+        fault_budget=1,
+        receiver_mode="auto",
+        incremental_canary_tokens=2,
+        incremental_logprob_tolerance=1e-6,
+    )
+    base = IncrementalScoreSession([[5, 4, -5], [5, 4, 9]], offset=100.0)
+    experts = {
+        f"e{i}": IncrementalScoreSession(
+            [[1, 8, -5], [1, 8, 9]], offset=-50.0 - i
+        )
+        for i in range(3)
+    }
+    audit = validate_incremental_receiver(base, experts, config)
+    assert audit["passed"]
+    assert audit["tokens_checked"] == 2
+
+
+def test_decode_bard_auto_uses_incremental_after_canary():
+    config = BARDConfig(
+        fault_budget=1,
+        receiver_mode="auto",
+        incremental_canary_tokens=1,
+        incremental_logprob_tolerance=1e-6,
+    )
+    base = IncrementalScoreSession([[5, 4, -5], [5, 4, 9]])
+    experts = {
+        f"e{i}": IncrementalScoreSession([[1, 8, -5], [1, 8, 9]])
+        for i in range(3)
+    }
+    result = decode_bard_auto(base, experts, max_tokens=2, config=config)
+    assert result["receiver_backend"] == "persistent_kv"
+    assert result["incremental_parity"]["passed"]
+    assert result["token_ids"] == [1, 2]
+    assert result["incremental_forward_calls"] == 8
+
+
+def test_decode_bard_auto_falls_back_when_incremental_scores_change_preferences():
+    config = BARDConfig(
+        fault_budget=1,
+        receiver_mode="auto",
+        incremental_canary_tokens=1,
+        incremental_logprob_tolerance=1e-6,
+    )
+    base = IncrementalScoreSession([[5, 4, 9]], offset=0.0)
+    # Offset one vocabulary coordinate, not all logits, by overriding cursor.
+    class BadSession(IncrementalScoreSession):
+        def open_incremental_cursor(self):
+            cursor = super().open_incremental_cursor()
+            original = cursor.scores
+            def bad_scores():
+                values = original()
+                values[1] += 10.0
+                return values
+            cursor.scores = bad_scores
+            return cursor
+
+    experts = {
+        "e0": BadSession([[1, 8, 9]]),
+        "e1": IncrementalScoreSession([[1, 8, 9]]),
+        "e2": IncrementalScoreSession([[1, 8, 9]]),
+    }
+    result = decode_bard_auto(base, experts, max_tokens=1, config=config)
+    assert result["receiver_backend"] == "replay"
+    assert not result["incremental_parity"]["passed"]
+    assert result["incremental_parity"]["reason"] == "normalized_logprob_mismatch"
