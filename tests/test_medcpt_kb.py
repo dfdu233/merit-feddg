@@ -7,7 +7,7 @@ import numpy as np
 from merit_feddg.capabilities import CapabilityRequest
 from merit_feddg.experts.medcpt_retriever import MedCPTRetrievalExpert
 from merit_feddg.native_evidence import compile_evidence
-from scripts import build_medcpt_kb
+from scripts import build_medcpt_kb, import_medcpt_pubmed
 
 
 def write_kb(tmp_path):
@@ -224,3 +224,44 @@ def test_medcpt_literature_survives_generic_native_retrieval_compiler(tmp_path, 
     assert len(records) == 1
     assert records[0]["payload"]["references"][0]["title"] == "lung"
     assert "pulmonary nodule" in records[0]["payload"]["references"][0]["content"]
+
+
+def test_import_official_medcpt_precomputed_chunk(tmp_path):
+    source = tmp_path / "official"
+    source.mkdir()
+    embeddings = np.zeros((3, 768), dtype=np.float32)
+    embeddings[:, 0] = [1.0, 2.0, 3.0]
+    np.save(source / "embeds_chunk_36.npy", embeddings)
+    (source / "pmids_chunk_36.json").write_text(
+        json.dumps(["101", "102", "103"]), encoding="utf-8"
+    )
+    (source / "pubmed_chunk_36.json").write_text(
+        json.dumps(
+            {
+                "101": {"t": "A", "d": "2025 Jan", "a": "alpha abstract"},
+                "102": {"t": "B", "d": "2024", "a": ""},
+                "103": {"t": "C", "d": "2023 Dec", "a": "gamma abstract"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    output = tmp_path / "kb-imported"
+    manifest = import_medcpt_pubmed.import_chunks(
+        source, output, [36], index_backend="none"
+    )
+    assert manifest["documents"] == 2
+    assert manifest["source"] == "official_ncbi_medcpt_precomputed_pubmed"
+    assert manifest["target_answers_used"] is False
+    matrix = np.load(output / manifest["shards"][0]["embedding"])
+    assert matrix.shape == (2, 768)
+    assert matrix[:, 0].tolist() == [1.0, 3.0]
+
+    db = sqlite3.connect(output / "documents.sqlite3")
+    rows = db.execute(
+        "SELECT doc_id,title,content,year FROM documents ORDER BY row_id"
+    ).fetchall()
+    db.close()
+    assert rows == [
+        ("PMID:101", "A", "alpha abstract", "2025"),
+        ("PMID:103", "C", "gamma abstract", "2023"),
+    ]
