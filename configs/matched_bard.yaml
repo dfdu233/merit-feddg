@@ -4,12 +4,14 @@ base_config: configs/llava_med_capabilities.yaml
 prompt_contract: anchor-ce-v1
 generalist:
   deterministic_image_padding: true
+  training_free_spatial: true
+  spatial_max_records: 64
 capability_value:
   generation:
     max_new_tokens: 64
     block_tokens: 64
-    max_expert_calls: 4
-    max_decisions: 4
+    max_expert_calls: 6
+    max_decisions: 6
     max_evidence_chars: 30000
     visual_views: 0
     evidence_style: semantic
@@ -31,12 +33,18 @@ capability_value:
     spatial_weighting: equal
     vector_gate_min_gain: 0.000001
 
-# f=1 is a declared fault model. It implies at least 3f+1=4 independent
-# expert_id nodes before BARD is allowed to depart from the Generalist.
+# f=1 is a declared centralized fault model, not distributed Byzantine agreement.
+# n=1 falls back; n=2 requires unanimous non-forcing support; n>=3 uses f<n/2.
 bard:
   fault_budget: 1
   aggregation: geometric_median
   median_iterations: 12
   median_tolerance: 0.000001
+  single_expert_policy: baseline
+  pair_policy: unanimous
   # Diagnostic-only residual corruption severity; never used for token choice.
   fault_probe_scale: 8.0
+
+expert_overrides:
+  cxr_findings:
+    spatial_support: true

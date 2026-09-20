@@ -115,6 +115,36 @@ def model_provenance(spec, artifacts):
     ]
     if not result["file_stats"]:
         raise ValueError("empty local checkpoint")
+    extra_paths = spec.get("required_local_paths", [])
+    if extra_paths:
+        if not isinstance(extra_paths, list) or any(
+            not isinstance(value, str) or not value.strip() for value in extra_paths
+        ):
+            raise TypeError("required_local_paths must be a list of nonempty paths")
+        result["required_local_assets"] = []
+        for value in extra_paths:
+            asset = Path(value).expanduser().resolve()
+            if not asset.exists():
+                raise FileNotFoundError(f"required expert asset is missing: {asset}")
+            if asset.is_file():
+                result["required_local_assets"].append({
+                    "path": str(asset),
+                    "kind": "file",
+                    "bytes": asset.stat().st_size,
+                    "mtime_ns": asset.stat().st_mtime_ns,
+                    "sha256": hashlib.sha256(asset.read_bytes()).hexdigest(),
+                })
+            else:
+                files = [p for p in sorted(asset.rglob("*")) if p.is_file()]
+                result["required_local_assets"].append({
+                    "path": str(asset),
+                    "kind": "directory",
+                    "file_stats": [
+                        (p.relative_to(asset).as_posix(), p.stat().st_size, p.stat().st_mtime_ns)
+                        for p in files
+                    ],
+                })
+
     if spec.get("factory"):
         import importlib
 

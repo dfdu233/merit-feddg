@@ -278,7 +278,7 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
         from .bard import BARDConfig
         bard_config = BARDConfig(**config.get("bard", {}))
     vector = protocol in {"vector", "spatial"}
-    frozen_spatial = vector or protocol in {"semantic_spatial", "native_claims"}
+    frozen_spatial = vector or protocol in {"semantic_spatial", "native_claims", "bard"}
     if frozen_spatial and (not config["generalist"].get("training_free_spatial")
                    or config["generalist"].get("tensor_bridge_checkpoint")):
         raise ValueError("vector/spatial experiment requires training_free_spatial, never a trained bridge")
@@ -342,7 +342,9 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
         if (not donor_complete
                 or donor_protocol.get("n") != len(original)
                 or set(donor_routes) != expected_ids
-                or donor_ids != expert_ids or donor_excluded != excluded
+                or donor_ids != expert_ids
+                or donor_protocol.get("expert_provenance") != expert_ids
+                or donor_excluded != excluded
                 or (any(value is not None for value in route_groups) and not routes_bind_groups)
                 or (routes_bind_groups and any(value != row["image_sha256"]
                                                 for value, row in zip(route_groups, original)))):
@@ -350,7 +352,9 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
         fallback_expert_root = donor_root / "expert-cache"
         reuse_expert_audit = {"path": str(donor_root.resolve()), "identity": donor_protocol["identity"],
             "protocol_sha256": hashlib.sha256(donor_protocol_path.read_bytes()).hexdigest(),
-            "native_requests_keyed": True, "expert_provenance_equal": True,
+            "native_requests_keyed": True,
+            "expert_provenance_equal": True,
+            "donor_recorded_expert_provenance_equal": True,
             "route_group_hashes_available": routes_bind_groups}
         reused_routes = donor_routes
     # Bind cached predictions to actual bytes, not just caller-supplied image IDs.
@@ -396,6 +400,7 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             shared_pool = SharedExpertPool(pool, root / "expert-cache" / fingerprint(row["id"]),
                                            identity, fallbacks)
             bard_acquisition = None
+            bard_bundle = None
             for method, arm in arms.items():
                 path = root / "case-cache" / method / f"{fingerprint(row['id'])}.json"
                 cached = load_cached(path, identity)
@@ -406,7 +411,7 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                     elif protocol == "bard" and method in {
                         "isolated_mean", "isolated_geomedian", "bard"
                     }:
-                        from .bard_protocol import acquire_expert_groups, run_bard_method
+                        from .bard_protocol import acquire_expert_groups, run_bard_bundle
                         prompt = prompt_by_id[row["id"]]
                         session = NativeSession(
                             probe, row["image"], prompt, row["question"], arm
@@ -416,9 +421,11 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                                 session, shared_pool, row, specs, arm, None
                             )
                             bard_acquisition = acquire_expert_groups(acquisition_engine)
-                        cached = run_bard_method(
-                            session, bard_acquisition, config.get("bard", {}), method
-                        )
+                        if bard_bundle is None:
+                            bard_bundle = run_bard_bundle(
+                                session, bard_acquisition, config.get("bard", {})
+                            )
+                        cached = copy.deepcopy(bard_bundle[method])
                     elif method == "compact_verified":
                         from .answer_arbitration import arbitrate_output, load_verifier
                         candidate = outputs["compact_all"][row["id"]]
@@ -468,18 +475,33 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             "verifier_provenance": verifier_provenance,
             "reuse_generalist": reuse_generalist_audit,
             "reuse_expert_run": reuse_expert_audit,
-            "vector_gate_unit": "native_entry" if protocol == "native_claims" else ("acquired_expert_result" if frozen_spatial else None),
-            "vector_gate_control": "paired_local_blur_translation" if protocol == "native_claims" else ("same_size_image_channel_mean" if frozen_spatial else None),
+            "vector_gate_unit": (
+                "native_entry"
+                if protocol == "native_claims"
+                else "acquired_expert_result"
+                if protocol in {"vector", "spatial", "semantic_spatial"}
+                else None
+            ),
+            "vector_gate_control": (
+                "paired_local_blur_translation"
+                if protocol == "native_claims"
+                else "same_size_image_channel_mean"
+                if protocol in {"vector", "spatial", "semantic_spatial"}
+                else None
+            ),
             "semantic_channel": "existing_frozen_token_embeddings"
                 if protocol in {"semantic_spatial", "native_claims", "bard"} else None,
+            "native_spatial_channel": (
+                "parameter_free_branch_local_patch_return"
+                if protocol == "bard" else None
+            ),
             "byzantine_fault_model": (
                 {
-                    "fault_budget": bard_config.fault_budget,
-                    "node": "expert_id",
-                    "required_nodes_for_commit": (
-                        3 * bard_config.fault_budget + 1
-                        if bard_config.fault_budget else 1
-                    ),
+                    "declared_fault_budget": bard_config.fault_budget,
+                    "centralized_robust_condition": "f < n/2",
+                    "single_expert_policy": bard_config.single_expert_policy,
+                    "two_expert_policy": bard_config.pair_policy,
+                    "node": "fault_group",
                     "aggregation": bard_config.aggregation,
                     "fault_probe_scale": bard_config.fault_probe_scale,
                     "fault_probe_is_diagnostic_only": True,

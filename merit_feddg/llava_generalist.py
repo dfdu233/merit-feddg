@@ -474,6 +474,77 @@ class LlavaMedAnswerSession:
         self.generalist = generalist
         self.inputs = generalist._inputs(image, prompt)
         self.tensor_packet = tensor_packet
+        self._cached_vision_features = None
+
+    def prime_vision_cache(self):
+        """Cache frozen vision-tower features before the branch-specific projector.
+
+        BARD branches use the same original image.  Caching here avoids repeated
+        CLIP forwards while still executing mm_projector (and any scoped native
+        spatial hook) independently in every receiver branch.
+        """
+        if self._cached_vision_features is not None:
+            return
+        images = self.inputs.get("images")
+        if isinstance(images, list) or images is None or getattr(images, "ndim", 0) != 4:
+            raise ValueError("BARD vision caching currently requires one tensor image batch")
+        tower = self.generalist.model.get_vision_tower()
+        with self.generalist.torch.inference_mode():
+            features = tower(images)
+        if features.ndim != 3 or features.shape[0] != 1:
+            raise ValueError("vision tower returned an unsupported feature shape")
+        if not self.generalist.torch.isfinite(features).all():
+            raise ValueError("vision tower returned nonfinite features")
+        self._cached_vision_features = features.detach()
+
+    def share_vision_cache_from(self, other):
+        """Reuse another session's raw frozen vision features for the same pixels."""
+        if not isinstance(other, LlavaMedAnswerSession):
+            raise TypeError("vision cache source must be a LLaVA-Med answer session")
+        other.prime_vision_cache()
+        left, right = self.inputs.get("images"), other.inputs.get("images")
+        if (
+            isinstance(left, list)
+            or isinstance(right, list)
+            or left is None
+            or right is None
+            or left.shape != right.shape
+            or left.dtype != right.dtype
+            or left.device != right.device
+            or self.inputs.get("image_sizes") != other.inputs.get("image_sizes")
+            or not self.generalist.torch.equal(left, right)
+        ):
+            raise ValueError("vision cache can only be shared across identical processed images")
+        self._cached_vision_features = other._cached_vision_features
+
+    def _vision_cache_context(self):
+        if self._cached_vision_features is None:
+            return nullcontext()
+        from contextlib import contextmanager
+
+        model = self.generalist.model
+        cached = self._cached_vision_features
+        original = model.encode_images
+
+        @contextmanager
+        def scoped():
+            if getattr(self.generalist, "_vision_cache_hook_active", False):
+                raise RuntimeError("vision feature cache cannot be used reentrantly")
+            self.generalist._vision_cache_hook_active = True
+
+            def encode_images(_images):
+                # Keep the native projector in the execution path.  Spatial
+                # evidence is injected by its scoped forward hook downstream.
+                return model.get_model().mm_projector(cached)
+
+            model.encode_images = encode_images
+            try:
+                yield
+            finally:
+                model.encode_images = original
+                self.generalist._vision_cache_hook_active = False
+
+        return scoped()
 
     def _evidence_context(self):
         if self.tensor_packet is None:
@@ -489,6 +560,35 @@ class LlavaMedAnswerSession:
     def eos_ids(self):
         return _eos_ids(self.generalist.model, self.generalist.tokenizer)
 
+    def _validate_bounded_generation(self):
+        generation = self.generalist.model.generation_config
+        for name in (
+            "forced_eos_token_id",
+            "forced_bos_token_id",
+            "forced_decoder_ids",
+            "exponential_decay_length_penalty",
+            "begin_suppress_tokens",
+            "suppress_tokens",
+            "bad_words_ids",
+            "constraints",
+            "force_words_ids",
+            "sequence_bias",
+        ):
+            if getattr(generation, name, None) is not None:
+                raise ValueError(f"bounded next_scores does not support {name}")
+        for name in (
+            "min_length",
+            "min_new_tokens",
+            "no_repeat_ngram_size",
+            "encoder_no_repeat_ngram_size",
+        ):
+            if getattr(generation, name, 0):
+                raise ValueError(f"bounded next_scores does not support {name}")
+        if getattr(generation, "repetition_penalty", 1.0) != 1.0:
+            raise ValueError("bounded next_scores does not support repetition_penalty")
+        if getattr(generation, "num_beams", 1) != 1:
+            raise ValueError("bounded next_scores requires greedy num_beams=1")
+
     def next_scores(self, prefix):
         """Production generation scores at an exact prefix (not raw hidden logits).
 
@@ -498,19 +598,7 @@ class LlavaMedAnswerSession:
         Length-dependent processors remain unsupported because forced replay
         would make their semantics ambiguous.
         """
-        generation = self.generalist.model.generation_config
-        for name in ("forced_eos_token_id", "forced_bos_token_id", "forced_decoder_ids",
-                     "exponential_decay_length_penalty", "begin_suppress_tokens",
-                     "bad_words_ids", "constraints", "force_words_ids", "sequence_bias"):
-            if getattr(generation, name, None) is not None:
-                raise ValueError(f"bounded next_scores does not support {name}")
-        for name in ("min_length", "min_new_tokens", "no_repeat_ngram_size", "encoder_no_repeat_ngram_size"):
-            if getattr(generation, name, 0):
-                raise ValueError(f"bounded next_scores does not support {name}")
-        if getattr(generation, "repetition_penalty", 1.0) != 1.0:
-            raise ValueError("bounded next_scores does not support repetition_penalty")
-        if getattr(generation, "num_beams", 1) != 1:
-            raise ValueError("bounded next_scores requires greedy num_beams=1")
+        self._validate_bounded_generation()
         if not prefix:
             output = self._generate((), 1)
         else:
@@ -525,7 +613,11 @@ class LlavaMedAnswerSession:
                 calls += 1
                 return allowed
 
-            with self.generalist.torch.inference_mode(), self._evidence_context():
+            with (
+                self.generalist.torch.inference_mode(),
+                self._vision_cache_context(),
+                self._evidence_context(),
+            ):
                 output = self.generalist.model.generate(
                     **self.inputs, max_new_tokens=len(prefix) + 1, do_sample=False,
                     use_cache=True, return_dict_in_generate=True, output_scores=True,
@@ -536,6 +628,46 @@ class LlavaMedAnswerSession:
         if len(output.scores) != len(prefix) + 1:
             raise RuntimeError("next_scores replay did not cover the exact prefix")
         return output.scores[-1][0].detach().float().cpu().numpy()
+
+    def new_incremental_stream(self):
+        """Create an opt-in persistent-KV stream for one committed trajectory.
+
+        This is never substituted for replay silently. Real-model callers must
+        first compare it against next_scores on a fixed canary.
+        """
+        self._validate_bounded_generation()
+        return LlavaMedIncrementalStream(self)
+
+    def incremental_parity(self, tokens):
+        """Compare persistent KV against production replay on one fixed prefix."""
+        stream = self.new_incremental_stream()
+        rows = []
+        prefix = []
+        for step in range(len(tokens) + 1):
+            replay = self.next_scores(prefix)
+            cached = stream.current_scores()
+            if replay.shape != cached.shape:
+                raise RuntimeError("incremental/replay vocabulary shapes differ")
+            rows.append(
+                {
+                    "step": step,
+                    "replay_argmax": int(np.argmax(replay)),
+                    "incremental_argmax": int(np.argmax(cached)),
+                    "argmax_equal": bool(np.argmax(replay) == np.argmax(cached)),
+                    "max_abs_logit_delta": float(np.max(np.abs(replay - cached))),
+                    "mean_abs_logit_delta": float(np.mean(np.abs(replay - cached))),
+                }
+            )
+            if step < len(tokens):
+                token = int(tokens[step])
+                prefix.append(token)
+                stream.commit(token)
+        return {
+            "steps": rows,
+            "all_argmax_equal": all(row["argmax_equal"] for row in rows),
+            "max_abs_logit_delta": max(row["max_abs_logit_delta"] for row in rows),
+            "prefix_tokens": [int(token) for token in tokens],
+        }
 
     def sequence_mean_logp(self, prefix, tokens):
         """One teacher-forced, evidence-free forward per complete candidate.
@@ -578,7 +710,7 @@ class LlavaMedAnswerSession:
                 (inputs["attention_mask"], torch.ones_like(extra)), dim=1
             )
         self.generalist._validate_context(inputs, length)
-        with torch.inference_mode(), self._evidence_context():
+        with torch.inference_mode(), self._vision_cache_context(), self._evidence_context():
             return model.generate(
                 **inputs, max_new_tokens=length, do_sample=False, use_cache=True,
                 return_dict_in_generate=True, output_scores=True,
@@ -594,3 +726,106 @@ class LlavaMedAnswerSession:
         if len(ids) > length:
             raise RuntimeError("LLaVA-Med exceeded its block token budget")
         return [Block(ids, self.decode(ids), score, finished)]
+
+class LlavaMedIncrementalStream:
+    """Persistent-KV next-token stream for a single immutable receiver context."""
+
+    def __init__(self, session):
+        self.session = session
+        self.generalist = session.generalist
+        self.prefix = []
+        self._past_key_values = None
+        self._attention_mask = None
+        self._scores = None
+        self._prefill()
+
+    @property
+    def eos_ids(self):
+        return self.session.eos_ids
+
+    def decode(self, tokens):
+        return self.session.decode(tokens)
+
+    def _prefill(self):
+        torch = self.generalist.torch
+        model = self.generalist.model
+        inputs = dict(self.session.inputs)
+        self.generalist._validate_context(inputs, 1)
+        with (
+            torch.inference_mode(),
+            self.session._vision_cache_context(),
+            self.session._evidence_context(),
+        ):
+            prepared = model.prepare_inputs_labels_for_multimodal(
+                inputs["inputs"],
+                None,
+                inputs["attention_mask"],
+                None,
+                None,
+                inputs["images"],
+                image_sizes=inputs.get("image_sizes"),
+            )
+            (
+                input_ids,
+                position_ids,
+                attention_mask,
+                past_key_values,
+                inputs_embeds,
+                _labels,
+            ) = prepared
+            output = model(
+                input_ids=input_ids,
+                position_ids=position_ids,
+                attention_mask=attention_mask,
+                past_key_values=past_key_values,
+                inputs_embeds=inputs_embeds,
+                use_cache=True,
+                return_dict=True,
+            )
+        if output.past_key_values is None or attention_mask is None:
+            raise RuntimeError("incremental LLaVA prefill did not return a usable KV cache")
+        scores = output.logits[0, -1].detach().float().cpu().numpy()
+        if scores.ndim != 1 or not np.isfinite(scores).all():
+            raise RuntimeError("incremental LLaVA prefill returned invalid logits")
+        self._past_key_values = output.past_key_values
+        self._attention_mask = attention_mask
+        self._scores = scores
+
+    def current_scores(self):
+        return self._scores.copy()
+
+    def commit(self, token):
+        if isinstance(token, bool) or not isinstance(token, (int, np.integer)):
+            raise TypeError("incremental stream token must be an integer")
+        token = int(token)
+        torch = self.generalist.torch
+        model = self.generalist.model
+        device = model.get_input_embeddings().weight.device
+        input_ids = torch.tensor([[token]], device=device, dtype=torch.long)
+        one = torch.ones(
+            (self._attention_mask.shape[0], 1),
+            dtype=self._attention_mask.dtype,
+            device=self._attention_mask.device,
+        )
+        attention_mask = torch.cat((self._attention_mask, one), dim=1)
+        position_ids = attention_mask.long().sum(dim=1, keepdim=True) - 1
+        with torch.inference_mode():
+            output = model(
+                input_ids=input_ids,
+                position_ids=position_ids,
+                attention_mask=attention_mask,
+                past_key_values=self._past_key_values,
+                use_cache=True,
+                return_dict=True,
+            )
+        if output.past_key_values is None:
+            raise RuntimeError("incremental LLaVA decode lost its KV cache")
+        scores = output.logits[0, -1].detach().float().cpu().numpy()
+        if scores.ndim != 1 or not np.isfinite(scores).all():
+            raise RuntimeError("incremental LLaVA decode returned invalid logits")
+        self.prefix.append(token)
+        self._past_key_values = output.past_key_values
+        self._attention_mask = attention_mask
+        self._scores = scores
+        return self.current_scores()
+

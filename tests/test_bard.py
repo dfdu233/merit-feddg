@@ -8,16 +8,22 @@ from merit_feddg.bard import (
     BARDConfig,
     bard_step,
     decode_bard,
+    decode_bard_bundle,
+    decode_bard_incremental,
     geometric_median,
     single_fault_probe,
 )
 from merit_feddg.bard_protocol import (
     acquire_expert_groups,
     build_isolated_sessions,
+    run_bard_bundle,
     run_bard_method,
+    select_bard_descriptors,
+    validate_incremental_parity,
 )
 from merit_feddg.capabilities import EvidenceItem
 from merit_feddg.capability_runtime import NativeState, ValueGenerationConfig
+from merit_feddg.llava_generalist import LlavaMedAnswerSession
 from merit_feddg.matched_evaluation import experiment_arms
 
 
@@ -51,15 +57,36 @@ def test_additive_logit_offset_does_not_change_decision():
     assert token1 == token2 == 1
 
 
-def test_f1_requires_four_branches():
+def test_f1_three_branches_are_sufficient_for_centralized_robust_aggregation():
     config = BARDConfig(fault_budget=1)
     token, audit = bard_step(
         np.array([4.0, 3.0]),
         [np.array([1.0, 8.0])] * 3,
         config,
     )
+    assert token == 1
+    assert audit["committed"]
+    assert audit["effective_fault_budget"] == 1
+    assert audit["required_experts"] == 3
+    assert audit["reason"] == "centralized_bounded_fault_consensus"
+
+
+def test_two_experts_require_unanimous_nonforcing_support():
+    config = BARDConfig(fault_budget=1)
+    token, audit = bard_step(
+        np.array([4.0, 3.0]),
+        [np.array([1.0, 8.0]), np.array([2.0, 7.0])],
+        config,
+    )
+    assert token == 1
+    assert audit["reason"] == "unanimous_nonforcing_consensus"
+    token, audit = bard_step(
+        np.array([4.0, 3.0]),
+        [np.array([1.0, 8.0]), np.array([8.0, 1.0])],
+        config,
+    )
     assert token == 0
-    assert audit["reason"] == "insufficient_byzantine_redundancy"
+    assert not audit["committed"]
 
 
 def test_f1_commits_with_three_of_four_supporters_despite_one_outlier():
@@ -144,24 +171,27 @@ def test_decode_uses_exact_same_prefix_for_all_branches():
     assert result["trace"][0]["fault_probe"]["extra_model_forwards"] == 0
 
 
-def test_structural_fallback_does_not_evaluate_expert_branches():
+def test_single_expert_structural_fallback_does_not_evaluate_expert_branch():
     config = BARDConfig(fault_budget=1)
     base = ScoreSession([[5, 4, 9]])
-    experts = {
-        f"e{i}": ScoreSession([[1, 8, 9]])
-        for i in range(3)
-    }
+    experts = {"e0": ScoreSession([[1, 8, 9]])}
     result = decode_bard(base, experts, max_tokens=1, config=config)
     assert result["structural_fallback"]
     assert result["token_ids"] == [2]
-    assert result["trace"][0]["reason"] == "insufficient_byzantine_redundancy"
-    assert all(not session.prefixes for session in experts.values())
+    assert result["trace"][0]["reason"] == "single_expert_unidentifiable"
+    assert not experts["e0"].prefixes
 
 
 class FakeRuntime:
     def __init__(self):
         self.config = SimpleNamespace(max_expert_calls=4)
         self.calls = []
+        self.specs = {
+            "a": {"fault_group": "shared-a"},
+            "b": {},
+            "c": {},
+            "d": {},
+        }
 
     def descriptors(self, _state):
         return [
@@ -187,8 +217,9 @@ class FakeRuntime:
 def test_acquisition_uses_clean_states_and_prioritizes_distinct_experts():
     runtime = FakeRuntime()
     result = acquire_expert_groups(runtime)
-    assert list(result["groups"]) == ["a", "b", "c", "d"]
-    assert len(result["groups"]["a"]) == 1
+    assert list(result["groups"]) == ["shared-a", "b", "c", "d"]
+    assert len(result["groups"]["shared-a"]) == 1
+    assert result["fault_group_members"]["shared-a"] == ["a"]
     assert result["native_requests"] == 4
     assert [expert for expert, _, _ in runtime.calls] == ["a", "b", "c", "d"]
     assert all(items == () for _, _, items in runtime.calls)
@@ -254,9 +285,9 @@ def test_run_bard_method_records_fault_model_and_transport():
         native, acquisition, {"fault_budget": 1}, "bard"
     )
     assert result["token_ids"][0] == 1
-    assert result["byzantine_model"]["required_nodes_for_commit"] == 4
+    assert result["byzantine_model"]["centralized_condition"] == "f < n/2"
     assert result["presented_evidence_count"] == 4
-    assert result["trace"][0]["reason"] == "bounded_fault_consensus"
+    assert result["trace"][0]["reason"] == "centralized_bounded_fault_consensus"
 
 
 def test_bard_matched_arms_fix_transport_and_disable_old_gates():
@@ -301,3 +332,277 @@ def test_bard_matched_arm_rejects_spatial_or_entry_transport():
         experiment_arms(replace(decoder, semantic_spatial=True), "bard")
     with pytest.raises(ValueError, match="semantic-only"):
         experiment_arms(replace(decoder, native_entry_transport=True), "bard")
+
+
+def test_bundle_shares_identical_prefix_scores_until_policies_diverge():
+    config = BARDConfig(fault_budget=1)
+    base = ScoreSession([[5, 4, -5], [5, 4, 9]])
+    experts = {
+        f"e{i}": ScoreSession([[1, 8, -5], [1, 8, 9]])
+        for i in range(3)
+    }
+    bundle = decode_bard_bundle(base, experts, max_tokens=2, config=config)
+    assert set(bundle) == {"isolated_mean", "isolated_geomedian", "bard"}
+    assert all(result["token_ids"] == [1, 2] for result in bundle.values())
+    # One unique prefix per step, not three separate replay decoders.
+    assert base.prefixes == [(), (1,)]
+    assert all(session.prefixes == [(), (1,)] for session in experts.values())
+    assert bundle["bard"]["shared_score_calls_bundle"] == 8
+
+
+class FakeSpatialProbe(FakeProbe):
+    def __init__(self):
+        self.tensor_bridge = SimpleNamespace(training_free=True)
+        self.tensor_calls = []
+
+    def tensor_packet(self, items, _image, **_kwargs):
+        class Packet:
+            rejected = ()
+
+            def __init__(self, n):
+                self.n = n
+
+            def __len__(self):
+                return self.n
+
+        spatial = [item for item in items if item.capability == "segmentation"]
+        return Packet(len(spatial))
+
+    def new_tensor_answer_session(self, image, prompt, items, **kwargs):
+        self.tensor_calls.append((image, prompt, tuple(items), kwargs))
+        return self.new_answer_session(image, prompt)
+
+
+def test_segmentation_branch_uses_native_spatial_receiver_when_available():
+    config = SimpleNamespace(
+        evidence_style="semantic",
+        semantic_spatial=False,
+        visual_views=0,
+        token_budgeted_evidence=True,
+        max_new_tokens=2,
+        spatial_weighting="equal",
+    )
+    probe = FakeSpatialProbe()
+    native = FakeNative(probe, "img", "Q", "q", config)
+    segmentation = EvidenceItem(
+        evidence_id="mask",
+        expert_id="seg",
+        capability="segmentation",
+        scope="x",
+        payload={"structures": [{"label": "lung"}]},
+    )
+    _, sessions, audits = build_isolated_sessions(native, {"seg": (segmentation,)})
+    assert "seg" in sessions
+    assert probe.tensor_calls
+    assert audits["seg"]["receiver_channel"] == "semantic_plus_native_spatial"
+    assert audits["seg"]["native_spatial_records"] == 1
+
+
+def test_protocol_bundle_returns_all_isolated_arms():
+    native = make_native()
+    groups = {name: (item(name, name),) for name in "abc"}
+    acquisition = {
+        "groups": groups,
+        "events": [],
+        "native_requests": 3,
+        "seconds": 0.1,
+        "selection": "frozen",
+    }
+    outputs = run_bard_bundle(native, acquisition, {"fault_budget": 1})
+    assert set(outputs) == {"isolated_mean", "isolated_geomedian", "bard"}
+    assert outputs["bard"]["byzantine_model"]["two_expert_policy"] == "unanimous"
+
+
+def test_fault_group_prevents_two_tools_from_same_failure_family_double_voting():
+    runtime = FakeRuntime()
+    runtime.specs["b"]["fault_group"] = "shared-a"
+    result = acquire_expert_groups(runtime)
+    assert list(result["groups"])[:3] == ["shared-a", "c", "d"]
+    assert result["fault_group_members"]["shared-a"] == ["a"]
+    # b is a repeated correlated node and falls outside the four-call distinct-first budget.
+    assert [expert for expert, _, _ in runtime.calls][:3] == ["a", "c", "d"]
+
+
+def test_retrieval_expands_but_does_not_displace_patient_image_fault_groups():
+    specs = {
+        "retrieval": {"fault_group": "knowledge"},
+        "visual_a": {"fault_group": "a"},
+        "visual_b": {"fault_group": "b"},
+        "visual_c": {"fault_group": "c"},
+    }
+    candidates = [
+        {"expert": "retrieval", "capability": "retrieval"},
+        {"expert": "visual_a", "capability": "classification"},
+        {"expert": "visual_b", "capability": "segmentation"},
+        {"expert": "visual_c", "capability": "generation"},
+    ]
+    selected = select_bard_descriptors(candidates, specs, 3)
+    assert [value["expert"] for value in selected] == [
+        "visual_a", "visual_b", "visual_c"
+    ]
+    selected = select_bard_descriptors(candidates, specs, 4)
+    assert [value["expert"] for value in selected][-1] == "retrieval"
+
+
+def test_llava_shared_vision_cache_keeps_projector_branch_local():
+    torch = pytest.importorskip("torch")
+
+    class Tower:
+        def __init__(self):
+            self.calls = 0
+
+        def __call__(self, images):
+            self.calls += 1
+            value = images.mean(dim=(-2, -1))
+            return value[:, None, :2]
+
+    class Projector:
+        def __init__(self):
+            self.calls = 0
+
+        def __call__(self, features):
+            self.calls += 1
+            return features + 3
+
+    class Model:
+        def __init__(self):
+            self.tower = Tower()
+            self.projector = Projector()
+            self.core = SimpleNamespace(mm_projector=self.projector)
+
+        def get_vision_tower(self):
+            return self.tower
+
+        def get_model(self):
+            return self.core
+
+        def encode_images(self, images):
+            return self.projector(self.tower(images))
+
+    class Generalist:
+        def __init__(self):
+            self.torch = torch
+            self.model = Model()
+
+        def _inputs(self, image, _prompt):
+            pixels = torch.full((1, 3, 2, 2), float(image))
+            return {
+                "inputs": torch.ones((1, 2), dtype=torch.long),
+                "attention_mask": torch.ones((1, 2), dtype=torch.long),
+                "images": pixels,
+                "image_sizes": [(2, 2)],
+            }
+
+    generalist = Generalist()
+    base = LlavaMedAnswerSession(generalist, 1.0, "q")
+    branch = LlavaMedAnswerSession(generalist, 1.0, "q + evidence")
+    base.prime_vision_cache()
+    branch.share_vision_cache_from(base)
+    assert generalist.model.tower.calls == 1
+
+    with branch._vision_cache_context():
+        projected = generalist.model.encode_images(branch.inputs["images"])
+    assert generalist.model.tower.calls == 1
+    assert generalist.model.projector.calls == 1
+    assert torch.allclose(projected, base._cached_vision_features + 3)
+
+
+def test_llava_vision_cache_refuses_different_pixels():
+    torch = pytest.importorskip("torch")
+
+    class Tower:
+        def __call__(self, images):
+            return images.mean(dim=(-2, -1))[:, None, :2]
+
+    class Model:
+        def __init__(self):
+            self.tower = Tower()
+            self.core = SimpleNamespace(mm_projector=lambda x: x)
+
+        def get_vision_tower(self):
+            return self.tower
+
+        def get_model(self):
+            return self.core
+
+    class Generalist:
+        def __init__(self):
+            self.torch = torch
+            self.model = Model()
+
+        def _inputs(self, image, _prompt):
+            return {
+                "inputs": torch.ones((1, 1), dtype=torch.long),
+                "attention_mask": torch.ones((1, 1), dtype=torch.long),
+                "images": torch.full((1, 3, 2, 2), float(image)),
+                "image_sizes": [(2, 2)],
+            }
+
+    generalist = Generalist()
+    base = LlavaMedAnswerSession(generalist, 1.0, "q")
+    other = LlavaMedAnswerSession(generalist, 2.0, "q")
+    base.prime_vision_cache()
+    with pytest.raises(ValueError, match="identical processed images"):
+        other.share_vision_cache_from(base)
+
+
+class IncrementalScoreStream:
+    def __init__(self, rows):
+        self.rows = [np.asarray(row, dtype=float) for row in rows]
+        self.prefix = []
+        self.eos_ids = {2}
+
+    def current_scores(self):
+        return self.rows[len(self.prefix)].copy()
+
+    def commit(self, token):
+        self.prefix.append(int(token))
+        return self.current_scores()
+
+    def decode(self, tokens):
+        return " ".join(map(str, tokens))
+
+
+def test_incremental_bard_matches_reference_on_same_score_trajectory():
+    config = BARDConfig(fault_budget=1)
+    base_rows = [[5, 4, -5], [5, 4, 9]]
+    expert_rows = [[1, 8, -5], [1, 8, 9]]
+    reference = decode_bard(
+        ScoreSession(base_rows),
+        {f"e{i}": ScoreSession(expert_rows) for i in range(3)},
+        max_tokens=2,
+        config=config,
+    )
+    fast = decode_bard_incremental(
+        IncrementalScoreStream(base_rows),
+        {f"e{i}": IncrementalScoreStream(expert_rows) for i in range(3)},
+        max_tokens=2,
+        config=config,
+    )
+    assert fast["token_ids"] == reference["token_ids"] == [1, 2]
+    assert fast["receiver_backend"] == "persistent_kv"
+
+
+def test_incremental_parity_gate_checks_every_receiver_branch():
+    class ParitySession:
+        def __init__(self, ok, delta):
+            self.ok = ok
+            self.delta = delta
+
+        def incremental_parity(self, tokens):
+            return {
+                "prefix_tokens": list(tokens),
+                "all_argmax_equal": self.ok,
+                "max_abs_logit_delta": self.delta,
+                "steps": [],
+            }
+
+    report = validate_incremental_parity(
+        ParitySession(True, 0.1),
+        {"good": ParitySession(True, 0.2), "bad": ParitySession(False, 0.3)},
+        [4, 5, 6],
+        max_steps=2,
+    )
+    assert report["prefix_tokens"] == [4, 5]
+    assert not report["fast_path_allowed"]
+    assert report["max_abs_logit_delta"] == 0.3

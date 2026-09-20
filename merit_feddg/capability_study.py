@@ -242,14 +242,30 @@ def _filter_optional_experts(specs, artifacts):
             if not spec.get("checkpoint_path") and artifacts and not Path(expected).exists():
                 expected = Path(artifacts) / "models" / spec["id"].replace("/", "--")
             path = Path(expected).expanduser().resolve()
-            if not path.exists():
+            required_paths = spec.get("required_local_paths", [])
+            if not isinstance(required_paths, list) or any(
+                not isinstance(value, str) or not value.strip() for value in required_paths
+            ):
+                raise TypeError(f"expert {name}: required_local_paths must be a list of paths")
+            missing_required = [
+                str(Path(value).expanduser().resolve())
+                for value in required_paths
+                if not Path(value).expanduser().resolve().exists()
+            ]
+            if not path.exists() or missing_required:
                 excluded[name] = {
-                    "reason": "optional_checkpoint_missing",
+                    "reason": (
+                        "optional_checkpoint_missing"
+                        if not path.exists()
+                        else "optional_required_asset_missing"
+                    ),
                     "expected_checkpoint": str(path),
+                    "missing_required_assets": missing_required,
                     "id": spec["id"],
                     "capabilities": list(spec.get("capabilities", [])),
                     "scope": spec.get("scope"),
                     "download_attempted": False,
+                    "preparation_hint": spec.get("preparation_hint"),
                 }
                 continue
         active[name] = spec

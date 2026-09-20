@@ -296,6 +296,10 @@ class CapabilityPool:
         self.features.clear()
 
     def clear(self):
+        for model in self.models.values():
+            close = getattr(model, "close", None)
+            if callable(close):
+                close()
         self.models.clear()
         self.features.clear()
         self.source_features.clear()

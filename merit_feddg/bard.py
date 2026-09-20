@@ -33,12 +33,18 @@ class BARDConfig:
     median_iterations: int = 12
     median_tolerance: float = 1e-6
     fault_probe_scale: float = 8.0
+    single_expert_policy: str = "baseline"
+    pair_policy: str = "unanimous"
 
     def __post_init__(self):
         if type(self.fault_budget) is not int or self.fault_budget < 0:
             raise ValueError("fault_budget must be a nonnegative integer")
         if self.aggregation not in {"mean", "coordinate_median", "geometric_median"}:
             raise ValueError("unsupported BARD aggregation")
+        if self.single_expert_policy not in {"baseline"}:
+            raise ValueError("single expert is not identifiable without an external falsification test")
+        if self.pair_policy not in {"unanimous"}:
+            raise ValueError("two-expert BARD currently supports unanimous non-forcing commit only")
         if type(self.median_iterations) is not int or self.median_iterations < 1:
             raise ValueError("median_iterations must be positive")
         numeric = (self.median_tolerance, self.fault_probe_scale)
@@ -154,29 +160,40 @@ def _decision_from_residuals(
     )
     aggregate_margin = float(combined[candidate_index] - combined[base_index])
 
-    f = config.fault_budget
-    required_experts = 1 if not bounded_commit or f == 0 else 3 * f + 1
-    support_needed = n if f == 0 else n - f
+    declared_f = config.fault_budget
+    # This is a centralized robust-aggregation problem, not distributed
+    # Byzantine agreement.  The usable fault budget is therefore bounded by
+    # f < n/2 rather than a hard 3f+1 communication requirement.
+    effective_f = min(declared_f, max(0, (n - 1) // 2))
+    required_experts = 2 * effective_f + 1 if effective_f else 1
+    support_needed = n if effective_f == 0 else n - effective_f
     supporters = int(np.sum(branch_margins > 0.0))
-    # With n >= 3f+1 and at least n-f positive votes, the f-th lower order
-    # statistic is the lower edge of the surviving honest-majority support.
-    # It is a robustness margin, not a probability of correctness.
     conservative_margin = (
-        float(np.sort(branch_margins)[f])
-        if n > f
+        float(np.sort(branch_margins)[effective_f])
+        if n > effective_f
         else float("-inf")
     )
 
     if candidate_token == base_token:
-        committed, reason = False, "aggregate_agrees_with_base"
+        committed, reason, mode = False, "aggregate_agrees_with_base", "anchor"
     elif not bounded_commit:
-        committed, reason = True, "unprotected_aggregate"
+        committed, reason, mode = True, "unprotected_aggregate", "ablation"
+    elif n == 1:
+        # One fallible expert and one incumbent are observationally
+        # non-identifiable without an additional falsification observation.
+        committed, reason, mode = False, "single_expert_unidentifiable", "single"
+    elif n == 2:
+        # One arbitrary node cannot force a change: both isolated receiver
+        # branches must independently move the same candidate over the anchor.
+        committed = aggregate_margin > 0.0 and supporters == 2 and conservative_margin > 0.0
+        reason = "unanimous_nonforcing_consensus" if committed else "pair_disagreement_or_weak_support"
+        mode = "pair_unanimous"
     elif n < required_experts:
-        committed, reason = False, "insufficient_byzantine_redundancy"
+        committed, reason, mode = False, "insufficient_robust_majority", "robust"
     elif aggregate_margin <= 0.0 or supporters < support_needed or conservative_margin <= 0.0:
-        committed, reason = False, "insufficient_branch_consensus"
+        committed, reason, mode = False, "insufficient_branch_consensus", "robust"
     else:
-        committed, reason = True, "bounded_fault_consensus"
+        committed, reason, mode = True, "centralized_bounded_fault_consensus", "robust"
 
     selected = candidate_token if committed else base_token
     return selected, {
@@ -186,8 +203,10 @@ def _decision_from_residuals(
         "candidate_token": candidate_token,
         "selected_token": int(selected),
         "expert_count": int(n),
-        "fault_budget": int(f),
+        "fault_budget": int(declared_f),
+        "effective_fault_budget": int(effective_f),
         "required_experts": int(required_experts),
+        "consensus_mode": mode,
         "support_needed": int(support_needed),
         "supporters": supporters,
         "base_margin": base_margin,
@@ -265,6 +284,196 @@ def single_fault_probe(base_scores, expert_scores, config: BARDConfig):
     }
 
 
+
+
+def decode_bard_bundle(
+    base_session,
+    expert_sessions: Mapping[str, object],
+    *,
+    max_tokens: int,
+    config: BARDConfig,
+):
+    """Run matched mean/geomedian/BARD arms while sharing identical-prefix scores.
+
+    This is an experiment-efficiency optimization only.  Each arm keeps its own
+    committed prefix.  Scores are reused only when two arms have exactly the
+    same token prefix, so the mathematical definition of each arm is unchanged.
+    """
+    if type(max_tokens) is not int or max_tokens < 1:
+        raise ValueError("max_tokens must be positive")
+    names = list(expert_sessions)
+    if len(names) != len(set(names)):
+        raise ValueError("expert branch names must be unique")
+    policies = {
+        "isolated_mean": {"aggregation": "mean", "bounded": False},
+        "isolated_geomedian": {"aggregation": "geometric_median", "bounded": False},
+        "bard": {"aggregation": "geometric_median", "bounded": True},
+    }
+    states = {
+        name: {"prefix": [], "trace": [], "finished": False}
+        for name in policies
+    }
+    score_calls = 0
+
+    for _step in range(max_tokens):
+        active = [name for name, state in states.items() if not state["finished"]]
+        if not active:
+            break
+        grouped = {}
+        for name in active:
+            grouped.setdefault(tuple(states[name]["prefix"]), []).append(name)
+        for prefix_tuple, members in grouped.items():
+            prefix = list(prefix_tuple)
+            base_scores = base_session.next_scores(prefix)
+            need_experts = any(
+                not (
+                    policies[name]["bounded"]
+                    and len(names) == 1
+                    and config.single_expert_policy == "baseline"
+                )
+                for name in members
+            )
+            expert_scores = (
+                [expert_sessions[name].next_scores(prefix) for name in names]
+                if need_experts
+                else []
+            )
+            score_calls += 1 + len(expert_scores)
+            for method in members:
+                bounded = policies[method]["bounded"]
+                if bounded and len(names) == 1 and not expert_scores:
+                    base_logp, _ = _log_probs(base_scores)
+                    token = int(np.argmax(base_logp))
+                    audit = {
+                        "reason": "single_expert_unidentifiable",
+                        "committed": False,
+                        "base_token": token,
+                        "candidate_token": token,
+                        "selected_token": token,
+                        "expert_count": 1,
+                        "fault_budget": config.fault_budget,
+                        "effective_fault_budget": 0,
+                        "required_experts": 2,
+                        "consensus_mode": "single",
+                        "medical_correctness_guaranteed": False,
+                    }
+                else:
+                    token, audit = bard_step(
+                        base_scores,
+                        expert_scores,
+                        config,
+                        aggregation=policies[method]["aggregation"],
+                        bounded_commit=bounded,
+                    )
+                    if method == "bard" and expert_scores:
+                        audit["fault_probe"] = single_fault_probe(
+                            base_scores, expert_scores, config
+                        )
+                audit["step"] = len(states[method]["prefix"])
+                audit["experts"] = names
+                states[method]["trace"].append(audit)
+                states[method]["prefix"].append(int(token))
+                if token in base_session.eos_ids or len(states[method]["prefix"]) >= max_tokens:
+                    states[method]["finished"] = True
+
+    outputs = {}
+    for method, state in states.items():
+        outputs[method] = {
+            "text": base_session.decode(state["prefix"]).strip(),
+            "token_ids": list(state["prefix"]),
+            "trace": state["trace"],
+            "expert_branches": names,
+            "structural_fallback": bool(
+                method == "bard"
+                and len(names) == 1
+                and config.single_expert_policy == "baseline"
+            ),
+            "fault_budget": config.fault_budget,
+            "aggregation": policies[method]["aggregation"],
+            "bounded_commit": policies[method]["bounded"],
+            "shared_score_calls_bundle": score_calls,
+        }
+    return outputs
+
+
+
+def decode_bard_incremental(
+    base_stream,
+    expert_streams: Mapping[str, object],
+    *,
+    max_tokens: int,
+    config: BARDConfig,
+    fault_probe=False,
+):
+    """Persistent-KV BARD for one committed trajectory.
+
+    This fast path is intentionally separate from the replay reference decoder.
+    Callers must establish real-model parity before using it for benchmark
+    generation.
+    """
+    if type(max_tokens) is not int or max_tokens < 1:
+        raise ValueError("max_tokens must be positive")
+    names = list(expert_streams)
+    prefix, trace = [], []
+    structural_single = len(names) == 1 and config.single_expert_policy == "baseline"
+
+    for step in range(max_tokens):
+        base_scores = base_stream.current_scores()
+        if structural_single:
+            base_logp, _ = _log_probs(base_scores)
+            token = int(np.argmax(base_logp))
+            expert_scores = []
+            audit = {
+                "reason": "single_expert_unidentifiable",
+                "committed": False,
+                "base_token": token,
+                "candidate_token": token,
+                "selected_token": token,
+                "expert_count": 1,
+                "fault_budget": config.fault_budget,
+                "effective_fault_budget": 0,
+                "required_experts": 2,
+                "consensus_mode": "single",
+                "medical_correctness_guaranteed": False,
+            }
+        else:
+            expert_scores = [
+                expert_streams[name].current_scores() for name in names
+            ]
+            token, audit = bard_step(
+                base_scores,
+                expert_scores,
+                config,
+                aggregation=config.aggregation,
+                bounded_commit=True,
+            )
+        audit["step"] = step
+        audit["experts"] = names
+        audit["receiver_backend"] = "persistent_kv"
+        if fault_probe and expert_scores:
+            audit["fault_probe"] = single_fault_probe(
+                base_scores, expert_scores, config
+            )
+        trace.append(audit)
+        prefix.append(int(token))
+        if token in base_stream.eos_ids:
+            break
+        base_stream.commit(token)
+        for stream in expert_streams.values():
+            stream.commit(token)
+
+    return {
+        "text": base_stream.decode(prefix).strip(),
+        "token_ids": prefix,
+        "trace": trace,
+        "expert_branches": names,
+        "structural_fallback": structural_single,
+        "fault_budget": config.fault_budget,
+        "aggregation": config.aggregation,
+        "bounded_commit": True,
+        "receiver_backend": "persistent_kv",
+    }
+
 def decode_bard(
     base_session,
     expert_sessions: Mapping[str, object],
@@ -283,11 +492,10 @@ def decode_bard(
         raise ValueError("expert branch names must be unique")
     prefix, trace = [], []
 
-    structural_fallback = (
-        bounded_commit
-        and config.fault_budget > 0
-        and len(names) < 3 * config.fault_budget + 1
-    )
+    # Only the truly unidentifiable single-expert case is structurally
+    # short-circuited.  Two experts can use unanimous non-forcing consensus;
+    # three or more use centralized robust aggregation.
+    structural_fallback = bounded_commit and len(names) == 1
     for step in range(max_tokens):
         base_scores = base_session.next_scores(prefix)
         if structural_fallback:
@@ -295,16 +503,21 @@ def decode_bard(
             token = int(np.argmax(base_logp))
             expert_scores = []
             audit = {
-                "reason": "insufficient_byzantine_redundancy",
+                "reason": "single_expert_unidentifiable",
                 "committed": False,
                 "base_token": token,
                 "candidate_token": token,
                 "selected_token": token,
                 "expert_count": len(names),
                 "fault_budget": config.fault_budget,
-                "required_experts": 3 * config.fault_budget + 1,
+                "effective_fault_budget": 0,
+                "required_experts": 2,
+                "consensus_mode": "single",
                 "medical_correctness_guaranteed": False,
-                "interpretation": "structural fallback; no expert branch was evaluated",
+                "interpretation": (
+                    "single-expert structural fallback; an external falsification "
+                    "observation is required before allowing this node to force a change"
+                ),
             }
         else:
             expert_scores = [

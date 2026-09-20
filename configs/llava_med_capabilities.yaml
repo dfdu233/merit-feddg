@@ -62,6 +62,33 @@ experts:
     question_types: [anatomy]
     description: Compare this image against a non-exhaustive major-organ catalog. Only for organ identification, not disease diagnosis, location, counts or segmentation.
     catalog: [brain, lung, heart, liver, kidney, spleen, pancreas, stomach, intestine, thyroid, skin, bone, breast, uterus, testis]
+  medcpt_pubmed:
+    id: ncbi/MedCPT-Query-Encoder
+    fault_group: medcpt_pubmed
+    checkpoint_path: artifacts/models/ncbi--MedCPT-Query-Encoder
+    optional: true
+    required_local_paths:
+      - artifacts/models/ncbi--MedCPT-Cross-Encoder
+      - artifacts/knowledge/medcpt-pubmed/manifest.json
+    preparation_hint: python scripts/prepare_medcpt_assets.py --download-models --print-commands
+    factory: merit_feddg.experts.medcpt_retriever:MedCPTRetrievalExpert
+    factory_kwargs:
+      expert_id: medcpt_pubmed
+      scope: biomedical_literature
+      kb_manifest: artifacts/knowledge/medcpt-pubmed/manifest.json
+      cross_encoder_path: artifacts/models/ncbi--MedCPT-Cross-Encoder
+      device: auto
+      candidate_k: 32
+      top_k: 3
+      max_query_tokens: 64
+      max_pair_tokens: 512
+    modalities: [cxr, xray, ct, mri, pathology, gross_pathology, ultrasound, oct, fundus, dermatology, endoscopy, clinical_photo, diagram]
+    tasks: [open_vqa]
+    capabilities: [retrieval]
+    scope: biomedical_literature
+    prefix_invariant: true
+    description: Retrieve PubMed biomedical literature with MedCPT dense retrieval and optional cross-encoder reranking. Retrieved passages are general medical knowledge, not patient-specific image findings or diagnoses.
+
   source_cases:
     id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
     revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
@@ -80,6 +107,7 @@ experts:
     description: Retrieve one source case matched by image AND question, from another source domain and same image type. Its answer belongs only to that different image; this is an analogy, not proof about the current image.
   cxr_findings:
     id: xrv/densenet121-res224-all
+    fault_group: torchxrayvision
     adapter: xrv_classification
     checkpoint_path: artifacts/models/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     weights: densenet121-res224-all
@@ -92,6 +120,7 @@ experts:
     description: Whole-chest-radiograph disease finding scores from a small chest X-ray classifier. Not calibrated probabilities, not CT/MRI and not lesion location.
   cxr_anatomy:
     id: xrv/pspnet-chestxray
+    fault_group: torchxrayvision
     adapter: xrv_anatomy
     checkpoint_path: artifacts/models/xrv/pspnet_chestxray_best_model_4.pth
     modalities: [cxr]
