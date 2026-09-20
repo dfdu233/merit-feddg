@@ -62,6 +62,28 @@ experts:
     question_types: [anatomy]
     description: Compare this image against a non-exhaustive major-organ catalog. Only for organ identification, not disease diagnosis, location, counts or segmentation.
     catalog: [brain, lung, heart, liver, kidney, spleen, pancreas, stomach, intestine, thyroid, skin, bone, breast, uterus, testis]
+  medcpt_pubmed:
+    id: ncbi/MedCPT-Query-Encoder
+    checkpoint_path: artifacts/models/ncbi--MedCPT-Query-Encoder
+    optional: true
+    factory: merit_feddg.experts.medcpt_retriever:MedCPTRetrievalExpert
+    factory_kwargs:
+      expert_id: medcpt_pubmed
+      scope: biomedical_literature
+      kb_manifest: artifacts/knowledge/medcpt-pubmed/manifest.json
+      cross_encoder_path: artifacts/models/ncbi--MedCPT-Cross-Encoder
+      device: auto
+      candidate_k: 32
+      top_k: 3
+      max_query_tokens: 64
+      max_pair_tokens: 512
+    modalities: [cxr, xray, ct, mri, pathology, gross_pathology, ultrasound, oct, fundus, dermatology, endoscopy, clinical_photo, diagram]
+    tasks: [open_vqa]
+    capabilities: [retrieval]
+    scope: biomedical_literature
+    prefix_invariant: true
+    description: Retrieve PubMed biomedical literature with MedCPT dense retrieval and optional cross-encoder reranking. Retrieved passages are general medical knowledge, not patient-specific image findings or diagnoses.
+
   source_cases:
     id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
     revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
