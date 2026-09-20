@@ -66,6 +66,9 @@ experts:
     id: ncbi/MedCPT-Query-Encoder
     checkpoint_path: artifacts/models/ncbi--MedCPT-Query-Encoder
     optional: true
+    required_local_paths:
+      - artifacts/models/ncbi--MedCPT-Cross-Encoder
+      - artifacts/knowledge/medcpt-pubmed/manifest.json
     factory: merit_feddg.experts.medcpt_retriever:MedCPTRetrievalExpert
     factory_kwargs:
       expert_id: medcpt_pubmed
