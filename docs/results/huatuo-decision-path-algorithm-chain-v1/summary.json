@@ -1,0 +1,64 @@
+{
+  "status": "BLOCKED_TECHNICAL",
+  "scientific_verdict": null,
+  "ready_for_scale": false,
+  "executed_path": [
+    "A-attempt-1: resource check failed before model loading"
+  ],
+  "coverage": {
+    "planned_development": 128,
+    "attempted_model_cases": 0,
+    "completed_predictions": 0,
+    "unattempted_cases": 128,
+    "native_canary_completed": 0
+  },
+  "node_decisions": [
+    {
+      "job_sha": "3f3867c93e7e4f983bfcf513e19ec56b9ba2d281ceee73a1841caa12d711ee61",
+      "node": "A",
+      "reason": "Inference child failed; see durable log/exit",
+      "stage_forwards": 0,
+      "verdict": "technical_failure"
+    }
+  ],
+  "candidate": null,
+  "arm_scores": null,
+  "original_harms_repaired": null,
+  "original_gains_retained": null,
+  "new_harms": null,
+  "reason": "Authorized host GPU0 has another user process registered as C+G. Frozen check_device refuses any other compute context. Host GPU1 is busy with an unrelated model job. No other process was stopped and no guard was relaxed.",
+  "attempts_used": {
+    "A": 1
+  },
+  "remaining_A_technical_retries": 1,
+  "max_total_forwards": 200000,
+  "forwards_used": 0,
+  "cost": {
+    "data_audit_seconds": 38.98802977311425,
+    "runtime_file_hash_seconds": 8.750896396115422,
+    "failed_worker_wall_seconds": 9.41202688217163,
+    "model_load_seconds": 0,
+    "canary_forwards": 0,
+    "diagnostic_forwards": 0,
+    "candidate_forwards": 0,
+    "control_forwards": 0,
+    "generated_tokens": 0,
+    "offline_scoring_executed": false,
+    "peak_model_allocated_bytes": null,
+    "note": "Failed-worker wall includes runtime hash checking and imports; no model inference. Whole-project preparation wall not instrumented. Cached Baseline deployment latency is unknown, not zero."
+  },
+  "failure_table": [
+    {
+      "node": "A",
+      "attempt": 1,
+      "scope": "pre-model device check",
+      "returncode": 1,
+      "model_cases_attempted": 0,
+      "error": "Another compute process owns the authorized GPU; no job is killed"
+    }
+  ],
+  "background_processes_active": false,
+  "automatic_retry_queued": false,
+  "no_test_inference": true,
+  "no_parameter_training": true
+}

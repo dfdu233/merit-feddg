@@ -1,3 +1,16 @@
+# Decision-path algorithm chain — actual resource block (2026-09-20 UTC)
+
+Independent branch `experiments/huatuo-decision-path-algorithm-chain-v1`, requested implementation `5066828`; generation fix frozen at `5d51ef2`.
+
+- Actual host detached controller and A worker executed; terminal `BLOCKED_TECHNICAL` before model loading. Development coverage 0/128, forwards 0, no native canary or scientific result.
+- Host GPU0 has another user's Nautilus C+G context; strict frozen check_device rejects it. Host GPU1 is running an unrelated Huatuo job. Neither process terminated; guard unchanged.
+- Original chain CPU tests 81 passed. Pixel-hash compatibility fix plus related regression 136 passed, no failures/skips. No policy/formula/scorer change.
+- Plan `24b0c1e9…` freezes full original SLAKE128, confirmation/extension empty after conservative exposure audit. Old exposed data never relabeled independent. One A attempt used; one same-plan technical retry remains, not queued.
+- No active chain jobs. Raw immutable plan/state/failure: `runs/chain-v1`; data/provenance audit: `runs/preparation`.
+- Full public package and precise recovery commands: [docs/results/huatuo-decision-path-algorithm-chain-v1/README.md](docs/results/huatuo-decision-path-algorithm-chain-v1/README.md).
+
+---
+
 # Current task: Huatuo visual-pathway TRAIN validation
 
 2026-09-20 UTC. Isolated branch `experiments/huatuo-pathway-restore-train-v1`.

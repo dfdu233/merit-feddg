@@ -1,0 +1,26 @@
+{
+  "original_chain_tests": {
+    "passed": 81,
+    "failed": 0,
+    "skipped": 0,
+    "log": "........................................................................ [ 88%]\n.........                                                                [100%]\n81 passed in 3.27s\n"
+  },
+  "repaired_chain_plus_pathway_regression": {
+    "passed": 136,
+    "failed": 0,
+    "skipped": 0,
+    "log": "........................................................................ [ 52%]\n................................................................         [100%]\n136 passed in 3.62s\n"
+  },
+  "compile_passed": true,
+  "cli_help_passed": true,
+  "shell_syntax_passed": true,
+  "diff_check_passed": true,
+  "real_model_canary_executed": false,
+  "source_queue_inventory_verified": 128,
+  "source_pixel_scheme": "size_prefixed_rgb",
+  "registry_pixel_scheme": "raw_rgb",
+  "source_image_bytes_and_cached_case_hashes_pinned": true,
+  "historical_prompt_reconstruction_in_this_run": "not executed: blocked before model load",
+  "pre_freeze_failure": "Unused root-only Hugging Face tree metadata was removed from runtime pins; actual model weights/configuration/tokenizer/native sources remain content-pinned.",
+  "model_forwards_across_all_attempts_and_repairs": 0
+}

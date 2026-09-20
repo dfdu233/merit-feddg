@@ -1,0 +1,31 @@
+{
+  "state": {
+    "attempts": {
+      "A": 1
+    },
+    "blocked_node": "A",
+    "candidate": null,
+    "forwards_used": 0,
+    "history": [
+      {
+        "directory": "A-attempt-1",
+        "node": "A",
+        "report_sha": "cf79c55cbc52f7beef77460d245ee446650f4c8c11e7a982c82a9824b6311e66",
+        "verdict": "technical_failure"
+      }
+    ],
+    "holdout_consumed": false,
+    "node": "BLOCKED_TECHNICAL",
+    "plan_sha": "24b0c1e910978243905e6b750e176cd514b7cc39ca6fcdb549ab2528aea762a3",
+    "schema": "merit-chain-state-v1"
+  },
+  "decisions": [
+    {
+      "job_sha": "3f3867c93e7e4f983bfcf513e19ec56b9ba2d281ceee73a1841caa12d711ee61",
+      "node": "A",
+      "reason": "Inference child failed; see durable log/exit",
+      "stage_forwards": 0,
+      "verdict": "technical_failure"
+    }
+  ]
+}

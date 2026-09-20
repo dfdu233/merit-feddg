@@ -1,0 +1,23 @@
+{
+  "metadata_files": 316,
+  "exposed_unique_images": 2167,
+  "official_test_unique_images": 383,
+  "known_exposure_rule": "Conservative union of image references in existing experiment protocol/frozen/manifest metadata, including declared planned images. Bare dataset-storage manifests excluded. This is not a proof all external historical exposures were found.",
+  "inventories": {
+    "slake": {
+      "train_images": 586,
+      "not_in_known_exposure_or_test": 0
+    },
+    "vqarad": {
+      "train_images": 313,
+      "not_in_known_exposure_or_test": 0
+    }
+  },
+  "unresolved_image_references": 6,
+  "errors": 0,
+  "patient_independence": "No usable patient/study identity in the native SLAKE/VQA TRAIN queues; cannot prove patient-level independence.",
+  "confirmation": [],
+  "extension": [],
+  "confirmation_reason": "All compatible completed native source queues found are already used in method development. Metadata audit is not exhaustive of external exposures; remaining unmatched TRAIN pixels do not establish an unseen second compatible source cohort. No independent cached D/E queues certified before freeze.",
+  "seconds": 38.98802977311425
+}
