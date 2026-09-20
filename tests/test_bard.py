@@ -18,13 +18,13 @@ from merit_feddg.bard_protocol import (
     build_isolated_sessions,
     run_bard_bundle,
     run_bard_method,
-    validate_incremental_parity,
     select_bard_descriptors,
+    validate_incremental_parity,
 )
 from merit_feddg.capabilities import EvidenceItem
 from merit_feddg.capability_runtime import NativeState, ValueGenerationConfig
-from merit_feddg.matched_evaluation import experiment_arms
 from merit_feddg.llava_generalist import LlavaMedAnswerSession
+from merit_feddg.matched_evaluation import experiment_arms
 
 
 def item(expert, evidence):
