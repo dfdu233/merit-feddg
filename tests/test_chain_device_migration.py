@@ -59,3 +59,28 @@ def test_rejects_consumed_or_unexpected_history(tmp_path, monkeypatch, change):
     with pytest.raises(ValueError):
         migration.migrate(source, output, 'GPU-new')
     assert not output.exists()
+
+
+def test_expansion_resource_migration_retains_all_prior_costs(tmp_path,monkeypatch):
+    source=tmp_path/'expansion';source.mkdir()
+    plan=dict(identity='old',experiment_mode='fixed_candidate_exploratory_expansion',runtime={'gpu_uuid':'GPU-old'},policy=DEFAULTS|{'max_node_attempts':3},code_pins={})
+    history=[]
+    for n in (1,2):
+        d=source/f'C-attempt-{n}';d.mkdir()
+        verdict='fail' if n==1 else 'technical_failure'
+        write(d/'decision.json',{'verdict':verdict})
+        if n==1:write(d/'budget.json',{'used':11})
+        else:(d/'inference.log').write_text('Another compute process owns the authorized GPU')
+        history.append(dict(node='C',directory=d.name,verdict=verdict,report_sha=digest(d/'decision.json')))
+    state=dict(plan_sha='old',node='BLOCKED_TECHNICAL',blocked_node='C',attempts={'A':3,'C':2},forwards_used=11,holdout_consumed=False,history=history)
+    write(source/'plan.json',plan);write(source/'state.json',state)
+    monkeypatch.setattr(migration,'verify_plan',lambda p:None)
+    target=tmp_path/'new';migration.migrate(source,target,'GPU-new',[dict(pid=42,process_name='/usr/bin/nautilus',max_memory_mib=64)])
+    inherited=read(target/'state.json')
+    assert inherited['forwards_used']==11 and inherited['history']==history
+    assert inherited['attempts']=={'A':3,'C':2} and inherited['node']=='BLOCKED_TECHNICAL'
+    assert retry_technical(inherited,plan['policy'])['attempts']['C']==3
+    assert read(source/'state.json')==state
+    assert read(target/'plan.json')['runtime']['allowed_display_contexts'][0]['pid']==42
+    write(source/'state.json',state|{'forwards_used':12},replace=True)
+    with pytest.raises(ValueError,match='budget mismatch'):migration.migrate(source,tmp_path/'bad','GPU-new')
