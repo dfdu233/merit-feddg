@@ -12,6 +12,17 @@ from merit_feddg.pathway_restore import (
 from merit_feddg.huatuo_pathway import GreedySpec, PreparedPrompt, paired_generate
 
 
+def test_native_bos_processor_prefix_matches_transformers():
+    from transformers import RepetitionPenaltyLogitsProcessor, MinNewTokensLengthLogitsProcessor
+    spec = GreedySpec(10, (0,), 1.2, 1, (0,))
+    logits = torch.tensor([6., 5.5, -2., 4.])
+    for prefix in ([], [1], [1, 3]):
+        ids = torch.tensor([[0] + prefix])
+        scores = RepetitionPenaltyLogitsProcessor(1.2)(ids, logits[None].clone())
+        scores = MinNewTokensLengthLogitsProcessor(1, 1, 0)(ids, scores)
+        assert spec.select(logits, prefix) == int(scores.argmax())
+
+
 class TinyAttention(nn.Module):
     def __init__(self, width=8, heads=4, kv_heads=2):
         super().__init__()

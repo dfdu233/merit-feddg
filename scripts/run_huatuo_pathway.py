@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -208,14 +209,23 @@ def main():
     from merit_feddg.pathway_restore import PathwayConfig
 
     with output_lock(args.output):
+        loading_started = time.perf_counter()
         adapter = factory(**frozen['adapter_kwargs'])
         model = adapter.model.eval().requires_grad_(False)
+        torch.cuda.synchronize()
+        load_seconds = time.perf_counter() - loading_started
+        provenance = dict(merit_feddg=inspect.getfile(importlib.import_module('merit_feddg')),
+                          adapter=inspect.getfile(factory), native_model=inspect.getfile(type(model)),
+                          attention_classes=sorted({type(layer.self_attn).__name__ for layer in model.get_model().layers}))
+        print(json.dumps(provenance), flush=True)
         check_native_generation_defaults(model.generation_config)
         frozen['adapter_source_sha256'] = digest(inspect.getfile(factory))
         frozen['torch_version'] = torch.__version__
         import transformers
         frozen['transformers_version'] = transformers.__version__
         frozen['model_config'] = model.config.to_dict()
+        frozen['import_provenance'] = provenance
+        frozen['native_generation_config'] = model.generation_config.to_dict()
         checkpoint = Path(str(getattr(model.config, '_name_or_path', '')))
         frozen['checkpoint_file_stats_not_content_hashes'] = {
             str(p): {'size': p.stat().st_size, 'mtime_ns': p.stat().st_mtime_ns}
@@ -228,6 +238,7 @@ def main():
                 raise ValueError('Frozen model/runtime/config/input changed; use a new output directory')
         else:
             write_new(protocol_path, frozen)
+        write_new(args.output / ('load-' + str(time.time_ns()) + '.json'), dict(seconds=load_seconds, stage=args.stage))
         limit = min(int(getattr(model.config, name)) for name in
                     ('tokenizer_model_max_length', 'max_position_embeddings') if getattr(model.config, name, None))
         eos = settings.get('eos_token_id', model.generation_config.eos_token_id)
@@ -235,7 +246,11 @@ def main():
             raise ValueError('EOS must be explicit in native settings or model generation config')
         eos = (eos,) if isinstance(eos, int) else tuple(eos)
         spec = GreedySpec(settings['max_new_tokens'], eos,
-                          settings['repetition_penalty'], settings['min_new_tokens'])
+                          settings['repetition_penalty'], settings['min_new_tokens'],
+                          tuple(model._maybe_initialize_input_ids_for_generation(
+                              None, model.generation_config.bos_token_id,
+                              model_kwargs={'inputs_embeds': torch.empty(1, 1, model.config.hidden_size,
+                                                                        device=model.device)})[0].tolist()))
         count = min(args.canary_cases, len(source['rows']))
         planned_rows = source['rows'][:count] if args.stage == 'canary' else source['rows']
         for index, row in enumerate(planned_rows):
@@ -268,8 +283,11 @@ def main():
                 for name, prepared, text in (('generalist', reference, row['benchmark_prompt']),
                                              ('compact', receiver, prompt)):
                     ids, pixels = native_inputs(adapter, row['image'], text)
-                    with torch.inference_mode():
-                        native_tokens = model.generate(ids, images=pixels, **settings)[0].tolist()
+                    with torch.inference_mode(), adapter._generation_last_token_logits():
+                        native_output = model.generate(ids, images=pixels, **settings,
+                                                       return_dict_in_generate=True, output_scores=True)
+                    native_tokens = native_output.sequences[0, -len(native_output.scores):].tolist()
+                    del native_output
                     off = paired_generate(model, reference, prepared, spec,
                                           PathwayConfig('off', tuple(args.layers)), context_limit=limit)
                     expected = case['arms'][name]['token_ids']

@@ -43,6 +43,7 @@ class GreedySpec:
     eos_token_ids: tuple[int, ...]
     repetition_penalty: float = 1.0
     min_new_tokens: int = 0
+    processor_prefix: tuple[int, ...] = ()
 
     def __post_init__(self):
         if type(self.max_new_tokens) is not int or self.max_new_tokens < 1:
@@ -60,8 +61,9 @@ class GreedySpec:
             raise PathwayError('Non-finite or non-vector next-token logits')
         if max(self.eos_token_ids) >= scores.numel():
             raise PathwayError('EOS token outside the model vocabulary')
-        if prefix and self.repetition_penalty != 1:
-            ids = torch.tensor(sorted(set(prefix)), device=scores.device)
+        processor_tokens = self.processor_prefix + tuple(prefix)
+        if processor_tokens and self.repetition_penalty != 1:
+            ids = torch.tensor(sorted(set(processor_tokens)), device=scores.device)
             old = scores[ids]
             scores[ids] = torch.where(old < 0, old * self.repetition_penalty,
                                      old / self.repetition_penalty)
@@ -183,6 +185,8 @@ def paired_generate(model, reference, receiver, spec, config=PathwayConfig(), *,
     base, target = _Stream(model, reference), _Stream(model, receiver)
     tokens = []
     _sync(receiver.embeds.device)
+    if receiver.embeds.device.type == 'cuda':
+        torch.cuda.reset_peak_memory_stats(receiver.embeds.device)
     started = time.perf_counter()
     with torch.inference_mode(), PathwayRestorer(model, active_config) as restorer:
         for step in range(spec.max_new_tokens):
@@ -202,4 +206,8 @@ def paired_generate(model, reference, receiver, spec, config=PathwayConfig(), *,
                 reference_forwards=len(tokens) if use_shadow else 0, receiver_forwards=len(tokens),
                 stop_reason='eos' if tokens[-1] in spec.eos_token_ids else 'length',
                 reference_semantics='same committed prefix, not standalone baseline trajectory',
+                peak_allocated_bytes=(torch.cuda.max_memory_allocated(receiver.embeds.device)
+                                      if receiver.embeds.device.type == 'cuda' else None),
+                peak_reserved_bytes=(torch.cuda.max_memory_reserved(receiver.embeds.device)
+                                     if receiver.embeds.device.type == 'cuda' else None),
                 medical_correctness_estimated=False, weights_updated=False)
