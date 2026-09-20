@@ -349,7 +349,7 @@ class HuatuoVisionGeneralist:
 
         tower = self.model.get_vision_tower()
         patches = int(tower.num_patches)
-        grid = int(round(patches ** 0.5))
+        grid = round(patches ** 0.5)
         if grid * grid != patches:
             raise ValueError("Huatuo spatial evidence requires a square patch grid")
         if not hasattr(self.model.get_model(), "mm_projector"):
