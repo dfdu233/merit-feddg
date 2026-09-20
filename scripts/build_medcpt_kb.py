@@ -215,11 +215,11 @@ def build(records, output, article_encoder, *, limit=0, batch_size=32, shard_siz
             embed_parts, shard_rowids = [], []
 
     for row in records:
+        if limit and total + len(pending) >= limit:
+            break
         pending.append(row)
         if len(pending) >= batch_size:
             encode_pending()
-        if limit and total >= limit:
-            break
     encode_pending()
     if shard_rowids:
         db.commit()
