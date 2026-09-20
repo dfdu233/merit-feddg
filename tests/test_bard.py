@@ -8,12 +8,14 @@ from merit_feddg.bard import (
     BARDConfig,
     bard_step,
     decode_bard,
+    decode_bard_bundle,
     geometric_median,
     single_fault_probe,
 )
 from merit_feddg.bard_protocol import (
     acquire_expert_groups,
     build_isolated_sessions,
+    run_bard_bundle,
     run_bard_method,
 )
 from merit_feddg.capabilities import EvidenceItem
@@ -51,15 +53,36 @@ def test_additive_logit_offset_does_not_change_decision():
     assert token1 == token2 == 1
 
 
-def test_f1_requires_four_branches():
+def test_f1_three_branches_are_sufficient_for_centralized_robust_aggregation():
     config = BARDConfig(fault_budget=1)
     token, audit = bard_step(
         np.array([4.0, 3.0]),
         [np.array([1.0, 8.0])] * 3,
         config,
     )
+    assert token == 1
+    assert audit["committed"]
+    assert audit["effective_fault_budget"] == 1
+    assert audit["required_experts"] == 3
+    assert audit["reason"] == "centralized_bounded_fault_consensus"
+
+
+def test_two_experts_require_unanimous_nonforcing_support():
+    config = BARDConfig(fault_budget=1)
+    token, audit = bard_step(
+        np.array([4.0, 3.0]),
+        [np.array([1.0, 8.0]), np.array([2.0, 7.0])],
+        config,
+    )
+    assert token == 1
+    assert audit["reason"] == "unanimous_nonforcing_consensus"
+    token, audit = bard_step(
+        np.array([4.0, 3.0]),
+        [np.array([1.0, 8.0]), np.array([8.0, 1.0])],
+        config,
+    )
     assert token == 0
-    assert audit["reason"] == "insufficient_byzantine_redundancy"
+    assert not audit["committed"]
 
 
 def test_f1_commits_with_three_of_four_supporters_despite_one_outlier():
@@ -144,18 +167,15 @@ def test_decode_uses_exact_same_prefix_for_all_branches():
     assert result["trace"][0]["fault_probe"]["extra_model_forwards"] == 0
 
 
-def test_structural_fallback_does_not_evaluate_expert_branches():
+def test_single_expert_structural_fallback_does_not_evaluate_expert_branch():
     config = BARDConfig(fault_budget=1)
     base = ScoreSession([[5, 4, 9]])
-    experts = {
-        f"e{i}": ScoreSession([[1, 8, 9]])
-        for i in range(3)
-    }
+    experts = {"e0": ScoreSession([[1, 8, 9]])}
     result = decode_bard(base, experts, max_tokens=1, config=config)
     assert result["structural_fallback"]
     assert result["token_ids"] == [2]
-    assert result["trace"][0]["reason"] == "insufficient_byzantine_redundancy"
-    assert all(not session.prefixes for session in experts.values())
+    assert result["trace"][0]["reason"] == "single_expert_unidentifiable"
+    assert not experts["e0"].prefixes
 
 
 class FakeRuntime:
@@ -254,9 +274,9 @@ def test_run_bard_method_records_fault_model_and_transport():
         native, acquisition, {"fault_budget": 1}, "bard"
     )
     assert result["token_ids"][0] == 1
-    assert result["byzantine_model"]["required_nodes_for_commit"] == 4
+    assert result["byzantine_model"]["centralized_condition"] == "f < n/2"
     assert result["presented_evidence_count"] == 4
-    assert result["trace"][0]["reason"] == "bounded_fault_consensus"
+    assert result["trace"][0]["reason"] == "centralized_bounded_fault_consensus"
 
 
 def test_bard_matched_arms_fix_transport_and_disable_old_gates():
@@ -301,3 +321,82 @@ def test_bard_matched_arm_rejects_spatial_or_entry_transport():
         experiment_arms(replace(decoder, semantic_spatial=True), "bard")
     with pytest.raises(ValueError, match="semantic-only"):
         experiment_arms(replace(decoder, native_entry_transport=True), "bard")
+
+
+def test_bundle_shares_identical_prefix_scores_until_policies_diverge():
+    config = BARDConfig(fault_budget=1)
+    base = ScoreSession([[5, 4, -5], [5, 4, 9]])
+    experts = {
+        f"e{i}": ScoreSession([[1, 8, -5], [1, 8, 9]])
+        for i in range(3)
+    }
+    bundle = decode_bard_bundle(base, experts, max_tokens=2, config=config)
+    assert set(bundle) == {"isolated_mean", "isolated_geomedian", "bard"}
+    assert all(result["token_ids"] == [1, 2] for result in bundle.values())
+    # One unique prefix per step, not three separate replay decoders.
+    assert base.prefixes == [(), (1,)]
+    assert all(session.prefixes == [(), (1,)] for session in experts.values())
+    assert bundle["bard"]["shared_score_calls_bundle"] == 8
+
+
+class FakeSpatialProbe(FakeProbe):
+    def __init__(self):
+        self.tensor_bridge = SimpleNamespace(training_free=True)
+        self.tensor_calls = []
+
+    def tensor_packet(self, items, _image, **_kwargs):
+        class Packet:
+            rejected = ()
+
+            def __init__(self, n):
+                self.n = n
+
+            def __len__(self):
+                return self.n
+
+        spatial = [item for item in items if item.capability == "segmentation"]
+        return Packet(len(spatial))
+
+    def new_tensor_answer_session(self, image, prompt, items, **kwargs):
+        self.tensor_calls.append((image, prompt, tuple(items), kwargs))
+        return self.new_answer_session(image, prompt)
+
+
+def test_segmentation_branch_uses_native_spatial_receiver_when_available():
+    config = SimpleNamespace(
+        evidence_style="semantic",
+        semantic_spatial=False,
+        visual_views=0,
+        token_budgeted_evidence=True,
+        max_new_tokens=2,
+        spatial_weighting="equal",
+    )
+    probe = FakeSpatialProbe()
+    native = FakeNative(probe, "img", "Q", "q", config)
+    segmentation = EvidenceItem(
+        evidence_id="mask",
+        expert_id="seg",
+        capability="segmentation",
+        scope="x",
+        payload={"structures": [{"label": "lung"}]},
+    )
+    _, sessions, audits = build_isolated_sessions(native, {"seg": (segmentation,)})
+    assert "seg" in sessions
+    assert probe.tensor_calls
+    assert audits["seg"]["receiver_channel"] == "semantic_plus_native_spatial"
+    assert audits["seg"]["native_spatial_records"] == 1
+
+
+def test_protocol_bundle_returns_all_isolated_arms():
+    native = make_native()
+    groups = {name: (item(name, name),) for name in "abc"}
+    acquisition = {
+        "groups": groups,
+        "events": [],
+        "native_requests": 3,
+        "seconds": 0.1,
+        "selection": "frozen",
+    }
+    outputs = run_bard_bundle(native, acquisition, {"fault_budget": 1})
+    assert set(outputs) == {"isolated_mean", "isolated_geomedian", "bard"}
+    assert outputs["bard"]["byzantine_model"]["two_expert_policy"] == "unanimous"
