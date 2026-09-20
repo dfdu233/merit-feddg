@@ -1,0 +1,21 @@
+{
+  "alpha": 0.05,
+  "bootstrap_repetitions": 4000,
+  "seed": 0,
+  "diagnostic_prefix_tokens": 16,
+  "min_localization_images": 8,
+  "min_development_images": 32,
+  "min_confirmation_images": 64,
+  "min_images_per_cohort": 24,
+  "min_confirmation_cohorts": 2,
+  "min_original_gains": 3,
+  "min_original_harms": 3,
+  "min_repaired_harms": 1,
+  "min_delta": 0.005,
+  "min_gain_retention": 0.75,
+  "max_damage_rate": 0.1,
+  "cohort_noninferiority_margin": 0.02,
+  "max_seconds_per_case": 10.0,
+  "max_node_attempts": 2,
+  "max_total_forwards": 200000
+}
