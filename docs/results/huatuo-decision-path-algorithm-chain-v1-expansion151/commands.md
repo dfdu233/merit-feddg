@@ -78,4 +78,3 @@ OMP_NUM_THREADS=1 PYTHONPATH=. /home/dbw/.runtime/miniconda3/envs/huatuo/bin/pyt
 
 134 passed in 3.61 seconds. No dependency installation, model download, training,
 official TEST execution or GPU0 model launch occurred for this expansion.
-
