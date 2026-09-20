@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from time import perf_counter
 
-from .bard import BARDConfig, decode_bard
+from .bard import BARDConfig, decode_bard, decode_bard_auto
 from .bard import decode_bard_bundle as decode_bundle
 
 BARD_METHODS = ("isolated_mean", "isolated_geomedian", "bard")
@@ -194,15 +194,24 @@ def run_bard_method(native_session, acquisition, bard_config, method):
     }
     aggregation, bounded = mapping[method]
     started = perf_counter()
-    result = decode_bard(
-        base,
-        experts,
-        max_tokens=native_session.config.max_new_tokens,
-        config=config,
-        aggregation=aggregation,
-        bounded_commit=bounded,
-        fault_probe=method == "bard",
-    )
+    if method == "bard" and config.receiver_mode == "auto":
+        result = decode_bard_auto(
+            base,
+            experts,
+            max_tokens=native_session.config.max_new_tokens,
+            config=config,
+            fault_probe=True,
+        )
+    else:
+        result = decode_bard(
+            base,
+            experts,
+            max_tokens=native_session.config.max_new_tokens,
+            config=config,
+            aggregation=aggregation,
+            bounded_commit=bounded,
+            fault_probe=method == "bard",
+        )
     decode_seconds = perf_counter() - started
     evidence = [
         asdict(item)
@@ -255,12 +264,34 @@ def run_bard_bundle(native_session, acquisition, bard_config):
         native_session, acquisition["groups"]
     )
     started = perf_counter()
-    bundle = decode_bundle(
-        base,
-        experts,
-        max_tokens=native_session.config.max_new_tokens,
-        config=config,
-    )
+    if config.receiver_mode == "auto":
+        replay_started = perf_counter()
+        bundle = decode_bundle(
+            base,
+            experts,
+            max_tokens=native_session.config.max_new_tokens,
+            config=config,
+            methods=("isolated_mean", "isolated_geomedian"),
+        )
+        replay_seconds = perf_counter() - replay_started
+        bard_started = perf_counter()
+        bundle["bard"] = decode_bard_auto(
+            base,
+            experts,
+            max_tokens=native_session.config.max_new_tokens,
+            config=config,
+            fault_probe=True,
+        )
+        bard_seconds = perf_counter() - bard_started
+    else:
+        bundle = decode_bundle(
+            base,
+            experts,
+            max_tokens=native_session.config.max_new_tokens,
+            config=config,
+        )
+        replay_seconds = perf_counter() - started
+        bard_seconds = 0.0
     decode_seconds = perf_counter() - started
     evidence = [
         asdict(item)
@@ -304,6 +335,8 @@ def run_bard_bundle(native_session, acquisition, bard_config):
                 "medical_correctness_guaranteed": False,
             },
             "bundle_decode_seconds": decode_seconds,
+            "bundle_replay_ablation_seconds": replay_seconds,
+            "bard_receiver_seconds": bard_seconds,
             "bundle_amortized_across_methods": list(BARD_METHODS),
         }
     return outputs
