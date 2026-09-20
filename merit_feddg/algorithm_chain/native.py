@@ -250,8 +250,46 @@ def run_job(job, output):
                     record['arms'][name] = dict(status='complete',text=arm['text'],token_ids=arm['token_ids'],
                                                 reused=True,seconds=None)
                 prepare_start = time.perf_counter()
-                prompt, transport = legacy.restore_context(adapter,row,case,source['generation_config'],limit)
+                rendered = case.get('rendered_context') if job.get('rendered_contexts', False) else None
+                if rendered is not None:
+                    if job['node'] != 'TEST':
+                        raise ValueError('Rendered transport is restricted to explicit TEST jobs')
+                    prompt, transport = rendered['prompt'], rendered['transport']
+                    if [hashlib.sha256(t.encode()).hexdigest() for t in [prompt,*rendered['controls']]] != rendered['prompt_hashes']:
+                        raise ValueError('Frozen rendered contexts changed')
+                else:
+                    prompt, transport = legacy.restore_context(adapter,row,case,source['generation_config'],limit)
                 verify_transport(case,prompt,transport)
+                if job.get('refresh_native_controls', False):
+                    # A new device/runtime must use its own native controls.
+                    # Generate them immediately before this case's candidate,
+                    # inside the same forward ledger; labels remain scorer-only.
+                    if job['node'] != 'TEST':
+                        raise ValueError('Inline native refresh is restricted to explicit TEST jobs')
+                    refresh_start, refresh_forwards = time.perf_counter(), budget.used
+                    for name, text in [('generalist',row['benchmark_prompt']),('compact',prompt)]:
+                        ids, pixels = native_inputs(adapter,row['image'],text)
+                        _sync(model.device)
+                        arm_start, arm_forwards = time.perf_counter(), budget.used
+                        torch.cuda.reset_peak_memory_stats(model.device)
+                        with torch.inference_mode(), adapter._generation_last_token_logits():
+                            native = model.generate(ids,images=pixels,return_dict_in_generate=True,
+                                                    output_scores=True,**settings)
+                        count = len(native.scores)
+                        tokens = native.sequences[0,-count:].tolist() if count else []
+                        answer = adapter.tokenizer.decode(tokens,skip_special_tokens=True).strip()
+                        if not tokens or not answer:
+                            raise ValueError('Empty inline native control')
+                        _sync(model.device)
+                        arm = dict(status='complete',text=answer,token_ids=tokens,reused=False,
+                            seconds=time.perf_counter()-arm_start,measured_forwards=budget.used-arm_forwards,
+                            peak_allocated_bytes=torch.cuda.max_memory_allocated(model.device),
+                            historical_token_match=tokens==case['arms'][name]['token_ids'])
+                        record['arms'][name] = arm
+                        case['arms'][name] = arm
+                        del native, ids, pixels
+                    record['native_refresh_seconds'] = time.perf_counter()-refresh_start
+                    record['native_refresh_forwards'] = budget.used-refresh_forwards
                 ref, rec = prepare_pair(adapter,row['image'],row['benchmark_prompt'],prompt)
                 record['transport_sha256'] = fingerprint(transport)
                 record['prompt_sha256'] = hashlib.sha256(prompt.encode()).hexdigest()
@@ -307,8 +345,11 @@ def run_job(job, output):
                     control_error = None
                     if candidate['algorithm'] == 'project':
                         try:
-                            texts, certificate = build_controls(legacy,adapter,row,case,
-                                source['generation_config'],limit,prompt,transport)
+                            if rendered is not None:
+                                texts, certificate = rendered['controls'], rendered['certificate']
+                            else:
+                                texts, certificate = build_controls(legacy,adapter,row,case,
+                                    source['generation_config'],limit,prompt,transport)
                             controls = [prepare_native(adapter,row['image'],t)[0] for t in texts]
                             record['nuisance_certificate'] = certificate
                         except (ValueError,PathwayError) as error:
