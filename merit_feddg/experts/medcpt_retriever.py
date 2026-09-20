@@ -57,6 +57,8 @@ class MedCPTRetrievalExpert:
         self._reranker = self._reranker_tokenizer = None
         self._manifest = self._read_manifest()
         self._db = None
+        self._faiss_index = None
+        self._faiss_rowids = None
 
     def _read_manifest(self):
         payload = json.loads(self.kb_manifest_path.read_text(encoding="utf-8"))
@@ -141,7 +143,43 @@ class MedCPTRetrievalExpert:
         indices = np.argpartition(values, values.size - k)[-k:]
         return indices[np.argsort(values[indices])[::-1]]
 
+    def _faiss_candidates(self, query):
+        spec = self._manifest.get("faiss")
+        if not spec:
+            return None
+        try:
+            import faiss
+        except ImportError as exc:
+            raise RuntimeError(
+                "This knowledge base was built with FAISS. Install faiss-cpu/faiss-gpu "
+                "in the retrieval environment, or rebuild a small exact-scan pilot."
+            ) from exc
+        if self._faiss_index is None:
+            index_path = self.kb_root / spec["index"]
+            rowids_path = self.kb_root / spec["rowids"]
+            if not index_path.is_file() or not rowids_path.is_file():
+                raise FileNotFoundError("FAISS knowledge-base index is incomplete")
+            self._faiss_index = faiss.read_index(str(index_path))
+            self._faiss_rowids = np.load(rowids_path, mmap_mode="r")
+            if self._faiss_index.ntotal != len(self._faiss_rowids):
+                raise ValueError("FAISS index and rowid mapping have different sizes")
+            if spec.get("backend") == "hnsw":
+                self._faiss_index.hnsw.efSearch = max(64, self.candidate_k * 2)
+        scores, indices = self._faiss_index.search(
+            np.asarray(query, dtype=np.float32)[None, :],
+            min(self.candidate_k, self._faiss_index.ntotal),
+        )
+        result = []
+        for score, index in zip(scores[0], indices[0], strict=True):
+            if index < 0:
+                continue
+            result.append((float(score), int(self._faiss_rowids[index]), -1, int(index)))
+        return result
+
     def _dense_candidates(self, query):
+        indexed = self._faiss_candidates(query)
+        if indexed is not None:
+            return indexed
         candidates = []
         for shard_id, shard in enumerate(self._manifest["shards"]):
             embeddings = np.load(
@@ -272,6 +310,10 @@ class MedCPTRetrievalExpert:
                 "kb_schema": self._manifest["schema"],
                 "kb_fingerprint": self._manifest.get("fingerprint"),
                 "documents_indexed": self._manifest.get("documents"),
+                "index_backend": (
+                    self._manifest.get("faiss", {}).get("backend")
+                    if self._manifest.get("faiss") else "exact_sharded_scan"
+                ),
                 "query_encoder": str(self.query_path),
                 "cross_encoder_used": self._reranker is not None,
                 "target_answers_used": False,
