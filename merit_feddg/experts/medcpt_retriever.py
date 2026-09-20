@@ -141,6 +141,16 @@ class MedCPTRetrievalExpert:
             raise ValueError("MedCPT query encoder returned an invalid vector")
         return result
 
+    def _per_source_candidate_k(self, source_count):
+        if source_count < 1:
+            return self.candidate_k
+        # candidate_k remains the total reranking budget.  Give each source a
+        # deterministic fair share while ensuring top_k can still be filled.
+        return max(
+            self.top_k,
+            (self.candidate_k + source_count - 1) // source_count,
+        )
+
     @staticmethod
     def _topk(scores, k):
         values = np.asarray(scores, dtype=np.float32)
@@ -166,7 +176,9 @@ class MedCPTRetrievalExpert:
 
         if self.source_balance and spec.get("source_indices"):
             result = []
-            for source in spec["source_indices"]:
+            source_specs = spec["source_indices"]
+            per_source_k = self._per_source_candidate_k(len(source_specs))
+            for source in source_specs:
                 source_id = int(source["source_id"])
                 if source_id not in self._faiss_source_indices:
                     index_path = self.kb_root / source["index"]
@@ -187,7 +199,7 @@ class MedCPTRetrievalExpert:
                 index, rowids = self._faiss_source_indices[source_id]
                 scores, indices = index.search(
                     np.asarray(query, dtype=np.float32)[None, :],
-                    min(self.candidate_k, index.ntotal),
+                    min(per_source_k, index.ntotal),
                 )
                 for score, index_value in zip(scores[0], indices[0], strict=True):
                     if index_value < 0:
@@ -227,6 +239,7 @@ class MedCPTRetrievalExpert:
 
         source_vocab = self._manifest.get("source_vocab", [])
         source_aware = self.source_balance and len(source_vocab) > 1
+        per_source_k = self._per_source_candidate_k(len(source_vocab))
         candidates = []
         per_source = {source_id: [] for source_id in range(len(source_vocab))}
         for shard_id, shard in enumerate(self._manifest["shards"]):
@@ -252,7 +265,7 @@ class MedCPTRetrievalExpert:
                         positions = np.flatnonzero(np.asarray(source_ids) == source_id)
                         if not positions.size:
                             continue
-                        local = self._topk(scores[positions], self.candidate_k)
+                        local = self._topk(scores[positions], per_source_k)
                         for local_index in local:
                             index = int(positions[local_index])
                             per_source[source_id].append(
@@ -274,7 +287,7 @@ class MedCPTRetrievalExpert:
             candidates = []
             for source_id, values in per_source.items():
                 values.sort(key=lambda value: (-value[0], value[1]))
-                candidates.extend(values[: self.candidate_k])
+                candidates.extend(values[:per_source_k])
         candidates.sort(key=lambda value: (-value[0], value[1]))
         return candidates if source_aware else candidates[: self.candidate_k]
 
