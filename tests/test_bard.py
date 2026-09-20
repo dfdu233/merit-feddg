@@ -9,6 +9,7 @@ from merit_feddg.bard import (
     bard_step,
     decode_bard,
     decode_bard_bundle,
+    decode_bard_incremental,
     geometric_median,
     single_fault_probe,
 )
@@ -17,6 +18,7 @@ from merit_feddg.bard_protocol import (
     build_isolated_sessions,
     run_bard_bundle,
     run_bard_method,
+    validate_incremental_parity,
     select_bard_descriptors,
 )
 from merit_feddg.capabilities import EvidenceItem
@@ -542,3 +544,65 @@ def test_llava_vision_cache_refuses_different_pixels():
     base.prime_vision_cache()
     with pytest.raises(ValueError, match="identical processed images"):
         other.share_vision_cache_from(base)
+
+
+class IncrementalScoreStream:
+    def __init__(self, rows):
+        self.rows = [np.asarray(row, dtype=float) for row in rows]
+        self.prefix = []
+        self.eos_ids = {2}
+
+    def current_scores(self):
+        return self.rows[len(self.prefix)].copy()
+
+    def commit(self, token):
+        self.prefix.append(int(token))
+        return self.current_scores()
+
+    def decode(self, tokens):
+        return " ".join(map(str, tokens))
+
+
+def test_incremental_bard_matches_reference_on_same_score_trajectory():
+    config = BARDConfig(fault_budget=1)
+    base_rows = [[5, 4, -5], [5, 4, 9]]
+    expert_rows = [[1, 8, -5], [1, 8, 9]]
+    reference = decode_bard(
+        ScoreSession(base_rows),
+        {f"e{i}": ScoreSession(expert_rows) for i in range(3)},
+        max_tokens=2,
+        config=config,
+    )
+    fast = decode_bard_incremental(
+        IncrementalScoreStream(base_rows),
+        {f"e{i}": IncrementalScoreStream(expert_rows) for i in range(3)},
+        max_tokens=2,
+        config=config,
+    )
+    assert fast["token_ids"] == reference["token_ids"] == [1, 2]
+    assert fast["receiver_backend"] == "persistent_kv"
+
+
+def test_incremental_parity_gate_checks_every_receiver_branch():
+    class ParitySession:
+        def __init__(self, ok, delta):
+            self.ok = ok
+            self.delta = delta
+
+        def incremental_parity(self, tokens):
+            return {
+                "prefix_tokens": list(tokens),
+                "all_argmax_equal": self.ok,
+                "max_abs_logit_delta": self.delta,
+                "steps": [],
+            }
+
+    report = validate_incremental_parity(
+        ParitySession(True, 0.1),
+        {"good": ParitySession(True, 0.2), "bad": ParitySession(False, 0.3)},
+        [4, 5, 6],
+        max_steps=2,
+    )
+    assert report["prefix_tokens"] == [4, 5]
+    assert not report["fast_path_allowed"]
+    assert report["max_abs_logit_delta"] == 0.3
