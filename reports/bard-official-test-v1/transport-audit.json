@@ -1,0 +1,13 @@
+{
+  "cloud_cases": 1273,
+  "all_compiled_records_exactly_equal": true,
+  "raw_arrays_preserved_on_host": true,
+  "compiler": "merit_feddg.compact_evidence.compact_records",
+  "compact_native": true,
+  "semantic_spatial": false,
+  "visual_views": 0,
+  "omitted_fields": "Only data/counts within encoded native arrays; already excluded from model-visible compact records",
+  "cloud_queue_sha256": "f1f6f4fea2623e1bb70b4e6c00538977d557592480c4f9bf40c14372ec7b495d",
+  "full_proof_sha256": "0790a89171e1aaca359e17b7c5fb7148b71cc4e97f95278a18fe518bafd56532",
+  "scope": "Transport optimization; no expert, score, hypothesis, prompt or algorithm change"
+}

@@ -1,12 +1,16 @@
-# Current: BARD / HuatuoGPT source validation (2026-09-20)
+# Current: full official TEST explicitly authorized (2026-09-20)
 
-Completed requested fast validation on cloud dual5090 and both host GPUs. User prioritizes HuatuoGPT, VQA-RAD and SLAKE; old C remains stopped. See docs/BARD_SOURCE_VALIDATION_20260920.md and reports/bard-source-validation-v1/huatuo-native-budget.json for execution truth.
+Latest user explicitly authorized full TEST using all four GPUs. This supersedes the previous source-pilot stop decision. Old C remains stopped. Current BARD algorithm, f=1, generation settings and packet rendering are frozen; no TEST-driven tuning.
 
-16 Huatuo cases executed,15 official TRAIN retained after split audit (one inherited proxy-source case is actually TEST and is quarantined). Five clean arms,1024-token native budget; all outputs EOS-finished and native Generalist parity passed. BARD equals Baseline after punctuation/case normalization on15/15 TRAIN cases, with12 structural fallbacks. Two SLAKE mean gains retained by BARD:0/2. No full TEST launch justified. Peak5090 allocated18.67GiB (receiver with cached expert packets).
+Active run: runs/bard-official-test-v1. Full VQA-RAD451 + SLAKE2094. Five clean arms: Generalist, joint_all, isolated_mean, isolated_geomedian, bard; HuatuoGPT-Vision-7B,1024-token budget. Frozen historical native expert packets, fresh receiver/control for every case; not a fresh end-to-end router/expert run. Host queue.jsonl and cloud cloud-queue.jsonl are immutable; cloud omits only array values already discarded by the frozen compact-native compiler. All1273 cloud-case compiled records are exactly equal before/after; proof at runs/bard-official-test-v1/transport-proof.json. Original raw arrays remain on host. References stay offline.
 
-All primary jobs complete. LLaVA auxiliary16-case pilot was stopped for Huatuo priority after10 complete BARD cases; preserve partial outputs, never label it complete. Raw runs under runs/bard-source-v1 (ignored). Final implementation validation below report includes15 targeted tests, changed-file Ruff, and17-task real replay parity after cleanup.
+Four persistent workers: cloud5090GPU0 shard0, cloud5090GPU1 shard1, hostGPU0 shard2, hostGPU1 shard3; global strided schedule, shard_count4. Each case runs all five arms on one device. Cloud workspace /home/dbw/merit-feddg-bard-validation (SSH key /root/.ssh/merit_5090_ed25519, port51493 root@connect.weste.seetacloud.com); Python /root/autodl-tmp/merit-env/bin/python. Host is merit-runner@172.17.0.1 (key /root/.ssh/merit_host_gpu0_ed25519); Python /home/dbw/.runtime/miniconda3/envs/huatuo/bin/python. Host GPU0 unrelated training must remain untouched.
 
-Cloud workspace /home/dbw/merit-feddg-bard-validation; Python /root/autodl-tmp/merit-env/bin/python. Original host uses /home/dbw/.runtime/miniconda3/envs/huatuo/bin/python. Preserve unrelated GPU0 training. Do not resume old C or launch TEST automatically.
+Outputs results/<dataset--case>/{00..04}.json and native-control-shard-0.json. Logs logs/{host0,host1,cloud0,cloud1}.log. Each worker has a100000 receiver-forward guard (400000 new-run maximum); costs persisted per case. On guard hit, preserve results and inspect budget before continuation. Resume the exact same CLI with --resume; worker marker binds queue and code. Do not sync source edits onto a running worker.
+
+Raw delivered-node inventory: VQA4nodes2/451; SLAKE4nodes48/2094. Report BARD coverage separately; structural fallback is not evidence of effective collaborative robustness. Merge exact full IDs before calling results complete. Primary comparison must use matched same-case fresh baselines, with official-source scoring and a separate content diagnostic.
+
+Prior source pilot, split incident and evidence are in docs/BARD_SOURCE_VALIDATION_20260920.md. One official TEST sample was exposed through an old proxy-source cache; it was quarantined from TRAIN. Do not claim pristine TEST. This full run is now explicitly authorized.
 
 ---
 

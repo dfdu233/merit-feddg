@@ -1,0 +1,86 @@
+{
+  "n": 2545,
+  "datasets": {
+    "vqa_rad": 451,
+    "slake": 2094
+  },
+  "node_counts": {
+    "vqa_rad": {
+      "3": 172,
+      "2": 51,
+      "1": 127,
+      "0": 99,
+      "4": 2
+    },
+    "slake": {
+      "1": 771,
+      "2": 160,
+      "3": 674,
+      "4": 48,
+      "0": 441
+    }
+  },
+  "methods": [
+    "generalist",
+    "joint_all",
+    "isolated_mean",
+    "isolated_geomedian",
+    "bard"
+  ],
+  "generation": {
+    "max_new_tokens": 1024,
+    "block_tokens": 1024,
+    "max_expert_calls": 4,
+    "max_decisions": 4,
+    "controller_tokens": 48,
+    "max_evidence_chars": 30000,
+    "visual_views": 0,
+    "evidence_style": "semantic",
+    "request_style": "need",
+    "evidence_top_k": 2,
+    "retrieval_answer_context": false,
+    "visual_mode": "overlay",
+    "behavior_probe": "off",
+    "behavior_max_sensitivity": null,
+    "request_scope_check": false,
+    "uncertainty_from_probe": false,
+    "token_budgeted_evidence": true,
+    "evidence_order": "acquisition",
+    "spatial_weighting": "equal",
+    "vector_gate": "off",
+    "vector_gate_probe_tokens": 64,
+    "vector_gate_min_gain": 1e-06,
+    "semantic_spatial": false,
+    "compact_native": true,
+    "compact_columns": true,
+    "native_entry_transport": false,
+    "claim_attribute_filter": false,
+    "claim_gate_max_checks": 2
+  },
+  "generalist": {
+    "backend": "huatuo",
+    "id": "FreedomIntelligence/HuatuoGPT-Vision-7B",
+    "checkpoint_path": "/home/dbw/models/HuatuoGPT-Vision-7B",
+    "source_path": "/home/dbw/HuatuoGPT-Vision",
+    "anchor_root": "/home/dbw/ANCHOR",
+    "generation_settings": {
+      "do_sample": false,
+      "num_beams": 1,
+      "repetition_penalty": 1.2,
+      "min_new_tokens": 1,
+      "eos_token_id": 151643,
+      "pad_token_id": 151643,
+      "use_cache": true
+    }
+  },
+  "bard": {
+    "fault_budget": 1,
+    "aggregation": "geometric_median",
+    "median_iterations": 12,
+    "median_tolerance": 1e-06,
+    "fault_probe_scale": 8.0
+  },
+  "queue_sha256": "28df799ae867228813032eda4f80e58362e0cd18944763ac5f8085cd4e9e016b",
+  "label_reads": false,
+  "scope": "Complete official TEST, original cached routes/packets, fresh matched Huatuo receiver outputs"
+}
