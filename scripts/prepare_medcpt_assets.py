@@ -78,7 +78,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--models-root", default="artifacts/models")
     parser.add_argument("--pubmed-dir", default="artifacts/knowledge/pubmed-2026-baseline")
-    parser.add_argument("--kb-dir", default="artifacts/knowledge/medcpt-pubmed")
+    parser.add_argument("--kb-dir", default="artifacts/knowledge/medcpt-medcorp")
     parser.add_argument("--statpearls-dir", default="artifacts/knowledge/statpearls")
     parser.add_argument("--baseline-files", type=int, default=1)
     parser.add_argument("--print-commands", action="store_true")
