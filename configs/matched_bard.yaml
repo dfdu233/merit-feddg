@@ -42,6 +42,9 @@ bard:
   median_tolerance: 0.000001
   single_expert_policy: baseline
   pair_policy: unanimous
+  receiver_mode: auto
+  incremental_parity_steps: 3
+  incremental_logprob_tolerance: 0.02
   # Diagnostic-only residual corruption severity; never used for token choice.
   fault_probe_scale: 8.0
 
