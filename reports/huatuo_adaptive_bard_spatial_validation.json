@@ -1,0 +1,62 @@
+{
+  "schema": "huatuo-adaptive-bard-spatial-validation-v1",
+  "base_commit": "4d6416faab2d6191b55d9429dc3c014804fead0c",
+  "validated_code_commit": "dca5012db4f88e0f7fe1ec8ae981b818eb3c5194",
+  "final_head_at_report_creation": "cabbb29f7dd249da8ef82162081f3d85a89231c8",
+  "github_actions": {
+    "run_id": 35538577112,
+    "torch_enabled_job": "open-generation-cpu",
+    "pytest": {
+      "passed": 217,
+      "failed": 0,
+      "seconds": 6.86,
+      "includes": [
+        "tests/test_huatuo_generalist.py",
+        "tests/test_bard.py",
+        "tests/test_medcpt_kb.py",
+        "existing LLaVA/capability integration tests"
+      ]
+    },
+    "huatuo_backend_test_status": "passed",
+    "huatuo_spatial_canary_cli_help": "passed",
+    "new_backend_ruff_status": "huatuo_generalist.py clean after dca5012; check_huatuo_spatial_backend.py import-order finding fixed in later lint-only commit cabbb29",
+    "workflow_green": false,
+    "workflow_blockers": [
+      "generic repository test job installs no torch while collecting existing spatial tests that import torch",
+      "repository-wide Ruff has pre-existing findings in unrelated legacy files"
+    ]
+  },
+  "upstream_contract": {
+    "architecture": "legacy HuatuoGPT-Vision-7B LLaVA-Qwen2",
+    "required_model_type": "llava_qwen2",
+    "official_llava_qwen2_blob_sha": "cc190dd7f27316b93718fd695a00b9aad7f6b82d",
+    "official_cli_blob_sha": "ea168c95b30a45d4ca4a85bc194556e1b2f0bd97",
+    "official_legacy_commit": "98527961ba72065e2384176282843c254bae5d4a",
+    "newer_qwen25_vl_silently_supported": false
+  },
+  "implemented": {
+    "generalist_backend": "huatuo_vision",
+    "same_parameter_free_spatial_operator_as_llava": true,
+    "native_mm_projector_hook": true,
+    "native_prepare_inputs_labels_for_multimodal_new": true,
+    "deterministic_square_padding": true,
+    "adaptive_bard_reference_replay": true,
+    "semantic_plus_native_spatial_branches": true,
+    "factory_and_provenance_support": true,
+    "technical_real_model_canary_entrypoint": "scripts/check_huatuo_spatial_backend.py"
+  },
+  "not_validated": {
+    "real_huatuo_checkpoint_loaded_in_ci": false,
+    "gpu_spatial_canary_run": false,
+    "medical_source_canary_run": false,
+    "medical_accuracy_improvement": false,
+    "huatuo_persistent_kv_fast_path": false,
+    "huatuo_shared_vision_cache": false
+  },
+  "notes": [
+    "The Huatuo adapter targets the legacy LLaVA-Qwen2 checkpoint used by the existing MERIT Huatuo experiments.",
+    "The newer upstream Qwen2.5-VL implementation is treated as a different backend and fails closed.",
+    "Reference prefix replay is intentionally used for the first Huatuo comparison; result quality takes priority over fast-path engineering.",
+    "A real source-image technical canary must pass before benchmark-scale Huatuo generation."
+  ]
+}
