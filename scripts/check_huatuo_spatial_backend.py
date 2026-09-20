@@ -31,6 +31,14 @@ def main():
         default="Describe the image briefly using only visible information.",
     )
     parser.add_argument("--artifacts", default="artifacts")
+    parser.add_argument(
+        "--baseline-parity-json",
+        type=Path,
+        help=(
+            "Optional frozen Huatuo baseline record with prompt, max_new_tokens "
+            "and token_ids. Exact parity is required before spatial testing."
+        ),
+    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
@@ -45,6 +53,40 @@ def main():
         raise RuntimeError("Huatuo spatial bridge unexpectedly has trainable parameters")
     if any(parameter.requires_grad for parameter in probe.model.parameters()):
         raise RuntimeError("Huatuo model must be frozen before the spatial canary")
+
+    parity = None
+    if args.baseline_parity_json:
+        expected = json.loads(
+            args.baseline_parity_json.read_text(encoding="utf-8")
+        )
+        required = {"prompt", "max_new_tokens", "token_ids"}
+        if (
+            not isinstance(expected, dict)
+            or not required <= expected.keys()
+            or not isinstance(expected["prompt"], str)
+            or type(expected["max_new_tokens"]) is not int
+            or expected["max_new_tokens"] < 1
+            or not isinstance(expected["token_ids"], list)
+            or any(type(token) is not int for token in expected["token_ids"])
+        ):
+            raise ValueError(
+                "baseline parity JSON requires prompt:string, "
+                "max_new_tokens:positive-int and token_ids:int-list"
+            )
+        observed = probe.generate_with_usage(
+            args.image,
+            expected["prompt"],
+            expected["max_new_tokens"],
+        )
+        parity = {
+            "expected_tokens": len(expected["token_ids"]),
+            "observed_tokens": len(observed["token_ids"]),
+            "exact_token_parity": observed["token_ids"] == expected["token_ids"],
+        }
+        if not parity["exact_token_parity"]:
+            raise RuntimeError(
+                "Huatuo baseline token parity failed; do not interpret the spatial branch"
+            )
 
     image = load_rgb(args.image)
     height, width = image.height, image.width
@@ -108,6 +150,7 @@ def main():
         "image": str(Path(args.image).resolve()),
         "image_size": [width, height],
         "prompt": args.prompt,
+        "historical_baseline_parity": parity,
         "spatial_records": len(packet),
         "spatial_rejected": list(packet.rejected),
         "bridge_audit": audit,
