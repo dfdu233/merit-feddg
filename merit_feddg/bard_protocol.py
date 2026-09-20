@@ -10,29 +10,18 @@ from .bard import decode_bard_bundle as decode_bundle
 BARD_METHODS = ("isolated_mean", "isolated_geomedian", "bard")
 
 
-def acquire_expert_groups(runtime):
-    """Acquire a frozen budget of tools from clean independent states.
-
-    Every native request is executed from an empty answer/evidence state, so one
-    specialist cannot influence another specialist's request.  Multiple
-    capabilities from the same expert_id are grouped as one Byzantine node to
-    avoid double-counting correlated outputs from one underlying model.
-    """
-    from .capability_runtime import NativeState
-
-    initial = NativeState()
-    candidates = runtime.descriptors(initial)
+def select_bard_descriptors(candidates, specs, max_calls):
+    """Fixed answer-blind BARD acquisition schedule over compatible descriptors."""
+    if type(max_calls) is not int or max_calls < 1:
+        raise ValueError("max_calls must be a positive integer")
 
     def fault_node(descriptor):
         expert = descriptor["expert"]
-        group = runtime.specs[expert].get("fault_group", expert)
+        group = specs[expert].get("fault_group", expert)
         if not isinstance(group, str) or not group.strip():
             raise ValueError(f"expert {expert}: fault_group must be a nonempty string")
         return group.strip()
 
-    # The robust node is a declared failure-correlation group, not blindly a
-    # tool name. Spend the fixed call budget on distinct nodes first; only then
-    # acquire another capability/model from a node already counted once.
     primary_visual, primary_knowledge, repeated = [], [], []
     seen = set()
     for descriptor in candidates:
@@ -45,11 +34,28 @@ def acquire_expert_groups(runtime):
             primary_knowledge.append(descriptor)
         else:
             primary_visual.append(descriptor)
-    # Retrieval expands sparse visual coverage but does not displace an
-    # available patient-image fault group under the same fixed call budget.
-    descriptors = (
-        primary_visual + primary_knowledge + repeated
-    )[: runtime.config.max_expert_calls]
+    return (primary_visual + primary_knowledge + repeated)[:max_calls]
+
+
+def acquire_expert_groups(runtime):
+    """Acquire a frozen budget of tools from clean independent states.
+
+    Every native request is executed from an empty answer/evidence state, so one
+    specialist cannot influence another specialist's request.  Multiple
+    capabilities from the same expert_id are grouped as one Byzantine node to
+    avoid double-counting correlated outputs from one underlying model.
+    """
+    from .capability_runtime import NativeState
+
+    initial = NativeState()
+    candidates = runtime.descriptors(initial)
+    descriptors = select_bard_descriptors(
+        candidates, runtime.specs, runtime.config.max_expert_calls
+    )
+
+    def fault_node(descriptor):
+        expert = descriptor["expert"]
+        return str(runtime.specs[expert].get("fault_group", expert)).strip()
     groups, events, order, members = {}, [], [], {}
     started = perf_counter()
     for descriptor in descriptors:
