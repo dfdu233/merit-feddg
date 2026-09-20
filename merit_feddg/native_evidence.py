@@ -56,7 +56,7 @@ def _relevance(value, question_tokens):
         # Reference answers are deliberately not used to rank retrieved cases.
         text = " ".join(str(value.get(key, "")) for key in (
             "concept", "finding", "label", "anatomical_structure", "semantic_class",
-            "source_question", "generated_text",
+            "source_question", "title", "content", "generated_text",
         ))
     else:
         text = str(value)
@@ -150,8 +150,9 @@ def _has_native_content(payload, capability):
                 if (_nonempty_text(name) and type(score) in (float, int) and math.isfinite(score)):
                     return True
             elif capability == "retrieval" and key == "references":
-                if (_nonempty_text(entry.get("source_question"))
-                        or _nonempty_text(entry.get("source_reference"))):
+                if any(_nonempty_text(entry.get(field)) for field in (
+                    "source_question", "source_reference", "title", "content",
+                )):
                     return True
             elif capability in {"segmentation", "detection"} and key in {
                 "structures", "detections", "boxes", "objects",
