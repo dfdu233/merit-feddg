@@ -153,9 +153,16 @@ def restore_context(adapter, row, case, generation_config, limit):
     class Budget:
         def context_token_budget(self, image, prompt, reserve_tokens):
             ids, _ = native_inputs(adapter, image, prompt)
-            expanded = ids.shape[1] + adapter.model.get_vision_tower().num_patches - 1
-            return dict(fits=expanded + reserve_tokens <= limit, input_tokens=expanded,
-                        remaining_tokens=limit - expanded, reserved_tokens=reserve_tokens)
+            tower = adapter.model.get_vision_tower()
+            selection = getattr(tower, 'select_feature', 'patch')
+            if selection not in ('patch', 'cls_patch'):
+                raise ValueError('Unsupported native visual feature layout')
+            expanded = ids.shape[1] + tower.num_patches + int(selection == 'cls_patch') - 1
+            input_limit = int(adapter.model.config.tokenizer_model_max_length)
+            remaining = min(input_limit - expanded, limit - expanded - reserve_tokens)
+            return dict(fits=remaining >= 0, input_tokens=expanded, input_limit=input_limit,
+                        context_limit=limit, remaining_tokens=remaining, reserved_tokens=reserve_tokens,
+                        budget_policy='native_input_limit_and_cached_output_limit')
 
     items = tuple(EvidenceItem(**e) for e in case['compact_raw']['evidence'])
     session = NativeSession(Budget(), row['image'], row['benchmark_prompt'], row['question'], config)
@@ -239,8 +246,7 @@ def main():
         else:
             write_new(protocol_path, frozen)
         write_new(args.output / ('load-' + str(time.time_ns()) + '.json'), dict(seconds=load_seconds, stage=args.stage))
-        limit = min(int(getattr(model.config, name)) for name in
-                    ('tokenizer_model_max_length', 'max_position_embeddings') if getattr(model.config, name, None))
+        limit = int(model.config.max_position_embeddings)
         eos = settings.get('eos_token_id', model.generation_config.eos_token_id)
         if eos is None:
             raise ValueError('EOS must be explicit in native settings or model generation config')
@@ -268,9 +274,26 @@ def main():
             if digest(original_path) != case_hashes[row['id']]:
                 raise ValueError('Cached source changed after preflight')
             case = read(original_path)
+            torch.cuda.synchronize()
+            preparation_started = time.perf_counter()
             prompt, transport = restore_context(adapter, row, case, source['generation_config'], limit)
+            historical = [t['evidence_transport'] for t in case['compact_raw'].get('trace', [])
+                          if t.get('event') == 'decode' and 'evidence_transport' in t]
+            input_parity = {'historical_prompt_hash': 'not recorded', 'historical_transport': 'not recorded'}
+            if historical:
+                prior = historical[-1]
+                if prior.get('prompt_sha256'):
+                    if transport.get('prompt_sha256') != prior['prompt_sha256']:
+                        raise ValueError('Historical compact prompt hash mismatch: ' + row['id'])
+                    input_parity['historical_prompt_hash'] = 'matched'
+                if transport != prior:
+                    raise ValueError('Historical compact transport mismatch: ' + row['id'])
+                input_parity['historical_transport'] = 'matched'
             reference, receiver = prepare_pair(adapter, row['image'], row['benchmark_prompt'], prompt)
+            torch.cuda.synchronize()
+            preparation_seconds = time.perf_counter() - preparation_started
             result = dict(id=row['id'], identity=frozen['identity'], complete=False,
+                          input_parity=input_parity, preparation_seconds=preparation_seconds,
                           source_case_sha256=case_hashes[row['id']], transport=transport,
                           expanded_tokens=[reference.length, receiver.length],
                           visual_spans=[vars(reference.visual_span), vars(receiver.visual_span)],
@@ -293,6 +316,8 @@ def main():
                     expected = case['arms'][name]['token_ids']
                     ok = native_tokens == expected == off['token_ids']
                     result['parity'][name] = ok
+                    result.setdefault('control_cost', {})[name + '_off'] = {
+                        k: v for k, v in off.items() if k not in ('events', 'token_ids')}
                     if not ok:
                         write_new(args.output / ('failed-parity-' + row['id'] + '.json'),
                                   dict(arm=name, expected=expected, native=native_tokens, replay=off))
@@ -304,6 +329,7 @@ def main():
                     raise RuntimeError('Attention instrumentation changed control tokens')
                 result['parity']['audit'] = True
                 result['parity']['attention_path_exercised'] = bool(audit['events'])
+                result['audit_control'] = audit
             for mode in args.modes:
                 prediction = paired_generate(model, reference, receiver, spec,
                                              PathwayConfig(mode, tuple(args.layers)), context_limit=limit)

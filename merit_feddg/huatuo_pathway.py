@@ -195,6 +195,8 @@ def paired_generate(model, reference, receiver, spec, config=PathwayConfig(), *,
                     base.advance(tokens)
             with restorer.pass_context('receiver', step, receiver.length, receiver.visual_span):
                 logits = target.advance(tokens)
+            if use_shadow and base.cache is target.cache:
+                raise PathwayError('Reference and receiver must own separate KV caches')
             token = spec.select(logits, tokens)
             tokens.append(token)
             if token in spec.eos_token_ids:
@@ -203,6 +205,7 @@ def paired_generate(model, reference, receiver, spec, config=PathwayConfig(), *,
     _sync(receiver.embeds.device)
     return dict(token_ids=tokens, mode=config.mode, effective_mode=active_config.mode,
                 identical_input_bypass=equal, events=events, seconds=time.perf_counter() - started,
+                private_cache_identity_checked=use_shadow,
                 reference_forwards=len(tokens) if use_shadow else 0, receiver_forwards=len(tokens),
                 stop_reason='eos' if tokens[-1] in spec.eos_token_ids else 'length',
                 reference_semantics='same committed prefix, not standalone baseline trajectory',
