@@ -5,8 +5,10 @@ or automatic official TEST launch. READY writes a frozen scale plan only.
 """
 from __future__ import annotations
 import argparse
+from copy import deepcopy
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import time
@@ -18,6 +20,72 @@ from .storage import canonical, digest, fingerprint, freeze_plan, lock, read, ve
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT/'scripts/run_algorithm_chain.py'
+
+
+def freeze_expansion(plan_input, source, output):
+    """Explicit post-stop C expansion; never reopen the original scientific chain."""
+    source, output = Path(source).resolve(), Path(output).resolve()
+    if output.exists():
+        raise ValueError('Expansion requires a new output directory')
+    with lock(source/'.controller.lock'):
+        prior, state = read(source/'plan.json'), read(source/'state.json')
+        if fingerprint({k:v for k,v in prior.items() if k!='identity'}) != prior['identity'] or state['plan_sha'] != prior['identity']:
+            raise ValueError('Predecessor identity mismatch')
+        if state['node'] != 'STOP_NO_CANDIDATE' or state.get('holdout_consumed'):
+            raise ValueError('Only explicit exploratory expansion after an unconfirmed scientific stop')
+        candidate = dict(algorithm='project', layer=None, control='layout_average')
+        if state['candidate'] != candidate or state['attempts'].get('C',0) >= prior['policy']['max_node_attempts']:
+            raise ValueError('Require the fixed C candidate and remaining inherited attempt budget')
+        spec = read(plan_input)
+        if spec.get('confirmation') or spec.get('extension') or spec['policy'] != prior['policy'] or spec['runtime'] != prior['runtime']:
+            raise ValueError('Expansion may not change scientific thresholds/runtime or declare holdouts')
+        for key in ('exposed_pixels','test_pixels'):
+            if spec[key] != prior[key]:
+                raise ValueError('Keep the existing exposure and TEST audit')
+        if spec['scorer']['import_roots'] != prior['scorer']['import_roots'] or any(spec['scorer']['pins'].get(k)!=v for k,v in prior['scorer']['pins'].items()):
+            raise ValueError('Scorer pins must be retained; only new reference files may be added')
+        if not state['history'] or state['history'][-1]['node'] != 'C' or state['history'][-1]['verdict'] not in ('fail','inconclusive'):
+            raise ValueError('Require the preserved completed C scientific decision')
+        spent=0
+        for entry in state['history']:
+            if digest(source/entry['directory']/'decision.json') != entry['report_sha']:
+                raise ValueError('Predecessor decision changed')
+            budget_path=source/entry['directory']/'budget.json'
+            spent += read(budget_path)['used'] if budget_path.exists() else 0
+        for entry in state.get('preflight_costs',[]):
+            if read(source/entry['directory']/'budget.json')['used'] != entry['forwards']:
+                raise ValueError('Preflight cost changed')
+            spent += entry['forwards']
+        if spent != state['forwards_used'] or spent >= prior['policy']['max_total_forwards']:
+            raise ValueError('Inherited budget mismatch or exhaustion')
+        spec.update(experiment_mode='fixed_candidate_exploratory_expansion',
+            expansion=dict(predecessor_plan_sha=prior['identity'],predecessor_state_sha256=digest(source/'state.json'),
+                candidate=candidate,prior_verdict=state['node'],inherited_forwards=state['forwards_used'],
+                interpretation='User-requested exploratory evaluation of additional exposed TRAIN data; never independent confirmation'))
+        plan=freeze_plan(spec,ROOT)
+        administrative={str(ROOT/'merit_feddg/algorithm_chain/cli.py'),str(ROOT/'merit_feddg/algorithm_chain/policy.py')}
+        if any(plan['code_pins'].get(k)!=v for k,v in prior['code_pins'].items() if k not in administrative):
+            raise ValueError('Fixed candidate generation implementation changed')
+        old_pixels={r['pixel_sha256'] for inv in prior['inventory']['development'] for r in inv['records']}
+        new_pixels={r['pixel_sha256'] for inv in plan['inventory']['development'] for r in inv['records']}
+        if old_pixels & new_pixels:
+            raise ValueError('Additional cases must not repeat predecessor images')
+        settings=list(prior['generation'].values())
+        if not settings or any(v!=settings[0] for v in plan['generation'].values()):
+            raise ValueError('Keep the frozen generation parameters')
+        inherited=deepcopy(state)
+        inherited.update(plan_sha=plan['identity'],node='C',experiment_mode=plan['experiment_mode'])
+        inherited.pop('blocked_node',None)
+        inherited['attempts']['C'] += 1
+        with lock(output/'.controller.lock'):
+            for entry in state['history']:
+                shutil.copytree(source/entry['directory'],output/entry['directory'])
+            for entry in state.get('preflight_costs',[]):
+                shutil.copytree(source/entry['directory'],output/entry['directory'])
+            write(output/'predecessor-state.json',state)
+            write(output/'plan.json',plan)
+            write(output/'state.json',inherited)
+        print(plan['identity'])
 
 
 def stage_job(plan, state):
@@ -179,6 +247,10 @@ def execute(output, *, once=False):
             else:
                 write(report_path,report)
             state = transition(state,report,digest(report_path))
+            if plan.get('experiment_mode') == 'fixed_candidate_exploratory_expansion' and report['verdict'] != 'technical_failure':
+                # A favorable exploratory score cannot resurrect the failed
+                # release chain or consume any confirmation dataset.
+                state.update(node='EXPLORATORY_COMPLETE',holdout_consumed=False)
             if budget_path.exists() and read(budget_path).get('exhausted'):
                 state['node'] = 'BLOCKED_BUDGET'
             state['forwards_used'] += spent
@@ -205,6 +277,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest='command',required=True)
     p = commands.add_parser('freeze'); p.add_argument('--plan',required=True); p.add_argument('--output',required=True)
+    p = commands.add_parser('freeze-expansion'); p.add_argument('--plan',required=True)
+    p.add_argument('--source',required=True); p.add_argument('--output',required=True)
     p = commands.add_parser('run'); p.add_argument('--output',required=True); p.add_argument('--once',action='store_true')
     p = commands.add_parser('status'); p.add_argument('--output',required=True)
     p = commands.add_parser('retry'); p.add_argument('--output',required=True)
@@ -216,6 +290,8 @@ def main():
     if a.command=='policy':
         if a.output: write(a.output,DEFAULTS)
         else: print(canonical(DEFAULTS))
+    elif a.command=='freeze-expansion':
+        freeze_expansion(a.plan,a.source,a.output)
     elif a.command=='freeze':
         out = Path(a.output).resolve()
         with lock(out/'.controller.lock'):

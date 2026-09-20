@@ -247,3 +247,21 @@ list `allowed_display_contexts` entries with `pid`, `process_name`, and
 `/usr/bin/nautilus` PID, confirmed C+G in driver XML and using at most 64 MiB.
 Other compute jobs remain rejected. This is a declared resource-policy amendment,
 not an assertion that the GPU has no other context.
+
+### Explicit exploratory expansion after a scientific stop
+
+`freeze-expansion --plan INPUT --source STOPPED_RUN --output NEW_RUN` creates a
+separate, explicitly exploratory evaluation of the frozen C candidate on
+additional official TRAIN queues. It requires a preserved `STOP_NO_CANDIDATE`,
+unchanged candidate-generation code, runtime, scientific thresholds and existing
+scorer pins. It rejects repeated predecessor images, new holdout declarations,
+budget mismatch or exhausted attempts. Existing TEST/exposure registries remain
+in force; prior exposure is allowed only because this is development exploration.
+
+The source remains terminal and unchanged. The successor inherits failures,
+attempts and forwards, increments the C attempt, and runs only C on the added
+cases through the ordinary worker and isolated scorer. A completed expansion
+ends at `EXPLORATORY_COMPLETE` regardless of favorable/unfavorable descriptive
+screening, never D/E or `READY_FOR_SCALE`. Technical failures remain explicitly
+blocked and use the normal bounded retry mechanism. This is not permission to
+relax a prior scientific gate or relabel exposed data as independent evidence.

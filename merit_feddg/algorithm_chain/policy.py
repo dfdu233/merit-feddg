@@ -10,7 +10,8 @@ DEFAULTS = dict(alpha=.05, bootstrap_repetitions=4000, seed=0,
     max_damage_rate=.10, cohort_noninferiority_margin=.02,
     max_seconds_per_case=10.0, max_node_attempts=2, max_total_forwards=200000)
 TERMINAL = {'READY_FOR_SCALE', 'STOP_NO_CANDIDATE', 'STOP_FAILED_CONFIRMATION',
-            'STOP_INCONCLUSIVE', 'BLOCKED_TECHNICAL', 'BLOCKED_DATA', 'BLOCKED_BUDGET'}
+            'STOP_INCONCLUSIVE', 'BLOCKED_TECHNICAL', 'BLOCKED_DATA', 'BLOCKED_BUDGET',
+            'EXPLORATORY_COMPLETE'}
 
 
 def validate_policy(policy):
