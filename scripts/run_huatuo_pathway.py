@@ -213,7 +213,7 @@ def main():
     factory = getattr(importlib.import_module(module), function)
     import torch
     from merit_feddg.huatuo_pathway import GreedySpec, native_inputs, paired_generate, prepare_pair
-    from merit_feddg.pathway_restore import PathwayConfig
+    from merit_feddg.pathway_restore import PathwayConfig, PathwayError
 
     with output_lock(args.output):
         loading_started = time.perf_counter()
@@ -334,9 +334,19 @@ def main():
                 result['parity']['attention_path_exercised'] = bool(audit['events'])
                 result['audit_control'] = audit
             for mode in args.modes:
-                prediction = paired_generate(model, reference, receiver, spec,
-                                             PathwayConfig(mode, tuple(args.layers)), context_limit=limit)
-                prediction['text'] = adapter.tokenizer.decode(prediction['token_ids'], skip_special_tokens=True).strip()
+                try:
+                    prediction = paired_generate(model, reference, receiver, spec,
+                                                 PathwayConfig(mode, tuple(args.layers)), context_limit=limit)
+                    prediction['text'] = adapter.tokenizer.decode(prediction['token_ids'], skip_special_tokens=True).strip()
+                except PathwayError as error:
+                    # Preserve the method's undefined case; never invent a mass
+                    # direction or discard it from the planned denominator.
+                    if 'undefined zero-mass direction' not in str(error) or args.stage == 'canary':
+                        raise
+                    prediction = dict(getattr(error, 'decode_diagnostics', {}),
+                                      failure=str(error), text=None, mode=mode,
+                                      stop_reason='technical_failure', complete_prediction=False)
+                    print('ARM_FAILED', row['id'], mode, str(error), flush=True)
                 result['arms'][mode] = prediction
             result['complete'] = True
             write_new(target, result)

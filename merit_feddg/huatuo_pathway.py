@@ -188,20 +188,34 @@ def paired_generate(model, reference, receiver, spec, config=PathwayConfig(), *,
     if receiver.embeds.device.type == 'cuda':
         torch.cuda.reset_peak_memory_stats(receiver.embeds.device)
     started = time.perf_counter()
-    with torch.inference_mode(), PathwayRestorer(model, active_config) as restorer:
-        for step in range(spec.max_new_tokens):
-            if use_shadow:
-                with restorer.pass_context('reference', step, reference.length, reference.visual_span):
-                    base.advance(tokens)
-            with restorer.pass_context('receiver', step, receiver.length, receiver.visual_span):
-                logits = target.advance(tokens)
-            if use_shadow and base.cache is target.cache:
-                raise PathwayError('Reference and receiver must own separate KV caches')
-            token = spec.select(logits, tokens)
-            tokens.append(token)
-            if token in spec.eos_token_ids:
-                break
-        events = list(restorer.events)
+    try:
+        with torch.inference_mode(), PathwayRestorer(model, active_config) as restorer:
+            for step in range(spec.max_new_tokens):
+                if use_shadow:
+                    with restorer.pass_context('reference', step, reference.length, reference.visual_span):
+                        base.advance(tokens)
+                with restorer.pass_context('receiver', step, receiver.length, receiver.visual_span):
+                    logits = target.advance(tokens)
+                if use_shadow and base.cache is target.cache:
+                    raise PathwayError('Reference and receiver must own separate KV caches')
+                token = spec.select(logits, tokens)
+                tokens.append(token)
+                if token in spec.eos_token_ids:
+                    break
+            events = list(restorer.events)
+    except PathwayError as error:
+        _sync(receiver.embeds.device)
+        error.decode_diagnostics = dict(
+            token_ids=list(tokens), seconds=time.perf_counter() - started,
+            reference_forwards=len(tokens) + 1 if use_shadow else 0,
+            receiver_forwards=len(tokens) + 1, identical_input_bypass=equal,
+            events=getattr(error, 'pathway_events', []),
+            peak_allocated_bytes=(torch.cuda.max_memory_allocated(receiver.embeds.device)
+                                  if receiver.embeds.device.type == 'cuda' else None),
+            peak_reserved_bytes=(torch.cuda.max_memory_reserved(receiver.embeds.device)
+                                 if receiver.embeds.device.type == 'cuda' else None),
+            hooks_removed=not getattr(model, '_merit_pathway_active', False))
+        raise
     _sync(receiver.embeds.device)
     return dict(token_ids=tokens, mode=config.mode, effective_mode=active_config.mode,
                 identical_input_bypass=equal, events=events, seconds=time.perf_counter() - started,

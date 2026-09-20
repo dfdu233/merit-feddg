@@ -236,8 +236,15 @@ class PathwayRestorer:
                 self.events.append(event)
                 return None
             reference = self.references[index][1]
-            delta = restoration_delta(current, reference, self.config.mode)
             event['reference_visual_mass'] = float(reference.mass.mean())
+            event['receiver_zero_mass_heads'] = int((current.mass == 0).sum())
+            try:
+                delta = restoration_delta(current, reference, self.config.mode)
+            except PathwayError as error:
+                event['undefined_mass_heads'] = int(((current.mass == 0) & (reference.mass > 0)).sum())
+                event['delta_norm'] = None
+                error.pathway_events = [*self.events, event]
+                raise
             event['delta_norm'] = float(torch.linalg.vector_norm(delta))
             self.events.append(event)
             if not torch.count_nonzero(delta):
