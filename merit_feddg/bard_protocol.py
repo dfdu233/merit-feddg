@@ -79,7 +79,7 @@ def build_isolated_sessions(native_session, groups):
         or not config.token_budgeted_evidence
     ):
         raise ValueError(
-            "BARD v1 requires token-budgeted semantic-only isolated branches"
+            "BARD requires token-budgeted semantic packets with branch-local native spatial transport"
         )
     probe = native_session.probe
     base = probe.new_answer_session(native_session.image, native_session.prompt)
@@ -113,7 +113,37 @@ def build_isolated_sessions(native_session, groups):
             continue
         if {item.expert_id for item in visible} != {expert}:
             raise ValueError("isolated branch contains evidence from another expert")
-        sessions[expert] = probe.new_answer_session(image, prompt)
+
+        spatial_records = 0
+        spatial_rejected = []
+        if hasattr(probe, "tensor_bridge") and hasattr(probe, "tensor_packet"):
+            packet = probe.tensor_packet(
+                visible,
+                native_session.image,
+                question=native_session.question,
+                weighting=config.spatial_weighting,
+            )
+            spatial_records = len(packet)
+            spatial_rejected = list(packet.rejected)
+            if spatial_records:
+                sessions[expert] = probe.new_tensor_answer_session(
+                    native_session.image,
+                    prompt,
+                    visible,
+                    question=native_session.question,
+                    weighting=config.spatial_weighting,
+                )
+            else:
+                sessions[expert] = probe.new_answer_session(image, prompt)
+        else:
+            sessions[expert] = probe.new_answer_session(image, prompt)
+        audits[expert].update(
+            receiver_channel=(
+                "semantic_plus_native_spatial" if spatial_records else "semantic"
+            ),
+            native_spatial_records=spatial_records,
+            native_spatial_rejected=spatial_rejected,
+        )
     return base, sessions, audits
 
 
@@ -175,12 +205,10 @@ def run_bard_method(native_session, acquisition, bard_config, method):
             "events": acquisition["events"],
         },
         "byzantine_model": {
-            "fault_budget": config.fault_budget,
-            "required_nodes_for_commit": (
-                3 * config.fault_budget + 1
-                if config.fault_budget
-                else 1
-            ),
+            "declared_fault_budget": config.fault_budget,
+            "centralized_condition": "f < n/2",
+            "single_expert_policy": config.single_expert_policy,
+            "two_expert_policy": config.pair_policy,
             "node": "expert_id",
             "medical_correctness_guaranteed": False,
         },
