@@ -102,10 +102,20 @@ preference-alignment module; retrieval is instead treated as one fallible BARD
 expert:
 https://openreview.net/pdf?id=s5epFPdIW6
 
-## 4. Real knowledge base
+## 4. Real multi-source knowledge base
 
-The repository now builds an auditable KB from the real PubMed annual baseline.
-As of 2026, NLM states that the 2026 production baseline contains
+The default KB is now **MedCorp**, not a patient-case cache. It contains
+answer-free biomedical literature with explicit source provenance. The built-in
+sources are PubMed abstracts and StatPearls clinical chapters; additional
+licensed/approved PMC, CPG, textbook, or institutional corpora can be supplied
+through the same answer-free JSONL contract.
+
+This follows the multi-corpus lesson from MedRAG (PubMed + StatPearls +
+textbooks + Wikipedia) and RAG2 (PubMed + PMC + CPG + textbooks), while keeping
+MERIT's first reproducible build limited to sources with explicit local
+preparation paths.
+
+As of 2026, NLM states that the 2026 PubMed production baseline contains
 `pubmed26n0001` through `pubmed26n1334`.
 
 Preparation is explicit; inference never silently downloads models or corpora.
@@ -169,6 +179,15 @@ the pinned local Article Encoder.
 
 ## 5. Efficiency without changing the algorithm
 
+### Implemented now: source-aware retrieval budget
+
+The large PubMed corpus must not drown out smaller clinical sources. The KB
+stores a source ID beside every embedding. Exact scan and optional FAISS/HNSW
+build source-specific candidate pools, split the fixed `candidate_k` budget
+across sources, then apply the same MedCPT cross-encoder reranker. Final top-k
+prefers one document from each source before filling remaining slots by
+relevance. This is deterministic diversity, not a learned source prior.
+
 ### Implemented now: matched-arm score sharing
 
 `isolated_mean`, `isolated_geomedian` and `bard` now run in a bundle.
@@ -212,16 +231,20 @@ This avoids requiring LLaVA-Med, CheXagent, BiomedParse and MedCPT to remain
 simultaneously resident. Compatible Generalist baselines can still be reused
 separately through `--reuse-generalist`.
 
-### Deferred until efficacy signal: persistent KV
+### Implemented experimentally: parity-guarded persistent KV
 
-The reference `next_scores(prefix)` deliberately replays production generation
-because previous FP16 tests showed that naive full-prefill alternatives can
-change near-tied tokens. Persistent per-branch KV state could reduce decoding
-from approximately O(K*T^2) to O(K*T), but it must first pass exact/token-level
-parity canaries.
+The reference `next_scores(prefix)` remains the scientific reference because
+previous FP16 tests showed that alternative execution paths can flip near-tied
+tokens. `receiver_mode: auto` now creates a persistent-KV cursor for every
+receiver branch and compares its normalized next-token log probabilities and
+the resulting BARD commit decision against the replay implementation for a
+fixed canary prefix.
 
-Do not make that engineering change before Adaptive BARD shows useful clean and
-fault-injection behavior.
+If any branch exceeds the declared numerical tolerance, changes the selected
+token, changes commit/abstain, or cannot construct a native cursor, the run
+automatically falls back to replay and records the reason. Only a passing
+canary enables the O(K*T) cursor path. Real-checkpoint parity is therefore an
+experiment precondition, not assumed from CPU unit tests.
 
 ## 6. First experiment before scale
 
