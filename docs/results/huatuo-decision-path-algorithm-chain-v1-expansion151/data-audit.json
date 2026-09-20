@@ -1,0 +1,30 @@
+{
+  "additional_n": 151,
+  "cohorts": [
+    {
+      "cohort": "slake-add64",
+      "distinct_images": 64,
+      "overlap_TEST": 0,
+      "overlap_prior128": 0,
+      "planned": 64,
+      "previously_exposed": true,
+      "source_identity": "905c822687d3d52ce4826f9f04de3a378c55897424c92f6c6f00c116c1de64ce",
+      "source_protocol_sha256": "a32321fedd8e74d5b2b6319236a34a62bd24a971a203d0b2b22bde9d90a5591b"
+    },
+    {
+      "cohort": "vqarad-add87",
+      "distinct_images": 87,
+      "overlap_TEST": 0,
+      "overlap_prior128": 0,
+      "planned": 87,
+      "previously_exposed": true,
+      "source_identity": "050cd806e43ac424183dcb7ffbc1b4775fe01c34ffe7dc4b0d05bb60a1ae1203",
+      "source_protocol_sha256": "03c99b9b37d509a2aa66380e3eaa14f62efe1b580b995454d108cda726f486bf"
+    }
+  ],
+  "cumulative_n": 279,
+  "official_test_inference": false,
+  "patient_independence": "Unknown; not a confirmation claim",
+  "role": "exploratory development only",
+  "sampling": "All cases in both existing complete native TRAIN queues; no score selection"
+}

@@ -1,0 +1,99 @@
+{
+  "schema": "merit-algorithm-chain-v1",
+  "identity": "a505a2d988729d39b0f6c54d561c07574c104229bba59248b0fbfe1c023141fa",
+  "experiment_mode": "fixed_candidate_exploratory_expansion",
+  "policy": {
+    "alpha": 0.05,
+    "bootstrap_repetitions": 4000,
+    "cohort_noninferiority_margin": 0.02,
+    "diagnostic_prefix_tokens": 16,
+    "max_damage_rate": 0.1,
+    "max_node_attempts": 3,
+    "max_seconds_per_case": 10.0,
+    "max_total_forwards": 200000,
+    "min_confirmation_cohorts": 2,
+    "min_confirmation_images": 64,
+    "min_delta": 0.005,
+    "min_development_images": 32,
+    "min_gain_retention": 0.75,
+    "min_images_per_cohort": 24,
+    "min_localization_images": 8,
+    "min_original_gains": 3,
+    "min_original_harms": 3,
+    "min_repaired_harms": 1,
+    "seed": 0
+  },
+  "candidate": {
+    "algorithm": "project",
+    "control": "layout_average",
+    "layer": null
+  },
+  "gpu_uuid": "GPU-3846413a-4238-d307-b1f3-10c2dfbe002c",
+  "device_constraint": "User explicitly permits only host GPU1 for this expansion; no fallback device.",
+  "development": [
+    {
+      "cohort": "slake-add64",
+      "distinct_images": 64,
+      "overlap_TEST": 0,
+      "overlap_prior128": 0,
+      "planned": 64,
+      "previously_exposed": true,
+      "source_identity": "905c822687d3d52ce4826f9f04de3a378c55897424c92f6c6f00c116c1de64ce",
+      "source_protocol_sha256": "a32321fedd8e74d5b2b6319236a34a62bd24a971a203d0b2b22bde9d90a5591b"
+    },
+    {
+      "cohort": "vqarad-add87",
+      "distinct_images": 87,
+      "overlap_TEST": 0,
+      "overlap_prior128": 0,
+      "planned": 87,
+      "previously_exposed": true,
+      "source_identity": "050cd806e43ac424183dcb7ffbc1b4775fe01c34ffe7dc4b0d05bb60a1ae1203",
+      "source_protocol_sha256": "03c99b9b37d509a2aa66380e3eaa14f62efe1b580b995454d108cda726f486bf"
+    }
+  ],
+  "confirmation": [],
+  "extension": [],
+  "generation": {
+    "slake-add64": {
+      "do_sample": false,
+      "eos_token_id": 151643,
+      "max_new_tokens": 1024,
+      "min_new_tokens": 1,
+      "num_beams": 1,
+      "pad_token_id": 151643,
+      "repetition_penalty": 1.2,
+      "use_cache": true
+    },
+    "vqarad-add87": {
+      "do_sample": false,
+      "eos_token_id": 151643,
+      "max_new_tokens": 1024,
+      "min_new_tokens": 1,
+      "num_beams": 1,
+      "pad_token_id": 151643,
+      "repetition_penalty": 1.2,
+      "use_cache": true
+    }
+  },
+  "expansion": {
+    "candidate": {
+      "algorithm": "project",
+      "control": "layout_average",
+      "layer": null
+    },
+    "inherited_forwards": 10164,
+    "interpretation": "User-requested exploratory evaluation of additional exposed TRAIN data; never independent confirmation",
+    "predecessor_plan_sha": "c5ce9086e8e2f68c5d7d241c14cec29b6266687ae6be191405a9613605bb6f13",
+    "predecessor_state_sha256": "8c291d3077b21c48490c21a8139a301f0dc7787067cd0e5d59090a87e4e82521",
+    "prior_verdict": "STOP_NO_CANDIDATE"
+  },
+  "cancelled_device_plan": {
+    "cancellation_sha256": "71cf376d8f981d58be5eb0be361cada6cd54dddca35b482d7000b40a660b309a",
+    "model_forwards": 0,
+    "plan_sha": "5ea2c4fcbda5a516d57b77113e4b92b789d8f98d3eca0f943e4fb8a1d7bf9d01"
+  },
+  "redactions": [
+    "Image/question/answer/reference contents, source IDs and local dataset mappings omitted; raw executable plan remains local."
+  ]
+}

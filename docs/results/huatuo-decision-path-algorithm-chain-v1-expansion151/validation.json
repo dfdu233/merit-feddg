@@ -1,0 +1,13 @@
+{
+  "passed": 134,
+  "failed": 0,
+  "skipped": 0,
+  "seconds": 3.61,
+  "compile": true,
+  "cli_help": true,
+  "shell_syntax": true,
+  "diff_check": true,
+  "host_readable_paths": 355,
+  "native_canary_executed": false,
+  "native_canary_prerequisite": "First two cached cases of each cohort include at least one expert-exposed case; actual parity checks pending."
+}

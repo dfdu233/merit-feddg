@@ -1,0 +1,67 @@
+{
+  "snapshot_utc": "2026-09-20T11:27:19.835427+00:00",
+  "status": "QUEUED_GPU1_RESOURCE",
+  "experiment_mode": "fixed_candidate_exploratory_expansion",
+  "plan_sha": "a505a2d988729d39b0f6c54d561c07574c104229bba59248b0fbfe1c023141fa",
+  "execution_commit": "575385e55471fc2d03bc97018823ccada64fe7c6",
+  "gpu_uuid": "GPU-3846413a-4238-d307-b1f3-10c2dfbe002c",
+  "gpu0_allowed": false,
+  "additional_planned": 151,
+  "additional_processed": 0,
+  "cumulative_planned": 279,
+  "prior_observed": 128,
+  "cohorts": [
+    {
+      "cohort": "slake-add64",
+      "distinct_images": 64,
+      "overlap_TEST": 0,
+      "overlap_prior128": 0,
+      "planned": 64,
+      "previously_exposed": true,
+      "source_identity": "905c822687d3d52ce4826f9f04de3a378c55897424c92f6c6f00c116c1de64ce",
+      "source_protocol_sha256": "a32321fedd8e74d5b2b6319236a34a62bd24a971a203d0b2b22bde9d90a5591b"
+    },
+    {
+      "cohort": "vqarad-add87",
+      "distinct_images": 87,
+      "overlap_TEST": 0,
+      "overlap_prior128": 0,
+      "planned": 87,
+      "previously_exposed": true,
+      "source_identity": "050cd806e43ac424183dcb7ffbc1b4775fe01c34ffe7dc4b0d05bb60a1ae1203",
+      "source_protocol_sha256": "03c99b9b37d509a2aa66380e3eaa14f62efe1b580b995454d108cda726f486bf"
+    }
+  ],
+  "candidate": {
+    "algorithm": "project",
+    "control": "layout_average",
+    "layer": null
+  },
+  "additional_scores": null,
+  "cumulative_scores": null,
+  "ready_for_scale": false,
+  "prior_scientific_status": "STOP_NO_CANDIDATE",
+  "inherited_forwards": 10164,
+  "new_forwards": 0,
+  "total_forward_limit": 200000,
+  "remaining_forwards": 189836,
+  "scheduled_C_attempt": 2,
+  "scheduled_attempt_started": false,
+  "gpu_wait": {
+    "pid": 3475962,
+    "pid_namespace": "container",
+    "minimum_free_memory_mib": 30720,
+    "last_observed_free_memory_mib": 22409,
+    "interval_seconds": 30,
+    "max_checks": 1440,
+    "other_compute_processes_allowed": false,
+    "automatic_fallback_device": false
+  },
+  "gpu0_queue_cancelled": {
+    "pid": 2075033,
+    "model_started": false,
+    "model_forwards": 0
+  },
+  "warning": "Snapshot only: queued resource waiter is not an inference worker and provides no new efficacy evidence.",
+  "interpretation": "Additional exposed TRAIN development evaluation, not independent confirmation or automatic scale eligibility."
+}

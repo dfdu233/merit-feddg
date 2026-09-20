@@ -1,3 +1,17 @@
+# Active expansion — GPU1 only, waiting for resources (2026-09-20 UTC)
+
+- User requested a larger exploratory evaluation of fixed C after STOP_NO_CANDIDATE, then explicitly restricted this expansion to GPU1 only. No GPU0 fallback is allowed.
+- Frozen additional complete native TRAIN queues: SLAKE64 + VQA-RAD87 = 151 cases, no RGB-pixel overlap with prior128/TEST/each other. Cumulative scope279; all added data are historically exposed development data, not independent confirmation.
+- Active plan `a505a2d9…`, output `runs/chain-v1-expansion151-gpu1`, scheduled C-attempt-2. Inherited10164 forwards; added0 at snapshot. Original negative result remains unchanged.
+- Actual detached resource waiter PID3475962 (container), log `runs/chain-v1-expansion151-gpu1/resource-wait.log`. GPU1 UUID `GPU-3846413a-4238-d307-b1f3-10c2dfbe002c`; requires30720MiB free and no other compute process, checks every30s up to1440 checks. Latest verified free22409MiB; no new worker/canary/predictions yet.
+- Superseded GPU0 wait PID2075033 was cancelled before any model launch; cancellation certificate retained in `runs/chain-v1-expansion151`. Never resume that superseded plan.
+- Execution source `575385e`; candidate generation unchanged from `9a55426`. 134 tests passed. Completed added evaluation stops at EXPLORATORY_COMPLETE and cannot automatically enter D/E or READY_FOR_SCALE.
+- [Expansion snapshot and commands](docs/results/huatuo-decision-path-algorithm-chain-v1-expansion151/README.md). Count new output only under C-attempt-2; copied predecessor case files are not new results.
+
+Prior reports below are historical. The latest device restriction above applies to all future work on this expansion.
+
+---
+
 # Decision-path chain complete — A → C → STOP_NO_CANDIDATE (2026-09-20 UTC)
 
 - After explicit authorization for at most 3 attempts per node, native-shape prefix replay repaired the real BF16 cached/full-prefix parity mismatch. Strict equality remained enforced; inherited attempts/1046 forwards and 28 preflight forwards were retained.

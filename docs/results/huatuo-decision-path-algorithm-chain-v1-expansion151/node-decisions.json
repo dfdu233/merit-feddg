@@ -1,0 +1,7 @@
+{
+  "new_decisions": [],
+  "pending": "C-attempt-2",
+  "prior_terminal": "STOP_NO_CANDIDATE",
+  "success_terminal": "EXPLORATORY_COMPLETE",
+  "no_automatic_confirmation": true
+}

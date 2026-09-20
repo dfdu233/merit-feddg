@@ -1,0 +1,8 @@
+{
+  "inherited_forwards": 10164,
+  "new_model_forwards": 0,
+  "new_model_loads": 0,
+  "new_scoring_processes": 0,
+  "resource_wait": "CPU-only resource checks, not charged as model forwards",
+  "cached_baseline_deployment_latency": null
+}
