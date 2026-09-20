@@ -20,14 +20,14 @@ def summarize_bard(outputs):
     reasons = Counter()
     for sample_id, output in outputs.items():
         if not isinstance(sample_id, str) or not isinstance(output, dict):
-            raise ValueError("invalid BARD output record")
+            raise TypeError("invalid BARD output record")
         branches = output.get("expert_branches", [])
         node_counts[len(branches)] += 1
         structural += int(bool(output.get("structural_fallback")))
         sample_departed = False
         for event in output.get("trace", []):
             if not isinstance(event, dict):
-                raise ValueError("invalid BARD trace event")
+                raise TypeError("invalid BARD trace event")
             evaluated_steps += 1
             reasons[str(event.get("reason", "missing"))] += 1
             sample_departed |= bool(event.get("committed"))
