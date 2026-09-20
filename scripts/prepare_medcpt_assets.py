@@ -28,13 +28,29 @@ def print_commands(args):
         print(
             "wget -c "
             f"https://ftp.ncbi.nlm.nih.gov/pubmed/baseline/{name} "
+            f"https://ftp.ncbi.nlm.nih.gov/pubmed/baseline/{name}.md5 "
             f"-P {args.pubmed_dir}"
         )
+    print("# Verify NLM checksums before indexing")
+    print(f"(cd {args.pubmed_dir} && for f in *.xml.gz.md5; do md5sum -c \"$f\"; done)")
     print()
-    print("# Build a pilot KB first; remove --limit only after retrieval validation")
+    print("# StatPearls clinical chapters used as a complementary source in MedRAG")
+    print(f"mkdir -p {args.statpearls_dir}")
+    print(
+        "wget -c https://ftp.ncbi.nlm.nih.gov/pub/litarch/3d/12/"
+        "statpearls_NBK430685.tar.gz "
+        f"-P {args.statpearls_dir}"
+    )
+    print(
+        f"tar -xzf {args.statpearls_dir}/statpearls_NBK430685.tar.gz "
+        f"-C {args.statpearls_dir}"
+    )
+    print()
+    print("# Build a multi-source pilot KB first; remove --limit only after validation")
     print(
         "python scripts/build_medcpt_kb.py "
         f"--pubmed-dir {args.pubmed_dir} "
+        f"--statpearls-dir {args.statpearls_dir} "
         f"--article-encoder {local_path(args.models_root, MODELS['article'])} "
         f"--output {args.kb_dir} --limit 100000"
     )
@@ -63,12 +79,13 @@ def main():
     parser.add_argument("--models-root", default="artifacts/models")
     parser.add_argument("--pubmed-dir", default="artifacts/knowledge/pubmed-2026-baseline")
     parser.add_argument("--kb-dir", default="artifacts/knowledge/medcpt-pubmed")
+    parser.add_argument("--statpearls-dir", default="artifacts/knowledge/statpearls")
     parser.add_argument("--baseline-files", type=int, default=1)
     parser.add_argument("--print-commands", action="store_true")
     parser.add_argument("--download-models", action="store_true")
     args = parser.parse_args()
-    if args.baseline_files < 1:
-        parser.error("--baseline-files must be positive")
+    if not 1 <= args.baseline_files <= 1334:
+        parser.error("--baseline-files must be in [1, 1334] for the 2026 NLM baseline")
 
     missing = []
     for model_id in MODELS.values():
