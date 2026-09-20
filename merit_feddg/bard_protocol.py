@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from time import perf_counter
 
-from .bard import BARDConfig, decode_bard
+from .bard import BARDConfig, decode_bard, decode_bard_bundle as decode_bundle
 
 BARD_METHODS = ("isolated_mean", "isolated_geomedian", "bard")
 
@@ -213,3 +213,64 @@ def run_bard_method(native_session, acquisition, bard_config, method):
             "medical_correctness_guaranteed": False,
         },
     }
+
+
+def run_bard_bundle(native_session, acquisition, bard_config):
+    """Compute all isolated matched arms together and share identical-prefix scores."""
+    config = BARDConfig(**bard_config)
+    base, experts, transport = build_isolated_sessions(
+        native_session, acquisition["groups"]
+    )
+    started = perf_counter()
+    bundle = decode_bundle(
+        base,
+        experts,
+        max_tokens=native_session.config.max_new_tokens,
+        config=config,
+    )
+    decode_seconds = perf_counter() - started
+    evidence = [
+        asdict(item)
+        for values in acquisition["groups"].values()
+        for item in values
+    ]
+    shared = {
+        "native_requests": acquisition["native_requests"],
+        "seconds": acquisition["seconds"],
+        "selection": acquisition["selection"],
+        "events": acquisition["events"],
+    }
+    outputs = {}
+    for method, result in bundle.items():
+        outputs[method] = {
+            **result,
+            "finished": bool(
+                result["token_ids"] and result["token_ids"][-1] in base.eos_ids
+            ),
+            "seconds": decode_seconds,
+            "expert_calls": acquisition["native_requests"],
+            "controller_calls": 0,
+            "probe_model_calls": 0,
+            "probe_seconds": 0.0,
+            "controller_output_tokens": 0,
+            "evidence": evidence,
+            "adopted_evidence_count": sum(
+                value["presented_items"] > 0 for value in transport.values()
+            ),
+            "presented_evidence_count": sum(
+                value["presented_items"] for value in transport.values()
+            ),
+            "isolated_transport": transport,
+            "shared_acquisition": shared,
+            "byzantine_model": {
+                "declared_fault_budget": config.fault_budget,
+                "centralized_condition": "f < n/2",
+                "single_expert_policy": config.single_expert_policy,
+                "two_expert_policy": config.pair_policy,
+                "node": "expert_id",
+                "medical_correctness_guaranteed": False,
+            },
+            "bundle_decode_seconds": decode_seconds,
+            "bundle_amortized_across_methods": list(BARD_METHODS),
+        }
+    return outputs
