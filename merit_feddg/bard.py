@@ -395,6 +395,85 @@ def decode_bard_bundle(
         }
     return outputs
 
+
+
+def decode_bard_incremental(
+    base_stream,
+    expert_streams: Mapping[str, object],
+    *,
+    max_tokens: int,
+    config: BARDConfig,
+    fault_probe=False,
+):
+    """Persistent-KV BARD for one committed trajectory.
+
+    This fast path is intentionally separate from the replay reference decoder.
+    Callers must establish real-model parity before using it for benchmark
+    generation.
+    """
+    if type(max_tokens) is not int or max_tokens < 1:
+        raise ValueError("max_tokens must be positive")
+    names = list(expert_streams)
+    prefix, trace = [], []
+    structural_single = len(names) == 1 and config.single_expert_policy == "baseline"
+
+    for step in range(max_tokens):
+        base_scores = base_stream.current_scores()
+        if structural_single:
+            base_logp, _ = _log_probs(base_scores)
+            token = int(np.argmax(base_logp))
+            expert_scores = []
+            audit = {
+                "reason": "single_expert_unidentifiable",
+                "committed": False,
+                "base_token": token,
+                "candidate_token": token,
+                "selected_token": token,
+                "expert_count": 1,
+                "fault_budget": config.fault_budget,
+                "effective_fault_budget": 0,
+                "required_experts": 2,
+                "consensus_mode": "single",
+                "medical_correctness_guaranteed": False,
+            }
+        else:
+            expert_scores = [
+                expert_streams[name].current_scores() for name in names
+            ]
+            token, audit = bard_step(
+                base_scores,
+                expert_scores,
+                config,
+                aggregation=config.aggregation,
+                bounded_commit=True,
+            )
+        audit["step"] = step
+        audit["experts"] = names
+        audit["receiver_backend"] = "persistent_kv"
+        if fault_probe and expert_scores:
+            audit["fault_probe"] = single_fault_probe(
+                base_scores, expert_scores, config
+            )
+        trace.append(audit)
+        prefix.append(int(token))
+        if token in base_stream.eos_ids:
+            break
+        base_stream.commit(token)
+        for stream in expert_streams.values():
+            stream.commit(token)
+
+    return {
+        "text": base_stream.decode(prefix).strip(),
+        "token_ids": prefix,
+        "trace": trace,
+        "expert_branches": names,
+        "structural_fallback": structural_single,
+        "fault_budget": config.fault_budget,
+        "aggregation": config.aggregation,
+        "bounded_commit": True,
+        "receiver_backend": "persistent_kv",
+    }
+
 def decode_bard(
     base_session,
     expert_sessions: Mapping[str, object],
