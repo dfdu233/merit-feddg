@@ -1,0 +1,63 @@
+{
+  "schema": "adaptive-bard-multisource-kb-v2-validation",
+  "base_commit": "abbb81d0a37c7d56dc80a015a4cf79285ec96f27",
+  "validated_code_commit": "38db8ad32bcc3c50faf17022eaf20f4a422a0dd2",
+  "github_actions": {
+    "run_id": 35536371672,
+    "torch_enabled_job": "open-generation-cpu",
+    "targeted_pytest": {
+      "passed": 213,
+      "failed": 0,
+      "includes": [
+        "Adaptive BARD numerical/protocol tests",
+        "persistent-KV parity/fallback tests",
+        "LLaVA incremental cursor synthetic state test",
+        "MedCPT multi-source KB tests",
+        "existing open-generation/capability/LLaVA integration tests"
+      ]
+    },
+    "asset_cli_smoke": "passed",
+    "new_or_modified_file_ruff_findings": 0,
+    "workflow_green": false,
+    "pre_existing_blockers": [
+      "generic test job installs no torch while collecting existing spatial tests that import torch",
+      "repository-wide Ruff contains unrelated legacy findings"
+    ]
+  },
+  "implemented": {
+    "adaptive_bard": "n=1 baseline/falsification boundary; n=2 unanimous non-forcing; n>=3 centralized robust f<n/2",
+    "fault_independence_unit": "fault_group",
+    "native_spatial_receiver": true,
+    "visual_experts_prioritized_before_knowledge_retrieval": true,
+    "medcpt_medcorp": {
+      "sources": ["PubMed", "StatPearls", "answer-free optional JSONL corpora"],
+      "source_aware_exact_candidates": true,
+      "source_specific_faiss_hnsw": true,
+      "cross_encoder_reranking": true,
+      "fixed_total_candidate_budget": true,
+      "source_diverse_topk": true,
+      "round_robin_bounded_build": true
+    },
+    "persistent_kv_receiver": {
+      "mode": "auto",
+      "reference": "forced-prefix next_scores replay",
+      "canary_tokens": 3,
+      "normalized_logprob_tolerance": 0.02,
+      "fail_closed_to_replay": true
+    },
+    "model_and_kb_preparation_hints": true
+  },
+  "not_validated": {
+    "real_medcpt_weights_loaded": false,
+    "real_pubmed_statpearls_kb_built": false,
+    "real_llava_med_persistent_kv_parity": false,
+    "medical_gpu_efficacy": false,
+    "clinical_correctness": false
+  },
+  "notes": [
+    "CPU/synthetic parity tests do not authorize the persistent-KV path on the real checkpoint; the runtime canary must pass.",
+    "Retrieval passages are general medical knowledge and are not patient-specific visual evidence.",
+    "The knowledge expert does not replace missing image-specialist capacity.",
+    "No target-answer tuning is introduced by this branch."
+  ]
+}
