@@ -1,3 +1,5 @@
+> Superseded by the [actual GPU1 historical-cache parity failure](../huatuo-decision-path-official-test2545-gpu1/README.md). GPU0 waiter cancelled; no queue remains active.
+
 # Full official TEST evaluation: frozen and queued on GPU0
 
 2026-09-20 UTC snapshot. **The user explicitly authorized the complete official TEST datasets. All2545 inputs and genuine cached Baseline/native outputs are verified, but the new C candidate has completed0/2545 cases. No new TEST score or canary pass is claimed.**

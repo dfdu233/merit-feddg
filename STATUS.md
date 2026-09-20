@@ -1,12 +1,12 @@
-# Full official TEST queued — GPU0 resource block (2026-09-20 UTC)
+# Full official TEST blocked after real GPU1 canary (2026-09-20 UTC)
 
-- User explicitly authorized VQA-RAD official TEST451 + SLAKE official TEST2094 (English1061/Chinese1033). Fixed C project/layout_average, no tuning or READY claim. All2545 cached baseline/native cases, complete official IDs and original prompt hashes verified.
-- Frozen output `runs/official-test2545-gpu0-v2`, plan `7b989faa…`, inputs `runs/official-test2545-inputs-v2`. Actual new coverage0/2545, no real canary pass or new TEST score yet.
-- TEST attempt1: nested JSON field sorting changed array ordinals/prompt identity; failed before forwards after model load. Exporter now preserves original order;95 CPU tests passed. Attempt2: another training job acquired GPU0, ownership check failed before model load. Both0 forwards; both preserved. One TEST attempt remains. Original A=3/C=3 history is unchanged.
-- Actual host resource waiter PID2740944, log `runs/official-test2545-gpu0-v2/resource-wait.log`,30s interval,1440 checks (~12h). GPU0 UUID `GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023`; other compute PID2684245 occupied10486 MiB at snapshot. Requires existing strict check_device, no other jobs killed or GPU1 fallback.
-- Waiter is not inference. On resource availability it invokes frozen runner for attempt3, full generation and isolated CPU scoring. Verify live state/cases before reporting. Never duplicate waiter or reset attempts. Raw controller state remains BLOCKED_TEST_TECHNICAL until retry actually starts.
-- Historical44791/200000 forwards retained, new0, remaining155209. Budget increase to1000000 was asked asynchronously but has NOT been authorized; original cap applies.
-- Source/repair HEAD `b877f4b`; unchanged decoder `9a55426`. [Full TEST queue snapshot, provenance, failures, all planned hashed records and commands](docs/results/huatuo-decision-path-official-test2545/README.md).
+- Latest user explicitly requested host GPU1 and continuation to results. Cancelled own GPU0 waiter PID2740944; verified no old controller/worker remains. GPU1 was idle and actual controller2809973/worker executed.
+- Output `runs/official-test2545-gpu1-v1`, plan `ab0ee844…`, GPU UUID `GPU-3846413a-4238-d307-b1f3-10c2dfbe002c`. Full frozen TEST scope451 VQA-RAD +2094 SLAKE; candidate/control completed0/2545, no scores.
+- TEST attempt3 stopped at first generalist canary: native47 tokens == off47 tokens, historical Baseline121 tokens, first divergence token17.94 actual forwards; cumulative44885/200000. Exact cause of historical runtime mismatch not isolated. Do not weaken parity or claim a completed canary.
+- All3 TEST attempts used (prior two were zero-forward JSON-order/resource failures). GPU released; no active GPU jobs or waiters for this task. Original A=3/C=3 history is unchanged.
+- Prepared `scripts/refresh_algorithm_test_controls.py` to regenerate native controls under frozen model/prompts without labels, preserve old caches, measure all costs and check real native/off parity. Not executed. Extended freezer accepts explicitly authorized GPU, completed refresh and attempt ceiling; default3 retained.95 CPU tests pass; new refresh code compiled but not GPU-validated.
+- Pending asynchronous authorization: native cache repair, TEST attempt4, cumulative1000000 forward cap. No affirmative response yet. Do not execute proposed refresh/fourth attempt or silently raise caps until authorization arrives. Proposal `docs/results/huatuo-decision-path-official-test2545-gpu1/proposed-continuation.json`.
+- [Real GPU1 failure, provenance, all2545 planned null records and costs](docs/results/huatuo-decision-path-official-test2545-gpu1/README.md). The earlier queued report is historical and superseded.
 
 ---
 

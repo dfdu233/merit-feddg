@@ -1,0 +1,13 @@
+{
+  "cpu_tests_passed": 95,
+  "cpu_tests_failed": 0,
+  "cpu_tests_skipped": 0,
+  "seconds": 5.06,
+  "compile_passed": true,
+  "diff_check_passed": true,
+  "full_original_prompt_hash_audit": 2545,
+  "native_off_agreement": true,
+  "native_historical_agreement": false,
+  "refresh_code_gpu_tested": false,
+  "refresh_code_executed": false
+}

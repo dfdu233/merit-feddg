@@ -1,0 +1,19 @@
+{
+  "status": "PREPARED_NOT_AUTHORIZED_NOT_EXECUTED",
+  "gpu_uuid": "GPU-3846413a-4238-d307-b1f3-10c2dfbe002c",
+  "scope": 2545,
+  "unchanged_candidate": {
+    "algorithm": "project",
+    "control": "layout_average",
+    "layer": null
+  },
+  "cache_refresh": "Both native Baseline and compact controls under the frozen runtime, with all original expert evidence/transport and prompt hashes retained",
+  "historical_forwards_to_inherit": 44885,
+  "proposed_total_forward_limit": 1000000,
+  "refresh_remaining_limit": 955115,
+  "proposed_test_attempt_limit": 4,
+  "no_training": true,
+  "no_reference_reads_during_inference": true,
+  "no_retuning": true,
+  "pending_user_approval": true
+}

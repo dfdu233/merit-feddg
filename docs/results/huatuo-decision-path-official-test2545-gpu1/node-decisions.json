@@ -1,0 +1,15 @@
+{
+  "state": {
+    "attempts": 3,
+    "inherited_forwards": 44791,
+    "job_sha": "eb9474300d976a07f8d91844b93e6ddad68c25a84a786d954c4307d1b76dd8b6",
+    "new_forwards": 94,
+    "plan_sha": "ab0ee844ebff03a0622747575027cb43562d7b74761398b27989955fceb8ec20",
+    "status": "BLOCKED_TEST_TECHNICAL",
+    "total_forwards": 44885
+  },
+  "prior_train_chain": "STOP_NO_CANDIDATE",
+  "prior_train_expansion": "EXPLORATORY_COMPLETE, fail",
+  "test_scientific_verdict": null,
+  "stop": "Technical cache parity failure, attempt limit reached; no relaxation of native/historical checks"
+}

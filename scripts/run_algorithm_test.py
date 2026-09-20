@@ -17,11 +17,18 @@ from merit_feddg.algorithm_chain.storage import (read, write, digest, fingerprin
 from merit_feddg.algorithm_chain.cli import invoke_child, validate_predictions
 
 
-def freeze(inputs, predecessor, output, max_total_forwards, previous_test=None):
+def freeze(inputs, predecessor, output, max_total_forwards, previous_test=None,
+           gpu_uuid=None, max_evaluation_attempts=3, refreshed_controls=None):
     if output.exists():
         raise FileExistsError('Use a new explicit TEST evaluation directory')
     prior, state = read(predecessor/'plan.json'), read(predecessor/'state.json')
     verify_plan(prior)
+    runtime = deepcopy(prior['runtime'])
+    if gpu_uuid and gpu_uuid != runtime['gpu_uuid']:
+        runtime['gpu_uuid'] = gpu_uuid
+        runtime.pop('allowed_display_contexts',None)
+    if type(max_evaluation_attempts) is not int or max_evaluation_attempts < 1:
+        raise ValueError('Explicit positive TEST attempt ceiling required')
     if state['plan_sha'] != prior['identity'] or state['node'] != 'EXPLORATORY_COMPLETE':
         raise ValueError('Require the completed predecessor without reopening its chain')
     spent = sum(read(predecessor/h['directory']/'budget.json')['used']
@@ -36,7 +43,7 @@ def freeze(inputs, predecessor, output, max_total_forwards, previous_test=None):
                 or previous_state['plan_sha'] != previous['identity']
                 or previous_state['status'] != 'BLOCKED_TEST_TECHNICAL'):
             raise ValueError('Only a preserved technical failure can be repaired')
-        if (previous['candidate'] != state['candidate'] or previous['runtime'] != prior['runtime']
+        if (previous['candidate'] != state['candidate'] or previous['runtime'] != runtime
                 or previous['predecessor_plan_sha'] != prior['identity']):
             raise ValueError('TEST repair cannot change the candidate or model')
         for path, sha in prior['code_pins'].items():
@@ -47,16 +54,32 @@ def freeze(inputs, predecessor, output, max_total_forwards, previous_test=None):
             raise ValueError('Previous TEST cost changed')
         spent = previous['inherited_forwards'] + previous_used
         inherited_test_attempts = previous_state['attempts']
-        if inherited_test_attempts >= 3 or spent >= max_total_forwards:
+        if inherited_test_attempts >= max_evaluation_attempts or spent >= max_total_forwards:
             raise ValueError('TEST attempt/forward budget exhausted')
         test_lineage = dict(directory=str(previous_test),plan_sha=previous['identity'],
             state_sha256=digest(previous_test/'state.json'),new_forwards=previous_used,
             inherited_test_attempts=inherited_test_attempts,
-            reason='Preserve nested evidence field order during cache adaptation; no decoder change')
+            reason='Explicit compatibility/device continuation; preserve every failed attempt and model forward; no decoder change')
     for entry in state['history']:
         if digest(predecessor/entry['directory']/'decision.json') != entry['report_sha']:
             raise ValueError('Historical decision changed')
-    inventories = read(inputs/'inventory.json')
+    refresh_lineage = None
+    if refreshed_controls:
+        finished = read(refreshed_controls/'complete.json')
+        refresh_plan = read(refreshed_controls/'refresh-plan.json')
+        if (finished['identity'] != refresh_plan['identity'] or finished['n'] != 2545
+                or finished['forwards'] != read(refreshed_controls/'budget.json')['used']
+                or refresh_plan['runtime'] != runtime or not previous_test
+                or refresh_plan['input_job_sha256'] != digest(previous_test/'input-job.json')):
+            raise ValueError('Refreshed controls have incompatible lineage or costs')
+        pin_files(refresh_plan['code_pins'])
+        spent += finished['forwards']
+        if spent >= max_total_forwards: raise ValueError('Refresh exhausted cumulative budget')
+        inventories = read(refreshed_controls/'inventory.json')
+        refresh_lineage = dict(directory=str(refreshed_controls),identity=finished['identity'],
+                               forwards=finished['forwards'],complete_sha256=digest(refreshed_controls/'complete.json'))
+    else:
+        inventories = read(inputs/'inventory.json')
     if [(x['dataset'],len(x['records']),x['split']) for x in inventories] != [
             ('vqa_rad',451,'official_test'),('slake',2094,'official_test')]:
         raise ValueError('Only the two complete declared official TEST queues')
@@ -65,7 +88,7 @@ def freeze(inputs, predecessor, output, max_total_forwards, previous_test=None):
     scorer['pins'].update({p:digest(p) for p in scorer['references'].values()})
     code_pins = dict(prior['code_pins'])
     code_pins.update({str(ROOT/'scripts'/name):digest(ROOT/'scripts'/name)
-                     for name in ['prepare_algorithm_test.py','run_algorithm_test.py']})
+                     for name in ['prepare_algorithm_test.py','run_algorithm_test.py','refresh_algorithm_test_controls.py']})
     source_pins = {}
     for inv in inventories:
         source = Path(inv['source_run'])
@@ -81,12 +104,12 @@ def freeze(inputs, predecessor, output, max_total_forwards, previous_test=None):
     pin_files(source_pins)
     plan = dict(schema='merit-explicit-official-test-v1',authorization='User explicitly requested both complete official TEST datasets',
         candidate=state['candidate'],prior_scientific_verdict='fail',ready_for_scale=False,
-        runtime=prior['runtime'],scorer=scorer,code_pins=code_pins,source_pins=source_pins,
+        runtime=runtime,scorer=scorer,code_pins=code_pins,source_pins=source_pins,
         inventories=inventories,generation={i['cohort']:next(iter(prior['generation'].values())) for i in inventories},
         policy=prior['policy'],max_total_forwards=max_total_forwards,inherited_forwards=spent,
         predecessor_plan_sha=prior['identity'],predecessor_state_sha256=digest(predecessor/'state.json'),
-        inherited_attempts=state['attempts'],new_evaluation_max_attempts=3,
-        previous_test=test_lineage,
+        inherited_attempts=state['attempts'],new_evaluation_max_attempts=max_evaluation_attempts,
+        previous_test=test_lineage,refreshed_controls=refresh_lineage,
         interpretation='Full fixed-candidate TEST measurement after a failed development screen; not independent confirmation or retuning')
     plan['identity'] = fingerprint(plan)
     job = dict(schema='merit-explicit-official-test-job-v1',node='TEST',candidate=plan['candidate'],
@@ -151,11 +174,16 @@ if __name__ == '__main__':
     p.add_argument('--inputs',type=Path)
     p.add_argument('--predecessor',type=Path)
     p.add_argument('--previous-test',type=Path)
+    p.add_argument('--gpu-uuid')
+    p.add_argument('--max-evaluation-attempts',type=int,default=3,
+                   help='Raise only with explicit authorization; existing attempts are retained')
+    p.add_argument('--refreshed-controls',type=Path)
     p.add_argument('--max-total-forwards',type=int,default=200000)
     a=p.parse_args()
     if a.command=='freeze':
         if not a.inputs or not a.predecessor: p.error('freeze requires inputs and predecessor')
         freeze(a.inputs.resolve(),a.predecessor.resolve(),a.output.resolve(),a.max_total_forwards,
-               a.previous_test.resolve() if a.previous_test else None)
+               a.previous_test.resolve() if a.previous_test else None,a.gpu_uuid,a.max_evaluation_attempts,
+               a.refreshed_controls.resolve() if a.refreshed_controls else None)
     else:
         run(a.output.resolve())

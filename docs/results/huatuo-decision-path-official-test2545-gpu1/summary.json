@@ -1,0 +1,37 @@
+{
+  "snapshot_utc": "2026-09-20T14:45:54.381061+00:00",
+  "status": "BLOCKED_TEST_TECHNICAL",
+  "plan_sha": "ab0ee844ebff03a0622747575027cb43562d7b74761398b27989955fceb8ec20",
+  "gpu_uuid": "GPU-3846413a-4238-d307-b1f3-10c2dfbe002c",
+  "planned": 2545,
+  "complete_candidate_control": 0,
+  "scores": null,
+  "ready_for_scale": false,
+  "test_attempts": 3,
+  "test_attempt_limit": 3,
+  "inherited_forwards": 44791,
+  "new_forwards": 94,
+  "total_forwards": 44885,
+  "forward_limit": 200000,
+  "remaining_forwards": 155115,
+  "real_native_canaries_passed": 0,
+  "first_canary": {
+    "arm": "generalist",
+    "native_tokens": 47,
+    "off_replay_tokens": 47,
+    "historical_tokens": 121,
+    "native_equals_off": true,
+    "historical_shared_prefix_tokens": 16,
+    "first_difference_one_based": 17,
+    "historical_parity_passed": false
+  },
+  "reason": "Current native/off agree exactly, but cached historical Baseline differs; strict canary stops before candidate generation",
+  "gpu0_waiter_cancelled": true,
+  "background_jobs_active": false,
+  "needs_authorization": {
+    "test_attempt_limit": 4,
+    "total_forward_limit": 1000000,
+    "native_control_cache_refresh": true,
+    "authorized": false
+  }
+}

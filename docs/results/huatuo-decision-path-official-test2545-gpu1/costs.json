@@ -1,0 +1,12 @@
+{
+  "worker_wall_seconds": 37.1330931186676,
+  "model_load_and_provenance_seconds": 22.21349353599362,
+  "native_and_off_forwards": 94,
+  "candidate_forwards": 0,
+  "control_forwards": 0,
+  "offline_scoring_seconds": null,
+  "allocated_peak_off_replay_bytes": 18491127296,
+  "total_campaign_forwards": 44885,
+  "prior_test_failures": "../huatuo-decision-path-official-test2545/costs.json",
+  "note": "Only a failed generalist canary was executed; replay peak is not a full-run or separately measured native peak. No candidate efficacy score."
+}

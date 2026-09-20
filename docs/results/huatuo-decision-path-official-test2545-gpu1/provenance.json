@@ -1,0 +1,34 @@
+{
+  "plan_sha": "ab0ee844ebff03a0622747575027cb43562d7b74761398b27989955fceb8ec20",
+  "job_sha": "eb9474300d976a07f8d91844b93e6ddad68c25a84a786d954c4307d1b76dd8b6",
+  "generation_commit": "9a554268250ef1ff07ca55de35947ac2f04091ee",
+  "execution_sources": "b877f4b (TEST runner/repair); e15a48c (published prior queue snapshot)",
+  "runtime": {
+    "attention_classes": [
+      "Qwen2Attention"
+    ],
+    "gpu_uuid": "GPU-3846413a-4238-d307-b1f3-10c2dfbe002c",
+    "torch": "2.0.1+cu117",
+    "transformers": "4.37.2"
+  },
+  "artifacts": {
+    "plan.json": "98f3bd5ff26ba3560ada5bf66dd87efee71f44db47a337df934381af32757590",
+    "state.json": "0dbb345d87ece2372ef30d2374ca207fbb4bac94d324c2685ac58a3a25ec0fd0",
+    "input-job.json": "15d2494ae926a4f52502328d6985e7c73069ab91753ae4d308be46b964f3cf58",
+    "runtime.json": "81d58a49b35634615fee33685181c2e57dd24e49276ed3367d2467ddd1807205",
+    "budget.json": "4ed639b1eb62eff16a668bc4b0683af383ab9a842f1c08addcc51b65b8180d5e",
+    "parity-failed-2de0aada4a8054996249e81042ca8e4db341c3507a630b5ab132d446c8cb6f0d.json": "af9e95842b6dad62914eda66e539d6a31e5edc33c6c828fa2e1a9572ad7d94e9",
+    "inference-exit-1789914906760235674.json": "ed1a7916d3ca21868db16d8d470b91da408b324017ea24ec86a9b23d0a89b5c4"
+  },
+  "device_migration": {
+    "attempts_inherited": 2,
+    "forwards_inherited": 44791,
+    "gpu_uuid": "GPU-3846413a-4238-d307-b1f3-10c2dfbe002c",
+    "predecessor_plan_sha": "7b989faafb3e1b5aec5c4811034db44dc8610e7742c3774857683a5fdddba13e",
+    "predecessor_state_sha256": "6597c3624193593723e303a512ceb53fa6c57f5a66bf9f824736fb30782ee403",
+    "previous_gpu_uuid": "GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023",
+    "reason": "Latest user explicitly authorized host GPU1; cancelled own GPU0 resource waiter before launch; preserve both failed TEST attempts"
+  },
+  "native_expected_first_case_id_sha256": "7bd332a10c844e7809e3c30414ef76937448612175192adaebed19b506d446e1",
+  "no_raw_answer_export": true
+}
