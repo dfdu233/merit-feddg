@@ -27,6 +27,7 @@ class MedCPTRetrievalExpert:
         top_k: int = 3,
         max_query_tokens: int = 64,
         max_pair_tokens: int = 512,
+        source_balance: bool = True,
     ):
         if min(candidate_k, top_k, max_query_tokens, max_pair_tokens) < 1:
             raise ValueError("MedCPT retrieval budgets must be positive")
@@ -53,6 +54,9 @@ class MedCPTRetrievalExpert:
         self.device_request = device
         self.candidate_k, self.top_k = candidate_k, top_k
         self.max_query_tokens, self.max_pair_tokens = max_query_tokens, max_pair_tokens
+        if type(source_balance) is not bool:
+            raise TypeError("source_balance must be boolean")
+        self.source_balance = source_balance
         self._query_model = self._query_tokenizer = None
         self._reranker = self._reranker_tokenizer = None
         self._manifest = self._read_manifest()
@@ -252,6 +256,27 @@ class MedCPTRetrievalExpert:
         records.sort(key=lambda value: (-value["rerank_score"], -value["dense_score"]))
         return records
 
+    def _select_topk(self, ranked):
+        """Prefer source diversity before filling remaining relevance slots.
+
+        This is deterministic diversity, not a learned source prior. With a
+        single-source KB it is identical to ordinary top-k.
+        """
+        if not self.source_balance or self.top_k <= 1:
+            return ranked[: self.top_k]
+        selected, deferred, seen = [], [], set()
+        for row in ranked:
+            source = str(row.get("source", ""))
+            if source and source not in seen and len(selected) < self.top_k:
+                selected.append(row)
+                seen.add(source)
+            else:
+                deferred.append(row)
+        if len(selected) < self.top_k:
+            selected.extend(deferred[: self.top_k - len(selected)])
+        return selected[: self.top_k]
+
+
     def infer(self, request):
         if request.capability != "retrieval" or request.scope != self.scope:
             return CapabilityResult(
@@ -273,7 +298,7 @@ class MedCPTRetrievalExpert:
                 self.expert_id, request.capability, (), "empty_knowledge_base"
             )
         documents = self._documents(candidates)
-        ranked = self._rerank(query, candidates, documents)[: self.top_k]
+        ranked = self._select_topk(self._rerank(query, candidates, documents))
         items = []
         for rank, row in enumerate(ranked, 1):
             reference = {
@@ -323,6 +348,7 @@ class MedCPTRetrievalExpert:
                         ),
                         "query_encoder": str(self.query_path),
                         "cross_encoder_used": self._reranker is not None,
+                        "source_balance": self.source_balance,
                         "retrieval_query": query,
                         "retrieval_rank": rank,
                         "target_answers_used": False,
