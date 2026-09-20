@@ -114,6 +114,8 @@ def build_isolated_sessions(native_session, groups):
         )
     probe = native_session.probe
     base = probe.new_answer_session(native_session.image, native_session.prompt)
+    if hasattr(base, "prime_vision_cache"):
+        base.prime_vision_cache()
     sessions, audits = {}, {}
     for node, items in groups.items():
         # Reuse the normal matched-evaluation packer, but never put packets from
@@ -167,6 +169,8 @@ def build_isolated_sessions(native_session, groups):
                 sessions[node] = probe.new_answer_session(image, prompt)
         else:
             sessions[node] = probe.new_answer_session(image, prompt)
+        if hasattr(sessions[node], "share_vision_cache_from"):
+            sessions[node].share_vision_cache_from(base)
         audits[node].update(
             fault_group=node,
             member_experts=visible_experts,
@@ -175,6 +179,9 @@ def build_isolated_sessions(native_session, groups):
             ),
             native_spatial_records=spatial_records,
             native_spatial_rejected=spatial_rejected,
+            shared_vision_features=bool(
+                getattr(sessions[node], "_cached_vision_features", None) is not None
+            ),
         )
     return base, sessions, audits
 
