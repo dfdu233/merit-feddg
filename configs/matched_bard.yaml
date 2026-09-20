@@ -33,8 +33,9 @@ capability_value:
     spatial_weighting: equal
     vector_gate_min_gain: 0.000001
 
-# f=1 is a declared fault model. It implies at least 3f+1=4 independent
-# expert_id nodes before BARD is allowed to depart from the Generalist.
+# f=1 is a declared centralized fault model, not distributed Byzantine agreement.
+# n=1 falls back; n=2 requires unanimous non-forcing support; n>=3 uses f<n/2
+# robust aggregation. fault_group, not raw tool count, is the independence unit.
 bard:
   fault_budget: 1
   aggregation: geometric_median
