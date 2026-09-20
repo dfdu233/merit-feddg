@@ -33,15 +33,23 @@ def acquire_expert_groups(runtime):
     # The robust node is a declared failure-correlation group, not blindly a
     # tool name. Spend the fixed call budget on distinct nodes first; only then
     # acquire another capability/model from a node already counted once.
-    primary, repeated, seen = [], [], set()
+    primary_visual, primary_knowledge, repeated = [], [], []
+    seen = set()
     for descriptor in candidates:
         node = fault_node(descriptor)
         if node in seen:
             repeated.append(descriptor)
+            continue
+        seen.add(node)
+        if descriptor["capability"] == "retrieval":
+            primary_knowledge.append(descriptor)
         else:
-            seen.add(node)
-            primary.append(descriptor)
-    descriptors = (primary + repeated)[: runtime.config.max_expert_calls]
+            primary_visual.append(descriptor)
+    # Retrieval expands sparse visual coverage but does not displace an
+    # available patient-image fault group under the same fixed call budget.
+    descriptors = (
+        primary_visual + primary_knowledge + repeated
+    )[: runtime.config.max_expert_calls]
     groups, events, order, members = {}, [], [], {}
     started = perf_counter()
     for descriptor in descriptors:
@@ -76,7 +84,8 @@ def acquire_expert_groups(runtime):
         "seconds": perf_counter() - started,
         "selection": (
             "compatible descriptors under frozen max_expert_calls; distinct "
-            "declared fault_group nodes first, then repeated capabilities"
+            "declared patient-image fault_group nodes first, then retrieval knowledge "
+            "nodes, then repeated capabilities"
         ),
         "fault_group_members": members,
         "answer_labels_used": False,
