@@ -537,6 +537,10 @@ class LlavaMedAnswerSession:
             raise RuntimeError("next_scores replay did not cover the exact prefix")
         return output.scores[-1][0].detach().float().cpu().numpy()
 
+    def open_incremental_cursor(self):
+        """Optional persistent-KV cursor; callers must parity-canary before use."""
+        return LlavaMedIncrementalCursor(self)
+
     def sequence_mean_logp(self, prefix, tokens):
         """One teacher-forced, evidence-free forward per complete candidate.
 
@@ -594,3 +598,127 @@ class LlavaMedAnswerSession:
         if len(ids) > length:
             raise RuntimeError("LLaVA-Med exceeded its block token budget")
         return [Block(ids, self.decode(ids), score, finished)]
+
+
+class LlavaMedIncrementalCursor:
+    """Persistent production-state cursor for one fixed image/prompt branch.
+
+    This removes repeated prefix replay, but it is intentionally not used as an
+    unchecked replacement for :meth:`next_scores`. BARD validates the cursor
+    against the replay implementation before enabling it for an experiment.
+    """
+
+    def __init__(self, session):
+        self.session = session
+        self.generalist = session.generalist
+        self.torch = self.generalist.torch
+        self.model = self.generalist.model
+        self.tokens = []
+        self.forward_calls = 0
+        self._validate_generation_contract()
+        self._prefill()
+
+    def _validate_generation_contract(self):
+        generation = self.model.generation_config
+        for name in (
+            "forced_eos_token_id",
+            "forced_bos_token_id",
+            "forced_decoder_ids",
+            "exponential_decay_length_penalty",
+            "begin_suppress_tokens",
+            "bad_words_ids",
+            "constraints",
+            "force_words_ids",
+            "sequence_bias",
+        ):
+            if getattr(generation, name, None) is not None:
+                raise ValueError(f"incremental cursor does not support {name}")
+        for name in (
+            "min_length",
+            "min_new_tokens",
+            "no_repeat_ngram_size",
+            "encoder_no_repeat_ngram_size",
+        ):
+            if getattr(generation, name, 0):
+                raise ValueError(f"incremental cursor does not support {name}")
+        if getattr(generation, "repetition_penalty", 1.0) != 1.0:
+            raise ValueError("incremental cursor does not support repetition_penalty")
+        if getattr(generation, "num_beams", 1) != 1:
+            raise ValueError("incremental cursor requires greedy num_beams=1")
+
+    def _prefill(self):
+        inputs = dict(self.session.inputs)
+        input_ids = inputs["inputs"]
+        attention_mask = inputs.get("attention_mask")
+        images = inputs.get("images")
+        image_sizes = inputs.get("image_sizes")
+        with self.torch.inference_mode(), self.session._evidence_context():
+            (
+                _input_ids,
+                position_ids,
+                expanded_mask,
+                _past,
+                inputs_embeds,
+                _labels,
+            ) = self.model.prepare_inputs_labels_for_multimodal(
+                input_ids,
+                None,
+                attention_mask,
+                None,
+                None,
+                images,
+                image_sizes=image_sizes,
+            )
+            if inputs_embeds is None:
+                raise RuntimeError("multimodal incremental prefill did not produce embeddings")
+            output = self.model(
+                inputs_embeds=inputs_embeds,
+                attention_mask=expanded_mask,
+                position_ids=position_ids,
+                use_cache=True,
+                return_dict=True,
+            )
+        self.forward_calls += 1
+        self._past = output.past_key_values
+        self._attention_mask = expanded_mask
+        if self._attention_mask is None:
+            length = int(output.logits.shape[1])
+            self._attention_mask = self.torch.ones(
+                (1, length),
+                dtype=self.torch.long,
+                device=output.logits.device,
+            )
+        self._scores = output.logits[0, -1].detach().float().cpu().numpy()
+
+    def scores(self):
+        return self._scores.copy()
+
+    def commit(self, token):
+        token = int(token)
+        device = self.model.get_input_embeddings().weight.device
+        input_ids = self.torch.tensor([[token]], dtype=self.torch.long, device=device)
+        next_mask = self.torch.cat(
+            (
+                self._attention_mask,
+                self.torch.ones(
+                    (self._attention_mask.shape[0], 1),
+                    dtype=self._attention_mask.dtype,
+                    device=self._attention_mask.device,
+                ),
+            ),
+            dim=1,
+        )
+        with self.torch.inference_mode():
+            output = self.model(
+                input_ids=input_ids,
+                attention_mask=next_mask,
+                past_key_values=self._past,
+                use_cache=True,
+                return_dict=True,
+            )
+        self.forward_calls += 1
+        self.tokens.append(token)
+        self._past = output.past_key_values
+        self._attention_mask = next_mask
+        self._scores = output.logits[0, -1].detach().float().cpu().numpy()
+        return self._scores.copy()
