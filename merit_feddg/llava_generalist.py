@@ -474,6 +474,77 @@ class LlavaMedAnswerSession:
         self.generalist = generalist
         self.inputs = generalist._inputs(image, prompt)
         self.tensor_packet = tensor_packet
+        self._cached_vision_features = None
+
+    def prime_vision_cache(self):
+        """Cache frozen vision-tower features before the branch-specific projector.
+
+        BARD branches use the same original image.  Caching here avoids repeated
+        CLIP forwards while still executing mm_projector (and any scoped native
+        spatial hook) independently in every receiver branch.
+        """
+        if self._cached_vision_features is not None:
+            return
+        images = self.inputs.get("images")
+        if isinstance(images, list) or images is None or getattr(images, "ndim", 0) != 4:
+            raise ValueError("BARD vision caching currently requires one tensor image batch")
+        tower = self.generalist.model.get_vision_tower()
+        with self.generalist.torch.inference_mode():
+            features = tower(images)
+        if features.ndim != 3 or features.shape[0] != 1:
+            raise ValueError("vision tower returned an unsupported feature shape")
+        if not self.generalist.torch.isfinite(features).all():
+            raise ValueError("vision tower returned nonfinite features")
+        self._cached_vision_features = features.detach()
+
+    def share_vision_cache_from(self, other):
+        """Reuse another session's raw frozen vision features for the same pixels."""
+        if not isinstance(other, LlavaMedAnswerSession):
+            raise TypeError("vision cache source must be a LLaVA-Med answer session")
+        other.prime_vision_cache()
+        left, right = self.inputs.get("images"), other.inputs.get("images")
+        if (
+            isinstance(left, list)
+            or isinstance(right, list)
+            or left is None
+            or right is None
+            or left.shape != right.shape
+            or left.dtype != right.dtype
+            or left.device != right.device
+            or self.inputs.get("image_sizes") != other.inputs.get("image_sizes")
+            or not self.generalist.torch.equal(left, right)
+        ):
+            raise ValueError("vision cache can only be shared across identical processed images")
+        self._cached_vision_features = other._cached_vision_features
+
+    def _vision_cache_context(self):
+        if self._cached_vision_features is None:
+            return nullcontext()
+        from contextlib import contextmanager
+
+        model = self.generalist.model
+        cached = self._cached_vision_features
+        original = model.encode_images
+
+        @contextmanager
+        def scoped():
+            if getattr(self.generalist, "_vision_cache_hook_active", False):
+                raise RuntimeError("vision feature cache cannot be used reentrantly")
+            self.generalist._vision_cache_hook_active = True
+
+            def encode_images(_images):
+                # Keep the native projector in the execution path.  Spatial
+                # evidence is injected by its scoped forward hook downstream.
+                return model.get_model().mm_projector(cached)
+
+            model.encode_images = encode_images
+            try:
+                yield
+            finally:
+                model.encode_images = original
+                self.generalist._vision_cache_hook_active = False
+
+        return scoped()
 
     def _evidence_context(self):
         if self.tensor_packet is None:
@@ -525,7 +596,11 @@ class LlavaMedAnswerSession:
                 calls += 1
                 return allowed
 
-            with self.generalist.torch.inference_mode(), self._evidence_context():
+            with (
+                self.generalist.torch.inference_mode(),
+                self._vision_cache_context(),
+                self._evidence_context(),
+            ):
                 output = self.generalist.model.generate(
                     **self.inputs, max_new_tokens=len(prefix) + 1, do_sample=False,
                     use_cache=True, return_dict_in_generate=True, output_scores=True,
@@ -578,7 +653,7 @@ class LlavaMedAnswerSession:
                 (inputs["attention_mask"], torch.ones_like(extra)), dim=1
             )
         self.generalist._validate_context(inputs, length)
-        with torch.inference_mode(), self._evidence_context():
+        with torch.inference_mode(), self._vision_cache_context(), self._evidence_context():
             return model.generate(
                 **inputs, max_new_tokens=length, do_sample=False, use_cache=True,
                 return_dict_in_generate=True, output_scores=True,
