@@ -1,3 +1,22 @@
+# Full TEST resumed; innovation assessment in progress (2026-09-20 UTC)
+
+- User explicitly requests running experiments to assess current algorithm feasibility and novelty. Host GPU1 refresh resumed as PID3117593 with identical frozen identity; prior9 cases/936 forwards reused. Output `runs/official-test2545-native-refresh-v1`; latest budget.json is authoritative. GPU0 belongs to another task.
+- Continue native controls for all451 VQA-RAD +2094 SLAKE, then freeze fourth explicit TEST attempt with refreshed controls, unchanged C projection/layout-average and isolated scorer. Preserve inherited44885 forwards plus all refresh costs. User explicitly approved cumulative cap1000000 to complete full evaluation. Running refresh retains its original155115 sub-budget/identity; next TEST freeze uses max_total_forwards1000000 and inherits every spent forward.
+- Evaluate completed results against generalist, compact, matched layout-average; report per-dataset and language strata, image-cluster paired intervals, repairs/retention, actual costs. Do not tune candidate on TEST or claim READY.
+- Literature audit found CAD (Shi2024), VCD (Leng2024), DOCD (Gan2026), invariant nuisance subspaces (Dasgupta2026), and particularly FP-OPD (Xue2026, arXiv2608.01263). Fisher projection of centered log-probability gaps is already used in FP-OPD; current candidate differs by removing a layout-induced span at inference rather than retaining visual tangent corrections for distillation. Novelty claim must be narrow and supported by controls; exact duplication not established.
+
+---
+
+# Official TEST diagnosis — refresh stopped at user request (2026-09-20 UTC)
+
+- Latest steering: investigate cause before further expansion. Own GPU1 refresh PID3088830 paused at9 VQA-RAD cases, then terminated to release GPU; partial output preserved at `runs/official-test2545-native-refresh-v1`.
+- Refresh consumed936 actual forwards; historical44885, cumulative45821/200000. No budget increase authorized. Administrative failed-launch ceiling is not a new permission requirement for already-authorized routine repair; retain all attempts and costs.
+- Native compact matches historical tokens exactly9/9; current native/off canaries pass for both arms on first2 cases. Baseline raw-token comparisons differ9/9, but4/9 are solely terminal EOS: historical `models_oe._decode_generations` deliberately excludes EOS/pad, while current native extraction includes EOS. Remaining5/9 have content differences; first case diverges at token17. EOS mismatch is proven, underlying cause of content divergence remains unresolved. Do not describe all9 as different answers or claim GPU/kernel drift established.
+- All2545 benchmark prompts equal historical runner build_prompt; both canonical manifest hashes match saved configs. Historical runner found by exact SHA: `ANCHOR/anchor/corrected_sgta/run_huatuo_method_full_v1.py` (3fb7cc84...), not generic cross-model runner. Explicit generation settings, adapter hash, model config hash match. Historical Baseline metadata does not establish complete runtime/checkpoint identity.
+- No full TEST candidate evaluation or scores yet. Next: isolate historical Baseline content divergence with a bounded diagnostic; preserve strict native/off checks and normalize token serialization explicitly if comparing old Baseline. Do not silently reuse incompatible caches. Earlier reports below and published GPU1 failure snapshot predate this diagnostic.
+
+---
+
 # Full official TEST blocked after real GPU1 canary (2026-09-20 UTC)
 
 - Latest user explicitly requested host GPU1 and continuation to results. Cancelled own GPU0 waiter PID2740944; verified no old controller/worker remains. GPU1 was idle and actual controller2809973/worker executed.
