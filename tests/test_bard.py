@@ -182,6 +182,12 @@ class FakeRuntime:
     def __init__(self):
         self.config = SimpleNamespace(max_expert_calls=4)
         self.calls = []
+        self.specs = {
+            "a": {"fault_group": "shared-a"},
+            "b": {},
+            "c": {},
+            "d": {},
+        }
 
     def descriptors(self, _state):
         return [
@@ -207,8 +213,9 @@ class FakeRuntime:
 def test_acquisition_uses_clean_states_and_prioritizes_distinct_experts():
     runtime = FakeRuntime()
     result = acquire_expert_groups(runtime)
-    assert list(result["groups"]) == ["a", "b", "c", "d"]
-    assert len(result["groups"]["a"]) == 1
+    assert list(result["groups"]) == ["shared-a", "b", "c", "d"]
+    assert len(result["groups"]["shared-a"]) == 1
+    assert result["fault_group_members"]["shared-a"] == ["a"]
     assert result["native_requests"] == 4
     assert [expert for expert, _, _ in runtime.calls] == ["a", "b", "c", "d"]
     assert all(items == () for _, _, items in runtime.calls)
@@ -400,3 +407,13 @@ def test_protocol_bundle_returns_all_isolated_arms():
     outputs = run_bard_bundle(native, acquisition, {"fault_budget": 1})
     assert set(outputs) == {"isolated_mean", "isolated_geomedian", "bard"}
     assert outputs["bard"]["byzantine_model"]["two_expert_policy"] == "unanimous"
+
+
+def test_fault_group_prevents_two_tools_from_same_failure_family_double_voting():
+    runtime = FakeRuntime()
+    runtime.specs["b"]["fault_group"] = "shared-a"
+    result = acquire_expert_groups(runtime)
+    assert list(result["groups"])[:3] == ["shared-a", "c", "d"]
+    assert result["fault_group_members"]["shared-a"] == ["a"]
+    # b is a repeated correlated node and falls outside the four-call distinct-first budget.
+    assert [expert for expert, _, _ in runtime.calls][:3] == ["a", "c", "d"]
