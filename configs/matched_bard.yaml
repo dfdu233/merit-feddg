@@ -10,8 +10,8 @@ capability_value:
   generation:
     max_new_tokens: 64
     block_tokens: 64
-    max_expert_calls: 5
-    max_decisions: 5
+    max_expert_calls: 6
+    max_decisions: 6
     max_evidence_chars: 30000
     visual_views: 0
     evidence_style: semantic
