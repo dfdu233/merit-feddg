@@ -12,7 +12,6 @@ import json
 import sqlite3
 import xml.etree.ElementTree as ET
 from collections import Counter
-from itertools import chain
 from pathlib import Path
 
 import numpy as np
@@ -314,6 +313,20 @@ def build_faiss_index(root, shards, backend, hnsw_m, source_vocab):
     }
 
 
+def round_robin_records(sources):
+    """Deterministically interleave corpora so a bounded pilot is truly multi-source."""
+    active = [iter(source) for source in sources]
+    while active:
+        remaining = []
+        for source in active:
+            try:
+                yield next(source)
+                remaining.append(source)
+            except StopIteration:
+                continue
+        active = remaining
+
+
 def build(
     records,
     output,
@@ -462,7 +475,7 @@ def main():
     sources.extend(jsonl_records(path) for path in args.jsonl)
     if not sources:
         parser.error("provide at least one of --pubmed-dir, --statpearls-dir, or --jsonl")
-    records = chain.from_iterable(sources)
+    records = round_robin_records(sources)
     result = build(
         records,
         args.output,
