@@ -1,0 +1,48 @@
+{
+  "schema": "adaptive-bard-medcpt-validation-v1",
+  "validated_commit": "690c38ba37f9d4aec78bf3de154327a2d0e0eb7a",
+  "github_actions": {
+    "run_id": 35534646193,
+    "torch_enabled_job": "open-generation-cpu",
+    "pytest": {
+      "passed": 202,
+      "failed": 0,
+      "seconds": 5.47,
+      "includes": [
+        "tests/test_bard.py",
+        "tests/test_medcpt_kb.py",
+        "existing open-generation/capability/LLaVA integration tests"
+      ]
+    },
+    "adaptive_bard_medcpt_ruff_findings": 0,
+    "workflow_green": false,
+    "workflow_blockers": [
+      "generic test job installs no torch while collecting existing spatial tests that import torch",
+      "repository-wide Ruff has pre-existing findings in unrelated legacy files"
+    ]
+  },
+  "implemented": {
+    "adaptive_consensus": "n=1 anchor fallback; n=2 unanimous non-forcing; n>=3 centralized f<n/2 robust aggregation",
+    "fault_unit": "declared fault_group, defaulting to expert_id",
+    "native_spatial_receiver": true,
+    "matched_arm_score_sharing": true,
+    "medcpt_query_encoder": true,
+    "medcpt_cross_encoder_reranker": true,
+    "real_pubmed_kb_builder": true,
+    "optional_faiss_hnsw": true,
+    "explicit_asset_download_helper": true
+  },
+  "not_validated": {
+    "real_medcpt_checkpoint_loaded": false,
+    "real_pubmed_kb_built_in_ci": false,
+    "real_medical_gpu_experiment": false,
+    "clinical_efficacy": false,
+    "persistent_kv_decoder": false,
+    "full_pubmed_2026_index": false
+  },
+  "notes": [
+    "The reference decoder keeps production-prefix replay for correctness-first validation.",
+    "Persistent KV and vision-feature reuse remain deferred until a source-side efficacy signal exists.",
+    "Retrieval relevance is not treated as patient-specific medical correctness."
+  ]
+}
