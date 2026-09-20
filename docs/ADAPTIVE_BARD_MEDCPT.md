@@ -135,7 +135,7 @@ Do not call a one-file pilot the full PubMed corpus.
 
 ### Build a 100k-document pilot KB
 
-    python scripts/build_medcpt_kb.py       --pubmed-dir artifacts/knowledge/pubmed-2026-baseline       --article-encoder artifacts/models/ncbi--MedCPT-Article-Encoder       --output artifacts/knowledge/medcpt-pubmed       --limit 100000
+    python scripts/build_medcpt_kb.py       --pubmed-dir artifacts/knowledge/pubmed-2026-baseline       --article-encoder artifacts/models/ncbi--MedCPT-Article-Encoder       --output artifacts/knowledge/medcpt-medcorp       --limit 100000
 
 The output contains:
 
@@ -152,7 +152,7 @@ fields.
 Exact memory-mapped search is intentionally dependency-light and appropriate for
 a small pilot. A large PubMed KB should use the optional FAISS index:
 
-    python scripts/build_medcpt_kb.py       --pubmed-dir artifacts/knowledge/pubmed-2026-baseline       --article-encoder artifacts/models/ncbi--MedCPT-Article-Encoder       --output artifacts/knowledge/medcpt-pubmed-full       --index-backend hnsw       --hnsw-m 32
+    python scripts/build_medcpt_kb.py       --pubmed-dir artifacts/knowledge/pubmed-2026-baseline       --article-encoder artifacts/models/ncbi--MedCPT-Article-Encoder       --output artifacts/knowledge/medcpt-medcorp-full       --index-backend hnsw       --hnsw-m 32
 
 FAISS is optional and must be installed explicitly in the KB/retrieval
 environment. Do not change the existing LLaVA-Med environment merely to build
