@@ -1,6 +1,7 @@
 import gzip
 import json
 import sqlite3
+
 import numpy as np
 
 from merit_feddg.capabilities import CapabilityRequest
