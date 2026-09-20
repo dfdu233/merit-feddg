@@ -33,12 +33,18 @@ class BARDConfig:
     median_iterations: int = 12
     median_tolerance: float = 1e-6
     fault_probe_scale: float = 8.0
+    single_expert_policy: str = "baseline"
+    pair_policy: str = "unanimous"
 
     def __post_init__(self):
         if type(self.fault_budget) is not int or self.fault_budget < 0:
             raise ValueError("fault_budget must be a nonnegative integer")
         if self.aggregation not in {"mean", "coordinate_median", "geometric_median"}:
             raise ValueError("unsupported BARD aggregation")
+        if self.single_expert_policy not in {"baseline"}:
+            raise ValueError("single expert is not identifiable without an external falsification test")
+        if self.pair_policy not in {"unanimous"}:
+            raise ValueError("two-expert BARD currently supports unanimous non-forcing commit only")
         if type(self.median_iterations) is not int or self.median_iterations < 1:
             raise ValueError("median_iterations must be positive")
         numeric = (self.median_tolerance, self.fault_probe_scale)
@@ -154,29 +160,40 @@ def _decision_from_residuals(
     )
     aggregate_margin = float(combined[candidate_index] - combined[base_index])
 
-    f = config.fault_budget
-    required_experts = 1 if not bounded_commit or f == 0 else 3 * f + 1
-    support_needed = n if f == 0 else n - f
+    declared_f = config.fault_budget
+    # This is a centralized robust-aggregation problem, not distributed
+    # Byzantine agreement.  The usable fault budget is therefore bounded by
+    # f < n/2 rather than a hard 3f+1 communication requirement.
+    effective_f = min(declared_f, max(0, (n - 1) // 2))
+    required_experts = 2 * effective_f + 1 if effective_f else 1
+    support_needed = n if effective_f == 0 else n - effective_f
     supporters = int(np.sum(branch_margins > 0.0))
-    # With n >= 3f+1 and at least n-f positive votes, the f-th lower order
-    # statistic is the lower edge of the surviving honest-majority support.
-    # It is a robustness margin, not a probability of correctness.
     conservative_margin = (
-        float(np.sort(branch_margins)[f])
-        if n > f
+        float(np.sort(branch_margins)[effective_f])
+        if n > effective_f
         else float("-inf")
     )
 
     if candidate_token == base_token:
-        committed, reason = False, "aggregate_agrees_with_base"
+        committed, reason, mode = False, "aggregate_agrees_with_base", "anchor"
     elif not bounded_commit:
-        committed, reason = True, "unprotected_aggregate"
+        committed, reason, mode = True, "unprotected_aggregate", "ablation"
+    elif n == 1:
+        # One fallible expert and one incumbent are observationally
+        # non-identifiable without an additional falsification observation.
+        committed, reason, mode = False, "single_expert_unidentifiable", "single"
+    elif n == 2:
+        # One arbitrary node cannot force a change: both isolated receiver
+        # branches must independently move the same candidate over the anchor.
+        committed = aggregate_margin > 0.0 and supporters == 2 and conservative_margin > 0.0
+        reason = "unanimous_nonforcing_consensus" if committed else "pair_disagreement_or_weak_support"
+        mode = "pair_unanimous"
     elif n < required_experts:
-        committed, reason = False, "insufficient_byzantine_redundancy"
+        committed, reason, mode = False, "insufficient_robust_majority", "robust"
     elif aggregate_margin <= 0.0 or supporters < support_needed or conservative_margin <= 0.0:
-        committed, reason = False, "insufficient_branch_consensus"
+        committed, reason, mode = False, "insufficient_branch_consensus", "robust"
     else:
-        committed, reason = True, "bounded_fault_consensus"
+        committed, reason, mode = True, "centralized_bounded_fault_consensus", "robust"
 
     selected = candidate_token if committed else base_token
     return selected, {
@@ -186,8 +203,10 @@ def _decision_from_residuals(
         "candidate_token": candidate_token,
         "selected_token": int(selected),
         "expert_count": int(n),
-        "fault_budget": int(f),
+        "fault_budget": int(declared_f),
+        "effective_fault_budget": int(effective_f),
         "required_experts": int(required_experts),
+        "consensus_mode": mode,
         "support_needed": int(support_needed),
         "supporters": supporters,
         "base_margin": base_margin,
@@ -283,11 +302,10 @@ def decode_bard(
         raise ValueError("expert branch names must be unique")
     prefix, trace = [], []
 
-    structural_fallback = (
-        bounded_commit
-        and config.fault_budget > 0
-        and len(names) < 3 * config.fault_budget + 1
-    )
+    # Only the truly unidentifiable single-expert case is structurally
+    # short-circuited.  Two experts can use unanimous non-forcing consensus;
+    # three or more use centralized robust aggregation.
+    structural_fallback = bounded_commit and len(names) == 1
     for step in range(max_tokens):
         base_scores = base_session.next_scores(prefix)
         if structural_fallback:
@@ -295,16 +313,21 @@ def decode_bard(
             token = int(np.argmax(base_logp))
             expert_scores = []
             audit = {
-                "reason": "insufficient_byzantine_redundancy",
+                "reason": "single_expert_unidentifiable",
                 "committed": False,
                 "base_token": token,
                 "candidate_token": token,
                 "selected_token": token,
                 "expert_count": len(names),
                 "fault_budget": config.fault_budget,
-                "required_experts": 3 * config.fault_budget + 1,
+                "effective_fault_budget": 0,
+                "required_experts": 2,
+                "consensus_mode": "single",
                 "medical_correctness_guaranteed": False,
-                "interpretation": "structural fallback; no expert branch was evaluated",
+                "interpretation": (
+                    "single-expert structural fallback; an external falsification "
+                    "observation is required before allowing this node to force a change"
+                ),
             }
         else:
             expert_scores = [
