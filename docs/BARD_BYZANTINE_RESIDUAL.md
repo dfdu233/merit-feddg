@@ -151,6 +151,16 @@ Use source-side/canary data first. Do not use target results to change
 `fault_budget`, expert count, aggregation method, or commit rules and then
 report the same target as independent evaluation.
 
+After a fully merged run, mechanism coverage can be audited without references:
+
+    python scripts/audit_bard.py \
+      --run /absolute/path/to/completed-bard-run \
+      --output /absolute/path/to/bard-audit.json
+
+The audit reports independent-node coverage, structural fallbacks, actual BARD
+departures, and single-fault retention/fallback. It does not score medical
+correctness.
+
 ## First falsification experiment
 
 Before any large benchmark, report:
