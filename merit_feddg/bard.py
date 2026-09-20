@@ -35,6 +35,9 @@ class BARDConfig:
     fault_probe_scale: float = 8.0
     single_expert_policy: str = "baseline"
     pair_policy: str = "unanimous"
+    receiver_mode: str = "replay"
+    incremental_canary_tokens: int = 3
+    incremental_logprob_tolerance: float = 0.02
 
     def __post_init__(self):
         if type(self.fault_budget) is not int or self.fault_budget < 0:
@@ -45,9 +48,17 @@ class BARDConfig:
             raise ValueError("single expert is not identifiable without an external falsification test")
         if self.pair_policy not in {"unanimous"}:
             raise ValueError("two-expert BARD currently supports unanimous non-forcing commit only")
+        if self.receiver_mode not in {"replay", "auto"}:
+            raise ValueError("receiver_mode must be replay or auto")
+        if type(self.incremental_canary_tokens) is not int or self.incremental_canary_tokens < 1:
+            raise ValueError("incremental_canary_tokens must be positive")
         if type(self.median_iterations) is not int or self.median_iterations < 1:
             raise ValueError("median_iterations must be positive")
-        numeric = (self.median_tolerance, self.fault_probe_scale)
+        numeric = (
+            self.median_tolerance,
+            self.fault_probe_scale,
+            self.incremental_logprob_tolerance,
+        )
         if any(not np.isfinite(v) or v <= 0 for v in numeric):
             raise ValueError("numeric BARD controls must be finite and positive")
 
@@ -292,6 +303,7 @@ def decode_bard_bundle(
     *,
     max_tokens: int,
     config: BARDConfig,
+    methods=None,
 ):
     """Run matched mean/geomedian/BARD arms while sharing identical-prefix scores.
 
@@ -304,11 +316,15 @@ def decode_bard_bundle(
     names = list(expert_sessions)
     if len(names) != len(set(names)):
         raise ValueError("expert branch names must be unique")
-    policies = {
+    all_policies = {
         "isolated_mean": {"aggregation": "mean", "bounded": False},
         "isolated_geomedian": {"aggregation": "geometric_median", "bounded": False},
         "bard": {"aggregation": "geometric_median", "bounded": True},
     }
+    selected = tuple(all_policies) if methods is None else tuple(methods)
+    if not selected or any(name not in all_policies for name in selected):
+        raise ValueError("unknown or empty BARD bundle method set")
+    policies = {name: all_policies[name] for name in selected}
     states = {
         name: {"prefix": [], "trace": [], "finished": False}
         for name in policies
@@ -394,6 +410,213 @@ def decode_bard_bundle(
             "shared_score_calls_bundle": score_calls,
         }
     return outputs
+
+def _normalized_score_error(reference, candidate):
+    reference_logp, reference_mask = _log_probs(reference)
+    candidate_logp, candidate_mask = _log_probs(candidate)
+    if (
+        reference_logp.shape != candidate_logp.shape
+        or not np.array_equal(reference_mask, candidate_mask)
+    ):
+        return float("inf")
+    delta = np.abs(
+        reference_logp[reference_mask] - candidate_logp[candidate_mask]
+    )
+    return float(delta.max(initial=0.0))
+
+
+def validate_incremental_receiver(
+    base_session,
+    expert_sessions: Mapping[str, object],
+    config: BARDConfig,
+):
+    """Compare persistent-KV scores against replay before enabling the fast path."""
+    sessions = [base_session, *expert_sessions.values()]
+    if not all(hasattr(session, "open_incremental_cursor") for session in sessions):
+        return {
+            "available": False,
+            "passed": False,
+            "reason": "incremental_cursor_unavailable",
+            "tokens_checked": 0,
+        }
+
+    try:
+        cursors = [session.open_incremental_cursor() for session in sessions]
+    except (ValueError, TypeError, RuntimeError, AttributeError) as exc:
+        return {
+            "available": True,
+            "passed": False,
+            "reason": f"cursor_initialization_failed:{type(exc).__name__}:{exc}",
+            "tokens_checked": 0,
+        }
+
+    prefix = []
+    max_error = 0.0
+    for step in range(config.incremental_canary_tokens):
+        replay = [session.next_scores(prefix) for session in sessions]
+        fast = [cursor.scores() for cursor in cursors]
+        errors = [
+            _normalized_score_error(reference, candidate)
+            for reference, candidate in zip(replay, fast, strict=True)
+        ]
+        max_error = max(max_error, *errors)
+        if any(error > config.incremental_logprob_tolerance for error in errors):
+            return {
+                "available": True,
+                "passed": False,
+                "reason": "normalized_logprob_mismatch",
+                "tokens_checked": step,
+                "max_normalized_logprob_error": max_error,
+            }
+
+        replay_token, replay_audit = bard_step(
+            replay[0], replay[1:], config,
+            aggregation="geometric_median", bounded_commit=True,
+        )
+        fast_token, fast_audit = bard_step(
+            fast[0], fast[1:], config,
+            aggregation="geometric_median", bounded_commit=True,
+        )
+        if (
+            replay_token != fast_token
+            or replay_audit["committed"] != fast_audit["committed"]
+            or replay_audit["consensus_mode"] != fast_audit["consensus_mode"]
+        ):
+            return {
+                "available": True,
+                "passed": False,
+                "reason": "bard_commit_mismatch",
+                "tokens_checked": step,
+                "max_normalized_logprob_error": max_error,
+            }
+        prefix.append(int(replay_token))
+        if replay_token in base_session.eos_ids:
+            break
+        for cursor in cursors:
+            cursor.commit(replay_token)
+
+    return {
+        "available": True,
+        "passed": True,
+        "reason": "replay_parity_passed",
+        "tokens_checked": len(prefix),
+        "max_normalized_logprob_error": max_error,
+        "reference": "next_scores_forced_prefix_replay",
+    }
+
+
+def decode_bard_incremental(
+    base_session,
+    expert_sessions: Mapping[str, object],
+    *,
+    max_tokens: int,
+    config: BARDConfig,
+    fault_probe=False,
+):
+    """Persistent-KV BARD decode after an external replay-parity canary."""
+    base_cursor = base_session.open_incremental_cursor()
+    expert_cursors = {
+        name: session.open_incremental_cursor()
+        for name, session in expert_sessions.items()
+    }
+    names = list(expert_cursors)
+    prefix, trace = [], []
+    structural_fallback = len(names) == 1 and config.single_expert_policy == "baseline"
+
+    for step in range(max_tokens):
+        base_scores = base_cursor.scores()
+        if structural_fallback:
+            base_logp, _ = _log_probs(base_scores)
+            token = int(np.argmax(base_logp))
+            expert_scores = []
+            audit = {
+                "reason": "single_expert_unidentifiable",
+                "committed": False,
+                "base_token": token,
+                "candidate_token": token,
+                "selected_token": token,
+                "expert_count": 1,
+                "fault_budget": config.fault_budget,
+                "effective_fault_budget": 0,
+                "required_experts": 2,
+                "consensus_mode": "single",
+                "medical_correctness_guaranteed": False,
+            }
+        else:
+            expert_scores = [
+                expert_cursors[name].scores() for name in names
+            ]
+            token, audit = bard_step(
+                base_scores,
+                expert_scores,
+                config,
+                aggregation="geometric_median",
+                bounded_commit=True,
+            )
+            if fault_probe:
+                audit["fault_probe"] = single_fault_probe(
+                    base_scores, expert_scores, config
+                )
+        audit["step"] = step
+        audit["experts"] = names
+        trace.append(audit)
+        prefix.append(int(token))
+        if token in base_session.eos_ids:
+            break
+        base_cursor.commit(token)
+        for cursor in expert_cursors.values():
+            cursor.commit(token)
+
+    return {
+        "text": base_session.decode(prefix).strip(),
+        "token_ids": prefix,
+        "trace": trace,
+        "expert_branches": names,
+        "structural_fallback": structural_fallback,
+        "fault_budget": config.fault_budget,
+        "aggregation": "geometric_median",
+        "bounded_commit": True,
+        "receiver_backend": "persistent_kv",
+        "incremental_forward_calls": (
+            base_cursor.forward_calls
+            + sum(cursor.forward_calls for cursor in expert_cursors.values())
+        ),
+    }
+
+
+def decode_bard_auto(
+    base_session,
+    expert_sessions: Mapping[str, object],
+    *,
+    max_tokens: int,
+    config: BARDConfig,
+    fault_probe=False,
+):
+    """Use persistent KV only after replay parity; otherwise fail back to reference."""
+    parity = validate_incremental_receiver(base_session, expert_sessions, config)
+    if parity["passed"]:
+        result = decode_bard_incremental(
+            base_session,
+            expert_sessions,
+            max_tokens=max_tokens,
+            config=config,
+            fault_probe=fault_probe,
+        )
+        result["incremental_parity"] = parity
+        return result
+    result = decode_bard(
+        base_session,
+        expert_sessions,
+        max_tokens=max_tokens,
+        config=config,
+        aggregation="geometric_median",
+        bounded_commit=True,
+        fault_probe=fault_probe,
+    )
+    result["receiver_backend"] = "replay"
+    result["incremental_parity"] = parity
+    return result
+
 
 def decode_bard(
     base_session,
