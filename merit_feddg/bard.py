@@ -11,8 +11,8 @@ This is a robustness mechanism, not a medical correctness certificate.
 """
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Mapping
 
 import numpy as np
 
