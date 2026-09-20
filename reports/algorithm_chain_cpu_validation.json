@@ -1,0 +1,39 @@
+{
+  "schema": "algorithm-chain-cpu-validation-v1",
+  "base_commit": "0be2c3cdc3a89f6119ac73d163c6436e3070798e",
+  "python": "3.13.5",
+  "torch": "2.10.0+cpu",
+  "cuda_available": false,
+  "command": "OMP_NUM_THREADS=1 PYTHONPATH=. python -m pytest tests/test_algorithm_chain.py tests/test_algorithm_chain_controller.py -q --disable-warnings",
+  "results": {
+    "passed": 81,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 4.66
+  },
+  "compile_passed": true,
+  "cli_help_passed": true,
+  "shell_syntax_passed": true,
+  "trailing_whitespace_passed": true,
+  "validation_scope": "New-module CPU tests: actual synthetic six-block transformer with GQA and KV caches; numerical projections; source/score contracts; finite-state branches; synthetic child-artifact end-to-end orchestration and resume. No pretrained medical weights.",
+  "full_repository_suite_run": false,
+  "real_huatuo_tested": false,
+  "gpu_experiment_run": false,
+  "clinical_efficacy_evaluated": false,
+  "base_dependency_scope": "Local tests imported PreparedPrompt/_Stream and PathwayError from the existing 7cd12f0 attachment. The consumed interfaces were inspected at 0be2c3c and are unchanged; this is not a full checkout/runtime parity claim. Server native canary remains mandatory.",
+  "files": {
+    "merit_feddg/algorithm_chain/__init__.py": "253db390448452daf3a5ed8461f185cd644c10b912962749e53286bd242b9377",
+    "merit_feddg/algorithm_chain/cli.py": "de814183b03eb5b765dbdd9ba89f97ed77885cae1309b868b692b0f6acee323b",
+    "merit_feddg/algorithm_chain/decoding.py": "8896aee26d81e12ded3acb491e7f15c53bb582e698ce3b5d1e394d95330478d4",
+    "merit_feddg/algorithm_chain/native.py": "9b4c88b2548dd3932b3f84384edc4437571256c66b8583831476f18eac8cd7ae",
+    "merit_feddg/algorithm_chain/policy.py": "5d4021efdad185ddfb1402ee42d5fb4834a43fbcaf46b3d2b5f36a3218bc6a39",
+    "merit_feddg/algorithm_chain/statistics.py": "a0e4986df57774ceda29a24b75930f39a0338021954d925bfb055b6972f151f2",
+    "merit_feddg/algorithm_chain/storage.py": "c78540cc5ebc6aa44d1afafdbdca26ea0e0efb38e0d4fa178fb09493a626eaae",
+    "tests/test_algorithm_chain.py": "6020a6aa4f50fcc1a659323a9bac0974cc06d37ada5ca8ad55b9db8b8f3cc32f",
+    "tests/test_algorithm_chain_controller.py": "ecf549e5853172d08e18d46f29efa4d848c01fc7bcb25d0ae36991c9504a79d0",
+    "scripts/run_algorithm_chain.py": "fd9fda9836f2d2df31e6c47fb9935ad2a8beeb58aedc3bc7b7515daaf22b30a8",
+    "scripts/run_algorithm_chain_detached.sh": "5baebf0c8992e1727f4099efad9f7eab2331a70dc0c03f1ca0ebf902f3b989c8",
+    "docs/ALGORITHM_CHAIN_V1.md": "bbbb94f2f130cd52a6c39643e14188be696265322d8342c4d062ce7ab4d43eb8",
+    "configs/algorithm_chain_v1.json": "db7c33d0cc3a60921dca52d5f70ce379af0a6ac6f9cea896c2ba015354dfb9b1"
+  }
+}
