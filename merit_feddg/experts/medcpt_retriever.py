@@ -252,6 +252,19 @@ class MedCPTRetrievalExpert:
         records.sort(key=lambda value: (-value["rerank_score"], -value["dense_score"]))
         return records
 
+    def close(self):
+        if self._db is not None:
+            self._db.close()
+            self._db = None
+        self._faiss_index = None
+        self._faiss_rowids = None
+        self._query_model = None
+        self._query_tokenizer = None
+        self._reranker = None
+        self._reranker_tokenizer = None
+        if hasattr(self, "torch") and self.torch.cuda.is_available():
+            self.torch.cuda.empty_cache()
+
     def infer(self, request):
         if request.capability != "retrieval" or request.scope != self.scope:
             return CapabilityResult(
