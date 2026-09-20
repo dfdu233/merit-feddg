@@ -89,6 +89,9 @@ Torch merely for this branch.
 
 ## First technical canary
 
+The Huatuo configuration keeps the frozen formal answer budget at **1024
+tokens**, rather than inheriting the LLaVA-Med BARD 64-token budget.
+
 Before running any benchmark:
 
     PY=/home/dbw/.runtime/miniconda3/envs/huatuo/bin/python
@@ -96,7 +99,28 @@ Before running any benchmark:
     "$PY" scripts/check_huatuo_spatial_backend.py       --config configs/matched_bard_huatuo.yaml       --image /absolute/path/to/one/source-image.png       --output runs/huatuo-spatial-canary.json
 
 This canary uses a synthetic full-image geometry packet only to verify mechanism
-plumbing.  It must report:
+plumbing. Before interpreting it, also export one historical frozen Huatuo
+baseline case into a small JSON file:
+
+    {
+      "prompt": "<exact frozen benchmark prompt>",
+      "max_new_tokens": 1024,
+      "token_ids": [ ... exact historical Generalist token IDs ... ]
+    }
+
+and run:
+
+    "$PY" scripts/check_huatuo_spatial_backend.py \
+      --config configs/matched_bard_huatuo.yaml \
+      --image /absolute/path/to/the-same-source-image.png \
+      --baseline-parity-json /absolute/path/to/baseline-parity.json \
+      --output runs/huatuo-spatial-canary.json
+
+The adapter must reproduce those baseline token IDs exactly. If parity fails,
+stop and reconcile prompt serialization / generation settings before testing
+spatial evidence.
+
+The canary must then report:
 
 - one spatial record;
 - an exercised `mm_projector` hook;
