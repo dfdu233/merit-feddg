@@ -17,6 +17,7 @@ from merit_feddg.bard_protocol import (
     build_isolated_sessions,
     run_bard_bundle,
     run_bard_method,
+    select_bard_descriptors,
 )
 from merit_feddg.capabilities import EvidenceItem
 from merit_feddg.capability_runtime import NativeState, ValueGenerationConfig
@@ -417,3 +418,24 @@ def test_fault_group_prevents_two_tools_from_same_failure_family_double_voting()
     assert result["fault_group_members"]["shared-a"] == ["a"]
     # b is a repeated correlated node and falls outside the four-call distinct-first budget.
     assert [expert for expert, _, _ in runtime.calls][:3] == ["a", "c", "d"]
+
+
+def test_retrieval_expands_but_does_not_displace_patient_image_fault_groups():
+    specs = {
+        "retrieval": {"fault_group": "knowledge"},
+        "visual_a": {"fault_group": "a"},
+        "visual_b": {"fault_group": "b"},
+        "visual_c": {"fault_group": "c"},
+    }
+    candidates = [
+        {"expert": "retrieval", "capability": "retrieval"},
+        {"expert": "visual_a", "capability": "classification"},
+        {"expert": "visual_b", "capability": "segmentation"},
+        {"expert": "visual_c", "capability": "generation"},
+    ]
+    selected = select_bard_descriptors(candidates, specs, 3)
+    assert [value["expert"] for value in selected] == [
+        "visual_a", "visual_b", "visual_c"
+    ]
+    selected = select_bard_descriptors(candidates, specs, 4)
+    assert [value["expert"] for value in selected][-1] == "retrieval"
