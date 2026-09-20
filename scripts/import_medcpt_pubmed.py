@@ -43,14 +43,14 @@ def load_chunk(root, index):
     if not isinstance(pmids, list) or len(pmids) != embeddings.shape[0]:
         raise ValueError("PMID list and embedding chunk length differ")
     if not isinstance(content, dict):
-        raise ValueError("official MedCPT article content must be a PMID mapping")
+        raise TypeError("official MedCPT article content must be a PMID mapping")
     return embedding_path, pmids_path, content_path, embeddings, pmids, content
 
 
 def article(content, pmid):
     value = content.get(str(pmid), {})
     if not isinstance(value, dict):
-        raise ValueError(f"invalid MedCPT article metadata for PMID {pmid}")
+        raise TypeError(f"invalid MedCPT article metadata for PMID {pmid}")
     title = str(value.get("t", value.get("title", ""))).strip()
     abstract = str(value.get("a", value.get("abstract", ""))).strip()
     date = str(value.get("d", value.get("date", ""))).strip()
