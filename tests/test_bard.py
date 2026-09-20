@@ -114,7 +114,7 @@ def test_mask_mismatch_fails_closed():
 
 
 class ScoreSession:
-    eos_ids = {2}
+    eos_ids = frozenset({2})
 
     def __init__(self, rows):
         self.rows = rows
