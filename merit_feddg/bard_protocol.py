@@ -20,7 +20,18 @@ def acquire_expert_groups(runtime):
     from .capability_runtime import NativeState
 
     initial = NativeState()
-    descriptors = runtime.descriptors(initial)[: runtime.config.max_expert_calls]
+    candidates = runtime.descriptors(initial)
+    # The Byzantine unit is expert_id.  Spend the fixed call budget on distinct
+    # nodes first; only then acquire a second capability from an already counted
+    # node.  This is deterministic and answer-blind.
+    primary, repeated, seen = [], [], set()
+    for descriptor in candidates:
+        if descriptor["expert"] in seen:
+            repeated.append(descriptor)
+        else:
+            seen.add(descriptor["expert"])
+            primary.append(descriptor)
+    descriptors = (primary + repeated)[: runtime.config.max_expert_calls]
     groups, events, order = {}, [], []
     started = perf_counter()
     for descriptor in descriptors:
@@ -49,8 +60,8 @@ def acquire_expert_groups(runtime):
         "native_requests": len(descriptors),
         "seconds": perf_counter() - started,
         "selection": (
-            "first compatible descriptors under frozen max_expert_calls; "
-            "grouped by expert_id"
+            "compatible descriptors under frozen max_expert_calls; distinct "
+            "expert_id nodes first, then repeated capabilities"
         ),
         "answer_labels_used": False,
     }
