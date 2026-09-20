@@ -1,0 +1,13 @@
+{
+  "tests_passed": 95,
+  "tests_failed": 0,
+  "tests_skipped": 0,
+  "command": "OMP_NUM_THREADS=1 /home/dbw/.runtime/miniconda3/envs/huatuo/bin/python -m pytest tests/test_algorithm_test_inputs.py tests/test_algorithm_chain.py tests/test_algorithm_chain_controller.py tests/test_chain_device_migration.py tests/test_chain_expansion.py -o addopts= -q --disable-warnings",
+  "compile_passed": true,
+  "diff_check_passed": true,
+  "complete_official_id_sets_verified": true,
+  "all2545_historical_prompt_hashes_verified": true,
+  "generation_config_equal_prior_train": true,
+  "real_model_canary_passed": false,
+  "regression": "Preserve nested native array field order and array ordinals across JSON adaptation; exclusive output publication."
+}

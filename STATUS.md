@@ -1,11 +1,12 @@
-# Official TEST evaluation preparation — GPU0 (2026-09-20 UTC)
+# Full official TEST queued — GPU0 resource block (2026-09-20 UTC)
 
-- User explicitly authorized both complete official TEST datasets: VQA-RAD451 + SLAKE2094 (English1061/Chinese1033). Fixed C project/layout_average, no retuning or READY claim. Previous TRAIN results remain unchanged below.
-- New entrypoints `scripts/prepare_algorithm_test.py` and `scripts/run_algorithm_test.py` verify existing full baseline/native caches and invoke the unchanged chain worker/scorer. TRAIN guards remain unchanged.
-- First plan `runs/official-test2545-gpu0-v1` (`c9a02c15…`) stopped before any forward: generic JSON key sorting changed nested evidence field order/array ordinals and therefore historical prompt identity. Model load occurred; new forwards0; TEST attempt1 retained.
-- Repair preserves original nested field order, adds all-case original prompt hash verification and a regression test. 95 tests passed. Preparing verified inputs under `runs/official-test2545-inputs-v2`; no active GPU worker during this preparation.
-- Next: freeze successor with `--previous-test runs/official-test2545-gpu0-v1`, preserving attempts and historical44791 forwards, launch on host GPU0 UUID `GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023`, check real canaries and complete/scored coverage.
-- Original cumulative cap200000 remains in force. An asynchronous question asks whether to raise it to1000000 for full TEST; no affirmative answer received yet. Never treat silence as approval.
+- User explicitly authorized VQA-RAD official TEST451 + SLAKE official TEST2094 (English1061/Chinese1033). Fixed C project/layout_average, no tuning or READY claim. All2545 cached baseline/native cases, complete official IDs and original prompt hashes verified.
+- Frozen output `runs/official-test2545-gpu0-v2`, plan `7b989faa…`, inputs `runs/official-test2545-inputs-v2`. Actual new coverage0/2545, no real canary pass or new TEST score yet.
+- TEST attempt1: nested JSON field sorting changed array ordinals/prompt identity; failed before forwards after model load. Exporter now preserves original order;95 CPU tests passed. Attempt2: another training job acquired GPU0, ownership check failed before model load. Both0 forwards; both preserved. One TEST attempt remains. Original A=3/C=3 history is unchanged.
+- Actual host resource waiter PID2740944, log `runs/official-test2545-gpu0-v2/resource-wait.log`,30s interval,1440 checks (~12h). GPU0 UUID `GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023`; other compute PID2684245 occupied10486 MiB at snapshot. Requires existing strict check_device, no other jobs killed or GPU1 fallback.
+- Waiter is not inference. On resource availability it invokes frozen runner for attempt3, full generation and isolated CPU scoring. Verify live state/cases before reporting. Never duplicate waiter or reset attempts. Raw controller state remains BLOCKED_TEST_TECHNICAL until retry actually starts.
+- Historical44791/200000 forwards retained, new0, remaining155209. Budget increase to1000000 was asked asynchronously but has NOT been authorized; original cap applies.
+- Source/repair HEAD `b877f4b`; unchanged decoder `9a55426`. [Full TEST queue snapshot, provenance, failures, all planned hashed records and commands](docs/results/huatuo-decision-path-official-test2545/README.md).
 
 ---
 

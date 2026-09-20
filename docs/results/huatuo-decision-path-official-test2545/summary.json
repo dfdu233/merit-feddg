@@ -1,0 +1,66 @@
+{
+  "snapshot_utc": "2026-09-20T14:23:12.145828+00:00",
+  "status": "QUEUED_GPU0_RESOURCE",
+  "controller_status": "BLOCKED_TEST_TECHNICAL",
+  "plan_sha": "7b989faafb3e1b5aec5c4811034db44dc8610e7742c3774857683a5fdddba13e",
+  "execution_commit": "b877f4b73180317d99dadc78b8e5a8969894f50d",
+  "generation_commit": "9a554268250ef1ff07ca55de35947ac2f04091ee",
+  "gpu_uuid": "GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023",
+  "candidate": {
+    "algorithm": "project",
+    "control": "layout_average",
+    "layer": null
+  },
+  "planned": 2545,
+  "complete": 0,
+  "inference_failures_before_cases": 2,
+  "official_test_authorized": true,
+  "ready_for_scale": false,
+  "results": null,
+  "native_canaries_passed": 0,
+  "attempts_used": 2,
+  "attempts_limit": 3,
+  "inherited_forwards": 44791,
+  "new_forwards": 0,
+  "total_forwards": 44791,
+  "total_forward_limit": 200000,
+  "remaining_forwards": 155209,
+  "budget_increase_authorized": false,
+  "waiter": {
+    "pid": 2740944,
+    "pid_namespace": "host",
+    "interval_seconds": 30,
+    "max_checks": 1440,
+    "other_compute_processes_allowed": false,
+    "observed_competing_process_pid": 2684245,
+    "observed_free_memory_mib": 37578
+  },
+  "warning": "Resource waiter is not an inference worker. No TEST efficacy result exists for the fixed C candidate yet.",
+  "datasets": {
+    "slake": {
+      "canonical_source_sha256": "6be8f7b4c5a46cdbc713a5210a25b6ed5aa1fd1574c83cefb4f998131f17c2c3",
+      "historical_test_outputs_previously_available": true,
+      "languages": {
+        "en": 1061,
+        "zh": 1033
+      },
+      "native_identity": "1f77d72341565b35b0cbe234bb8b9bba3cbe76004d64f0998107fb8813a72d0a",
+      "planned": 2094,
+      "reused_cases": 2094,
+      "score_selection": false,
+      "unique_images": 180
+    },
+    "vqa_rad": {
+      "canonical_source_sha256": "eda8463126dcb89929b18681823cc661c0c5c8e221ffd2e5297ed59650b54c03",
+      "historical_test_outputs_previously_available": true,
+      "languages": {
+        "unspecified": 451
+      },
+      "native_identity": "741a7d2ebfd54b18eec6a31bb61c3eaf06e58a20af47652a3b566bef855bbfa3",
+      "planned": 451,
+      "reused_cases": 451,
+      "score_selection": false,
+      "unique_images": 203
+    }
+  }
+}

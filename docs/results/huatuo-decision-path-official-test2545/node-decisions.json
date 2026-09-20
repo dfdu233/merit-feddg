@@ -1,0 +1,9 @@
+{
+  "original_chain_status": "STOP_NO_CANDIDATE",
+  "train_expansion_status": "EXPLORATORY_COMPLETE",
+  "train_expansion_verdict": "fail",
+  "current_test_status": "BLOCKED_TEST_TECHNICAL",
+  "queued_status": "QUEUED_GPU0_RESOURCE",
+  "test_selection_decision": null,
+  "note": "Explicit post-screen TEST measurement, not C attempt4 or D/E promotion; TEST attempts and cumulative budget are retained."
+}

@@ -1,0 +1,34 @@
+{
+  "datasets": {
+    "slake": {
+      "canonical_source_sha256": "6be8f7b4c5a46cdbc713a5210a25b6ed5aa1fd1574c83cefb4f998131f17c2c3",
+      "historical_test_outputs_previously_available": true,
+      "languages": {
+        "en": 1061,
+        "zh": 1033
+      },
+      "native_identity": "1f77d72341565b35b0cbe234bb8b9bba3cbe76004d64f0998107fb8813a72d0a",
+      "planned": 2094,
+      "reused_cases": 2094,
+      "score_selection": false,
+      "unique_images": 180
+    },
+    "vqa_rad": {
+      "canonical_source_sha256": "eda8463126dcb89929b18681823cc661c0c5c8e221ffd2e5297ed59650b54c03",
+      "historical_test_outputs_previously_available": true,
+      "languages": {
+        "unspecified": 451
+      },
+      "native_identity": "741a7d2ebfd54b18eec6a31bb61c3eaf06e58a20af47652a3b566bef855bbfa3",
+      "planned": 451,
+      "reused_cases": 451,
+      "score_selection": false,
+      "unique_images": 203
+    }
+  },
+  "full_scope": 2545,
+  "inherited_forwards": 44791,
+  "native_candidate_source": "99d36d8c3c206e10b0dde2269092b003b6ccb490a46f8fd5c9cbe1202d731955",
+  "no_independent_confirmation_claim": true,
+  "no_new_forward_calls": true
+}

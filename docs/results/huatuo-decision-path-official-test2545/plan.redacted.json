@@ -1,0 +1,85 @@
+{
+  "schema": "merit-explicit-official-test-v1",
+  "identity": "7b989faafb3e1b5aec5c4811034db44dc8610e7742c3774857683a5fdddba13e",
+  "authorization": "User explicitly requested both complete official TEST datasets",
+  "candidate": {
+    "algorithm": "project",
+    "control": "layout_average",
+    "layer": null
+  },
+  "generation": {
+    "slake-official-test": {
+      "do_sample": false,
+      "eos_token_id": 151643,
+      "max_new_tokens": 1024,
+      "min_new_tokens": 1,
+      "num_beams": 1,
+      "pad_token_id": 151643,
+      "repetition_penalty": 1.2,
+      "use_cache": true
+    },
+    "vqa_rad-official-test": {
+      "do_sample": false,
+      "eos_token_id": 151643,
+      "max_new_tokens": 1024,
+      "min_new_tokens": 1,
+      "num_beams": 1,
+      "pad_token_id": 151643,
+      "repetition_penalty": 1.2,
+      "use_cache": true
+    }
+  },
+  "policy": {
+    "alpha": 0.05,
+    "bootstrap_repetitions": 4000,
+    "cohort_noninferiority_margin": 0.02,
+    "diagnostic_prefix_tokens": 16,
+    "max_damage_rate": 0.1,
+    "max_node_attempts": 3,
+    "max_seconds_per_case": 10.0,
+    "max_total_forwards": 200000,
+    "min_confirmation_cohorts": 2,
+    "min_confirmation_images": 64,
+    "min_delta": 0.005,
+    "min_development_images": 32,
+    "min_gain_retention": 0.75,
+    "min_images_per_cohort": 24,
+    "min_localization_images": 8,
+    "min_original_gains": 3,
+    "min_original_harms": 3,
+    "min_repaired_harms": 1,
+    "seed": 0
+  },
+  "max_total_forwards": 200000,
+  "inherited_forwards": 44791,
+  "inherited_attempts": {
+    "A": 3,
+    "C": 3
+  },
+  "new_evaluation_max_attempts": 3,
+  "prior_scientific_verdict": "fail",
+  "previous_test": {
+    "inherited_test_attempts": 1,
+    "new_forwards": 0,
+    "plan_sha": "c9a02c155066c2400608ab0bb3b992877d8adad6f0c8305c46dfb57fe756bb01",
+    "reason": "Preserve nested evidence field order during cache adaptation; no decoder change",
+    "state_sha256": "f3e5f83fd0c7acda4d43d7e9602d316d4c690a3eb12da3092864724cd6348b29"
+  },
+  "datasets": [
+    {
+      "dataset": "vqa_rad",
+      "split": "official_test",
+      "planned": 451,
+      "source_identity": "d0c06f1f28fd7557d432fd62e2d263923067089daab0f4de3c4c07948b2bbf2d",
+      "protocol_sha256": "aacc69385006a070947b01189b273fa3bab650fcc235eed2b4ac07a1b8698bc4"
+    },
+    {
+      "dataset": "slake",
+      "split": "official_test",
+      "planned": 2094,
+      "source_identity": "e6cc612ac7156fc3348c98090a4076e05ac8ef00493f99bb177b0deb70c6fe41",
+      "protocol_sha256": "0b456987fa276fd70712581edbb3b6aa0462acb0215b4eaae1bd80000798bdef"
+    }
+  ],
+  "redactions": "Local input/reference/cache/model paths, complete image mapping and evidence payloads omitted. Canonical executable plan remains on the server."
+}

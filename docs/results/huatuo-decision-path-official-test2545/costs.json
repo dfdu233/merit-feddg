@@ -1,0 +1,36 @@
+{
+  "new_model_forwards": 0,
+  "inherited_model_forwards": 44791,
+  "total_model_forwards": 44791,
+  "failed_attempts": [
+    {
+      "run": "official-test2545-gpu0-v1",
+      "kind": "cache_serialization_order",
+      "model_forwards": 0,
+      "worker_wall_seconds": 23.573330402374268,
+      "returncode": 1,
+      "plan_sha": "c9a02c155066c2400608ab0bb3b992877d8adad6f0c8305c46dfb57fe756bb01",
+      "state_sha256": "f3e5f83fd0c7acda4d43d7e9602d316d4c690a3eb12da3092864724cd6348b29",
+      "inference_log_sha256": "f8023ea0252ecfd8bb93c6bac004a295a53dc1faf60d868c912595c17b3d1b6b"
+    },
+    {
+      "run": "official-test2545-gpu0-v2",
+      "kind": "competing_GPU0_compute_process",
+      "model_forwards": 0,
+      "worker_wall_seconds": 10.002052307128906,
+      "returncode": 1,
+      "plan_sha": "7b989faafb3e1b5aec5c4811034db44dc8610e7742c3774857683a5fdddba13e",
+      "state_sha256": "6597c3624193593723e303a512ceb53fa6c57f5a66bf9f824736fb30782ee403",
+      "inference_log_sha256": "dd6b0a8fa1d0261746236216788fce38779ab4d6b113b113d7d9d779bc9523d1"
+    }
+  ],
+  "worker_wall_seconds": 33.575382709503174,
+  "first_attempt_model_loaded": true,
+  "second_attempt_model_loaded": false,
+  "canary_forwards": 0,
+  "candidate_forwards": 0,
+  "control_forwards": 0,
+  "offline_scoring_seconds": null,
+  "preparation_wall_seconds": null,
+  "note": "Metadata/cache adaptation wall not separately instrumented. Baseline/native outputs genuinely reused; cached deployment cost is unknown, not zero. GPU residency is not allocated-tensor peak."
+}
