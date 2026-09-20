@@ -22,6 +22,7 @@ from merit_feddg.bard_protocol import (
 from merit_feddg.capabilities import EvidenceItem
 from merit_feddg.capability_runtime import NativeState, ValueGenerationConfig
 from merit_feddg.matched_evaluation import experiment_arms
+from merit_feddg.llava_generalist import LlavaMedAnswerSession
 
 
 def item(expert, evidence):
@@ -439,3 +440,105 @@ def test_retrieval_expands_but_does_not_displace_patient_image_fault_groups():
     ]
     selected = select_bard_descriptors(candidates, specs, 4)
     assert [value["expert"] for value in selected][-1] == "retrieval"
+
+
+def test_llava_shared_vision_cache_keeps_projector_branch_local():
+    torch = pytest.importorskip("torch")
+
+    class Tower:
+        def __init__(self):
+            self.calls = 0
+
+        def __call__(self, images):
+            self.calls += 1
+            value = images.mean(dim=(-2, -1))
+            return value[:, None, :2]
+
+    class Projector:
+        def __init__(self):
+            self.calls = 0
+
+        def __call__(self, features):
+            self.calls += 1
+            return features + 3
+
+    class Model:
+        def __init__(self):
+            self.tower = Tower()
+            self.projector = Projector()
+            self.core = SimpleNamespace(mm_projector=self.projector)
+
+        def get_vision_tower(self):
+            return self.tower
+
+        def get_model(self):
+            return self.core
+
+        def encode_images(self, images):
+            return self.projector(self.tower(images))
+
+    class Generalist:
+        def __init__(self):
+            self.torch = torch
+            self.model = Model()
+
+        def _inputs(self, image, _prompt):
+            pixels = torch.full((1, 3, 2, 2), float(image))
+            return {
+                "inputs": torch.ones((1, 2), dtype=torch.long),
+                "attention_mask": torch.ones((1, 2), dtype=torch.long),
+                "images": pixels,
+                "image_sizes": [(2, 2)],
+            }
+
+    generalist = Generalist()
+    base = LlavaMedAnswerSession(generalist, 1.0, "q")
+    branch = LlavaMedAnswerSession(generalist, 1.0, "q + evidence")
+    base.prime_vision_cache()
+    branch.share_vision_cache_from(base)
+    assert generalist.model.tower.calls == 1
+
+    with branch._vision_cache_context():
+        projected = generalist.model.encode_images(branch.inputs["images"])
+    assert generalist.model.tower.calls == 1
+    assert generalist.model.projector.calls == 1
+    assert torch.allclose(projected, base._cached_vision_features + 3)
+
+
+def test_llava_vision_cache_refuses_different_pixels():
+    torch = pytest.importorskip("torch")
+
+    class Tower:
+        def __call__(self, images):
+            return images.mean(dim=(-2, -1))[:, None, :2]
+
+    class Model:
+        def __init__(self):
+            self.tower = Tower()
+            self.core = SimpleNamespace(mm_projector=lambda x: x)
+
+        def get_vision_tower(self):
+            return self.tower
+
+        def get_model(self):
+            return self.core
+
+    class Generalist:
+        def __init__(self):
+            self.torch = torch
+            self.model = Model()
+
+        def _inputs(self, image, _prompt):
+            return {
+                "inputs": torch.ones((1, 1), dtype=torch.long),
+                "attention_mask": torch.ones((1, 1), dtype=torch.long),
+                "images": torch.full((1, 3, 2, 2), float(image)),
+                "image_sizes": [(2, 2)],
+            }
+
+    generalist = Generalist()
+    base = LlavaMedAnswerSession(generalist, 1.0, "q")
+    other = LlavaMedAnswerSession(generalist, 2.0, "q")
+    base.prime_vision_cache()
+    with pytest.raises(ValueError, match="identical processed images"):
+        other.share_vision_cache_from(base)
