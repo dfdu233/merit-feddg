@@ -1,0 +1,16 @@
+{
+  "planned_n": 87,
+  "processed_complete_n": 0,
+  "attempted_cases": 1,
+  "unattempted_cases": 86,
+  "stage": "canary",
+  "exit_code": 1,
+  "source_identity": "050cd806e43ac424183dcb7ffbc1b4775fe01c34ffe7dc4b0d05bb60a1ae1203",
+  "output_identity": "31bb139fe3d6f9c65b9907a04a80e3f137f638d7cb9da3c30ec3e5bd1d67972f",
+  "reason": "restore_mass: positive reference mass with zero receiver mass on fixed first case; undefined direction",
+  "complete_queue_started": false,
+  "restore_vector_not_reached": true,
+  "parity_artifact_persisted": false,
+  "scope": "Native/off/audit checks precede the failing restore_mass call in code, but per-case success artifact was not saved; no completed canary claim.",
+  "no_test_inference": true
+}

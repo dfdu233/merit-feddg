@@ -295,3 +295,22 @@ def test_controller_is_not_concurrent(model):
 def test_eos_outside_vocabulary_is_explicit():
     with pytest.raises(PathwayError, match='vocabulary'):
         GreedySpec(3, (99,)).select(torch.ones(5), [])
+
+
+def test_failed_mass_decode_records_cost_and_removes_hooks(model, monkeypatch):
+    import merit_feddg.pathway_restore as pathway
+    def undefined(*args):
+        raise PathwayError('Cannot restore positive mass onto an undefined zero-mass direction')
+    monkeypatch.setattr(pathway, 'restoration_delta', undefined)
+    a, b = prepared(model, 5, 1), prepared(model, 6, 2)
+    with pytest.raises(PathwayError) as caught:
+        paired_generate(model, a, b, GreedySpec(3, (16,)), PathwayConfig('restore_mass'), context_limit=32)
+    audit = caught.value.decode_diagnostics
+    assert audit['hooks_removed']
+    assert audit['reference_forwards'] == audit['receiver_forwards'] == 1
+    assert audit['token_ids'] == []
+    assert len(audit['events']) == 2
+    assert audit['events'][-1]['delta_norm'] is None
+    assert not getattr(model, '_merit_pathway_active', False)
+    # A later off decode must still work after the failed intervention.
+    assert paired_generate(model, a, b, GreedySpec(3, (16,)), PathwayConfig('off'), context_limit=32)['token_ids']

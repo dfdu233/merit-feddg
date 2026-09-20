@@ -1,0 +1,105 @@
+{
+  "tests": {
+    "command": "OMP_NUM_THREADS=1 PYTHONPATH=. /home/dbw/.runtime/miniconda3/envs/huatuo/bin/python -m pytest tests/test_pathway_restore.py tests/test_pathway_runner.py tests/test_capability_runtime.py tests/test_transport_runtime_integration.py tests/test_evidence_permissions_transport.py -o addopts= -q --disable-warnings",
+    "passed": 103,
+    "failed": 0,
+    "skipped": 0,
+    "log": "........................................................................ [ 69%]\n...............................                                          [100%]\n103 passed in 1.48s\n"
+  },
+  "compile_passed": true,
+  "cli_help_passed": true,
+  "git_diff_check_passed": true,
+  "canary": {
+    "prefix_n": 2,
+    "scope": "fixed original source prefix; no outcome-based selection",
+    "cases": [
+      {
+        "sample_id": "9b1e4afc3308a458a87b",
+        "parity": {
+          "generalist": true,
+          "compact": true,
+          "audit": true,
+          "attention_path_exercised": true
+        },
+        "input_parity": {
+          "historical_prompt_hash": "matched",
+          "historical_transport": "matched"
+        },
+        "expanded_tokens": [
+          611,
+          1499
+        ],
+        "visual_spans": [
+          {
+            "start": 5,
+            "stop": 581
+          },
+          {
+            "start": 5,
+            "stop": 581
+          }
+        ]
+      },
+      {
+        "sample_id": "372c7e3431e165290add",
+        "parity": {
+          "generalist": true,
+          "compact": true,
+          "audit": true,
+          "attention_path_exercised": true
+        },
+        "input_parity": {
+          "historical_prompt_hash": "matched",
+          "historical_transport": "matched"
+        },
+        "expanded_tokens": [
+          612,
+          2251
+        ],
+        "visual_spans": [
+          {
+            "start": 5,
+            "stop": 581
+          },
+          {
+            "start": 5,
+            "stop": 581
+          }
+        ]
+      }
+    ]
+  },
+  "complete": {
+    "identity": "aa00c4c3ed1c2603e9c217ace2520c188bb3239647113b2fdad6e18f3de73db2",
+    "n": 128,
+    "clinical_efficacy_evaluated": false
+  },
+  "failure_hooks_removed": 63,
+  "earlier_attempts": [
+    {
+      "version": "v1",
+      "code": "7cd12f041264ce3ab8ed0e0c53031b04ab4d8396",
+      "result": "native BOS output extraction and repetition-processor mismatch; failed first canary"
+    },
+    {
+      "version": "v2",
+      "code": "6658fbbed38cb2f46e3fcf4ba497926438f51c6b",
+      "result": "2/2 technical canary passed; native budget audit required another fix"
+    },
+    {
+      "version": "v3",
+      "code": "0c2cbbdfc005b617d3f646dac99e5a894880bcb5",
+      "result": "2/2 technical canary passed; resumption rejected integer/string model-config keys"
+    },
+    {
+      "version": "v4",
+      "code": "4aadb81",
+      "result": "2/2 canary passed, stopped at first undefined mass case after 3 complete cases"
+    },
+    {
+      "version": "v5",
+      "code": "b51dc3f",
+      "result": "128 processed, 63 explicit restore_mass failures; no imputed predictions"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "scorer_hashes_match_frozen_source_report": true,
+  "baseline_score_match": {
+    "generalist": 128,
+    "compact": 128
+  }
+}

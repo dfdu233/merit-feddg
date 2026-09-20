@@ -1,3 +1,22 @@
+# Current task: Huatuo visual-pathway TRAIN validation
+
+2026-09-20 UTC. Isolated branch `experiments/huatuo-pathway-restore-train-v1`.
+Final generation source `b51dc3f13b5911c7a0c699767110b06e81c9781f`; no model jobs remain active.
+
+- SLAKE original 128/128 processed and independently scored. Baseline 58.6068%, compact 57.4349%, restore_vector 57.0443% on the same 128 cases. Vector repairs 0/14 prior harms and retains 14/14 prior gains; no demonstrated benefit.
+- restore_mass has 65/128 complete predictions and 63 explicit undefined-zero-mass failures. Completed-subset score 53.2308% is not a full-queue estimate. All cases and failure costs retained.
+- VQA-RAD original TRAIN87 source verified; first fixed-prefix canary case fails with the same undefined ratio. 0/87 complete, full run not started. No epsilon, kernel change, new prefix selection, or official TEST inference.
+- Native BOS processor/output extraction, native context budget, JSON resumption identity and per-arm failure persistence fixed. 103 current tests passed; SLAKE 2/2 parity canary and all 128 historical prompt/transport comparisons passed.
+- Existing worktrees and results untouched. All old failed attempts preserved locally. No main/PR merge.
+
+Complete compact report, anonymous case records, costs, provenance, validation and commands:
+[docs/results/huatuo-pathway-restore-train-v1/README.md](docs/results/huatuo-pathway-restore-train-v1/README.md).
+Raw artifacts: `runs/pathway-slake128-v5`, `runs/pathway-vqa87-v5`, `runs/pathway-audit-v1`.
+
+Remaining blocker: defined mass restoration cannot divide positive reference mass by zero receiver mass. VQA full execution and a complete mass-arm score remain unavailable under this frozen method. Changing that definition requires a separate scientific decision; no background auto-resume is queued.
+
+---
+
 # Current status
 
 ## Expanded observation-blind TRAIN diagnostic complete — 2026-09-19 UTC

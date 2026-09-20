@@ -1,0 +1,8 @@
+{
+  "n": 87,
+  "pixel_matches": 87,
+  "test_manifest_sha256_matches": true,
+  "test_image_overlap": 0,
+  "patient_disjoint": "unknown",
+  "audit_scope": "image-hash audit only; no TEST model inference"
+}

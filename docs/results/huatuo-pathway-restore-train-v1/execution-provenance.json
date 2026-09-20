@@ -1,0 +1,44 @@
+{
+  "generation_commit": "b51dc3f13b5911c7a0c699767110b06e81c9781f",
+  "implementation_commit": "7cd12f041264ce3ab8ed0e0c53031b04ab4d8396",
+  "base_experiment_commit": "608d239bfeafdd55b5e6c4f676d92311563b50e3",
+  "visible_device_uuid": "GPU-3846413a-4238-d307-b1f3-10c2dfbe002c",
+  "host_index": 1,
+  "container_index": 0,
+  "device_minor": 1,
+  "pci_bus": "00000000:05:00.0",
+  "authorized_unused_host_gpu": {
+    "uuid": "GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023",
+    "index": 0,
+    "pci_bus": "00000000:01:00.0"
+  },
+  "environment": {
+    "python": "/home/dbw/.runtime/miniconda3/envs/huatuo/bin/python",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONPATH": ".",
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1"
+  },
+  "model_hashes_file": "model-and-backend-sha256.txt",
+  "vqa_protocol_sha256": "65f184c3dde740d35500fc816692068b1b03055913e608b044075a28b804d0b2",
+  "slake_processes": {
+    "wrapper_pid": 2818470,
+    "run_python_pid": 2819141,
+    "session": "merit-pathway-slake-v5",
+    "stage_exit_codes": {
+      "check": 0,
+      "canary": 0,
+      "run": 0
+    }
+  },
+  "vqa_processes": {
+    "wrapper_pid": 2822826,
+    "session": "merit-pathway-vqa-v5",
+    "stage_exit_codes": {
+      "check": 0,
+      "canary": 1
+    }
+  },
+  "final_state": "no active experiment processes or queued retries"
+}

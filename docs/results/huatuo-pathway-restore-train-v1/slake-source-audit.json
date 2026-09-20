@@ -1,0 +1,10 @@
+{
+  "n": 128,
+  "pixels_matching": 128,
+  "test_manifest_hash_matches": true,
+  "test_image_overlap": 0,
+  "test_unique_images": 180,
+  "patient_disjoint": "unknown",
+  "audit_scope": "independent offline image membership/hash audit; no TEST inference",
+  "order_matches": true
+}

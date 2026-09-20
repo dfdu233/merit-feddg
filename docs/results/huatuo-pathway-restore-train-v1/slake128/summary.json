@@ -1,0 +1,810 @@
+{
+  "identity": "aa00c4c3ed1c2603e9c217ace2520c188bb3239647113b2fdad6e18f3de73db2",
+  "planned_n": 128,
+  "processed_n": 128,
+  "technical_failures": 63,
+  "metric": "Frozen ANCHOR CLOSED parser + OPEN token recall (first reference); not clinical accuracy",
+  "scorer_version": "medheval-decoded-eval-v13-explanatory-uncertainty-review",
+  "scorer_hashes": {
+    "/home/dbw/ANCHOR/anchor/corrected_sgta/evaluate_medheval_answers.py": "ad0fb9abfebf1a0185709628835b33a052492fbe5e4828d097141282a59a21d6",
+    "/home/dbw/ANCHOR/anchor/medeval/evaluate_mixed_vqa_table.py": "7d5b7675fc0aa6455b1d60fc93dcfbb0fd04fa07e879259e483e38b7f24d99f4"
+  },
+  "bootstrap": {
+    "seed": 0,
+    "repetitions": 2000,
+    "unit": "pixel image",
+    "confidence": 0.95
+  },
+  "arms": {
+    "generalist": {
+      "planned_n": 128,
+      "completed_n": 128,
+      "failed_n": 0,
+      "score": 0.5860677083333333,
+      "score_scope": "completed arm subset; see full planned-denominator bounds",
+      "planned_score_lower_bound": 0.5860677083333333,
+      "planned_score_upper_bound": 0.5860677083333333,
+      "full_credit": 70,
+      "empty": 0
+    },
+    "compact": {
+      "planned_n": 128,
+      "completed_n": 128,
+      "failed_n": 0,
+      "score": 0.5743489583333333,
+      "score_scope": "completed arm subset; see full planned-denominator bounds",
+      "planned_score_lower_bound": 0.5743489583333333,
+      "planned_score_upper_bound": 0.5743489583333333,
+      "full_credit": 67,
+      "empty": 0
+    },
+    "restore_mass": {
+      "planned_n": 128,
+      "completed_n": 65,
+      "failed_n": 63,
+      "score": 0.5323076923076923,
+      "score_scope": "completed arm subset; see full planned-denominator bounds",
+      "planned_score_lower_bound": 0.2703125,
+      "planned_score_upper_bound": 0.7625,
+      "full_credit": 32,
+      "empty": 0
+    },
+    "restore_vector": {
+      "planned_n": 128,
+      "completed_n": 128,
+      "failed_n": 0,
+      "score": 0.5704427083333333,
+      "score_scope": "completed arm subset; see full planned-denominator bounds",
+      "planned_score_lower_bound": 0.5704427083333333,
+      "planned_score_upper_bound": 0.5704427083333333,
+      "full_credit": 66,
+      "empty": 0
+    }
+  },
+  "failure_table": [
+    {
+      "sample_id": "b1d1de3d9c44b14147a2",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "4e8d6e99fc7d6482d809",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "c7cba5a1b392d09f285a",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "1e570d311b70e84175cd",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "fc2e85f61803e90da473",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "aede96d15645c6d2b508",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "9add726655cb27de06a7",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "19cbc305172775508a64",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "68f6d73e2c9b7f5987eb",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "e9f5f48b2076f66ca3fc",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "af2e56a996499b733385",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "ef3ad14c8e2281d3ec51",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "2adf4ad9e71ec4efc835",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "6ba820092c9bbe65d07e",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "7a604d8869af01999acf",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "de515d801069c8d3583d",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "73d5c571fcb68f10192a",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "779fe1c1b98d81fd0015",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "a2a568fe6bdc825a785f",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "fcbb5f4a37d9ed7f2b9e",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "dc663159c8672fb43d53",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "e04df5ff5dcfb2fc956e",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "4043d8856cce95211d03",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "213df7a106b97e5ce375",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "674b658680df395b8039",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "98690bc064a0abc19e67",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "7baf876ae1c8f4ee64a0",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "9c9fe6bb622205e1af11",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "c99841e1d4e6999b00d8",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "70855ce3018fae30abbc",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "e237d0f04194294d0042",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "6c529ed7342bd9b6a867",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "b86dfaddd925964b5f15",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "4cccc841e65f19c1d1ec",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "941c1de8614649d837f6",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "c320bf8d2bfcac561397",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "661f63d01676a6984ce3",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "0ed579dfc655529ea7cb",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "e5d23d38353d3a48a297",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "ef79410d1238f3a823fb",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "0bbec9d3f8ee81867714",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "df168af8c7c45c82a75d",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "9bd2dfc9b034eae16b6d",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "63ae47100bb9f0f5bdbb",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "48d1ac9aac3ea6324963",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "b760b4f337afefbb1a37",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "922c9f162c4bbb83c052",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "622e0def07c882fa2d2a",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "5f2fb3a66858ee8a4080",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "e64d443df0ed779114dc",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "82609e84c202abc91b92",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "cf69d90ae00af4845c36",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "cee66a03f2d5f2f0364d",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "bf7c769a5cc2ea602508",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "73e07bced21dc2d1242b",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "adc22f28702d3358a5ef",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "195b9a62ecb3354c7376",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "a95e0a4792829d73c060",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "9a3c7d6265ab27a98c77",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "0b394b0e4450be9c9d43",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "6c9a4cafffe5342db0ee",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "d35691602c14e6dd64ff",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    },
+    {
+      "sample_id": "8e20f3af080568461612",
+      "arm": "restore_mass",
+      "error": "Cannot restore positive mass onto an undefined zero-mass direction"
+    }
+  ],
+  "paired": {
+    "generalist": {
+      "generalist": {
+        "completed_pair_n": 128,
+        "planned_n": 128,
+        "unavailable": 0,
+        "improved": 0,
+        "harmed": 0,
+        "unchanged": 128,
+        "delta": 0.0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 128,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "compact": {
+        "completed_pair_n": 128,
+        "planned_n": 128,
+        "unavailable": 0,
+        "improved": 14,
+        "harmed": 14,
+        "unchanged": 100,
+        "delta": 0.01171875,
+        "image_ci95": {
+          "low": -0.056640625,
+          "high": 0.0859375,
+          "clusters": 128,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      }
+    },
+    "compact": {
+      "generalist": {
+        "completed_pair_n": 128,
+        "planned_n": 128,
+        "unavailable": 0,
+        "improved": 14,
+        "harmed": 14,
+        "unchanged": 100,
+        "delta": -0.01171875,
+        "image_ci95": {
+          "low": -0.0859375,
+          "high": 0.056640625,
+          "clusters": 128,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "compact": {
+        "completed_pair_n": 128,
+        "planned_n": 128,
+        "unavailable": 0,
+        "improved": 0,
+        "harmed": 0,
+        "unchanged": 128,
+        "delta": 0.0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 128,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      }
+    },
+    "restore_mass": {
+      "generalist": {
+        "completed_pair_n": 65,
+        "planned_n": 128,
+        "unavailable": 63,
+        "improved": 3,
+        "harmed": 8,
+        "unchanged": 54,
+        "delta": -0.06923076923076923,
+        "image_ci95": {
+          "low": -0.15384615384615385,
+          "high": 0.015384615384615385,
+          "clusters": 65,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "compact": {
+        "completed_pair_n": 65,
+        "planned_n": 128,
+        "unavailable": 63,
+        "improved": 0,
+        "harmed": 0,
+        "unchanged": 65,
+        "delta": 0.0,
+        "image_ci95": {
+          "low": 0.0,
+          "high": 0.0,
+          "clusters": 65,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      }
+    },
+    "restore_vector": {
+      "generalist": {
+        "completed_pair_n": 128,
+        "planned_n": 128,
+        "unavailable": 0,
+        "improved": 14,
+        "harmed": 15,
+        "unchanged": 99,
+        "delta": -0.015625,
+        "image_ci95": {
+          "low": -0.087890625,
+          "high": 0.056640625,
+          "clusters": 128,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      },
+      "compact": {
+        "completed_pair_n": 128,
+        "planned_n": 128,
+        "unavailable": 0,
+        "improved": 0,
+        "harmed": 1,
+        "unchanged": 127,
+        "delta": -0.00390625,
+        "image_ci95": {
+          "low": -0.01171875,
+          "high": 0.0,
+          "clusters": 128,
+          "unit": "image",
+          "sample_weighted": true,
+          "informative_ci": true
+        }
+      }
+    }
+  },
+  "splits": {
+    "answer_type": {
+      "closed": {
+        "n": 50,
+        "scores": {
+          "generalist": {
+            "completed_n": 50,
+            "score": 0.72
+          },
+          "compact": {
+            "completed_n": 50,
+            "score": 0.58
+          },
+          "restore_mass": {
+            "completed_n": 24,
+            "score": 0.5416666666666666
+          },
+          "restore_vector": {
+            "completed_n": 50,
+            "score": 0.58
+          }
+        }
+      },
+      "open": {
+        "n": 78,
+        "scores": {
+          "generalist": {
+            "completed_n": 78,
+            "score": 0.5002136752136752
+          },
+          "compact": {
+            "completed_n": 78,
+            "score": 0.5707264957264957
+          },
+          "restore_mass": {
+            "completed_n": 41,
+            "score": 0.526829268292683
+          },
+          "restore_vector": {
+            "completed_n": 78,
+            "score": 0.5643162393162393
+          }
+        }
+      }
+    },
+    "language": {
+      "en": {
+        "n": 64,
+        "scores": {
+          "generalist": {
+            "completed_n": 64,
+            "score": 0.5729166666666666
+          },
+          "compact": {
+            "completed_n": 64,
+            "score": 0.5885416666666666
+          },
+          "restore_mass": {
+            "completed_n": 38,
+            "score": 0.5570175438596491
+          },
+          "restore_vector": {
+            "completed_n": 64,
+            "score": 0.5885416666666666
+          }
+        }
+      },
+      "zh": {
+        "n": 64,
+        "scores": {
+          "generalist": {
+            "completed_n": 64,
+            "score": 0.59921875
+          },
+          "compact": {
+            "completed_n": 64,
+            "score": 0.56015625
+          },
+          "restore_mass": {
+            "completed_n": 27,
+            "score": 0.49753086419753084
+          },
+          "restore_vector": {
+            "completed_n": 64,
+            "score": 0.55234375
+          }
+        }
+      }
+    },
+    "modality": {
+      "ct": {
+        "n": 52,
+        "scores": {
+          "generalist": {
+            "completed_n": 52,
+            "score": 0.6185897435897436
+          },
+          "compact": {
+            "completed_n": 52,
+            "score": 0.4407051282051282
+          },
+          "restore_mass": {
+            "completed_n": 22,
+            "score": 0.29545454545454547
+          },
+          "restore_vector": {
+            "completed_n": 52,
+            "score": 0.4310897435897436
+          }
+        }
+      },
+      "cxr": {
+        "n": 43,
+        "scores": {
+          "generalist": {
+            "completed_n": 43,
+            "score": 0.5058139534883721
+          },
+          "compact": {
+            "completed_n": 43,
+            "score": 0.7093023255813954
+          },
+          "restore_mass": {
+            "completed_n": 10,
+            "score": 0.8
+          },
+          "restore_vector": {
+            "completed_n": 43,
+            "score": 0.7093023255813954
+          }
+        }
+      },
+      "mri": {
+        "n": 33,
+        "scores": {
+          "generalist": {
+            "completed_n": 33,
+            "score": 0.6393939393939394
+          },
+          "compact": {
+            "completed_n": 33,
+            "score": 0.6090909090909091
+          },
+          "restore_mass": {
+            "completed_n": 33,
+            "score": 0.6090909090909091
+          },
+          "restore_vector": {
+            "completed_n": 33,
+            "score": 0.6090909090909091
+          }
+        }
+      }
+    },
+    "task": {
+      "open_vqa": {
+        "n": 128,
+        "scores": {
+          "generalist": {
+            "completed_n": 128,
+            "score": 0.5860677083333333
+          },
+          "compact": {
+            "completed_n": 128,
+            "score": 0.5743489583333333
+          },
+          "restore_mass": {
+            "completed_n": 65,
+            "score": 0.5323076923076923
+          },
+          "restore_vector": {
+            "completed_n": 128,
+            "score": 0.5704427083333333
+          }
+        }
+      }
+    }
+  },
+  "mechanism": {
+    "restore_mass": {
+      "original_harms_unavailable": 6,
+      "original_gains_unavailable": 11,
+      "original_harms_fully_repaired": 0,
+      "original_harms_partially_or_fully_improved": 0,
+      "original_gains_fully_retained": 3,
+      "original_gains_still_above_baseline": 3,
+      "original_gains_reduced": 0,
+      "original_gains_lost_to_baseline_or_worse": 0,
+      "new_full_credit_candidates": 0,
+      "changed_token_sequence_vs_compact": 1,
+      "changed_text_vs_compact": 1
+    },
+    "restore_vector": {
+      "original_harms_unavailable": 0,
+      "original_gains_unavailable": 0,
+      "original_harms_fully_repaired": 0,
+      "original_harms_partially_or_fully_improved": 0,
+      "original_gains_fully_retained": 14,
+      "original_gains_still_above_baseline": 14,
+      "original_gains_reduced": 0,
+      "original_gains_lost_to_baseline_or_worse": 0,
+      "new_full_credit_candidates": 0,
+      "changed_token_sequence_vs_compact": 7,
+      "changed_text_vs_compact": 7
+    }
+  },
+  "costs": {
+    "restore_mass": {
+      "seconds": 47.56353110470809,
+      "reference_forwards": 294,
+      "receiver_forwards": 423,
+      "output_tokens": 360,
+      "intervention_cases": 76,
+      "patched_steps": 231,
+      "zero_delta_steps": 0,
+      "bypass_cases": 32,
+      "stop_reasons": {
+        "eos": 65,
+        "technical_failure": 63
+      },
+      "peak_allocated_bytes": 20621275648,
+      "peak_reserved_bytes": 31388073984,
+      "event_means": {
+        "visual_mass": 0.03168632880527982,
+        "reference_visual_mass": 0.10124305986678925,
+        "delta_norm": 5.97445589381379
+      }
+    },
+    "restore_vector": {
+      "seconds": 71.26557542639785,
+      "reference_forwards": 839,
+      "receiver_forwards": 968,
+      "output_tokens": 968,
+      "intervention_cases": 96,
+      "patched_steps": 839,
+      "zero_delta_steps": 0,
+      "bypass_cases": 32,
+      "stop_reasons": {
+        "eos": 128
+      },
+      "peak_allocated_bytes": 20621275648,
+      "peak_reserved_bytes": 31388073984,
+      "event_means": {
+        "visual_mass": 0.0212265462440632,
+        "reference_visual_mass": 0.07252400764014408,
+        "delta_norm": 3.6199503164645175
+      }
+    },
+    "preparation_seconds": 17.267720699077472,
+    "model_load_seconds": 42.39582448475994,
+    "audit_seconds": 0.8938910001888871,
+    "off_control_seconds": 0.8937069368548691,
+    "native_control_seconds": null,
+    "limits": "Cached Baseline cost is unknown, not zero; no deployment speedup ratio. Native parity timing and initial failed attempts are not included in decode totals."
+  },
+  "source_damage_n": 14,
+  "source_gain_n": 14,
+  "all_arms_successful_n": 65,
+  "common_completed_subset": {
+    "n": 65,
+    "scores": {
+      "generalist": 0.6015384615384616,
+      "compact": 0.5323076923076923,
+      "restore_mass": 0.5323076923076923,
+      "restore_vector": 0.5323076923076923
+    }
+  },
+  "input_parity": {
+    "historical_prompt_hash": {
+      "matched": 128
+    },
+    "historical_transport": {
+      "matched": 128
+    }
+  },
+  "limitations": [
+    "TRAIN development diagnostic only; no parameter training or TEST inference.",
+    "No nonvisual/random-path control: specific causal mechanism remains unresolved.",
+    "OPEN score increases can reflect wording/coverage, not medical factual correction.",
+    "No patient-level separation proof; image-level audit is reported separately.",
+    "Native eager attention on this environment; no claim of parity across kernels.",
+    "No per-head post-intervention normalized attention tensor was recorded."
+  ]
+}
