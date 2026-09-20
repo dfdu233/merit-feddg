@@ -1,18 +1,23 @@
 {
   "schema": "adaptive-bard-medcpt-validation-v1",
-  "validated_commit": "690c38ba37f9d4aec78bf3de154327a2d0e0eb7a",
+  "validated_commit": "e1ae10aa7e8bf75222e5fbc010d730009cfac7fc",
   "github_actions": {
-    "run_id": 35534646193,
+    "run_id": 35535071886,
     "torch_enabled_job": "open-generation-cpu",
     "pytest": {
-      "passed": 202,
+      "passed": 205,
       "failed": 0,
-      "seconds": 5.47,
+      "seconds": 4.67,
       "includes": [
         "tests/test_bard.py",
         "tests/test_medcpt_kb.py",
         "existing open-generation/capability/LLaVA integration tests"
       ]
+    },
+    "cli_smoke": {
+      "prepare_medcpt_assets_help": "passed",
+      "build_medcpt_kb_help": "passed",
+      "prepare_bard_expert_cache_help": "passed"
     },
     "adaptive_bard_medcpt_ruff_findings": 0,
     "workflow_green": false,
@@ -24,13 +29,17 @@
   "implemented": {
     "adaptive_consensus": "n=1 anchor fallback; n=2 unanimous non-forcing; n>=3 centralized f<n/2 robust aggregation",
     "fault_unit": "declared fault_group, defaulting to expert_id",
+    "patient_image_experts_prioritized_before_retrieval": true,
     "native_spatial_receiver": true,
     "matched_arm_score_sharing": true,
+    "expert_major_cache_preparation": true,
     "medcpt_query_encoder": true,
     "medcpt_cross_encoder_reranker": true,
+    "retrieved_documents_are_atomic_records": true,
     "real_pubmed_kb_builder": true,
     "optional_faiss_hnsw": true,
-    "explicit_asset_download_helper": true
+    "explicit_asset_download_helper": true,
+    "missing_asset_preparation_hint": true
   },
   "not_validated": {
     "real_medcpt_checkpoint_loaded": false,
@@ -38,11 +47,13 @@
     "real_medical_gpu_experiment": false,
     "clinical_efficacy": false,
     "persistent_kv_decoder": false,
+    "vision_feature_reuse": false,
     "full_pubmed_2026_index": false
   },
   "notes": [
     "The reference decoder keeps production-prefix replay for correctness-first validation.",
     "Persistent KV and vision-feature reuse remain deferred until a source-side efficacy signal exists.",
-    "Retrieval relevance is not treated as patient-specific medical correctness."
+    "Retrieval relevance is not treated as patient-specific medical correctness.",
+    "The final branch may contain a later validation-report-only commit; the code validated here is e1ae10aa7e8bf75222e5fbc010d730009cfac7fc."
   ]
 }
