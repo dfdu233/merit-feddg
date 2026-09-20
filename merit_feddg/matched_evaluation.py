@@ -475,10 +475,26 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             "verifier_provenance": verifier_provenance,
             "reuse_generalist": reuse_generalist_audit,
             "reuse_expert_run": reuse_expert_audit,
-            "vector_gate_unit": "native_entry" if protocol == "native_claims" else ("acquired_expert_result" if frozen_spatial else None),
-            "vector_gate_control": "paired_local_blur_translation" if protocol == "native_claims" else ("same_size_image_channel_mean" if frozen_spatial else None),
+            "vector_gate_unit": (
+                "native_entry"
+                if protocol == "native_claims"
+                else "acquired_expert_result"
+                if protocol in {"vector", "spatial", "semantic_spatial"}
+                else None
+            ),
+            "vector_gate_control": (
+                "paired_local_blur_translation"
+                if protocol == "native_claims"
+                else "same_size_image_channel_mean"
+                if protocol in {"vector", "spatial", "semantic_spatial"}
+                else None
+            ),
             "semantic_channel": "existing_frozen_token_embeddings"
                 if protocol in {"semantic_spatial", "native_claims", "bard"} else None,
+            "native_spatial_channel": (
+                "parameter_free_branch_local_patch_return"
+                if protocol == "bard" else None
+            ),
             "byzantine_fault_model": (
                 {
                     "declared_fault_budget": bard_config.fault_budget,
