@@ -27,6 +27,7 @@ class MedCPTRetrievalExpert:
         top_k: int = 3,
         max_query_tokens: int = 64,
         max_pair_tokens: int = 512,
+        source_balance: bool = True,
     ):
         if min(candidate_k, top_k, max_query_tokens, max_pair_tokens) < 1:
             raise ValueError("MedCPT retrieval budgets must be positive")
@@ -53,12 +54,16 @@ class MedCPTRetrievalExpert:
         self.device_request = device
         self.candidate_k, self.top_k = candidate_k, top_k
         self.max_query_tokens, self.max_pair_tokens = max_query_tokens, max_pair_tokens
+        if type(source_balance) is not bool:
+            raise TypeError("source_balance must be boolean")
+        self.source_balance = source_balance
         self._query_model = self._query_tokenizer = None
         self._reranker = self._reranker_tokenizer = None
         self._manifest = self._read_manifest()
         self._db = None
         self._faiss_index = None
         self._faiss_rowids = None
+        self._faiss_source_indices = {}
 
     def _read_manifest(self):
         payload = json.loads(self.kb_manifest_path.read_text(encoding="utf-8"))
@@ -80,6 +85,10 @@ class MedCPTRetrievalExpert:
             rowids = root / shard["rowids"]
             if not embedding.is_file() or not rowids.is_file():
                 raise FileNotFoundError("knowledge-base embedding shard is incomplete")
+            if shard.get("source_ids"):
+                source_ids = root / shard["source_ids"]
+                if not source_ids.is_file():
+                    raise FileNotFoundError("knowledge-base source-id shard is incomplete")
         return payload
 
     @property
@@ -132,6 +141,16 @@ class MedCPTRetrievalExpert:
             raise ValueError("MedCPT query encoder returned an invalid vector")
         return result
 
+    def _per_source_candidate_k(self, source_count):
+        if source_count < 1:
+            return self.candidate_k
+        # candidate_k remains the total reranking budget.  Give each source a
+        # deterministic fair share while ensuring top_k can still be filled.
+        return max(
+            self.top_k,
+            (self.candidate_k + source_count - 1) // source_count,
+        )
+
     @staticmethod
     def _topk(scores, k):
         values = np.asarray(scores, dtype=np.float32)
@@ -154,6 +173,43 @@ class MedCPTRetrievalExpert:
                 "This knowledge base was built with FAISS. Install faiss-cpu/faiss-gpu "
                 "in the retrieval environment, or rebuild a small exact-scan pilot."
             ) from exc
+
+        if self.source_balance and spec.get("source_indices"):
+            result = []
+            source_specs = spec["source_indices"]
+            per_source_k = self._per_source_candidate_k(len(source_specs))
+            for source in source_specs:
+                source_id = int(source["source_id"])
+                if source_id not in self._faiss_source_indices:
+                    index_path = self.kb_root / source["index"]
+                    rowids_path = self.kb_root / source["rowids"]
+                    if not index_path.is_file() or not rowids_path.is_file():
+                        raise FileNotFoundError(
+                            "source-specific FAISS knowledge index is incomplete"
+                        )
+                    index = faiss.read_index(str(index_path))
+                    rowids = np.load(rowids_path, mmap_mode="r")
+                    if index.ntotal != len(rowids):
+                        raise ValueError(
+                            "source FAISS index and rowid mapping have different sizes"
+                        )
+                    if source.get("backend", spec.get("backend")) == "hnsw":
+                        index.hnsw.efSearch = max(64, self.candidate_k * 2)
+                    self._faiss_source_indices[source_id] = (index, rowids)
+                index, rowids = self._faiss_source_indices[source_id]
+                scores, indices = index.search(
+                    np.asarray(query, dtype=np.float32)[None, :],
+                    min(per_source_k, index.ntotal),
+                )
+                for score, index_value in zip(scores[0], indices[0], strict=True):
+                    if index_value < 0:
+                        continue
+                    result.append(
+                        (float(score), int(rowids[index_value]), source_id, int(index_value))
+                    )
+            result.sort(key=lambda value: (-value[0], value[1]))
+            return result
+
         if self._faiss_index is None:
             index_path = self.kb_root / spec["index"]
             rowids_path = self.kb_root / spec["rowids"]
@@ -180,7 +236,12 @@ class MedCPTRetrievalExpert:
         indexed = self._faiss_candidates(query)
         if indexed is not None:
             return indexed
+
+        source_vocab = self._manifest.get("source_vocab", [])
+        source_aware = self.source_balance and len(source_vocab) > 1
+        per_source_k = self._per_source_candidate_k(len(source_vocab))
         candidates = []
+        per_source = {source_id: [] for source_id in range(len(source_vocab))}
         for shard_id, shard in enumerate(self._manifest["shards"]):
             embeddings = np.load(
                 self.kb_root / shard["embedding"], mmap_mode="r"
@@ -191,12 +252,44 @@ class MedCPTRetrievalExpert:
             if rowids.shape != (int(shard["count"]),):
                 raise ValueError("knowledge-base rowid shape does not match manifest")
             scores = np.asarray(embeddings @ query, dtype=np.float32)
+
+            if source_aware:
+                source_path = shard.get("source_ids")
+                if not source_path:
+                    source_aware = False
+                else:
+                    source_ids = np.load(self.kb_root / source_path, mmap_mode="r")
+                    if source_ids.shape != rowids.shape:
+                        raise ValueError("knowledge-base source-id shape does not match rowids")
+                    for source_id, values in per_source.items():
+                        positions = np.flatnonzero(np.asarray(source_ids) == source_id)
+                        if not positions.size:
+                            continue
+                        local = self._topk(scores[positions], per_source_k)
+                        for local_index in local:
+                            index = int(positions[local_index])
+                            values.append(
+                                (
+                                    float(scores[index]),
+                                    int(rowids[index]),
+                                    shard_id,
+                                    index,
+                                )
+                            )
+                    continue
+
             for index in self._topk(scores, self.candidate_k):
                 candidates.append(
                     (float(scores[index]), int(rowids[index]), shard_id, int(index))
                 )
+
+        if source_aware:
+            candidates = []
+            for source_id, values in per_source.items():
+                values.sort(key=lambda value: (-value[0], value[1]))
+                candidates.extend(values[:per_source_k])
         candidates.sort(key=lambda value: (-value[0], value[1]))
-        return candidates[: self.candidate_k]
+        return candidates if source_aware else candidates[: self.candidate_k]
 
     def _connection(self):
         if self._db is None:
@@ -252,12 +345,34 @@ class MedCPTRetrievalExpert:
         records.sort(key=lambda value: (-value["rerank_score"], -value["dense_score"]))
         return records
 
+    def _select_topk(self, ranked):
+        """Prefer source diversity before filling remaining relevance slots.
+
+        This is deterministic diversity, not a learned source prior. With a
+        single-source KB it is identical to ordinary top-k.
+        """
+        if not self.source_balance or self.top_k <= 1:
+            return ranked[: self.top_k]
+        selected, deferred, seen = [], [], set()
+        for row in ranked:
+            source = str(row.get("source", ""))
+            if source and source not in seen and len(selected) < self.top_k:
+                selected.append(row)
+                seen.add(source)
+            else:
+                deferred.append(row)
+        if len(selected) < self.top_k:
+            selected.extend(deferred[: self.top_k - len(selected)])
+        return selected[: self.top_k]
+
+
     def close(self):
         if self._db is not None:
             self._db.close()
             self._db = None
         self._faiss_index = None
         self._faiss_rowids = None
+        self._faiss_source_indices = {}
         self._query_model = None
         self._query_tokenizer = None
         self._reranker = None
@@ -286,7 +401,7 @@ class MedCPTRetrievalExpert:
                 self.expert_id, request.capability, (), "empty_knowledge_base"
             )
         documents = self._documents(candidates)
-        ranked = self._rerank(query, candidates, documents)[: self.top_k]
+        ranked = self._select_topk(self._rerank(query, candidates, documents))
         items = []
         for rank, row in enumerate(ranked, 1):
             reference = {
@@ -336,6 +451,7 @@ class MedCPTRetrievalExpert:
                         ),
                         "query_encoder": str(self.query_path),
                         "cross_encoder_used": self._reranker is not None,
+                        "source_balance": self.source_balance,
                         "retrieval_query": query,
                         "retrieval_rank": rank,
                         "target_answers_used": False,
