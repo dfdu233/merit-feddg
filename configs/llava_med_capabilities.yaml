@@ -78,16 +78,17 @@ experts:
       kb_manifest: artifacts/knowledge/medcpt-pubmed/manifest.json
       cross_encoder_path: artifacts/models/ncbi--MedCPT-Cross-Encoder
       device: auto
-      candidate_k: 32
+      candidate_k: 64
       top_k: 3
       max_query_tokens: 64
       max_pair_tokens: 512
+      source_balance: true
     modalities: [cxr, xray, ct, mri, pathology, gross_pathology, ultrasound, oct, fundus, dermatology, endoscopy, clinical_photo, diagram]
     tasks: [open_vqa]
     capabilities: [retrieval]
     scope: biomedical_literature
     prefix_invariant: true
-    description: Retrieve PubMed biomedical literature with MedCPT dense retrieval and optional cross-encoder reranking. Retrieved passages are general medical knowledge, not patient-specific image findings or diagnoses.
+    description: Retrieve a frozen multi-source biomedical literature KB with MedCPT dense retrieval and optional cross-encoder reranking. Source diversity is preferred before relevance-only fill. Retrieved passages are general medical knowledge, not patient-specific image findings or diagnoses.
 
   source_cases:
     id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
