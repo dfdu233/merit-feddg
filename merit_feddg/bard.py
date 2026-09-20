@@ -35,6 +35,9 @@ class BARDConfig:
     fault_probe_scale: float = 8.0
     single_expert_policy: str = "baseline"
     pair_policy: str = "unanimous"
+    receiver_mode: str = "replay"
+    incremental_parity_steps: int = 3
+    incremental_logprob_tolerance: float = 0.02
 
     def __post_init__(self):
         if type(self.fault_budget) is not int or self.fault_budget < 0:
@@ -45,9 +48,17 @@ class BARDConfig:
             raise ValueError("single expert is not identifiable without an external falsification test")
         if self.pair_policy not in {"unanimous"}:
             raise ValueError("two-expert BARD currently supports unanimous non-forcing commit only")
+        if self.receiver_mode not in {"replay", "auto"}:
+            raise ValueError("receiver_mode must be replay or auto")
+        if type(self.incremental_parity_steps) is not int or self.incremental_parity_steps < 1:
+            raise ValueError("incremental_parity_steps must be positive")
         if type(self.median_iterations) is not int or self.median_iterations < 1:
             raise ValueError("median_iterations must be positive")
-        numeric = (self.median_tolerance, self.fault_probe_scale)
+        numeric = (
+            self.median_tolerance,
+            self.fault_probe_scale,
+            self.incremental_logprob_tolerance,
+        )
         if any(not np.isfinite(v) or v <= 0 for v in numeric):
             raise ValueError("numeric BARD controls must be finite and positive")
 
@@ -292,6 +303,7 @@ def decode_bard_bundle(
     *,
     max_tokens: int,
     config: BARDConfig,
+    methods=None,
 ):
     """Run matched mean/geomedian/BARD arms while sharing identical-prefix scores.
 
@@ -304,11 +316,15 @@ def decode_bard_bundle(
     names = list(expert_sessions)
     if len(names) != len(set(names)):
         raise ValueError("expert branch names must be unique")
-    policies = {
+    all_policies = {
         "isolated_mean": {"aggregation": "mean", "bounded": False},
         "isolated_geomedian": {"aggregation": "geometric_median", "bounded": False},
         "bard": {"aggregation": "geometric_median", "bounded": True},
     }
+    selected = tuple(all_policies) if methods is None else tuple(methods)
+    if not selected or any(name not in all_policies for name in selected):
+        raise ValueError("unknown or empty BARD bundle method set")
+    policies = {name: all_policies[name] for name in selected}
     states = {
         name: {"prefix": [], "trace": [], "finished": False}
         for name in policies
