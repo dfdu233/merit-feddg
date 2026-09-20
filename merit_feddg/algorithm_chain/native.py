@@ -161,7 +161,7 @@ def run_job(job, output):
     started = time.perf_counter()
     adapter = factory(**runtime.get('kwargs',{}))
     model = adapter.model.eval().requires_grad_(False)
-    with ForwardBudget(model, job['remaining_forwards'], Path(output)/'budget.json'):
+    with ForwardBudget(model, job['remaining_forwards'], Path(output)/'budget.json') as budget:
         legacy = legacy_runner()
         legacy.check_native_generation_defaults(model.generation_config)
         checkpoint = Path(model.config._name_or_path).resolve()
@@ -181,11 +181,13 @@ def run_job(job, output):
             write(manifest,job)
         import transformers
         runtime_info = dict(torch=torch.__version__, transformers=transformers.__version__,
+            merit_source=str(Path(inspect.getfile(importlib.import_module('merit_feddg'))).resolve()),
             model_config=model.config.to_dict(), adapter_source=str(Path(inspect.getfile(factory)).resolve()),
             native_model_source=str(Path(inspect.getfile(type(model))).resolve()),
             attention_classes=sorted({type(x.self_attn).__name__ for x in model.get_model().layers}),
             gpu_uuid=runtime['gpu_uuid'])
         runtime_info = read_json_normalized(runtime_info)
+        print(canonical(runtime_info), flush=True)
         runtime_path = output/'runtime.json'
         if runtime_path.exists() and read(runtime_path) != runtime_info:
             raise ValueError('Runtime changed on resume')
@@ -237,6 +239,9 @@ def run_job(job, output):
                 ref, rec = prepare_pair(adapter,row['image'],row['benchmark_prompt'],prompt)
                 record['transport_sha256'] = fingerprint(transport)
                 record['prompt_sha256'] = hashlib.sha256(prompt.encode()).hexdigest()
+                _sync(model.device)
+                record['preparation_seconds'] = time.perf_counter()-prepare_start
+                canary_start, canary_forwards = time.perf_counter(), budget.used
                 if index < 2:
                     checks = {}
                     for name, prepared, text in [('generalist',ref,row['benchmark_prompt']),('compact',rec,prompt)]:
@@ -258,9 +263,15 @@ def run_job(job, output):
                     checks.update(audit=True,expert_exposed=not audit['bypass'])
                     record['canary'] = checks
                     exposed_canary |= checks['expert_exposed']
+                _sync(model.device)
+                record['canary_seconds'] = time.perf_counter()-canary_start if index < 2 else 0.0
+                record['canary_forwards'] = budget.used-canary_forwards
                 record['preparation_and_canary_seconds'] = time.perf_counter()-prepare_start
                 stage = job['node']
                 if stage == 'A':
+                    _sync(model.device)
+                    torch.cuda.reset_peak_memory_stats(model.device)
+                    diagnostic_start, diagnostic_forwards = time.perf_counter(), budget.used
                     try:
                         record['diagnostic'] = diagnose(model,ref,rec,policy,context_limit=limit,
                                                         max_prefix=job['policy']['diagnostic_prefix_tokens'])
@@ -268,6 +279,10 @@ def run_job(job, output):
                                                 case['arms']['compact']['token_ids'])
                     except (PathwayError,ValueError) as error:
                         record['diagnostic'] = dict(status='failed',error=str(error))
+                    _sync(model.device)
+                    record['diagnostic']['measured_seconds'] = time.perf_counter()-diagnostic_start
+                    record['diagnostic']['measured_forwards'] = budget.used-diagnostic_forwards
+                    record['diagnostic']['peak_allocated_bytes'] = torch.cuda.max_memory_allocated(model.device)
                 else:
                     candidate = job['candidate']
                     controls = []
@@ -281,6 +296,8 @@ def run_job(job, output):
                         except (ValueError,PathwayError) as error:
                             control_error = str(error)
                     for name, algorithm in [('candidate',candidate['algorithm']),('control',candidate['control'])]:
+                        _sync(model.device)
+                        arm_start, arm_forwards = time.perf_counter(), budget.used
                         try:
                             if control_error:
                                 raise PathwayError(control_error)
@@ -294,6 +311,9 @@ def run_job(job, output):
                         except (PathwayError,ValueError) as error:
                             record['arms'][name] = dict(status='failed',error=str(error),token_ids=[],text=None,
                                 seconds=None, cost_unknown=True, hooks_removed=not getattr(model,'_merit_chain_active',False))
+                        _sync(model.device)
+                        record['arms'][name]['measured_seconds'] = time.perf_counter()-arm_start
+                        record['arms'][name]['measured_forwards'] = budget.used-arm_forwards
                 record['complete'] = True
                 write(target,record)
                 all_results.append(record)

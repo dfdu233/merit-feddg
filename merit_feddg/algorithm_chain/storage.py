@@ -69,8 +69,8 @@ def pixel_hash(path):
     from PIL import Image
     with Image.open(path) as im:
         rgb = im.convert('RGB')
-        # Matches the existing pipeline's raw RGB-byte fingerprint. Shape is
-        # separately recorded in inventory to avoid shape ambiguity.
+        # Chain registry uses raw RGB bytes. The older source pipeline also
+        # has a size-prefixed variant, validated separately in source_inventory.
         return hashlib.sha256(rgb.tobytes()).hexdigest(), list(rgb.size)
 
 
@@ -110,14 +110,22 @@ def source_inventory(cohort):
         if digest(image) != row['image_sha256']:
             raise ValueError('Changed source image')
         pixels, shape = pixel_hash(image)
+        source_pixel_scheme = 'raw_rgb'
         if row.get('pixel_sha256', pixels) != pixels:
-            raise ValueError('Changed decoded image pixels')
+            # Existing native TRAIN caches use open_data.pixel_digest:
+            # SHA256(str(rgb.size).encode() + rgb.tobytes()). Do not reinterpret
+            # that digest as raw bytes or mutate the source/registry semantics.
+            from ..open_data import pixel_digest
+            if row['pixel_sha256'] != pixel_digest(image):
+                raise ValueError('Changed decoded image pixels')
+            source_pixel_scheme = 'size_prefixed_rgb'
         for arm in ('generalist','compact'):
             prediction = case['arms'][arm]
             if not prediction['token_ids'] or not isinstance(prediction['text'], str):
                 raise ValueError('Missing actual cached baseline/compact output')
         records.append(dict(id=name+':'+key, source_id=key, pixel_sha256=pixels, image_size=shape,
-                            case_sha256=digest(case_path), image_sha256=digest(image)))
+                            case_sha256=digest(case_path), image_sha256=digest(image),
+                            source_pixel_scheme=source_pixel_scheme))
     for group in ('source','formal_sources'):
         if protocol.get(group):
             pin_files(protocol[group])

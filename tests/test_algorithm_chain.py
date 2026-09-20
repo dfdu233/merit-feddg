@@ -367,3 +367,20 @@ def test_no_confirmation_is_blocked_not_auto_split(tmp_path):
     plan=make_plan(tmp_path);plan['confirmation']=[]
     frozen=freeze_plan(plan,tmp_path);state=initial_state(frozen['identity']);state['node']='D'
     with pytest.raises(ValueError,match='No predeclared'):stage_job(frozen,state)
+
+
+def test_native_size_prefixed_pixel_hash_preserves_raw_registry(tmp_path):
+    from merit_feddg.open_data import pixel_digest
+    cohort = create_cohort(tmp_path, 'native', 30)
+    path = Path(cohort['source_run'])/'protocol.json'
+    protocol = read(path)
+    image = protocol['rows'][0]['image']
+    protocol['rows'][0]['pixel_sha256'] = pixel_digest(image)
+    write(path, protocol, replace=True)
+    record = source_inventory(cohort)['records'][0]
+    assert record['pixel_sha256'] == pixel_hash(image)[0]
+    assert record['source_pixel_scheme'] == 'size_prefixed_rgb'
+    protocol['rows'][0]['pixel_sha256'] = 'f'*64
+    write(path, protocol, replace=True)
+    with pytest.raises(ValueError, match='pixels'):
+        source_inventory(cohort)
