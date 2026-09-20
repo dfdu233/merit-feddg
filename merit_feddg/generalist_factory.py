@@ -38,8 +38,26 @@ def load_generalist(spec, artifacts=None):
         if spec.get("training_free_spatial"):
             probe.enable_spatial_evidence(max_records=spec.get("spatial_max_records", 64))
         return probe
+    if backend == "huatuo_vision":
+        from .huatuo_generalist import HuatuoVisionGeneralist
+
+        generation = dict(spec.get("generation", {}))
+        probe = HuatuoVisionGeneralist(
+            model_path,
+            source_path=spec.get("source_path"),
+            dtype=spec.get("dtype", "bfloat16"),
+            device=spec.get("device", "cuda"),
+            deterministic_image_padding=spec.get("deterministic_image_padding", True),
+            repetition_penalty=generation.get("repetition_penalty", 1.0),
+            min_new_tokens=generation.get("min_new_tokens", 0),
+        )
+        if spec.get("training_free_spatial"):
+            probe.enable_spatial_evidence(max_records=spec.get("spatial_max_records", 64))
+        return probe
     if spec.get("training_free_spatial"):
-        raise ValueError("training_free_spatial currently supports only llava_med")
+        raise ValueError(
+            "training_free_spatial currently supports llava_med and legacy huatuo_vision"
+        )
     if backend != "qwen":
         raise ValueError(f"unsupported medical generalist backend: {backend}")
     from .generalist import QwenLayerProbe
@@ -68,7 +86,23 @@ def generalist_provenance(spec, artifacts):
     if spec.get("tensor_bridge_checkpoint"):
         checkpoint = Path(spec["tensor_bridge_checkpoint"])
         result["tensor_bridge_sha256"] = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
-    if spec.get("backend") != "llava_med":
+    backend = spec.get("backend", "qwen")
+    if backend == "huatuo_vision":
+        from .huatuo_generalist import inspect_huatuo_checkpoint
+
+        info = inspect_huatuo_checkpoint(
+            spec.get("checkpoint_path", spec["id"]),
+            source_path=spec.get("source_path"),
+        )
+        source = Path(info["source_path"]) / "llava"
+        result["huatuo_architecture"] = "legacy_llava_qwen2"
+        result["spatial_preprocess_mode"] = "deterministic_square_pad"
+        result["external_source"] = {
+            path.relative_to(source).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(source.rglob("*.py"))
+        }
+        return result
+    if backend != "llava_med":
         return result
     from .llava_generalist import inspect_llava_checkpoint
 

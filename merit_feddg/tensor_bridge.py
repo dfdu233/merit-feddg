@@ -132,8 +132,14 @@ def validate_tensor_backend(probe, bridge):
     grid = bridge.contract.grid_size
     crop = getattr(processor, "crop_size", {})
     size = getattr(processor, "size", {})
-    if (not getattr(probe, "deterministic_image_padding", False)
-            or getattr(probe.model.config, "image_aspect_ratio", None) != "pad"
+    deterministic_square_pad = (
+        getattr(probe, "spatial_preprocess_mode", None) == "deterministic_square_pad"
+        or (
+            getattr(probe, "deterministic_image_padding", False)
+            and getattr(probe.model.config, "image_aspect_ratio", None) == "pad"
+        )
+    )
+    if (not deterministic_square_pad
             or getattr(tower, "select_feature", None) != "patch"
             or int(tower.num_patches) != grid**2
             or not isinstance(crop, dict) or crop.get("height") != crop.get("width")
