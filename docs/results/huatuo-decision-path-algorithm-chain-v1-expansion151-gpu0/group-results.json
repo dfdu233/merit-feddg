@@ -1,0 +1,748 @@
+{
+  "additional151": {
+    "n": 151,
+    "arm_scores": {
+      "generalist": 0.5717439293598234,
+      "compact": 0.5322295805739514,
+      "candidate": 0.5821192052980132,
+      "control": 0.5333333333333333
+    },
+    "paired_changes": {
+      "generalist": {
+        "improved": 10,
+        "harmed": 6,
+        "unchanged": 135
+      },
+      "compact": {
+        "improved": 14,
+        "harmed": 4,
+        "unchanged": 133
+      },
+      "control": {
+        "improved": 15,
+        "harmed": 5,
+        "unchanged": 131
+      }
+    },
+    "benefit_harm": {
+      "original_gains": 10,
+      "retained_gains": 7,
+      "lost_gains": 3,
+      "original_harms": 16,
+      "repaired_harms": 11,
+      "fully_restored_original_harms": 11,
+      "new_harms_where_compact_not_harmful": 1,
+      "baseline_full_cases": 79,
+      "damaged_baseline_full_cases": 5
+    },
+    "quality": {
+      "planned_n": 151,
+      "completed_n": 151,
+      "image_groups": 151,
+      "cohorts": 2,
+      "contrasts": {
+        "generalist": {
+          "mean": 0.010375275938189847,
+          "lower": -0.032671081677704196,
+          "upper": 0.05562913907284767,
+          "groups": 151,
+          "n": 151,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "compact": {
+          "mean": 0.04988962472406181,
+          "lower": 0.0024227373068432677,
+          "upper": 0.09845474613686535,
+          "groups": 151,
+          "n": 151,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "control": {
+          "mean": 0.048785871964679914,
+          "lower": 0.0002207505518763778,
+          "upper": 0.09845474613686535,
+          "groups": 151,
+          "n": 151,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "cohort_contrasts": {
+        "slake-add64": {
+          "mean": 0.04010416666666667,
+          "lower": -0.04166666666666667,
+          "upper": 0.12657552083333337,
+          "groups": 64,
+          "n": 64,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "vqarad-add87": {
+          "mean": -0.011494252873563218,
+          "lower": -0.05747126436781609,
+          "upper": 0.03448275862068965,
+          "groups": 87,
+          "n": 87,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "original_gains": 10,
+      "retained_gains": 7,
+      "original_harms": 16,
+      "repaired_harms": 11,
+      "improvement_cases": 10,
+      "harmful_cases": 6,
+      "changed_cases": 72,
+      "active_cases": 100,
+      "damage_fraction": {
+        "rate": 0.06329113924050633,
+        "lower": 0.027334864880068366,
+        "upper": 0.1397488516277881,
+        "n": 79
+      },
+      "gain_retention": {
+        "rate": 0.7,
+        "lower": 0.39677814746114537,
+        "upper": 0.8922087325936989,
+        "n": 10
+      },
+      "mean_seconds": 5.332024365959578,
+      "alpha_per_comparison": 0.05,
+      "clinical_claim": "Not clinical accuracy; frozen automatic metric only",
+      "verdict": "fail",
+      "reason": "Development screening, NOT permission for large-scale evaluation"
+    },
+    "interpretation": "Descriptive exposed TRAIN evaluation; no independent confirmation or promotion"
+  },
+  "slake_add64": {
+    "n": 64,
+    "arm_scores": {
+      "generalist": 0.5286458333333334,
+      "compact": 0.5291666666666667,
+      "candidate": 0.56875,
+      "control": 0.5239583333333333
+    },
+    "paired_changes": {
+      "generalist": {
+        "improved": 8,
+        "harmed": 3,
+        "unchanged": 53
+      },
+      "compact": {
+        "improved": 7,
+        "harmed": 3,
+        "unchanged": 54
+      },
+      "control": {
+        "improved": 8,
+        "harmed": 3,
+        "unchanged": 53
+      }
+    },
+    "benefit_harm": {
+      "original_gains": 8,
+      "retained_gains": 6,
+      "lost_gains": 2,
+      "original_harms": 7,
+      "repaired_harms": 5,
+      "fully_restored_original_harms": 5,
+      "new_harms_where_compact_not_harmful": 1,
+      "baseline_full_cases": 30,
+      "damaged_baseline_full_cases": 3
+    },
+    "quality": {
+      "planned_n": 64,
+      "completed_n": 64,
+      "image_groups": 64,
+      "cohorts": 1,
+      "contrasts": {
+        "generalist": {
+          "mean": 0.04010416666666667,
+          "lower": -0.04166666666666667,
+          "upper": 0.12657552083333337,
+          "groups": 64,
+          "n": 64,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "compact": {
+          "mean": 0.03958333333333333,
+          "lower": -0.0390625,
+          "upper": 0.1234375,
+          "groups": 64,
+          "n": 64,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "control": {
+          "mean": 0.04479166666666667,
+          "lower": -0.03385416666666667,
+          "upper": 0.128125,
+          "groups": 64,
+          "n": 64,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "cohort_contrasts": {
+        "slake-add64": {
+          "mean": 0.04010416666666667,
+          "lower": -0.04166666666666667,
+          "upper": 0.12657552083333337,
+          "groups": 64,
+          "n": 64,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "original_gains": 8,
+      "retained_gains": 6,
+      "original_harms": 7,
+      "repaired_harms": 5,
+      "improvement_cases": 8,
+      "harmful_cases": 3,
+      "changed_cases": 26,
+      "active_cases": 50,
+      "damage_fraction": {
+        "rate": 0.1,
+        "lower": 0.03459988874733419,
+        "upper": 0.25621082579184085,
+        "n": 30
+      },
+      "gain_retention": {
+        "rate": 0.75,
+        "lower": 0.409275430310169,
+        "upper": 0.928520787247891,
+        "n": 8
+      },
+      "mean_seconds": 1.189914303668047,
+      "alpha_per_comparison": 0.05,
+      "clinical_claim": "Not clinical accuracy; frozen automatic metric only",
+      "verdict": "pass",
+      "reason": "Development screening, NOT permission for large-scale evaluation"
+    },
+    "interpretation": "Descriptive exposed TRAIN evaluation; no independent confirmation or promotion"
+  },
+  "vqarad_add87": {
+    "n": 87,
+    "arm_scores": {
+      "generalist": 0.603448275862069,
+      "compact": 0.5344827586206896,
+      "candidate": 0.5919540229885057,
+      "control": 0.5402298850574713
+    },
+    "paired_changes": {
+      "generalist": {
+        "improved": 2,
+        "harmed": 3,
+        "unchanged": 82
+      },
+      "compact": {
+        "improved": 7,
+        "harmed": 1,
+        "unchanged": 79
+      },
+      "control": {
+        "improved": 7,
+        "harmed": 2,
+        "unchanged": 78
+      }
+    },
+    "benefit_harm": {
+      "original_gains": 2,
+      "retained_gains": 1,
+      "lost_gains": 1,
+      "original_harms": 9,
+      "repaired_harms": 6,
+      "fully_restored_original_harms": 6,
+      "new_harms_where_compact_not_harmful": 0,
+      "baseline_full_cases": 49,
+      "damaged_baseline_full_cases": 2
+    },
+    "quality": {
+      "planned_n": 87,
+      "completed_n": 87,
+      "image_groups": 87,
+      "cohorts": 1,
+      "contrasts": {
+        "generalist": {
+          "mean": -0.011494252873563218,
+          "lower": -0.05747126436781609,
+          "upper": 0.03448275862068965,
+          "groups": 87,
+          "n": 87,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "compact": {
+          "mean": 0.05747126436781609,
+          "lower": 0.0038314176245210717,
+          "upper": 0.11494252873563218,
+          "groups": 87,
+          "n": 87,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "control": {
+          "mean": 0.05172413793103448,
+          "lower": -0.003831417624521074,
+          "upper": 0.11302681992337163,
+          "groups": 87,
+          "n": 87,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "cohort_contrasts": {
+        "vqarad-add87": {
+          "mean": -0.011494252873563218,
+          "lower": -0.05747126436781609,
+          "upper": 0.03448275862068965,
+          "groups": 87,
+          "n": 87,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "original_gains": 2,
+      "retained_gains": 1,
+      "original_harms": 9,
+      "repaired_harms": 6,
+      "improvement_cases": 2,
+      "harmful_cases": 3,
+      "changed_cases": 46,
+      "active_cases": 50,
+      "damage_fraction": {
+        "rate": 0.04081632653061224,
+        "lower": 0.011265633366185801,
+        "upper": 0.13713032306080064,
+        "n": 49
+      },
+      "gain_retention": {
+        "rate": 0.5,
+        "lower": 0.09453120573423074,
+        "upper": 0.9054687942657693,
+        "n": 2
+      },
+      "mean_seconds": 8.37909383707059,
+      "alpha_per_comparison": 0.05,
+      "clinical_claim": "Not clinical accuracy; frozen automatic metric only",
+      "verdict": "inconclusive",
+      "reason": "Insufficient independent units or benefit/harm coverage"
+    },
+    "interpretation": "Descriptive exposed TRAIN evaluation; no independent confirmation or promotion"
+  },
+  "prior128": {
+    "n": 128,
+    "arm_scores": {
+      "generalist": 0.5860677083333333,
+      "compact": 0.5743489583333333,
+      "candidate": 0.5763020833333333,
+      "control": 0.5821614583333333
+    },
+    "paired_changes": {
+      "generalist": {
+        "improved": 7,
+        "harmed": 8,
+        "unchanged": 113
+      },
+      "compact": {
+        "improved": 11,
+        "harmed": 9,
+        "unchanged": 108
+      },
+      "control": {
+        "improved": 12,
+        "harmed": 11,
+        "unchanged": 105
+      }
+    },
+    "benefit_harm": {
+      "original_gains": 14,
+      "retained_gains": 6,
+      "lost_gains": 8,
+      "original_harms": 14,
+      "repaired_harms": 9,
+      "fully_restored_original_harms": 8,
+      "new_harms_where_compact_not_harmful": 2,
+      "baseline_full_cases": 70,
+      "damaged_baseline_full_cases": 6
+    },
+    "quality": {
+      "planned_n": 128,
+      "completed_n": 128,
+      "image_groups": 128,
+      "cohorts": 1,
+      "contrasts": {
+        "generalist": {
+          "mean": -0.009765625,
+          "lower": -0.056640625,
+          "upper": 0.0390625,
+          "groups": 128,
+          "n": 128,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "compact": {
+          "mean": 0.001953125,
+          "lower": -0.060546875,
+          "upper": 0.064453125,
+          "groups": 128,
+          "n": 128,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "control": {
+          "mean": -0.005859375,
+          "lower": -0.072265625,
+          "upper": 0.060546875,
+          "groups": 128,
+          "n": 128,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "cohort_contrasts": {
+        "slake-dev": {
+          "mean": -0.009765625,
+          "lower": -0.056640625,
+          "upper": 0.0390625,
+          "groups": 128,
+          "n": 128,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "original_gains": 14,
+      "retained_gains": 6,
+      "original_harms": 14,
+      "repaired_harms": 9,
+      "improvement_cases": 7,
+      "harmful_cases": 8,
+      "changed_cases": 56,
+      "active_cases": 96,
+      "damage_fraction": {
+        "rate": 0.08571428571428572,
+        "lower": 0.03987666964511208,
+        "upper": 0.1746567249233948,
+        "n": 70
+      },
+      "gain_retention": {
+        "rate": 0.42857142857142855,
+        "lower": 0.21380798904474121,
+        "upper": 0.6740935542034925,
+        "n": 14
+      },
+      "mean_seconds": 1.2648744285415887,
+      "alpha_per_comparison": 0.05,
+      "clinical_claim": "Not clinical accuracy; frozen automatic metric only",
+      "verdict": "fail",
+      "reason": "Development screening, NOT permission for large-scale evaluation"
+    },
+    "interpretation": "Descriptive exposed TRAIN evaluation; no independent confirmation or promotion"
+  },
+  "slake_pooled192": {
+    "n": 192,
+    "arm_scores": {
+      "generalist": 0.5669270833333333,
+      "compact": 0.5592881944444444,
+      "candidate": 0.5737847222222222,
+      "control": 0.5627604166666667
+    },
+    "paired_changes": {
+      "generalist": {
+        "improved": 15,
+        "harmed": 11,
+        "unchanged": 166
+      },
+      "compact": {
+        "improved": 18,
+        "harmed": 12,
+        "unchanged": 162
+      },
+      "control": {
+        "improved": 20,
+        "harmed": 14,
+        "unchanged": 158
+      }
+    },
+    "benefit_harm": {
+      "original_gains": 22,
+      "retained_gains": 12,
+      "lost_gains": 10,
+      "original_harms": 21,
+      "repaired_harms": 14,
+      "fully_restored_original_harms": 13,
+      "new_harms_where_compact_not_harmful": 3,
+      "baseline_full_cases": 100,
+      "damaged_baseline_full_cases": 9
+    },
+    "quality": {
+      "planned_n": 192,
+      "completed_n": 192,
+      "image_groups": 192,
+      "cohorts": 2,
+      "contrasts": {
+        "generalist": {
+          "mean": 0.006857638888888888,
+          "lower": -0.03567708333333333,
+          "upper": 0.04852647569444445,
+          "groups": 192,
+          "n": 192,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "compact": {
+          "mean": 0.014496527777777777,
+          "lower": -0.03351128472222222,
+          "upper": 0.06223958333333333,
+          "groups": 192,
+          "n": 192,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "control": {
+          "mean": 0.011024305555555556,
+          "lower": -0.03845486111111111,
+          "upper": 0.05998480902777778,
+          "groups": 192,
+          "n": 192,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "cohort_contrasts": {
+        "slake-add64": {
+          "mean": 0.04010416666666667,
+          "lower": -0.04166666666666667,
+          "upper": 0.12657552083333337,
+          "groups": 64,
+          "n": 64,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "slake-dev": {
+          "mean": -0.009765625,
+          "lower": -0.056640625,
+          "upper": 0.0390625,
+          "groups": 128,
+          "n": 128,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "original_gains": 22,
+      "retained_gains": 12,
+      "original_harms": 21,
+      "repaired_harms": 14,
+      "improvement_cases": 15,
+      "harmful_cases": 11,
+      "changed_cases": 82,
+      "active_cases": 146,
+      "damage_fraction": {
+        "rate": 0.09,
+        "lower": 0.04807254000256516,
+        "upper": 0.16226212852716307,
+        "n": 100
+      },
+      "gain_retention": {
+        "rate": 0.5454545454545454,
+        "lower": 0.3465979532073494,
+        "upper": 0.7307970581918668,
+        "n": 22
+      },
+      "mean_seconds": 1.2398877202504082,
+      "alpha_per_comparison": 0.05,
+      "clinical_claim": "Not clinical accuracy; frozen automatic metric only",
+      "verdict": "fail",
+      "reason": "Development screening, NOT permission for large-scale evaluation"
+    },
+    "interpretation": "Descriptive exposed TRAIN evaluation; no independent confirmation or promotion"
+  },
+  "pooled279": {
+    "n": 279,
+    "arm_scores": {
+      "generalist": 0.5783154121863799,
+      "compact": 0.551553166069295,
+      "candidate": 0.5794504181600956,
+      "control": 0.5557347670250896
+    },
+    "paired_changes": {
+      "generalist": {
+        "improved": 17,
+        "harmed": 14,
+        "unchanged": 248
+      },
+      "compact": {
+        "improved": 25,
+        "harmed": 13,
+        "unchanged": 241
+      },
+      "control": {
+        "improved": 27,
+        "harmed": 16,
+        "unchanged": 236
+      }
+    },
+    "benefit_harm": {
+      "original_gains": 24,
+      "retained_gains": 13,
+      "lost_gains": 11,
+      "original_harms": 30,
+      "repaired_harms": 20,
+      "fully_restored_original_harms": 19,
+      "new_harms_where_compact_not_harmful": 3,
+      "baseline_full_cases": 149,
+      "damaged_baseline_full_cases": 11
+    },
+    "quality": {
+      "planned_n": 279,
+      "completed_n": 279,
+      "image_groups": 279,
+      "cohorts": 3,
+      "contrasts": {
+        "generalist": {
+          "mean": 0.0011350059737156519,
+          "lower": -0.03166218637992831,
+          "upper": 0.03369175627240144,
+          "groups": 279,
+          "n": 279,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "compact": {
+          "mean": 0.02789725209080048,
+          "lower": -0.009023297491039426,
+          "upper": 0.06493428912783751,
+          "groups": 279,
+          "n": 279,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "control": {
+          "mean": 0.023715651135005976,
+          "lower": -0.014638590203106327,
+          "upper": 0.06272700119474314,
+          "groups": 279,
+          "n": 279,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "cohort_contrasts": {
+        "slake-add64": {
+          "mean": 0.04010416666666667,
+          "lower": -0.04166666666666667,
+          "upper": 0.12657552083333337,
+          "groups": 64,
+          "n": 64,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "slake-dev": {
+          "mean": -0.009765625,
+          "lower": -0.056640625,
+          "upper": 0.0390625,
+          "groups": 128,
+          "n": 128,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "vqarad-add87": {
+          "mean": -0.011494252873563218,
+          "lower": -0.05747126436781609,
+          "upper": 0.03448275862068965,
+          "groups": 87,
+          "n": 87,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "original_gains": 24,
+      "retained_gains": 13,
+      "original_harms": 30,
+      "repaired_harms": 20,
+      "improvement_cases": 17,
+      "harmful_cases": 14,
+      "changed_cases": 128,
+      "active_cases": 196,
+      "damage_fraction": {
+        "rate": 0.0738255033557047,
+        "lower": 0.04172033311633154,
+        "upper": 0.1273532874842806,
+        "n": 149
+      },
+      "gain_retention": {
+        "rate": 0.5416666666666666,
+        "lower": 0.3507486535891949,
+        "upper": 0.72108666268789,
+        "n": 24
+      },
+      "mean_seconds": 3.466091778183583,
+      "alpha_per_comparison": 0.05,
+      "clinical_claim": "Not clinical accuracy; frozen automatic metric only",
+      "verdict": "fail",
+      "reason": "Development screening, NOT permission for large-scale evaluation"
+    },
+    "interpretation": "Descriptive exposed TRAIN evaluation; no independent confirmation or promotion"
+  }
+}

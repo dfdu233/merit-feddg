@@ -1,0 +1,378 @@
+{
+  "status": "EXPLORATORY_COMPLETE",
+  "scientific_verdict": "fail",
+  "ready_for_scale": false,
+  "plan_sha": "99d36d8c3c206e10b0dde2269092b003b6ccb490a46f8fd5c9cbe1202d731955",
+  "execution_commit": "101022ca05d75ad4e4dda8d1e39567c82d28cdfd",
+  "generation_commit": "9a554268250ef1ff07ca55de35947ac2f04091ee",
+  "gpu_uuid": "GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023",
+  "coverage": {
+    "additional_complete": 151,
+    "additional_planned": 151,
+    "cumulative_complete": 279,
+    "cumulative_planned": 279,
+    "inference_failures": 0,
+    "canaries_passed": 4
+  },
+  "additional": {
+    "n": 151,
+    "arm_scores": {
+      "generalist": 0.5717439293598234,
+      "compact": 0.5322295805739514,
+      "candidate": 0.5821192052980132,
+      "control": 0.5333333333333333
+    },
+    "paired_changes": {
+      "generalist": {
+        "improved": 10,
+        "harmed": 6,
+        "unchanged": 135
+      },
+      "compact": {
+        "improved": 14,
+        "harmed": 4,
+        "unchanged": 133
+      },
+      "control": {
+        "improved": 15,
+        "harmed": 5,
+        "unchanged": 131
+      }
+    },
+    "benefit_harm": {
+      "original_gains": 10,
+      "retained_gains": 7,
+      "lost_gains": 3,
+      "original_harms": 16,
+      "repaired_harms": 11,
+      "fully_restored_original_harms": 11,
+      "new_harms_where_compact_not_harmful": 1,
+      "baseline_full_cases": 79,
+      "damaged_baseline_full_cases": 5
+    },
+    "quality": {
+      "planned_n": 151,
+      "completed_n": 151,
+      "image_groups": 151,
+      "cohorts": 2,
+      "contrasts": {
+        "generalist": {
+          "mean": 0.010375275938189847,
+          "lower": -0.032671081677704196,
+          "upper": 0.05562913907284767,
+          "groups": 151,
+          "n": 151,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "compact": {
+          "mean": 0.04988962472406181,
+          "lower": 0.0024227373068432677,
+          "upper": 0.09845474613686535,
+          "groups": 151,
+          "n": 151,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "control": {
+          "mean": 0.048785871964679914,
+          "lower": 0.0002207505518763778,
+          "upper": 0.09845474613686535,
+          "groups": 151,
+          "n": 151,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "cohort_contrasts": {
+        "slake-add64": {
+          "mean": 0.04010416666666667,
+          "lower": -0.04166666666666667,
+          "upper": 0.12657552083333337,
+          "groups": 64,
+          "n": 64,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "vqarad-add87": {
+          "mean": -0.011494252873563218,
+          "lower": -0.05747126436781609,
+          "upper": 0.03448275862068965,
+          "groups": 87,
+          "n": 87,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "original_gains": 10,
+      "retained_gains": 7,
+      "original_harms": 16,
+      "repaired_harms": 11,
+      "improvement_cases": 10,
+      "harmful_cases": 6,
+      "changed_cases": 72,
+      "active_cases": 100,
+      "damage_fraction": {
+        "rate": 0.06329113924050633,
+        "lower": 0.027334864880068366,
+        "upper": 0.1397488516277881,
+        "n": 79
+      },
+      "gain_retention": {
+        "rate": 0.7,
+        "lower": 0.39677814746114537,
+        "upper": 0.8922087325936989,
+        "n": 10
+      },
+      "mean_seconds": 5.332024365959578,
+      "alpha_per_comparison": 0.05,
+      "clinical_claim": "Not clinical accuracy; frozen automatic metric only",
+      "verdict": "fail",
+      "reason": "Development screening, NOT permission for large-scale evaluation"
+    },
+    "interpretation": "Descriptive exposed TRAIN evaluation; no independent confirmation or promotion"
+  },
+  "pooled": {
+    "n": 279,
+    "arm_scores": {
+      "generalist": 0.5783154121863799,
+      "compact": 0.551553166069295,
+      "candidate": 0.5794504181600956,
+      "control": 0.5557347670250896
+    },
+    "paired_changes": {
+      "generalist": {
+        "improved": 17,
+        "harmed": 14,
+        "unchanged": 248
+      },
+      "compact": {
+        "improved": 25,
+        "harmed": 13,
+        "unchanged": 241
+      },
+      "control": {
+        "improved": 27,
+        "harmed": 16,
+        "unchanged": 236
+      }
+    },
+    "benefit_harm": {
+      "original_gains": 24,
+      "retained_gains": 13,
+      "lost_gains": 11,
+      "original_harms": 30,
+      "repaired_harms": 20,
+      "fully_restored_original_harms": 19,
+      "new_harms_where_compact_not_harmful": 3,
+      "baseline_full_cases": 149,
+      "damaged_baseline_full_cases": 11
+    },
+    "quality": {
+      "planned_n": 279,
+      "completed_n": 279,
+      "image_groups": 279,
+      "cohorts": 3,
+      "contrasts": {
+        "generalist": {
+          "mean": 0.0011350059737156519,
+          "lower": -0.03166218637992831,
+          "upper": 0.03369175627240144,
+          "groups": 279,
+          "n": 279,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "compact": {
+          "mean": 0.02789725209080048,
+          "lower": -0.009023297491039426,
+          "upper": 0.06493428912783751,
+          "groups": 279,
+          "n": 279,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "control": {
+          "mean": 0.023715651135005976,
+          "lower": -0.014638590203106327,
+          "upper": 0.06272700119474314,
+          "groups": 279,
+          "n": 279,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "cohort_contrasts": {
+        "slake-add64": {
+          "mean": 0.04010416666666667,
+          "lower": -0.04166666666666667,
+          "upper": 0.12657552083333337,
+          "groups": 64,
+          "n": 64,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "slake-dev": {
+          "mean": -0.009765625,
+          "lower": -0.056640625,
+          "upper": 0.0390625,
+          "groups": 128,
+          "n": 128,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        },
+        "vqarad-add87": {
+          "mean": -0.011494252873563218,
+          "lower": -0.05747126436781609,
+          "upper": 0.03448275862068965,
+          "groups": 87,
+          "n": 87,
+          "sufficient": true,
+          "alpha": 0.05,
+          "repetitions": 4000,
+          "seed": 0
+        }
+      },
+      "original_gains": 24,
+      "retained_gains": 13,
+      "original_harms": 30,
+      "repaired_harms": 20,
+      "improvement_cases": 17,
+      "harmful_cases": 14,
+      "changed_cases": 128,
+      "active_cases": 196,
+      "damage_fraction": {
+        "rate": 0.0738255033557047,
+        "lower": 0.04172033311633154,
+        "upper": 0.1273532874842806,
+        "n": 149
+      },
+      "gain_retention": {
+        "rate": 0.5416666666666666,
+        "lower": 0.3507486535891949,
+        "upper": 0.72108666268789,
+        "n": 24
+      },
+      "mean_seconds": 3.466091778183583,
+      "alpha_per_comparison": 0.05,
+      "clinical_claim": "Not clinical accuracy; frozen automatic metric only",
+      "verdict": "fail",
+      "reason": "Development screening, NOT permission for large-scale evaluation"
+    },
+    "interpretation": "Descriptive exposed TRAIN evaluation; no independent confirmation or promotion"
+  },
+  "gates": {
+    "min_delta_vs_generalist": true,
+    "min_delta_vs_compact": true,
+    "beats_control": true,
+    "repair_minimum": true,
+    "gain_retention": false,
+    "damage_limit": true,
+    "latency_limit": true,
+    "image_coverage": true,
+    "gain_coverage": true,
+    "harm_coverage": true,
+    "active": true,
+    "changed": true
+  },
+  "behavior": {
+    "active": 100,
+    "bypass": 51,
+    "zero_projection_cases": 51,
+    "changed_vs_compact": 72,
+    "changed_vs_generalist": 76,
+    "distinct_layouts_histogram": {
+      "2": 64,
+      "1": 51,
+      "3": 36
+    },
+    "projection_rank_histogram": {
+      "1": 2555,
+      "2": 2393
+    },
+    "projection_steps": 4948,
+    "mean_removed_weighted_norm": 0.2452463133842932,
+    "mean_retained_weighted_norm": 0.3897452263947781,
+    "max_orthogonality_error": 3.160464647150932e-13,
+    "lengths": {
+      "candidate": {
+        "generated_tokens": 6773,
+        "max_tokens": 316,
+        "stop_reasons": {
+          "eos": 151
+        }
+      },
+      "control": {
+        "generated_tokens": 4458,
+        "max_tokens": 342,
+        "stop_reasons": {
+          "eos": 151
+        }
+      }
+    }
+  },
+  "costs": {
+    "inherited_forwards": 10164,
+    "failed_gpu1_attempt": {
+      "forwards": 0,
+      "worker_wall_seconds": 8.767150640487671,
+      "reason": "Competing compute process detected before model loading"
+    },
+    "worker_wall_seconds": 1382.4676010608673,
+    "offline_scoring_seconds": 0.17614054679870605,
+    "model_load_and_provenance_seconds": 12.842568597057834,
+    "preparation_seconds": 20.09330433397554,
+    "canary_seconds": 22.246871516108513,
+    "canary_forwards": 653,
+    "new_forwards": 34627,
+    "total_forwards": 44791,
+    "forward_limit": 200000,
+    "arms": {
+      "candidate": {
+        "seconds": 805.1356792598963,
+        "mean_seconds": 5.332024365959578,
+        "measured_seconds": 805.5481968789827,
+        "forwards": 21617,
+        "generated_tokens": 6773,
+        "peak_allocated_bytes": 24137898496
+      },
+      "control": {
+        "seconds": 496.6260308811907,
+        "mean_seconds": 3.2889141117959646,
+        "measured_seconds": 497.05387961515225,
+        "forwards": 12357,
+        "generated_tokens": 4458,
+        "peak_allocated_bytes": 24137898496
+      }
+    },
+    "notes": "Inherited phase costs remain in ../huatuo-decision-path-algorithm-chain-v1-repair/costs.json. Baseline caches reused; deployment latency unknown. Additional view preparation and budget persistence included in worker wall, not separately timed. Device residency includes allocator reservations and desktop and is not allocation peak. No new cache generation. Initial expansion data-audit wall not instrumented."
+  },
+  "attempts": {
+    "A": 3,
+    "C": 3
+  },
+  "no_test_inference": true,
+  "no_training": true,
+  "background_processes_active": false,
+  "reason": "All development screening gates pass except retention: 7/10=70%, below 75%. Baseline delta interval includes zero. Exposed-data exploration cannot grant independent confirmation. Original A→C→STOP_NO_CANDIDATE remains unchanged."
+}

@@ -1,0 +1,198 @@
+{
+  "history": [
+    {
+      "directory": "A-attempt-1",
+      "node": "A",
+      "report_sha": "cf79c55cbc52f7beef77460d245ee446650f4c8c11e7a982c82a9824b6311e66",
+      "verdict": "technical_failure"
+    },
+    {
+      "directory": "A-attempt-2",
+      "node": "A",
+      "report_sha": "7cfb0ba7aac23fdc87af463fee91c9c395e7365233c29f0117dc9aaadbf2a037",
+      "verdict": "technical_failure"
+    },
+    {
+      "directory": "A-attempt-3",
+      "node": "A",
+      "report_sha": "b48ac730e59724793a1416508177a8d0f7e0d1bff76a8f98034b34bdb4ad09e0",
+      "verdict": "fail"
+    },
+    {
+      "directory": "C-attempt-1",
+      "node": "C",
+      "report_sha": "c30f3dd6a7b3cae329d083051d5ece5028e871de2772e95214b3c2d5a4c22bae",
+      "verdict": "fail"
+    },
+    {
+      "directory": "C-attempt-2",
+      "node": "C",
+      "report_sha": "bea101308f921428adb8bb31cb229b832639f5ac38288a25191d237c513342c2",
+      "verdict": "technical_failure"
+    },
+    {
+      "directory": "C-attempt-3",
+      "node": "C",
+      "report_sha": "5ce4e6e9f922763c7221686b73d42c540a5d3415fee25d9d2d93ff05c486d027",
+      "verdict": "fail"
+    }
+  ],
+  "current_decision": {
+    "active_cases": 100,
+    "alpha_per_comparison": 0.05,
+    "changed_cases": 72,
+    "clinical_claim": "Not clinical accuracy; frozen automatic metric only",
+    "cohort_contrasts": {
+      "slake-add64": {
+        "alpha": 0.05,
+        "groups": 64,
+        "lower": -0.04166666666666667,
+        "mean": 0.04010416666666667,
+        "n": 64,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.12657552083333337
+      },
+      "vqarad-add87": {
+        "alpha": 0.05,
+        "groups": 87,
+        "lower": -0.05747126436781609,
+        "mean": -0.011494252873563218,
+        "n": 87,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.03448275862068965
+      }
+    },
+    "cohorts": 2,
+    "completed_n": 151,
+    "contrasts": {
+      "compact": {
+        "alpha": 0.05,
+        "groups": 151,
+        "lower": 0.0024227373068432677,
+        "mean": 0.04988962472406181,
+        "n": 151,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.09845474613686535
+      },
+      "control": {
+        "alpha": 0.05,
+        "groups": 151,
+        "lower": 0.0002207505518763778,
+        "mean": 0.048785871964679914,
+        "n": 151,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.09845474613686535
+      },
+      "generalist": {
+        "alpha": 0.05,
+        "groups": 151,
+        "lower": -0.032671081677704196,
+        "mean": 0.010375275938189847,
+        "n": 151,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.05562913907284767
+      }
+    },
+    "damage_fraction": {
+      "lower": 0.027334864880068366,
+      "n": 79,
+      "rate": 0.06329113924050633,
+      "upper": 0.1397488516277881
+    },
+    "gain_retention": {
+      "lower": 0.39677814746114537,
+      "n": 10,
+      "rate": 0.7,
+      "upper": 0.8922087325936989
+    },
+    "harmful_cases": 6,
+    "image_groups": 151,
+    "improvement_cases": 10,
+    "job_sha": "0915ec76539011b28acebadeb2c5e568cdb5c4a133cfa15c21a37fda9fea7483",
+    "mean_seconds": 5.332024365959578,
+    "node": "C",
+    "original_gains": 10,
+    "original_harms": 16,
+    "planned_n": 151,
+    "reason": "Development screening, NOT permission for large-scale evaluation",
+    "repaired_harms": 11,
+    "retained_gains": 7,
+    "stage_forwards": 34627,
+    "verdict": "fail"
+  },
+  "current_state": {
+    "attempts": {
+      "A": 3,
+      "C": 3
+    },
+    "blocked_node": "C",
+    "candidate": {
+      "algorithm": "project",
+      "control": "layout_average",
+      "layer": null
+    },
+    "experiment_mode": "fixed_candidate_exploratory_expansion",
+    "forwards_used": 44791,
+    "history": [
+      {
+        "directory": "A-attempt-1",
+        "node": "A",
+        "report_sha": "cf79c55cbc52f7beef77460d245ee446650f4c8c11e7a982c82a9824b6311e66",
+        "verdict": "technical_failure"
+      },
+      {
+        "directory": "A-attempt-2",
+        "node": "A",
+        "report_sha": "7cfb0ba7aac23fdc87af463fee91c9c395e7365233c29f0117dc9aaadbf2a037",
+        "verdict": "technical_failure"
+      },
+      {
+        "directory": "A-attempt-3",
+        "node": "A",
+        "report_sha": "b48ac730e59724793a1416508177a8d0f7e0d1bff76a8f98034b34bdb4ad09e0",
+        "verdict": "fail"
+      },
+      {
+        "directory": "C-attempt-1",
+        "node": "C",
+        "report_sha": "c30f3dd6a7b3cae329d083051d5ece5028e871de2772e95214b3c2d5a4c22bae",
+        "verdict": "fail"
+      },
+      {
+        "directory": "C-attempt-2",
+        "node": "C",
+        "report_sha": "bea101308f921428adb8bb31cb229b832639f5ac38288a25191d237c513342c2",
+        "verdict": "technical_failure"
+      },
+      {
+        "directory": "C-attempt-3",
+        "node": "C",
+        "report_sha": "5ce4e6e9f922763c7221686b73d42c540a5d3415fee25d9d2d93ff05c486d027",
+        "verdict": "fail"
+      }
+    ],
+    "holdout_consumed": false,
+    "node": "EXPLORATORY_COMPLETE",
+    "plan_sha": "99d36d8c3c206e10b0dde2269092b003b6ccb490a46f8fd5c9cbe1202d731955",
+    "preflight_costs": [
+      {
+        "directory": "A-attempt-3-preflight",
+        "forwards": 28
+      }
+    ],
+    "runtime_sha": "3704ab20b4a4c641222b487ddd9aa3e7731110eab0597b0066760429978e7a3d",
+    "schema": "merit-chain-state-v1"
+  },
+  "original_scientific_stop": "STOP_NO_CANDIDATE",
+  "note": "blocked_node is an inherited historical field; authoritative current node is EXPLORATORY_COMPLETE."
+}

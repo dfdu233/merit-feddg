@@ -1,0 +1,36 @@
+{
+  "inherited_forwards": 10164,
+  "failed_gpu1_attempt": {
+    "forwards": 0,
+    "worker_wall_seconds": 8.767150640487671,
+    "reason": "Competing compute process detected before model loading"
+  },
+  "worker_wall_seconds": 1382.4676010608673,
+  "offline_scoring_seconds": 0.17614054679870605,
+  "model_load_and_provenance_seconds": 12.842568597057834,
+  "preparation_seconds": 20.09330433397554,
+  "canary_seconds": 22.246871516108513,
+  "canary_forwards": 653,
+  "new_forwards": 34627,
+  "total_forwards": 44791,
+  "forward_limit": 200000,
+  "arms": {
+    "candidate": {
+      "seconds": 805.1356792598963,
+      "mean_seconds": 5.332024365959578,
+      "measured_seconds": 805.5481968789827,
+      "forwards": 21617,
+      "generated_tokens": 6773,
+      "peak_allocated_bytes": 24137898496
+    },
+    "control": {
+      "seconds": 496.6260308811907,
+      "mean_seconds": 3.2889141117959646,
+      "measured_seconds": 497.05387961515225,
+      "forwards": 12357,
+      "generated_tokens": 4458,
+      "peak_allocated_bytes": 24137898496
+    }
+  },
+  "notes": "Inherited phase costs remain in ../huatuo-decision-path-algorithm-chain-v1-repair/costs.json. Baseline caches reused; deployment latency unknown. Additional view preparation and budget persistence included in worker wall, not separately timed. Device residency includes allocator reservations and desktop and is not allocation peak. No new cache generation. Initial expansion data-audit wall not instrumented."
+}

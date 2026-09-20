@@ -1,0 +1,89 @@
+{
+  "schema": "merit-algorithm-chain-v1",
+  "identity": "99d36d8c3c206e10b0dde2269092b003b6ccb490a46f8fd5c9cbe1202d731955",
+  "experiment_mode": "fixed_candidate_exploratory_expansion",
+  "policy": {
+    "alpha": 0.05,
+    "bootstrap_repetitions": 4000,
+    "cohort_noninferiority_margin": 0.02,
+    "diagnostic_prefix_tokens": 16,
+    "max_damage_rate": 0.1,
+    "max_node_attempts": 3,
+    "max_seconds_per_case": 10.0,
+    "max_total_forwards": 200000,
+    "min_confirmation_cohorts": 2,
+    "min_confirmation_images": 64,
+    "min_delta": 0.005,
+    "min_development_images": 32,
+    "min_gain_retention": 0.75,
+    "min_images_per_cohort": 24,
+    "min_localization_images": 8,
+    "min_original_gains": 3,
+    "min_original_harms": 3,
+    "min_repaired_harms": 1,
+    "seed": 0
+  },
+  "generation": {
+    "slake-add64": {
+      "do_sample": false,
+      "eos_token_id": 151643,
+      "max_new_tokens": 1024,
+      "min_new_tokens": 1,
+      "num_beams": 1,
+      "pad_token_id": 151643,
+      "repetition_penalty": 1.2,
+      "use_cache": true
+    },
+    "vqarad-add87": {
+      "do_sample": false,
+      "eos_token_id": 151643,
+      "max_new_tokens": 1024,
+      "min_new_tokens": 1,
+      "num_beams": 1,
+      "pad_token_id": 151643,
+      "repetition_penalty": 1.2,
+      "use_cache": true
+    }
+  },
+  "development": [
+    {
+      "dataset": "slake",
+      "name": "slake-add64",
+      "split": "train"
+    },
+    {
+      "dataset": "vqa_rad",
+      "name": "vqarad-add87",
+      "split": "train"
+    }
+  ],
+  "confirmation": [],
+  "extension": [],
+  "gpu_uuid": "GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023",
+  "expansion": {
+    "candidate": {
+      "algorithm": "project",
+      "control": "layout_average",
+      "layer": null
+    },
+    "inherited_forwards": 10164,
+    "interpretation": "User-requested exploratory evaluation of additional exposed TRAIN data; never independent confirmation",
+    "predecessor_plan_sha": "c5ce9086e8e2f68c5d7d241c14cec29b6266687ae6be191405a9613605bb6f13",
+    "predecessor_state_sha256": "8c291d3077b21c48490c21a8139a301f0dc7787067cd0e5d59090a87e4e82521",
+    "prior_verdict": "STOP_NO_CANDIDATE"
+  },
+  "device_migration": {
+    "attempts_inherited": {
+      "A": 3,
+      "C": 2
+    },
+    "forwards_inherited": 10164,
+    "migration_script_sha256": "64e950815130b62f983deee1ed061bfd65a235661f42e9d9c32e485cb71c8746",
+    "predecessor_gpu_uuid": "GPU-3846413a-4238-d307-b1f3-10c2dfbe002c",
+    "predecessor_plan_sha": "a505a2d988729d39b0f6c54d561c07574c104229bba59248b0fbfe1c023141fa",
+    "predecessor_state_sha256": "110f2b5028e04a34774a37113cdd570a8139bfe491d7743ef5de9e4db4dbdade",
+    "reason": "User-authorized device migration after zero-forward ownership-check failure; previous device restriction superseded",
+    "successor_gpu_uuid": "GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023"
+  },
+  "redactions": "Absolute input/cache/reference/model paths, image/case mappings, packet contents and registry entries omitted. Canonical unredacted immutable plan retained locally; this document is not executable."
+}

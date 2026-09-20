@@ -1,3 +1,5 @@
+> Historical queued snapshot, superseded by the [completed GPU0 expansion](../huatuo-decision-path-algorithm-chain-v1-expansion151-gpu0/README.md). The latest user authorized GPU0; all151 added cases are now scored.
+
 # Exploratory TRAIN expansion — GPU1 only, queued
 
 2026-09-20 UTC snapshot. **The additional 151-case experiment is frozen and queued for GPU1. No new model cases have run and no expansion efficacy result is available yet.** See `summary.json` for the exact snapshot time and `runs/chain-v1-expansion151-gpu1/` for live execution state.

@@ -1,0 +1,56 @@
+{
+  "cpu_tests_passed": 135,
+  "cpu_tests_failed": 0,
+  "cpu_tests_skipped": 0,
+  "validation_log_sha256": "f006b62624eeca7b8140d0bf326b3c78ee93da18d2167d2d9fd83ac3dac8fd21",
+  "canaries": [
+    {
+      "cohort": "slake-add64",
+      "case_sha256": "45919010579e3545e7fa2ffe4df5de191b4d20285b2901023db731c4ee3aec57",
+      "checks": {
+        "audit": true,
+        "compact": true,
+        "expert_exposed": true,
+        "generalist": true
+      }
+    },
+    {
+      "cohort": "slake-add64",
+      "case_sha256": "10dca9c43d2b992ee80d819089a89f5878c5db70ea810f03c761509748dcbb8b",
+      "checks": {
+        "audit": true,
+        "compact": true,
+        "expert_exposed": true,
+        "generalist": true
+      }
+    },
+    {
+      "cohort": "vqarad-add87",
+      "case_sha256": "f46b07e4fc11efdfd3f44b6a09f90e8d5546d1d02c9787344d64d9ae0b8791b4",
+      "checks": {
+        "audit": true,
+        "compact": true,
+        "expert_exposed": true,
+        "generalist": true
+      }
+    },
+    {
+      "cohort": "vqarad-add87",
+      "case_sha256": "6b0a5f173f413247be20f2ab49e70591ac24961c9fd1212d6a083f8fa1a9c61a",
+      "checks": {
+        "audit": true,
+        "compact": true,
+        "expert_exposed": false,
+        "generalist": true
+      }
+    }
+  ],
+  "plan_pins_verified": true,
+  "score_prediction_binding_verified": true,
+  "decision_recomputation_identical": true,
+  "unique_pooled_images": 279,
+  "forward_ledger_verified": true,
+  "worker_exit": 0,
+  "scorer_exit": 0,
+  "process_exit_and_gpu_release_verified": true
+}

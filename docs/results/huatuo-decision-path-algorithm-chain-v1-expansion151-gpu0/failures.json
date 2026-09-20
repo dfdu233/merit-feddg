@@ -1,0 +1,15 @@
+{
+  "new_gpu0_inference_failures": [],
+  "gpu1_C_attempt_2": {
+    "verdict": "technical_failure",
+    "error": "Another compute process owns the authorized GPU; no job is killed",
+    "model_forwards": 0,
+    "worker_wall_seconds": 8.767150640487671,
+    "decision_sha256": "bea101308f921428adb8bb31cb229b832639f5ac38288a25191d237c513342c2"
+  },
+  "historical_failures": "../huatuo-decision-path-algorithm-chain-v1-repair/failures.json",
+  "cancelled_initial_gpu0_queue": {
+    "model_forwards": 0,
+    "reason": "Earlier GPU1-only instruction, later superseded by explicit GPU0 authorization"
+  }
+}
