@@ -158,11 +158,11 @@ def _decision_from_residuals(
     required_experts = 1 if not bounded_commit or f == 0 else 3 * f + 1
     support_needed = n if f == 0 else n - f
     supporters = int(np.sum(branch_margins > 0.0))
-    # Delete the f strongest pro-candidate branches: if the next remaining
-    # branch still has positive margin, the candidate survives an f-node
-    # optimistic-support removal test.
+    # With n >= 3f+1 and at least n-f positive votes, the f-th lower order
+    # statistic is the lower edge of the surviving honest-majority support.
+    # It is a robustness margin, not a probability of correctness.
     conservative_margin = (
-        float(np.sort(branch_margins)[-(f + 1)])
+        float(np.sort(branch_margins)[f])
         if n > f
         else float("-inf")
     )
