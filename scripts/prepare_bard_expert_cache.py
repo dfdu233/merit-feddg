@@ -76,17 +76,17 @@ def routed_rows(original, config, root, identity, artifacts, routing_json=None):
             routed.append({**row, "modality": modality})
         return routed, routes, {"source": str(Path(routing_json).resolve())}
 
-    probe = load_generalist(config["generalist"], artifacts)
+    holder = [load_generalist(config["generalist"], artifacts)]
     try:
         routed, routes = _route_records(
             rows,
             config.get("routing", {}),
-            lambda: probe,
+            lambda: holder[0],
             {"identity": identity},
             root,
         )
     finally:
-        del probe
+        holder[0] = None
         release_accelerator()
     return routed, routes, {"source": "fresh_image_only_generalist_routing"}
 
