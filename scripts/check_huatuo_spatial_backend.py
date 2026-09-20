@@ -13,10 +13,10 @@ from pathlib import Path
 import numpy as np
 
 from merit_feddg.capabilities import EvidenceItem
+from merit_feddg.experts.base import load_rgb
 from merit_feddg.generalist_factory import load_generalist, resolve_generalist_spec
 from merit_feddg.io import load_experiment_yaml
 from merit_feddg.spatial_evidence import encode_soft_mask
-from merit_feddg.experts.base import load_rgb
 
 
 def main():
