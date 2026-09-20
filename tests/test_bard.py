@@ -8,9 +8,11 @@ from merit_feddg.bard import (
     BARDConfig,
     bard_step,
     decode_bard,
+    decode_bard_auto,
     decode_bard_bundle,
     geometric_median,
     single_fault_probe,
+    validate_incremental_receiver,
 )
 from merit_feddg.bard_protocol import (
     acquire_expert_groups,
