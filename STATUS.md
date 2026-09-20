@@ -1,3 +1,13 @@
+# Research direction reset — user instruction 2026-09-20
+
+- User explicitly paused generation and rejected the current format/layout/order projection method as shallow and lacking innovation. Treat layout invariance as the wrong research target for this project; do not defend it, polish it, rename it, or automatically resume its queue.
+- New direction: seek a substantive, falsifiable mechanism explaining how specialist evidence changes multimodal reasoning, when it helps and when it harms. Start from observed behavior, competing causal explanations and decisive interventions, not a preselected projection/gating technique. No replacement mechanism has been validated or selected yet.
+- Generation stopped at VQA413/451 (host235 + cloud178); SLAKE2094/2094 had already completed when the pause arrived. Cloud VQA job was SIGSTOPped immediately and then terminated to release memory; completed case artifacts and the83029-forward counter are retained. Do not automatically resume. Other unrelated host MRI training is untouched.
+- Last user-requested interim same-sample comparison and hashes: docs/results/blackwell-full-test-20260920/partial-20260920T175459Z. It showed candidate below current native baseline on both datasets. Complete-SLAKE and paused-VQA artifacts remain local; no final full-VQA claim.
+- Prior runtime/branch details below are historical execution context, not instructions to continue the rejected method.
+
+---
+
 # Blackwell5090 execution handoff (2026-09-20 UTC)
 
 - Latest user explicitly authorized connecting their new two-5090 server, configuring fastest available environment, transferring or proxy-downloading assets and starting experiments. Cloud access uses local SSH key `/root/.ssh/merit_5090_ed25519`; credentials must never enter Git/logs. Endpoint is in the conversation, not this public file.
