@@ -230,3 +230,4 @@ def test_huatuo_bard_config_keeps_spatial_enabled(monkeypatch):
     assert spec["checkpoint_path"] == "/tmp/huatuo-model"
     assert spec["source_path"] == "/tmp/huatuo-source"
     assert config["capability_value"]["generation"]["spatial_weighting"] == "equal"
+    assert config["capability_value"]["generation"]["max_new_tokens"] == 1024
