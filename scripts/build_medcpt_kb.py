@@ -11,6 +11,8 @@ import hashlib
 import json
 import sqlite3
 import xml.etree.ElementTree as ET
+from collections import Counter
+from itertools import chain
 from pathlib import Path
 
 import numpy as np
@@ -66,6 +68,63 @@ def pubmed_records(directory):
                         },
                     }
                 element.clear()
+
+
+def _chunk_text(text, max_chars=1200):
+    words = " ".join(str(text).split()).split()
+    chunks, current = [], []
+    for word in words:
+        candidate = " ".join([*current, word])
+        if current and len(candidate) > max_chars:
+            chunks.append(" ".join(current))
+            current = [word]
+        else:
+            current.append(word)
+    if current:
+        chunks.append(" ".join(current))
+    return [chunk for chunk in chunks if chunk]
+
+
+def statpearls_records(directory):
+    """Parse real NCBI StatPearls NXML exports into section-level chunks.
+
+    This follows the public MedRAG preprocessing idea but keeps source identity
+    and provenance explicit in the MERIT KB instead of importing MedRAG files.
+    """
+    files = sorted(Path(directory).rglob("*.nxml"))
+    if not files:
+        raise FileNotFoundError(f"no StatPearls .nxml files found under {directory}")
+    for path in files:
+        tree = ET.parse(path)
+        root = tree.getroot()
+        title = text_of(root.find(".//title")) or path.stem
+        section_index = 0
+        for section in root.findall(".//sec"):
+            heading = text_of(section.find("./title"))
+            pieces = []
+            for child in list(section):
+                tag = child.tag.rsplit("}", 1)[-1]
+                if tag in {"p", "list"}:
+                    value = text_of(child)
+                    if value:
+                        pieces.append(value)
+            content = " ".join(pieces).strip()
+            if not content:
+                continue
+            section_title = " -- ".join(value for value in (title, heading) if value)
+            for chunk_index, chunk in enumerate(_chunk_text(content)):
+                yield {
+                    "id": f"StatPearls:{path.stem}:{section_index}:{chunk_index}",
+                    "title": section_title,
+                    "content": chunk,
+                    "source": "StatPearls",
+                    "year": "",
+                    "provenance": {
+                        "statpearls_file": path.name,
+                        "statpearls_relative_path": str(path.relative_to(directory)),
+                    },
+                }
+            section_index += 1
 
 
 def jsonl_records(path):
@@ -226,6 +285,7 @@ def build(
     shards = []
     embed_parts, shard_rowids, pending = [], [], []
     total = duplicate = 0
+    source_counts = Counter()
     shard_index = 0
 
     def encode_pending():
@@ -251,6 +311,7 @@ def build(
             vectors = encoder.encode(rows)
             embed_parts.append(vectors)
             shard_rowids.extend(rowid for _, rowid in accepted)
+            source_counts.update(str(row["source"]) for row, _ in accepted)
             total += len(accepted)
         pending = []
         if len(shard_rowids) >= shard_size:
@@ -283,6 +344,7 @@ def build(
         "schema": "merit-medcpt-kb-v1",
         "source": "biomedical_literature",
         "documents": total,
+        "source_counts": dict(sorted(source_counts.items())),
         "duplicates_skipped": duplicate,
         "embedding_dim": 768,
         "article_encoder": str(Path(article_encoder).expanduser().resolve()),
@@ -305,9 +367,14 @@ def build(
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    source = parser.add_mutually_exclusive_group(required=True)
-    source.add_argument("--pubmed-dir")
-    source.add_argument("--jsonl")
+    parser.add_argument("--pubmed-dir")
+    parser.add_argument("--statpearls-dir")
+    parser.add_argument(
+        "--jsonl",
+        action="append",
+        default=[],
+        help="additional answer-free literature JSONL; may be repeated",
+    )
     parser.add_argument("--article-encoder", required=True)
     parser.add_argument("--output", default="artifacts/knowledge/medcpt-pubmed")
     parser.add_argument("--limit", type=int, default=0)
@@ -318,11 +385,15 @@ def main():
     args = parser.parse_args()
     if args.limit < 0 or min(args.batch_size, args.shard_size, args.hnsw_m) < 1:
         parser.error("limit must be nonnegative and batch/shard/HNSW sizes positive")
-    records = (
-        pubmed_records(args.pubmed_dir)
-        if args.pubmed_dir
-        else jsonl_records(args.jsonl)
-    )
+    sources = []
+    if args.pubmed_dir:
+        sources.append(pubmed_records(args.pubmed_dir))
+    if args.statpearls_dir:
+        sources.append(statpearls_records(args.statpearls_dir))
+    sources.extend(jsonl_records(path) for path in args.jsonl)
+    if not sources:
+        parser.error("provide at least one of --pubmed-dir, --statpearls-dir, or --jsonl")
+    records = chain.from_iterable(sources)
     result = build(
         records,
         args.output,
