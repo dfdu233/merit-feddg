@@ -274,8 +274,9 @@ class MedCPTRetrievalExpert:
             )
         documents = self._documents(candidates)
         ranked = self._rerank(query, candidates, documents)[: self.top_k]
-        references = [
-            {
+        items = []
+        for rank, row in enumerate(ranked, 1):
+            reference = {
                 "document_id": row["doc_id"],
                 "source": row["source"],
                 "year": row["year"],
@@ -289,35 +290,46 @@ class MedCPTRetrievalExpert:
                     else "MedCPT_inner_product_relevance"
                 ),
                 "patient_specific_claim": "not_established",
+                "retrieval_rank": rank,
             }
-            for row in ranked
-        ]
-        item = EvidenceItem(
-            evidence_id=f"{self.expert_id}:{request.sample_id}:literature",
-            expert_id=self.expert_id,
-            capability="retrieval",
-            scope=self.scope,
-            payload={
-                "references": references,
-                "query": query,
-                "retrieval_is_patient_diagnosis": False,
-                "source_answers_included": False,
-            },
-            summary="Retrieved biomedical literature passages; relevance is not clinical truth.",
-            confidence=None,
-            provenance={
-                "adapter": "medcpt_pubmed",
-                "kb_schema": self._manifest["schema"],
-                "kb_fingerprint": self._manifest.get("fingerprint"),
-                "documents_indexed": self._manifest.get("documents"),
-                "index_backend": (
-                    self._manifest.get("faiss", {}).get("backend")
-                    if self._manifest.get("faiss") else "exact_sharded_scan"
-                ),
-                "query_encoder": str(self.query_path),
-                "cross_encoder_used": self._reranker is not None,
-                "target_answers_used": False,
-                "generated_prefix_used": False,
-            },
+            safe_id = str(row["doc_id"]).replace(":", "-").replace("/", "-")
+            items.append(
+                EvidenceItem(
+                    evidence_id=(
+                        f"{self.expert_id}:{request.sample_id}:literature:"
+                        f"{rank}:{safe_id}"
+                    ),
+                    expert_id=self.expert_id,
+                    capability="retrieval",
+                    scope=self.scope,
+                    payload={
+                        "references": [reference],
+                        "retrieval_is_patient_diagnosis": False,
+                        "source_answers_included": False,
+                    },
+                    summary=(
+                        "Retrieved biomedical literature passage; relevance is "
+                        "not patient-specific clinical truth."
+                    ),
+                    confidence=None,
+                    provenance={
+                        "adapter": "medcpt_pubmed",
+                        "kb_schema": self._manifest["schema"],
+                        "kb_fingerprint": self._manifest.get("fingerprint"),
+                        "documents_indexed": self._manifest.get("documents"),
+                        "index_backend": (
+                            self._manifest.get("faiss", {}).get("backend")
+                            if self._manifest.get("faiss") else "exact_sharded_scan"
+                        ),
+                        "query_encoder": str(self.query_path),
+                        "cross_encoder_used": self._reranker is not None,
+                        "retrieval_query": query,
+                        "retrieval_rank": rank,
+                        "target_answers_used": False,
+                        "generated_prefix_used": False,
+                    },
+                )
+            )
+        return CapabilityResult(
+            self.expert_id, request.capability, tuple(items)
         )
-        return CapabilityResult(self.expert_id, request.capability, (item,))
