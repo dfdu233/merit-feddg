@@ -4,8 +4,9 @@ from __future__ import annotations
 from dataclasses import asdict
 from time import perf_counter
 
-from .bard import BARDConfig, decode_bard, decode_bard_incremental
+from .bard import BARDConfig, bard_step, decode_bard, decode_bard_incremental
 from .bard import decode_bard_bundle as decode_bundle
+from .evidence_decode import _log_probs
 
 BARD_METHODS = ("isolated_mean", "isolated_geomedian", "bard")
 
@@ -255,19 +256,71 @@ def run_bard_method(native_session, acquisition, bard_config, method):
     }
 
 
-def run_bard_bundle(native_session, acquisition, bard_config):
-    """Compute all isolated matched arms together and share identical-prefix scores."""
+def run_bard_bundle(
+    native_session,
+    acquisition,
+    bard_config,
+    *,
+    parity_tokens=None,
+):
+    """Compute matched arms; BARD may use KV only after replay parity succeeds."""
     config = BARDConfig(**bard_config)
     base, experts, transport = build_isolated_sessions(
         native_session, acquisition["groups"]
     )
     started = perf_counter()
-    bundle = decode_bundle(
-        base,
-        experts,
-        max_tokens=native_session.config.max_new_tokens,
-        config=config,
-    )
+    parity = {
+        "fast_path_allowed": False,
+        "reason": "receiver_mode_replay",
+    }
+    if config.receiver_mode == "auto" and parity_tokens:
+        parity = validate_incremental_parity(
+            base,
+            experts,
+            parity_tokens,
+            max_steps=config.incremental_parity_steps,
+            tolerance=config.incremental_logprob_tolerance,
+            bard_config=config,
+        )
+
+    if parity.get("fast_path_allowed"):
+        replay_started = perf_counter()
+        bundle = decode_bundle(
+            base,
+            experts,
+            max_tokens=native_session.config.max_new_tokens,
+            config=config,
+            methods=("isolated_mean", "isolated_geomedian"),
+        )
+        replay_seconds = perf_counter() - replay_started
+        base_stream = base.new_incremental_stream()
+        expert_streams = {
+            name: session.new_incremental_stream()
+            for name, session in experts.items()
+        }
+        bard_started = perf_counter()
+        bundle["bard"] = decode_bard_incremental(
+            base_stream,
+            expert_streams,
+            max_tokens=native_session.config.max_new_tokens,
+            config=config,
+            fault_probe=True,
+        )
+        bard_seconds = perf_counter() - bard_started
+        bundle["bard"]["incremental_parity"] = parity
+        bundle["bard"]["fast_path_activated"] = True
+    else:
+        bundle = decode_bundle(
+            base,
+            experts,
+            max_tokens=native_session.config.max_new_tokens,
+            config=config,
+        )
+        replay_seconds = perf_counter() - started
+        bard_seconds = 0.0
+        bundle["bard"]["incremental_parity"] = parity
+        bundle["bard"]["fast_path_activated"] = False
+
     decode_seconds = perf_counter() - started
     evidence = [
         asdict(item)
@@ -279,6 +332,7 @@ def run_bard_bundle(native_session, acquisition, bard_config):
         "seconds": acquisition["seconds"],
         "selection": acquisition["selection"],
         "events": acquisition["events"],
+        "fault_group_members": acquisition.get("fault_group_members", {}),
     }
     outputs = {}
     for method, result in bundle.items():
@@ -287,7 +341,10 @@ def run_bard_bundle(native_session, acquisition, bard_config):
             "finished": bool(
                 result["token_ids"] and result["token_ids"][-1] in base.eos_ids
             ),
-            "seconds": decode_seconds,
+            "seconds": (
+                bard_seconds if method == "bard" and parity.get("fast_path_allowed")
+                else replay_seconds
+            ),
             "expert_calls": acquisition["native_requests"],
             "controller_calls": 0,
             "probe_model_calls": 0,
@@ -311,33 +368,139 @@ def run_bard_bundle(native_session, acquisition, bard_config):
                 "medical_correctness_guaranteed": False,
             },
             "bundle_decode_seconds": decode_seconds,
+            "bundle_replay_ablation_seconds": replay_seconds,
+            "bard_receiver_seconds": bard_seconds,
             "bundle_amortized_across_methods": list(BARD_METHODS),
         }
     return outputs
 
-def validate_incremental_parity(base_session, expert_sessions, prefix_tokens, *, max_steps=8):
-    """Require persistent-KV argmax parity on every actual receiver branch."""
+
+def _normalized_score_error(reference, candidate):
+    ref, ref_mask = _log_probs(reference)
+    cand, cand_mask = _log_probs(candidate)
+    if ref.shape != cand.shape or not np.array_equal(ref_mask, cand_mask):
+        return float("inf")
+    return float(np.max(np.abs(ref[ref_mask] - cand[cand_mask])))
+
+
+def validate_incremental_parity(
+    base_session,
+    expert_sessions,
+    prefix_tokens,
+    *,
+    max_steps=8,
+    tolerance=0.02,
+    bard_config=None,
+):
+    """Require branch-distribution and BARD-decision parity before persistent KV."""
     if type(max_steps) is not int or max_steps < 1:
         raise ValueError("max_steps must be positive")
-    prefix = [int(token) for token in prefix_tokens[:max_steps]]
+    if not np.isfinite(tolerance) or tolerance <= 0:
+        raise ValueError("tolerance must be finite and positive")
+    config = bard_config or BARDConfig()
+    prefix_tokens = [int(token) for token in prefix_tokens[:max_steps]]
     sessions = {"generalist": base_session, **dict(expert_sessions)}
-    reports = {}
-    for name, session in sessions.items():
-        if not hasattr(session, "incremental_parity"):
-            raise ValueError(f"receiver session {name} has no incremental parity implementation")
-        reports[name] = session.incremental_parity(prefix)
+    if not all(hasattr(session, "new_incremental_stream") for session in sessions.values()):
+        return {
+            "fast_path_allowed": False,
+            "reason": "incremental_stream_unavailable",
+            "prefix_tokens": prefix_tokens,
+        }
+
+    try:
+        streams = {
+            name: session.new_incremental_stream()
+            for name, session in sessions.items()
+        }
+    except (ValueError, TypeError, RuntimeError, AttributeError) as exc:
+        return {
+            "fast_path_allowed": False,
+            "reason": f"stream_initialization_failed:{type(exc).__name__}:{exc}",
+            "prefix_tokens": prefix_tokens,
+        }
+
+    prefix = []
+    rows = []
+    max_error = 0.0
+    all_branch_argmax = True
+    all_decisions_equal = True
+    expert_names = list(expert_sessions)
+    for step in range(len(prefix_tokens) + 1):
+        replay = {
+            name: session.next_scores(prefix)
+            for name, session in sessions.items()
+        }
+        cached = {
+            name: stream.current_scores()
+            for name, stream in streams.items()
+        }
+        errors = {
+            name: _normalized_score_error(replay[name], cached[name])
+            for name in sessions
+        }
+        max_error = max(max_error, *errors.values())
+        branch_equal = all(
+            int(np.argmax(replay[name])) == int(np.argmax(cached[name]))
+            for name in sessions
+        )
+        replay_token, replay_audit = bard_step(
+            replay["generalist"],
+            [replay[name] for name in expert_names],
+            config,
+            aggregation=config.aggregation,
+            bounded_commit=True,
+        )
+        cached_token, cached_audit = bard_step(
+            cached["generalist"],
+            [cached[name] for name in expert_names],
+            config,
+            aggregation=config.aggregation,
+            bounded_commit=True,
+        )
+        decision_equal = (
+            replay_token == cached_token
+            and replay_audit["committed"] == cached_audit["committed"]
+            and replay_audit["consensus_mode"] == cached_audit["consensus_mode"]
+        )
+        all_branch_argmax &= branch_equal
+        all_decisions_equal &= decision_equal
+        rows.append({
+            "step": step,
+            "branch_argmax_equal": branch_equal,
+            "bard_decision_equal": decision_equal,
+            "replay_selected_token": int(replay_token),
+            "incremental_selected_token": int(cached_token),
+            "max_normalized_logprob_error": max(errors.values()),
+            "branch_errors": errors,
+        })
+        if max_error > tolerance or not branch_equal or not decision_equal:
+            return {
+                "fast_path_allowed": False,
+                "reason": (
+                    "normalized_logprob_mismatch"
+                    if max_error > tolerance
+                    else "bard_or_branch_decision_mismatch"
+                ),
+                "prefix_tokens": prefix_tokens,
+                "steps": rows,
+                "max_normalized_logprob_error": max_error,
+                "tolerance": tolerance,
+            }
+        if step < len(prefix_tokens):
+            token = prefix_tokens[step]
+            prefix.append(token)
+            for stream in streams.values():
+                stream.commit(token)
+
     return {
-        "prefix_tokens": prefix,
-        "branches": reports,
-        "all_argmax_equal": all(
-            report["all_argmax_equal"] for report in reports.values()
-        ),
-        "max_abs_logit_delta": max(
-            report["max_abs_logit_delta"] for report in reports.values()
-        ),
-        "fast_path_allowed": all(
-            report["all_argmax_equal"] for report in reports.values()
-        ),
+        "fast_path_allowed": True,
+        "reason": "replay_parity_passed",
+        "prefix_tokens": prefix_tokens,
+        "steps": rows,
+        "all_branch_argmax_equal": all_branch_argmax,
+        "all_bard_decisions_equal": all_decisions_equal,
+        "max_normalized_logprob_error": max_error,
+        "tolerance": tolerance,
     }
 
 
