@@ -396,6 +396,7 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
             shared_pool = SharedExpertPool(pool, root / "expert-cache" / fingerprint(row["id"]),
                                            identity, fallbacks)
             bard_acquisition = None
+            bard_bundle = None
             for method, arm in arms.items():
                 path = root / "case-cache" / method / f"{fingerprint(row['id'])}.json"
                 cached = load_cached(path, identity)
@@ -406,7 +407,7 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                     elif protocol == "bard" and method in {
                         "isolated_mean", "isolated_geomedian", "bard"
                     }:
-                        from .bard_protocol import acquire_expert_groups, run_bard_method
+                        from .bard_protocol import acquire_expert_groups, run_bard_bundle
                         prompt = prompt_by_id[row["id"]]
                         session = NativeSession(
                             probe, row["image"], prompt, row["question"], arm
@@ -416,9 +417,11 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                                 session, shared_pool, row, specs, arm, None
                             )
                             bard_acquisition = acquire_expert_groups(acquisition_engine)
-                        cached = run_bard_method(
-                            session, bard_acquisition, config.get("bard", {}), method
-                        )
+                        if bard_bundle is None:
+                            bard_bundle = run_bard_bundle(
+                                session, bard_acquisition, config.get("bard", {})
+                            )
+                        cached = copy.deepcopy(bard_bundle[method])
                     elif method == "compact_verified":
                         from .answer_arbitration import arbitrate_output, load_verifier
                         candidate = outputs["compact_all"][row["id"]]
