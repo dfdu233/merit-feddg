@@ -28,7 +28,7 @@ def legacy_runner():
     return module
 
 
-def check_device(uuid, allowed_display_contexts=()):
+def check_device(uuid, allowed_display_contexts=(), allowed_compute_contexts=()):
     if not isinstance(uuid, str) or not uuid.startswith('GPU-'):
         raise ValueError('Explicit authorized physical GPU UUID required')
     if os.environ.get('CUDA_VISIBLE_DEVICES') != uuid:
@@ -55,6 +55,24 @@ def check_device(uuid, allowed_display_contexts=()):
                             and int(proc.findtext('pid')) == entry['pid']
                             and 0 < int(proc.findtext('used_memory').split()[0]) <= entry['max_memory_mib'] <= 64):
                         allowed[entry['pid']] = entry
+    if allowed_compute_contexts:
+        # Explicit, frozen coexistence authorization; never stop another job.
+        memory = subprocess.check_output(['nvidia-smi', '--query-compute-apps=gpu_uuid,pid,used_memory',
+                                          '--format=csv,noheader,nounits'], text=True, timeout=10)
+        for line in memory.splitlines():
+            fields = [v.strip() for v in line.split(',')]
+            if len(fields) != 3 or fields[0] != uuid:
+                continue
+            for entry in allowed_compute_contexts:
+                if int(fields[1]) == entry['pid']:
+                    command = Path(f"/proc/{entry['pid']}/cmdline").read_bytes()
+                    if (hashlib.sha256(command).hexdigest() == entry['cmdline_sha256']
+                            and int(fields[2]) <= entry['max_memory_mib']):
+                        allowed[entry['pid']] = entry
+        free = subprocess.check_output(['nvidia-smi', '-i', uuid, '--query-gpu=memory.free',
+                                        '--format=csv,noheader,nounits'], text=True, timeout=10)
+        if int(free.strip()) < max(e['minimum_free_mib'] for e in allowed_compute_contexts):
+            raise RuntimeError('Insufficient free memory for authorized GPU sharing')
     for line in processes.splitlines():
         values = [v.strip() for v in line.split(',')]
         if len(values) == 2 and values[0] == uuid and int(values[1]) != os.getpid() and int(values[1]) not in allowed:
@@ -165,7 +183,8 @@ def run_job(job, output):
 
     runtime = job['runtime']
     pin_files(runtime['pins'])
-    check_device(runtime['gpu_uuid'], runtime.get('allowed_display_contexts', ()))
+    check_device(runtime['gpu_uuid'], runtime.get('allowed_display_contexts', ()),
+                 runtime.get('allowed_compute_contexts', ()))
     for variable in ('HF_HUB_OFFLINE','TRANSFORMERS_OFFLINE'):
         os.environ[variable] = '1'
     for root in runtime.get('import_roots', []):
