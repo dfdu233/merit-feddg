@@ -1,0 +1,26 @@
+{
+  "schema": "pathway-restore-validation-v1",
+  "base_commit": "608d239bfeafdd55b5e6c4f676d92311563b50e3",
+  "python": "3.13.5",
+  "torch": "2.10.0+cpu",
+  "cuda_available": false,
+  "command": "OMP_NUM_THREADS=1 PYTHONPATH=. python -m pytest tests/test_pathway_restore.py tests/test_pathway_runner.py -q --disable-warnings",
+  "results": {
+    "passed": 52,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 1.72
+  },
+  "scope": "Targeted CPU synthetic-attention, cache, protocol and native-expansion fixtures; not full-repository or medical-model tests",
+  "real_huatuo_weights_tested": false,
+  "gpu_experiment_run": false,
+  "clinical_efficacy_evaluated": false,
+  "server_parity": "Not yet run; enforced by the new canary entrypoint",
+  "files": {
+    "merit_feddg/huatuo_pathway.py": "22542c5db9090124bf5d35509dc180b79d517fe27a3d88bd90617d8348d27759",
+    "merit_feddg/pathway_restore.py": "c7d6079ed24533b886d72547f51a458650acc3889c59a527bd62e00e23277dbc",
+    "scripts/run_huatuo_pathway.py": "d257e13ca8497c684e5feb20cad24a08bad7a3f1507a9f0e2d4b4b88a83e3e31",
+    "tests/test_pathway_restore.py": "934f7e0f81054b4987fad9b4f524dc90979ccbd78caba52540cb1be7231d79d1",
+    "tests/test_pathway_runner.py": "d410f2981d4bdf762097faf4d537e6b644cdaad534c5642c3ef3b5569de600d5"
+  }
+}
