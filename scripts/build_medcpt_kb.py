@@ -167,7 +167,54 @@ def flush_shard(root, shard_index, embeddings, rowids):
     }
 
 
-def build(records, output, article_encoder, *, limit=0, batch_size=32, shard_size=50000):
+def build_faiss_index(root, shards, backend, hnsw_m):
+    if backend == "none":
+        return None
+    try:
+        import faiss
+    except ImportError as exc:
+        raise RuntimeError(
+            "FAISS indexing is optional. Install faiss-cpu/faiss-gpu in the KB build "
+            "environment or use --index-backend none for the small exact-scan pilot."
+        ) from exc
+    if backend == "flat":
+        index = faiss.IndexFlatIP(768)
+    elif backend == "hnsw":
+        index = faiss.IndexHNSWFlat(768, hnsw_m, faiss.METRIC_INNER_PRODUCT)
+        index.hnsw.efConstruction = 200
+    else:
+        raise ValueError("unsupported FAISS backend")
+    all_rowids = []
+    for shard in shards:
+        matrix = np.load(root / shard["embedding"], mmap_mode="r")
+        rowids = np.load(root / shard["rowids"], mmap_mode="r")
+        index.add(np.asarray(matrix, dtype=np.float32))
+        all_rowids.append(np.asarray(rowids, dtype=np.int64))
+    faiss.write_index(index, str(root / "medcpt.faiss"))
+    mapping = np.concatenate(all_rowids)
+    np.save(root / "faiss-rowids.npy", mapping, allow_pickle=False)
+    return {
+        "backend": backend,
+        "index": "medcpt.faiss",
+        "rowids": "faiss-rowids.npy",
+        "count": int(mapping.size),
+        "index_sha256": sha256(root / "medcpt.faiss"),
+        "rowids_sha256": sha256(root / "faiss-rowids.npy"),
+        "hnsw_m": hnsw_m if backend == "hnsw" else None,
+    }
+
+
+def build(
+    records,
+    output,
+    article_encoder,
+    *,
+    limit=0,
+    batch_size=32,
+    shard_size=50000,
+    index_backend="none",
+    hnsw_m=32,
+):
     root = Path(output).expanduser().resolve()
     if root.exists() and any(root.iterdir()):
         raise FileExistsError(f"refusing to overwrite nonempty knowledge-base directory: {root}")
@@ -231,6 +278,7 @@ def build(records, output, article_encoder, *, limit=0, batch_size=32, shard_siz
     if not total or not shards:
         raise ValueError("knowledge-base build produced no documents")
 
+    faiss_index = build_faiss_index(root, shards, index_backend, hnsw_m)
     payload = {
         "schema": "merit-medcpt-kb-v1",
         "source": "biomedical_literature",
@@ -241,6 +289,7 @@ def build(records, output, article_encoder, *, limit=0, batch_size=32, shard_siz
         "sqlite": db_path.name,
         "sqlite_sha256": sha256(db_path),
         "shards": shards,
+        "faiss": faiss_index,
         "target_answers_used": False,
     }
     fingerprint = hashlib.sha256(
@@ -264,9 +313,11 @@ def main():
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--shard-size", type=int, default=50000)
+    parser.add_argument("--index-backend", choices=("none", "flat", "hnsw"), default="none")
+    parser.add_argument("--hnsw-m", type=int, default=32)
     args = parser.parse_args()
-    if args.limit < 0 or min(args.batch_size, args.shard_size) < 1:
-        parser.error("limit must be nonnegative and batch/shard sizes positive")
+    if args.limit < 0 or min(args.batch_size, args.shard_size, args.hnsw_m) < 1:
+        parser.error("limit must be nonnegative and batch/shard/HNSW sizes positive")
     records = (
         pubmed_records(args.pubmed_dir)
         if args.pubmed_dir
@@ -279,6 +330,8 @@ def main():
         limit=args.limit,
         batch_size=args.batch_size,
         shard_size=args.shard_size,
+        index_backend=args.index_backend,
+        hnsw_m=args.hnsw_m,
     )
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
