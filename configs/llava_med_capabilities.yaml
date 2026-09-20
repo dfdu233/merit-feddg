@@ -70,6 +70,7 @@ experts:
     required_local_paths:
       - artifacts/models/ncbi--MedCPT-Cross-Encoder
       - artifacts/knowledge/medcpt-pubmed/manifest.json
+    preparation_hint: python scripts/prepare_medcpt_assets.py --download-models --print-commands
     factory: merit_feddg.experts.medcpt_retriever:MedCPTRetrievalExpert
     factory_kwargs:
       expert_id: medcpt_pubmed
