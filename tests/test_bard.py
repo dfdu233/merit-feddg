@@ -184,12 +184,13 @@ class FakeRuntime:
         }
 
 
-def test_acquisition_uses_clean_states_and_groups_same_expert():
+def test_acquisition_uses_clean_states_and_prioritizes_distinct_experts():
     runtime = FakeRuntime()
     result = acquire_expert_groups(runtime)
-    assert list(result["groups"]) == ["a", "b", "c"]
-    assert len(result["groups"]["a"]) == 2
+    assert list(result["groups"]) == ["a", "b", "c", "d"]
+    assert len(result["groups"]["a"]) == 1
     assert result["native_requests"] == 4
+    assert [expert for expert, _, _ in runtime.calls] == ["a", "b", "c", "d"]
     assert all(items == () for _, _, items in runtime.calls)
 
 
