@@ -62,20 +62,20 @@ experts:
     question_types: [anatomy]
     description: Compare this image against a non-exhaustive major-organ catalog. Only for organ identification, not disease diagnosis, location, counts or segmentation.
     catalog: [brain, lung, heart, liver, kidney, spleen, pancreas, stomach, intestine, thyroid, skin, bone, breast, uterus, testis]
-  medcpt_pubmed:
+  medcpt_medcorp:
     id: ncbi/MedCPT-Query-Encoder
-    fault_group: medcpt_pubmed
+    fault_group: medcpt_medcorp
     checkpoint_path: artifacts/models/ncbi--MedCPT-Query-Encoder
     optional: true
     required_local_paths:
       - artifacts/models/ncbi--MedCPT-Cross-Encoder
-      - artifacts/knowledge/medcpt-pubmed/manifest.json
+      - artifacts/knowledge/medcpt-medcorp/manifest.json
     preparation_hint: python scripts/prepare_medcpt_assets.py --download-models --print-commands
     factory: merit_feddg.experts.medcpt_retriever:MedCPTRetrievalExpert
     factory_kwargs:
-      expert_id: medcpt_pubmed
+      expert_id: medcpt_medcorp
       scope: biomedical_literature
-      kb_manifest: artifacts/knowledge/medcpt-pubmed/manifest.json
+      kb_manifest: artifacts/knowledge/medcpt-medcorp/manifest.json
       cross_encoder_path: artifacts/models/ncbi--MedCPT-Cross-Encoder
       device: auto
       candidate_k: 64
