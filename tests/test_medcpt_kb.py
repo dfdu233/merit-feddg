@@ -300,3 +300,18 @@ def test_source_balance_disabled_matches_relevance_order(tmp_path):
         {"doc_id": "S1", "source": "StatPearls"},
     ]
     assert [row["doc_id"] for row in expert._select_topk(ranked)] == ["P1", "P2"]
+
+
+
+def test_round_robin_source_order_makes_bounded_pilot_multisource():
+    pubmed = iter([
+        {"id": "P1", "source": "PubMed"},
+        {"id": "P2", "source": "PubMed"},
+        {"id": "P3", "source": "PubMed"},
+    ])
+    statpearls = iter([
+        {"id": "S1", "source": "StatPearls"},
+        {"id": "S2", "source": "StatPearls"},
+    ])
+    rows = list(build_medcpt_kb.round_robin_records([pubmed, statpearls]))
+    assert [row["id"] for row in rows] == ["P1", "S1", "P2", "S2", "P3"]
