@@ -6,7 +6,6 @@ or target answers. The output is accepted by matched_evaluation --reuse-expert-r
 from __future__ import annotations
 
 import argparse
-import copy
 import gc
 import hashlib
 import json
