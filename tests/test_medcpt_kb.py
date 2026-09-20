@@ -265,3 +265,93 @@ def test_import_official_medcpt_precomputed_chunk(tmp_path):
         ("PMID:101", "A", "alpha abstract", "2025"),
         ("PMID:103", "C", "gamma abstract", "2023"),
     ]
+
+
+
+def test_statpearls_nxml_builds_section_chunks(tmp_path):
+    root = tmp_path / "statpearls"
+    root.mkdir()
+    (root / "NBK123.nxml").write_text(
+        """<article><front><article-meta><title-group><title>Cardiac Imaging</title></title-group></article-meta></front>
+        <body><sec><title>Evaluation</title><p>Chest radiography can show cardiomegaly and pulmonary edema.</p>
+        <p>Echocardiography evaluates cardiac structure and function.</p></sec></body></article>""",
+        encoding="utf-8",
+    )
+    rows = list(build_medcpt_kb.statpearls_records(root))
+    assert rows
+    assert rows[0]["source"] == "StatPearls"
+    assert rows[0]["id"].startswith("StatPearls:NBK123:")
+    assert "Cardiac Imaging" in rows[0]["title"]
+    assert "cardiomegaly" in rows[0]["content"]
+
+
+def test_builder_manifest_records_multi_source_counts(tmp_path, monkeypatch):
+    class FakeEncoder:
+        def __init__(self, *_args, **_kwargs):
+            pass
+
+        def encode(self, rows):
+            return np.ones((len(rows), 768), dtype=np.float32)
+
+    monkeypatch.setattr(build_medcpt_kb, "ArticleEncoder", FakeEncoder)
+    rows = [
+        {"id": "P1", "title": "p", "content": "pubmed", "source": "PubMed", "year": "", "provenance": {}},
+        {"id": "S1", "title": "s", "content": "clinical", "source": "StatPearls", "year": "", "provenance": {}},
+    ]
+    payload = build_medcpt_kb.build(
+        iter(rows), tmp_path / "multi", tmp_path / "article", batch_size=2
+    )
+    assert payload["source_counts"] == {"PubMed": 1, "StatPearls": 1}
+    assert payload["source_vocab"] == ["PubMed", "StatPearls"]
+
+
+def test_source_balanced_topk_prefers_distinct_sources(tmp_path):
+    query, root = write_kb(tmp_path)
+    expert = MedCPTRetrievalExpert(
+        str(query),
+        "medcpt",
+        str(root / "manifest.json"),
+        candidate_k=4,
+        top_k=3,
+        source_balance=True,
+    )
+    ranked = [
+        {"doc_id": "P1", "source": "PubMed", "rerank_score": 9.0},
+        {"doc_id": "P2", "source": "PubMed", "rerank_score": 8.0},
+        {"doc_id": "S1", "source": "StatPearls", "rerank_score": 7.0},
+        {"doc_id": "P3", "source": "PubMed", "rerank_score": 6.0},
+    ]
+    selected = expert._select_topk(ranked)
+    assert [row["doc_id"] for row in selected] == ["P1", "S1", "P2"]
+
+
+def test_source_balance_disabled_matches_relevance_order(tmp_path):
+    query, root = write_kb(tmp_path)
+    expert = MedCPTRetrievalExpert(
+        str(query),
+        "medcpt",
+        str(root / "manifest.json"),
+        candidate_k=4,
+        top_k=2,
+        source_balance=False,
+    )
+    ranked = [
+        {"doc_id": "P1", "source": "PubMed"},
+        {"doc_id": "P2", "source": "PubMed"},
+        {"doc_id": "S1", "source": "StatPearls"},
+    ]
+    assert [row["doc_id"] for row in expert._select_topk(ranked)] == ["P1", "P2"]
+
+
+def test_round_robin_source_order_makes_bounded_pilot_multisource():
+    pubmed = iter([
+        {"id": "P1", "source": "PubMed"},
+        {"id": "P2", "source": "PubMed"},
+        {"id": "P3", "source": "PubMed"},
+    ])
+    statpearls = iter([
+        {"id": "S1", "source": "StatPearls"},
+        {"id": "S2", "source": "StatPearls"},
+    ])
+    rows = list(build_medcpt_kb.round_robin_records([pubmed, statpearls]))
+    assert [row["id"] for row in rows] == ["P1", "S1", "P2", "S2", "P3"]
