@@ -6,6 +6,7 @@ import numpy as np
 
 from merit_feddg.capabilities import CapabilityRequest
 from merit_feddg.experts.medcpt_retriever import MedCPTRetrievalExpert
+from merit_feddg.native_evidence import compile_evidence
 from scripts import build_medcpt_kb
 
 
@@ -202,3 +203,24 @@ def test_medcpt_documents_are_atomic_for_whole_record_token_packing(tmp_path, mo
     assert [
         item.payload["references"][0]["retrieval_rank"] for item in result.items
     ] == [1, 2, 3]
+
+
+def test_medcpt_literature_survives_generic_native_retrieval_compiler(tmp_path, monkeypatch):
+    query, root = write_kb(tmp_path)
+    expert = MedCPTRetrievalExpert(
+        str(query),
+        "medcpt",
+        str(root / "manifest.json"),
+        candidate_k=3,
+        top_k=1,
+    )
+    monkeypatch.setattr(
+        expert,
+        "_query_embedding",
+        lambda _text: np.r_[np.array([1.0], dtype=np.float32), np.zeros(767, dtype=np.float32)],
+    )
+    result = expert.infer(request())
+    records = compile_evidence(result.items, request().question, max_chars=5000)
+    assert len(records) == 1
+    assert records[0]["payload"]["references"][0]["title"] == "lung"
+    assert "pulmonary nodule" in records[0]["payload"]["references"][0]["content"]
