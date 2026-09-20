@@ -64,6 +64,7 @@ experts:
     catalog: [brain, lung, heart, liver, kidney, spleen, pancreas, stomach, intestine, thyroid, skin, bone, breast, uterus, testis]
   medcpt_pubmed:
     id: ncbi/MedCPT-Query-Encoder
+    fault_group: medcpt_pubmed
     checkpoint_path: artifacts/models/ncbi--MedCPT-Query-Encoder
     optional: true
     required_local_paths:
@@ -105,6 +106,7 @@ experts:
     description: Retrieve one source case matched by image AND question, from another source domain and same image type. Its answer belongs only to that different image; this is an analogy, not proof about the current image.
   cxr_findings:
     id: xrv/densenet121-res224-all
+    fault_group: torchxrayvision
     adapter: xrv_classification
     checkpoint_path: artifacts/models/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     weights: densenet121-res224-all
@@ -117,6 +119,7 @@ experts:
     description: Whole-chest-radiograph disease finding scores from a small chest X-ray classifier. Not calibrated probabilities, not CT/MRI and not lesion location.
   cxr_anatomy:
     id: xrv/pspnet-chestxray
+    fault_group: torchxrayvision
     adapter: xrv_anatomy
     checkpoint_path: artifacts/models/xrv/pspnet_chestxray_best_model_4.pth
     modalities: [cxr]
