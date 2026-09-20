@@ -1,0 +1,189 @@
+{
+  "status": "STOP_NO_CANDIDATE",
+  "ready_for_scale": false,
+  "scientific_path": [
+    "A: fail",
+    "C: fail",
+    "STOP_NO_CANDIDATE"
+  ],
+  "plan_sha": "c5ce9086e8e2f68c5d7d241c14cec29b6266687ae6be191405a9613605bb6f13",
+  "generation_commit": "9a554268250ef1ff07ca55de35947ac2f04091ee",
+  "gpu_uuid": "GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023",
+  "coverage": {
+    "A": {
+      "planned": 128,
+      "complete": 128,
+      "failed": 0,
+      "divergence": 66,
+      "same_answer": 62,
+      "no_divergence": 0
+    },
+    "C": {
+      "planned": 128,
+      "complete_candidate": 128,
+      "complete_control": 128,
+      "failed": 0
+    },
+    "B": "not selected by A",
+    "D": "not triggered by C",
+    "E": "not triggered",
+    "native_canary_passed_per_node": {
+      "A": 2,
+      "C": 2
+    }
+  },
+  "arm_scores": {
+    "generalist": 0.5860677083333333,
+    "compact": 0.5743489583333333,
+    "candidate": 0.5763020833333333,
+    "control": 0.5821614583333333
+  },
+  "paired_changes": {
+    "generalist": {
+      "improved": 7,
+      "harmed": 8,
+      "unchanged": 113
+    },
+    "compact": {
+      "improved": 11,
+      "harmed": 9,
+      "unchanged": 108
+    },
+    "control": {
+      "improved": 12,
+      "harmed": 11,
+      "unchanged": 105
+    }
+  },
+  "benefit_harm": {
+    "original_gains": 14,
+    "retained_gains": 6,
+    "lost_gains": 8,
+    "original_harms": 14,
+    "repaired_harms": 9,
+    "fully_restored_original_harms": 8,
+    "new_harms_where_compact_not_harmful": 2,
+    "damaged_baseline_full_cases": 6,
+    "baseline_full_cases": 70
+  },
+  "behavior": {
+    "changed_vs_compact": 56,
+    "changed_vs_generalist": 49,
+    "bypass": 32,
+    "active": 96,
+    "zero_projection_cases": 32,
+    "total_distinct_layouts_histogram": {
+      "3": 50,
+      "2": 46,
+      "1": 32
+    },
+    "projection_rank_step_histogram": {
+      "2": 437,
+      "1": 218
+    },
+    "projection_steps": 655,
+    "mean_removed_weighted_norm": 0.29844602127966013,
+    "mean_retained_weighted_norm": 0.38742296487166944,
+    "max_orthogonality_error": 2.1524448889920222e-14,
+    "lengths": {
+      "candidate": {
+        "generated_tokens": 784,
+        "max_tokens": 158,
+        "length_limit_hits": 0
+      },
+      "control": {
+        "generated_tokens": 1373,
+        "max_tokens": 602,
+        "length_limit_hits": 0
+      }
+    }
+  },
+  "gates": {
+    "candidate_vs_generalist_delta_at_least_0_005": false,
+    "candidate_vs_compact_delta_at_least_0_005": false,
+    "candidate_beats_control": false,
+    "repairs_at_least_one": true,
+    "retains_at_least_75_percent": false,
+    "damage_at_most_10_percent": true,
+    "mean_decode_at_most_10_seconds": true,
+    "min_development_images": true,
+    "min_original_gains": true,
+    "min_original_harms": true,
+    "nonzero_intervention": true,
+    "nonzero_output_changes": true
+  },
+  "candidate": {
+    "algorithm": "project",
+    "control": "layout_average",
+    "layer": null
+  },
+  "attempts": {
+    "A": 3,
+    "C": 1
+  },
+  "forwards_used": 10164,
+  "costs": {
+    "A-attempt-3": {
+      "worker_wall_seconds": 207.8678057193756,
+      "offline_scoring_seconds": 0.08694195747375488,
+      "model_load_and_runtime_provenance_seconds": 14.913108753040433,
+      "preparation_seconds": 17.772560317767784,
+      "canary_seconds": 3.0095405150204897,
+      "canary_forwards": 36,
+      "canary_generated_tokens": 30,
+      "stage_forwards": 1200,
+      "diagnostic_seconds": 157.92338512837887,
+      "diagnostic_forwards": 1164,
+      "peak_allocated_bytes": 26754610688
+    },
+    "C-attempt-1": {
+      "worker_wall_seconds": 450.02468252182007,
+      "offline_scoring_seconds": 0.10151433944702148,
+      "model_load_and_runtime_provenance_seconds": 13.336130478885025,
+      "preparation_seconds": 18.361228958005086,
+      "canary_seconds": 3.04071884509176,
+      "canary_forwards": 36,
+      "canary_generated_tokens": 30,
+      "stage_forwards": 7890,
+      "arms": {
+        "candidate": {
+          "seconds": 161.90392685332336,
+          "measured_seconds": 162.22249529813416,
+          "forwards": 2749,
+          "generated_tokens": 784,
+          "peak_allocated_bytes": 24788087808
+        },
+        "control": {
+          "seconds": 230.34131039702334,
+          "measured_seconds": 230.69379801815376,
+          "forwards": 5105,
+          "generated_tokens": 1373,
+          "peak_allocated_bytes": 24788087808
+        }
+      },
+      "peak_allocated_bytes": 24788087808,
+      "control_preparation_note": "Additional C view construction/preparation is included in worker wall, not separately timed by the frozen worker."
+    },
+    "inherited": {
+      "forwards": 1046,
+      "worker_wall_seconds": 225.07706689834595,
+      "failed_diagnostic_forwards": 6,
+      "failed_diagnostic_seconds": 0.653209435986355,
+      "data_audit_seconds": 38.98802977311425,
+      "initial_runtime_hash_seconds": 8.750896396115422
+    },
+    "technical_preflight": {
+      "forwards": 28,
+      "model_load_seconds": 28.483963356819004,
+      "probe_seconds": 3.0032757217995822,
+      "failed_probe_forwards": 12,
+      "permission_failure_model_forwards": 0
+    },
+    "total_forwards": 10164,
+    "note": "Includes every measured failed, canary, shadow and matched-control forward. Cached baseline deployment latency is unknown. Phase times do not cover all orchestration/hash overhead; no complete task-wall estimate. Budget persistence adds implementation overhead. GPU allocation peaks exclude separately uninstrumented preflight/canary peaks; observed total device residency reached 38180 MiB, including the desktop, distinct from allocator peaks."
+  },
+  "no_test_inference": true,
+  "no_parameter_training": true,
+  "background_processes_active": false,
+  "reason": "C misses both minimum score improvements, does not beat matched control, and retains only 6/14 original gains. Scientific stopping rule reached; no forced confirmation or new candidate."
+}

@@ -1,0 +1,20 @@
+{
+  "cpu_tests": {
+    "passed": 128,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 3.85,
+    "files": [
+      "tests/test_algorithm_chain.py",
+      "tests/test_algorithm_chain_controller.py",
+      "tests/test_chain_repair.py",
+      "tests/test_chain_device_migration.py",
+      "tests/test_pathway_restore.py"
+    ]
+  },
+  "compile": true,
+  "cli_help": true,
+  "shell_syntax": true,
+  "diff_check": true,
+  "real_preflight": "Old parity failure reproduced; native incremental rebuild exact logits on both branches"
+}

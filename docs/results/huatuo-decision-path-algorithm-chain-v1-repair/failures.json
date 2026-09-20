@@ -1,0 +1,19 @@
+{
+  "formal_amended_A_failures": 0,
+  "formal_C_failures": 0,
+  "prior_A_attempts_retained": [
+    {
+      "attempt": 1,
+      "reason": "GPU0 ownership guard before model load",
+      "forwards": 0
+    },
+    {
+      "attempt": 2,
+      "reason": "One full-prefix/cached decision parity failure among 128",
+      "forwards": 1046
+    }
+  ],
+  "technical_preflight_failed_comparisons": 2,
+  "technical_preflight_permission_failure": "Before model loading; no forwards; log retained",
+  "note": "A and C final fail verdicts are scientific screening decisions, not failed inference."
+}

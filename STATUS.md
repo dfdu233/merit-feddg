@@ -1,3 +1,16 @@
+# Decision-path chain complete — A → C → STOP_NO_CANDIDATE (2026-09-20 UTC)
+
+- After explicit authorization for at most 3 attempts per node, native-shape prefix replay repaired the real BF16 cached/full-prefix parity mismatch. Strict equality remained enforced; inherited attempts/1046 forwards and 28 preflight forwards were retained.
+- Formal A and C each completed and scored 128/128 with zero inference failures; both nodes passed 2/2 native canaries. A's two boundary intervals crossed zero, so the controller selected C and skipped B.
+- C: Baseline 58.6068%, compact 57.4349%, projection 57.6302%, matched layout_average 58.2161%. Repairs 9/14 old harms but retains only 6/14 old gains. Candidate fails score-improvement, matched-control and retention gates.
+- Terminal **STOP_NO_CANDIDATE**, a completed scientific stopping path. D/E not triggered; no READY_FOR_SCALE or TEST execution. No model jobs or retries remain active for this task.
+- Total 10164 forwards, including prior failures and probes. A/C worker wall 207.868/450.025 s. Actual host GPU0 UUID `GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023`, with explicitly frozen 34 MiB desktop-context exception; GPU released after completion.
+- Generation source `9a55426`; amended plan `c5ce9086…`. 128 CPU tests passed. [Complete results and provenance](docs/results/huatuo-decision-path-algorithm-chain-v1-repair/README.md).
+
+Prior status entries below are immutable historical reports, superseded by the completed conditional chain above.
+
+---
+
 # Decision-path chain — GPU1 A queue complete, technical stop (2026-09-20 UTC)
 
 - GPU1 UUID `GPU-3846413a-4238-d307-b1f3-10c2dfbe002c` was verified idle and used for real Huatuo inference. Device-only successor preserves the original failure, scientific/code pins and budget; standard retry grants A attempt 2.

@@ -1,0 +1,60 @@
+{
+  "A-attempt-3": {
+    "worker_wall_seconds": 207.8678057193756,
+    "offline_scoring_seconds": 0.08694195747375488,
+    "model_load_and_runtime_provenance_seconds": 14.913108753040433,
+    "preparation_seconds": 17.772560317767784,
+    "canary_seconds": 3.0095405150204897,
+    "canary_forwards": 36,
+    "canary_generated_tokens": 30,
+    "stage_forwards": 1200,
+    "diagnostic_seconds": 157.92338512837887,
+    "diagnostic_forwards": 1164,
+    "peak_allocated_bytes": 26754610688
+  },
+  "C-attempt-1": {
+    "worker_wall_seconds": 450.02468252182007,
+    "offline_scoring_seconds": 0.10151433944702148,
+    "model_load_and_runtime_provenance_seconds": 13.336130478885025,
+    "preparation_seconds": 18.361228958005086,
+    "canary_seconds": 3.04071884509176,
+    "canary_forwards": 36,
+    "canary_generated_tokens": 30,
+    "stage_forwards": 7890,
+    "arms": {
+      "candidate": {
+        "seconds": 161.90392685332336,
+        "measured_seconds": 162.22249529813416,
+        "forwards": 2749,
+        "generated_tokens": 784,
+        "peak_allocated_bytes": 24788087808
+      },
+      "control": {
+        "seconds": 230.34131039702334,
+        "measured_seconds": 230.69379801815376,
+        "forwards": 5105,
+        "generated_tokens": 1373,
+        "peak_allocated_bytes": 24788087808
+      }
+    },
+    "peak_allocated_bytes": 24788087808,
+    "control_preparation_note": "Additional C view construction/preparation is included in worker wall, not separately timed by the frozen worker."
+  },
+  "inherited": {
+    "forwards": 1046,
+    "worker_wall_seconds": 225.07706689834595,
+    "failed_diagnostic_forwards": 6,
+    "failed_diagnostic_seconds": 0.653209435986355,
+    "data_audit_seconds": 38.98802977311425,
+    "initial_runtime_hash_seconds": 8.750896396115422
+  },
+  "technical_preflight": {
+    "forwards": 28,
+    "model_load_seconds": 28.483963356819004,
+    "probe_seconds": 3.0032757217995822,
+    "failed_probe_forwards": 12,
+    "permission_failure_model_forwards": 0
+  },
+  "total_forwards": 10164,
+  "note": "Includes every measured failed, canary, shadow and matched-control forward. Cached baseline deployment latency is unknown. Phase times do not cover all orchestration/hash overhead; no complete task-wall estimate. Budget persistence adds implementation overhead. GPU allocation peaks exclude separately uninstrumented preflight/canary peaks; observed total device residency reached 38180 MiB, including the desktop, distinct from allocator peaks."
+}

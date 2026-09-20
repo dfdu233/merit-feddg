@@ -1,0 +1,94 @@
+{
+  "decision": {
+    "job_sha": "54c884ab3eac04d912b6cd4584cba7c727e3ccd12a0c88b1f712b545238dcf9b",
+    "node": "A",
+    "reason": "No supported directional localization; try independent C",
+    "sites": {
+      "17": {
+        "alpha": 0.025,
+        "groups": 28,
+        "lower": -0.0724782107397914,
+        "mean": 0.02261766086199454,
+        "n": 28,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.11882777827642194
+      },
+      "8": {
+        "alpha": 0.025,
+        "groups": 28,
+        "lower": -0.02575089898891747,
+        "mean": 0.004976733720728329,
+        "n": 28,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.04028666716601171
+      }
+    },
+    "stage_forwards": 1200,
+    "verdict": "fail"
+  },
+  "coverage": {
+    "planned": 128,
+    "complete": 128,
+    "images": 128,
+    "diagnostic_statuses": {
+      "same_answer": 62,
+      "divergence": 66
+    }
+  },
+  "max_replay_logit_difference": 0,
+  "direction_by_original_outcome": {
+    "8": {
+      "original_gains": {
+        "mean": -0.030598188085215434,
+        "lower": -0.05656767566688359,
+        "upper": -0.007748731298904323,
+        "groups": 14,
+        "n": 14,
+        "sufficient": true,
+        "alpha": 0.025,
+        "repetitions": 4000,
+        "seed": 0
+      },
+      "original_harms": {
+        "mean": 0.040551655526672094,
+        "lower": -0.008861453452014497,
+        "upper": 0.10159066312148128,
+        "groups": 14,
+        "n": 14,
+        "sufficient": true,
+        "alpha": 0.025,
+        "repetitions": 4000,
+        "seed": 0
+      }
+    },
+    "17": {
+      "original_gains": {
+        "mean": -0.12637634123010294,
+        "lower": -0.22082841000187078,
+        "upper": -0.05202180525354506,
+        "groups": 14,
+        "n": 14,
+        "sufficient": true,
+        "alpha": 0.025,
+        "repetitions": 4000,
+        "seed": 0
+      },
+      "original_harms": {
+        "mean": 0.17161166295409203,
+        "lower": 0.052239677210205365,
+        "upper": 0.29803465383925615,
+        "groups": 14,
+        "n": 14,
+        "sufficient": true,
+        "alpha": 0.025,
+        "repetitions": 4000,
+        "seed": 0
+      }
+    }
+  },
+  "note": "Stratified direction summaries are descriptive. The frozen controller uses the overall intervals in decision.sites; no layer selected."
+}

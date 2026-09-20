@@ -1,0 +1,136 @@
+{
+  "allowed_display_contexts": [
+    {
+      "max_memory_mib": 64,
+      "pid": 2321122,
+      "process_name": "/usr/bin/nautilus"
+    }
+  ],
+  "forwards": 28,
+  "gpu_uuid": "GPU-809e1541-5fe0-e1a6-d360-d0ea647e9023",
+  "labels_used": false,
+  "load_seconds": 28.483963356819004,
+  "phase": "A-attempt-3-technical-preflight",
+  "results": {
+    "native_incremental_prefix_rebuild": {
+      "diagnostic": {
+        "baseline": {
+          "probability_margin": 0.0,
+          "processed_margin": 0.0,
+          "raw_margin": 0.0
+        },
+        "cache_logit_max_abs": [
+          0.0,
+          0.0
+        ],
+        "events": [
+          {
+            "applied_norm": 21.81654930114746,
+            "layer": 8,
+            "mode": "restore",
+            "patched": true,
+            "proposed_norm": 21.81654930114746,
+            "step": 1
+          },
+          {
+            "applied_norm": 21.814661026000977,
+            "layer": 8,
+            "mode": "roll",
+            "patched": true,
+            "proposed_norm": 21.81654930114746,
+            "step": 1
+          },
+          {
+            "applied_norm": 31.534521102905273,
+            "layer": 17,
+            "mode": "restore",
+            "patched": true,
+            "proposed_norm": 31.534521102905273,
+            "step": 1
+          },
+          {
+            "applied_norm": 31.534791946411133,
+            "layer": 17,
+            "mode": "roll",
+            "patched": true,
+            "proposed_norm": 31.534521102905273,
+            "step": 1
+          }
+        ],
+        "expert": {
+          "probability_margin": -0.5796879529953003,
+          "processed_margin": -1.75,
+          "raw_margin": -1.75
+        },
+        "forwards": 16,
+        "labels_used": false,
+        "prefix_budget": 16,
+        "replay_mode": "native_incremental_prefix_rebuild",
+        "seconds": 1.7249277089722455,
+        "sites": [
+          {
+            "layer": 8,
+            "restore": {
+              "probability_margin": -0.5254100561141968,
+              "processed_margin": -1.5,
+              "raw_margin": -1.5
+            },
+            "roll": {
+              "probability_margin": -0.5807417631149292,
+              "processed_margin": -1.75,
+              "raw_margin": -1.75
+            }
+          },
+          {
+            "layer": 17,
+            "restore": {
+              "probability_margin": -0.5009129047393799,
+              "processed_margin": -1.375,
+              "raw_margin": -1.375
+            },
+            "roll": {
+              "probability_margin": -0.4483177065849304,
+              "processed_margin": -1.375,
+              "raw_margin": -1.375
+            }
+          }
+        ],
+        "status": "divergence",
+        "step": 1,
+        "tested_layers": [
+          8,
+          17
+        ]
+      },
+      "forwards": 16,
+      "seconds": 1.7264879380818456,
+      "status": "complete"
+    },
+    "native_last_query_projection": {
+      "error": "Full-prefix and cached decision parity failed",
+      "forwards": 6,
+      "parity_details": {
+        "cache_logit_max_abs": [
+          0.21875,
+          0.2421875
+        ],
+        "step": 1
+      },
+      "seconds": 0.6298782539088279,
+      "status": "failed"
+    },
+    "original_projection": {
+      "error": "Full-prefix and cached decision parity failed",
+      "forwards": 6,
+      "parity_details": {
+        "cache_logit_max_abs": [
+          0.21875,
+          0.2421875
+        ],
+        "step": 1
+      },
+      "seconds": 0.6469095298089087,
+      "status": "failed"
+    }
+  }
+}

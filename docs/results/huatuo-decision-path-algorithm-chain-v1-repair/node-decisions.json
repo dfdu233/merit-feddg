@@ -1,0 +1,129 @@
+[
+  {
+    "job_sha": "3f3867c93e7e4f983bfcf513e19ec56b9ba2d281ceee73a1841caa12d711ee61",
+    "node": "A",
+    "reason": "Inference child failed; see durable log/exit",
+    "stage_forwards": 0,
+    "verdict": "technical_failure"
+  },
+  {
+    "job_sha": "337717e7726c0b0f88d3d2c7b5b8ec13a17569969777ef45e493737aa33aeb94",
+    "node": "A",
+    "reason": "Diagnostic forward failed",
+    "stage_forwards": 1046,
+    "verdict": "technical_failure"
+  },
+  {
+    "job_sha": "54c884ab3eac04d912b6cd4584cba7c727e3ccd12a0c88b1f712b545238dcf9b",
+    "node": "A",
+    "reason": "No supported directional localization; try independent C",
+    "sites": {
+      "17": {
+        "alpha": 0.025,
+        "groups": 28,
+        "lower": -0.0724782107397914,
+        "mean": 0.02261766086199454,
+        "n": 28,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.11882777827642194
+      },
+      "8": {
+        "alpha": 0.025,
+        "groups": 28,
+        "lower": -0.02575089898891747,
+        "mean": 0.004976733720728329,
+        "n": 28,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.04028666716601171
+      }
+    },
+    "stage_forwards": 1200,
+    "verdict": "fail"
+  },
+  {
+    "active_cases": 96,
+    "alpha_per_comparison": 0.05,
+    "changed_cases": 56,
+    "clinical_claim": "Not clinical accuracy; frozen automatic metric only",
+    "cohort_contrasts": {
+      "slake-dev": {
+        "alpha": 0.05,
+        "groups": 128,
+        "lower": -0.056640625,
+        "mean": -0.009765625,
+        "n": 128,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.0390625
+      }
+    },
+    "cohorts": 1,
+    "completed_n": 128,
+    "contrasts": {
+      "compact": {
+        "alpha": 0.05,
+        "groups": 128,
+        "lower": -0.060546875,
+        "mean": 0.001953125,
+        "n": 128,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.064453125
+      },
+      "control": {
+        "alpha": 0.05,
+        "groups": 128,
+        "lower": -0.072265625,
+        "mean": -0.005859375,
+        "n": 128,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.060546875
+      },
+      "generalist": {
+        "alpha": 0.05,
+        "groups": 128,
+        "lower": -0.056640625,
+        "mean": -0.009765625,
+        "n": 128,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.0390625
+      }
+    },
+    "damage_fraction": {
+      "lower": 0.03987666964511208,
+      "n": 70,
+      "rate": 0.08571428571428572,
+      "upper": 0.1746567249233948
+    },
+    "gain_retention": {
+      "lower": 0.21380798904474121,
+      "n": 14,
+      "rate": 0.42857142857142855,
+      "upper": 0.6740935542034925
+    },
+    "harmful_cases": 8,
+    "image_groups": 128,
+    "improvement_cases": 7,
+    "job_sha": "64dc2759297fa495086d90e904467dfa8d9ba64a8c81e99ecfb9cc10eef6a3b2",
+    "mean_seconds": 1.2648744285415887,
+    "node": "C",
+    "original_gains": 14,
+    "original_harms": 14,
+    "planned_n": 128,
+    "reason": "Development screening, NOT permission for large-scale evaluation",
+    "repaired_harms": 9,
+    "retained_gains": 6,
+    "stage_forwards": 7890,
+    "verdict": "fail"
+  }
+]

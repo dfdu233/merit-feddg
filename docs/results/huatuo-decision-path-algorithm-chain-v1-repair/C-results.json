@@ -1,0 +1,164 @@
+{
+  "decision": {
+    "active_cases": 96,
+    "alpha_per_comparison": 0.05,
+    "changed_cases": 56,
+    "clinical_claim": "Not clinical accuracy; frozen automatic metric only",
+    "cohort_contrasts": {
+      "slake-dev": {
+        "alpha": 0.05,
+        "groups": 128,
+        "lower": -0.056640625,
+        "mean": -0.009765625,
+        "n": 128,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.0390625
+      }
+    },
+    "cohorts": 1,
+    "completed_n": 128,
+    "contrasts": {
+      "compact": {
+        "alpha": 0.05,
+        "groups": 128,
+        "lower": -0.060546875,
+        "mean": 0.001953125,
+        "n": 128,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.064453125
+      },
+      "control": {
+        "alpha": 0.05,
+        "groups": 128,
+        "lower": -0.072265625,
+        "mean": -0.005859375,
+        "n": 128,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.060546875
+      },
+      "generalist": {
+        "alpha": 0.05,
+        "groups": 128,
+        "lower": -0.056640625,
+        "mean": -0.009765625,
+        "n": 128,
+        "repetitions": 4000,
+        "seed": 0,
+        "sufficient": true,
+        "upper": 0.0390625
+      }
+    },
+    "damage_fraction": {
+      "lower": 0.03987666964511208,
+      "n": 70,
+      "rate": 0.08571428571428572,
+      "upper": 0.1746567249233948
+    },
+    "gain_retention": {
+      "lower": 0.21380798904474121,
+      "n": 14,
+      "rate": 0.42857142857142855,
+      "upper": 0.6740935542034925
+    },
+    "harmful_cases": 8,
+    "image_groups": 128,
+    "improvement_cases": 7,
+    "job_sha": "64dc2759297fa495086d90e904467dfa8d9ba64a8c81e99ecfb9cc10eef6a3b2",
+    "mean_seconds": 1.2648744285415887,
+    "node": "C",
+    "original_gains": 14,
+    "original_harms": 14,
+    "planned_n": 128,
+    "reason": "Development screening, NOT permission for large-scale evaluation",
+    "repaired_harms": 9,
+    "retained_gains": 6,
+    "stage_forwards": 7890,
+    "verdict": "fail"
+  },
+  "arm_scores": {
+    "generalist": 0.5860677083333333,
+    "compact": 0.5743489583333333,
+    "candidate": 0.5763020833333333,
+    "control": 0.5821614583333333
+  },
+  "paired_changes": {
+    "generalist": {
+      "improved": 7,
+      "harmed": 8,
+      "unchanged": 113
+    },
+    "compact": {
+      "improved": 11,
+      "harmed": 9,
+      "unchanged": 108
+    },
+    "control": {
+      "improved": 12,
+      "harmed": 11,
+      "unchanged": 105
+    }
+  },
+  "benefit_harm": {
+    "original_gains": 14,
+    "retained_gains": 6,
+    "lost_gains": 8,
+    "original_harms": 14,
+    "repaired_harms": 9,
+    "fully_restored_original_harms": 8,
+    "new_harms_where_compact_not_harmful": 2,
+    "damaged_baseline_full_cases": 6,
+    "baseline_full_cases": 70
+  },
+  "behavior": {
+    "changed_vs_compact": 56,
+    "changed_vs_generalist": 49,
+    "bypass": 32,
+    "active": 96,
+    "zero_projection_cases": 32,
+    "total_distinct_layouts_histogram": {
+      "3": 50,
+      "2": 46,
+      "1": 32
+    },
+    "projection_rank_step_histogram": {
+      "2": 437,
+      "1": 218
+    },
+    "projection_steps": 655,
+    "mean_removed_weighted_norm": 0.29844602127966013,
+    "mean_retained_weighted_norm": 0.38742296487166944,
+    "max_orthogonality_error": 2.1524448889920222e-14,
+    "lengths": {
+      "candidate": {
+        "generated_tokens": 784,
+        "max_tokens": 158,
+        "length_limit_hits": 0
+      },
+      "control": {
+        "generated_tokens": 1373,
+        "max_tokens": 602,
+        "length_limit_hits": 0
+      }
+    }
+  },
+  "gates": {
+    "candidate_vs_generalist_delta_at_least_0_005": false,
+    "candidate_vs_compact_delta_at_least_0_005": false,
+    "candidate_beats_control": false,
+    "repairs_at_least_one": true,
+    "retains_at_least_75_percent": false,
+    "damage_at_most_10_percent": true,
+    "mean_decode_at_most_10_seconds": true,
+    "min_development_images": true,
+    "min_original_gains": true,
+    "min_original_harms": true,
+    "nonzero_intervention": true,
+    "nonzero_output_changes": true
+  }
+}
