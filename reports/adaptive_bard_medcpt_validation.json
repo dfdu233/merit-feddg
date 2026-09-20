@@ -1,13 +1,13 @@
 {
   "schema": "adaptive-bard-medcpt-validation-v1",
-  "validated_commit": "e1ae10aa7e8bf75222e5fbc010d730009cfac7fc",
+  "validated_commit": "022f3d0aaa99a67fdcea3cf95728f508b37f2bc6",
   "github_actions": {
-    "run_id": 35535071886,
+    "run_id": 35536508536,
     "torch_enabled_job": "open-generation-cpu",
     "pytest": {
-      "passed": 205,
+      "passed": 210,
       "failed": 0,
-      "seconds": 4.67,
+      "seconds": 6.72,
       "includes": [
         "tests/test_bard.py",
         "tests/test_medcpt_kb.py",
@@ -17,6 +17,7 @@
     "cli_smoke": {
       "prepare_medcpt_assets_help": "passed",
       "build_medcpt_kb_help": "passed",
+      "import_medcpt_pubmed_help": "passed",
       "prepare_bard_expert_cache_help": "passed"
     },
     "adaptive_bard_medcpt_ruff_findings": 0,
@@ -30,30 +31,40 @@
     "adaptive_consensus": "n=1 anchor fallback; n=2 unanimous non-forcing; n>=3 centralized f<n/2 robust aggregation",
     "fault_unit": "declared fault_group, defaulting to expert_id",
     "patient_image_experts_prioritized_before_retrieval": true,
+    "complementary_capabilities_can_share_one_fault_group": true,
     "native_spatial_receiver": true,
+    "shared_frozen_vision_tower_features": true,
     "matched_arm_score_sharing": true,
+    "persistent_kv_decoder_opt_in": true,
+    "persistent_kv_branch_complete_parity_gate": true,
     "expert_major_cache_preparation": true,
+    "answer_blind_coverage_only_audit": true,
+    "donor_recorded_expert_provenance_required": true,
     "medcpt_query_encoder": true,
     "medcpt_cross_encoder_reranker": true,
     "retrieved_documents_are_atomic_records": true,
     "real_pubmed_kb_builder": true,
+    "official_medcpt_precomputed_pubmed_importer": true,
     "optional_faiss_hnsw": true,
     "explicit_asset_download_helper": true,
-    "missing_asset_preparation_hint": true
+    "missing_asset_preparation_hint": true,
+    "explicit_expert_resource_close": true
   },
   "not_validated": {
     "real_medcpt_checkpoint_loaded": false,
     "real_pubmed_kb_built_in_ci": false,
+    "real_llava_med_vision_cache_parity": false,
+    "real_llava_med_persistent_kv_parity": false,
+    "persistent_kv_used_for_benchmark": false,
     "real_medical_gpu_experiment": false,
     "clinical_efficacy": false,
-    "persistent_kv_decoder": false,
-    "vision_feature_reuse": false,
     "full_pubmed_2026_index": false
   },
   "notes": [
-    "The reference decoder keeps production-prefix replay for correctness-first validation.",
-    "Persistent KV and vision-feature reuse remain deferred until a source-side efficacy signal exists.",
+    "The production-prefix replay decoder remains the authoritative benchmark path.",
+    "Persistent KV is opt-in and must pass Generalist plus every delivered fault-group branch on a real LLaVA-Med parity canary.",
+    "The frozen vision-tower cache is implemented before the branch-local mm_projector/spatial hook; real GPU parity is still required.",
     "Retrieval relevance is not treated as patient-specific medical correctness.",
-    "The final branch may contain a later validation-report-only commit; the code validated here is e1ae10aa7e8bf75222e5fbc010d730009cfac7fc."
+    "The final branch contains this later validation-report-only commit; the code validated by GitHub Actions is 022f3d0aaa99a67fdcea3cf95728f508b37f2bc6."
   ]
 }
