@@ -422,8 +422,17 @@ def run(manifest, config_path, output_dir, *, artifacts="artifacts", protocol="s
                             )
                             bard_acquisition = acquire_expert_groups(acquisition_engine)
                         if bard_bundle is None:
+                            baseline = outputs["generalist"].get(row["id"])
+                            if baseline is None or not baseline.get("token_ids"):
+                                raise RuntimeError(
+                                    "BARD fast-path canary requires the frozen Generalist "
+                                    "trajectory to be available first"
+                                )
                             bard_bundle = run_bard_bundle(
-                                session, bard_acquisition, config.get("bard", {})
+                                session,
+                                bard_acquisition,
+                                config.get("bard", {}),
+                                parity_tokens=baseline["token_ids"],
                             )
                         cached = copy.deepcopy(bard_bundle[method])
                     elif method == "compact_verified":
