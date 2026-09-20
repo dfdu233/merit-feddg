@@ -20,8 +20,8 @@ generalist:
 
 capability_value:
   generation:
-    max_new_tokens: 64
-    block_tokens: 64
+    max_new_tokens: 1024
+    block_tokens: 1024
     max_expert_calls: 6
     max_decisions: 6
     max_evidence_chars: 30000
@@ -41,7 +41,7 @@ capability_value:
     native_entry_transport: false
     claim_attribute_filter: false
     claim_gate_max_checks: 2
-    vector_gate_probe_tokens: 64
+    vector_gate_probe_tokens: 1024
     spatial_weighting: equal
     vector_gate_min_gain: 0.000001
 
