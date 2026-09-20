@@ -38,6 +38,27 @@ def print_commands(args):
         f"--article-encoder {local_path(args.models_root, MODELS['article'])} "
         f"--output {args.kb_dir} --limit 100000"
     )
+    print()
+    print("# Faster alternative: official NCBI MedCPT precomputed PubMed chunk")
+    precomputed = Path(args.precomputed_dir)
+    print(f"mkdir -p {precomputed}")
+    chunk = args.precomputed_chunk
+    for prefix, suffix in (
+        ("embeds_chunk_", ".npy"),
+        ("pmids_chunk_", ".json"),
+        ("pubmed_chunk_", ".json"),
+    ):
+        filename = f"{prefix}{chunk}{suffix}"
+        print(
+            "wget -c "
+            f"https://ftp.ncbi.nlm.nih.gov/pub/lu/MedCPT/pubmed_embeddings/{filename} "
+            f"-P {precomputed}"
+        )
+    print(
+        "python scripts/import_medcpt_pubmed.py "
+        f"--source {precomputed} --chunks {chunk} "
+        f"--output {args.kb_dir}"
+    )
 
 
 def download_models(args):
@@ -64,11 +85,16 @@ def main():
     parser.add_argument("--pubmed-dir", default="artifacts/knowledge/pubmed-2026-baseline")
     parser.add_argument("--kb-dir", default="artifacts/knowledge/medcpt-pubmed")
     parser.add_argument("--baseline-files", type=int, default=1)
+    parser.add_argument(
+        "--precomputed-dir",
+        default="artifacts/knowledge/medcpt-precomputed-pubmed",
+    )
+    parser.add_argument("--precomputed-chunk", type=int, default=36)
     parser.add_argument("--print-commands", action="store_true")
     parser.add_argument("--download-models", action="store_true")
     args = parser.parse_args()
-    if args.baseline_files < 1:
-        parser.error("--baseline-files must be positive")
+    if args.baseline_files < 1 or args.precomputed_chunk < 0:
+        parser.error("--baseline-files must be positive and --precomputed-chunk nonnegative")
 
     missing = []
     for model_id in MODELS.values():
