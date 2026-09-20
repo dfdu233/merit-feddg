@@ -11,6 +11,7 @@ import hashlib
 import json
 import sqlite3
 import xml.etree.ElementTree as ET
+from collections import Counter
 from pathlib import Path
 
 import numpy as np
@@ -66,6 +67,63 @@ def pubmed_records(directory):
                         },
                     }
                 element.clear()
+
+
+def _chunk_text(text, max_chars=1200):
+    words = " ".join(str(text).split()).split()
+    chunks, current = [], []
+    for word in words:
+        candidate = " ".join([*current, word])
+        if current and len(candidate) > max_chars:
+            chunks.append(" ".join(current))
+            current = [word]
+        else:
+            current.append(word)
+    if current:
+        chunks.append(" ".join(current))
+    return [chunk for chunk in chunks if chunk]
+
+
+def statpearls_records(directory):
+    """Parse real NCBI StatPearls NXML exports into section-level chunks.
+
+    This follows the public MedRAG preprocessing idea but keeps source identity
+    and provenance explicit in the MERIT KB instead of importing MedRAG files.
+    """
+    files = sorted(Path(directory).rglob("*.nxml"))
+    if not files:
+        raise FileNotFoundError(f"no StatPearls .nxml files found under {directory}")
+    for path in files:
+        tree = ET.parse(path)
+        root = tree.getroot()
+        title = text_of(root.find(".//title")) or path.stem
+        section_index = 0
+        for section in root.findall(".//sec"):
+            heading = text_of(section.find("./title"))
+            pieces = []
+            for child in list(section):
+                tag = child.tag.rsplit("}", 1)[-1]
+                if tag in {"p", "list"}:
+                    value = text_of(child)
+                    if value:
+                        pieces.append(value)
+            content = " ".join(pieces).strip()
+            if not content:
+                continue
+            section_title = " -- ".join(value for value in (title, heading) if value)
+            for chunk_index, chunk in enumerate(_chunk_text(content)):
+                yield {
+                    "id": f"StatPearls:{path.stem}:{section_index}:{chunk_index}",
+                    "title": section_title,
+                    "content": chunk,
+                    "source": "StatPearls",
+                    "year": "",
+                    "provenance": {
+                        "statpearls_file": path.name,
+                        "statpearls_relative_path": str(path.relative_to(directory)),
+                    },
+                }
+            section_index += 1
 
 
 def jsonl_records(path):
@@ -147,27 +205,44 @@ def init_db(path):
     return db
 
 
-def flush_shard(root, shard_index, embeddings, rowids):
+def flush_shard(root, shard_index, embeddings, rowids, source_ids):
     if not embeddings:
         return None
     matrix = np.concatenate(embeddings, axis=0).astype("<f4", copy=False)
     ids = np.asarray(rowids, dtype="<i8")
+    sources = np.asarray(source_ids, dtype="<i4")
+    if ids.shape != sources.shape or ids.shape != (matrix.shape[0],):
+        raise ValueError("embedding, rowid and source-id shard lengths differ")
     emb_rel = Path("embeddings") / f"shard-{shard_index:05d}.npy"
     ids_rel = Path("rowids") / f"shard-{shard_index:05d}.npy"
-    (root / emb_rel).parent.mkdir(parents=True, exist_ok=True)
-    (root / ids_rel).parent.mkdir(parents=True, exist_ok=True)
+    src_rel = Path("sourceids") / f"shard-{shard_index:05d}.npy"
+    for rel in (emb_rel, ids_rel, src_rel):
+        (root / rel).parent.mkdir(parents=True, exist_ok=True)
     np.save(root / emb_rel, matrix, allow_pickle=False)
     np.save(root / ids_rel, ids, allow_pickle=False)
+    np.save(root / src_rel, sources, allow_pickle=False)
     return {
         "embedding": emb_rel.as_posix(),
         "rowids": ids_rel.as_posix(),
+        "source_ids": src_rel.as_posix(),
         "count": int(matrix.shape[0]),
         "embedding_sha256": sha256(root / emb_rel),
         "rowids_sha256": sha256(root / ids_rel),
+        "source_ids_sha256": sha256(root / src_rel),
     }
 
 
-def build_faiss_index(root, shards, backend, hnsw_m):
+def _new_faiss_index(faiss, backend, hnsw_m):
+    if backend == "flat":
+        return faiss.IndexFlatIP(768)
+    if backend == "hnsw":
+        index = faiss.IndexHNSWFlat(768, hnsw_m, faiss.METRIC_INNER_PRODUCT)
+        index.hnsw.efConstruction = 200
+        return index
+    raise ValueError("unsupported FAISS backend")
+
+
+def build_faiss_index(root, shards, backend, hnsw_m, source_vocab):
     if backend == "none":
         return None
     try:
@@ -177,22 +252,55 @@ def build_faiss_index(root, shards, backend, hnsw_m):
             "FAISS indexing is optional. Install faiss-cpu/faiss-gpu in the KB build "
             "environment or use --index-backend none for the small exact-scan pilot."
         ) from exc
-    if backend == "flat":
-        index = faiss.IndexFlatIP(768)
-    elif backend == "hnsw":
-        index = faiss.IndexHNSWFlat(768, hnsw_m, faiss.METRIC_INNER_PRODUCT)
-        index.hnsw.efConstruction = 200
-    else:
-        raise ValueError("unsupported FAISS backend")
+
+    index = _new_faiss_index(faiss, backend, hnsw_m)
     all_rowids = []
+    source_indices = {
+        source_id: _new_faiss_index(faiss, backend, hnsw_m)
+        for source_id in range(len(source_vocab))
+    }
+    source_rowids = {source_id: [] for source_id in range(len(source_vocab))}
     for shard in shards:
         matrix = np.load(root / shard["embedding"], mmap_mode="r")
         rowids = np.load(root / shard["rowids"], mmap_mode="r")
-        index.add(np.asarray(matrix, dtype=np.float32))
+        sources = np.load(root / shard["source_ids"], mmap_mode="r")
+        matrix32 = np.asarray(matrix, dtype=np.float32)
+        index.add(matrix32)
         all_rowids.append(np.asarray(rowids, dtype=np.int64))
+        for source_id, source_index in source_indices.items():
+            keep = np.flatnonzero(np.asarray(sources) == source_id)
+            if not keep.size:
+                continue
+            source_index.add(matrix32[keep])
+            source_rowids[source_id].append(np.asarray(rowids[keep], dtype=np.int64))
+
     faiss.write_index(index, str(root / "medcpt.faiss"))
     mapping = np.concatenate(all_rowids)
     np.save(root / "faiss-rowids.npy", mapping, allow_pickle=False)
+
+    source_specs = []
+    source_root = root / "faiss-sources"
+    source_root.mkdir(parents=True, exist_ok=True)
+    for source_id, source_name in enumerate(source_vocab):
+        source_index = source_indices[source_id]
+        if source_index.ntotal == 0:
+            continue
+        safe = f"{source_id:03d}"
+        index_rel = Path("faiss-sources") / f"{safe}.faiss"
+        rowids_rel = Path("faiss-sources") / f"{safe}-rowids.npy"
+        faiss.write_index(source_index, str(root / index_rel))
+        rows = np.concatenate(source_rowids[source_id])
+        np.save(root / rowids_rel, rows, allow_pickle=False)
+        source_specs.append({
+            "source_id": source_id,
+            "source": source_name,
+            "index": index_rel.as_posix(),
+            "rowids": rowids_rel.as_posix(),
+            "count": int(rows.size),
+            "index_sha256": sha256(root / index_rel),
+            "rowids_sha256": sha256(root / rowids_rel),
+        })
+
     return {
         "backend": backend,
         "index": "medcpt.faiss",
@@ -201,7 +309,22 @@ def build_faiss_index(root, shards, backend, hnsw_m):
         "index_sha256": sha256(root / "medcpt.faiss"),
         "rowids_sha256": sha256(root / "faiss-rowids.npy"),
         "hnsw_m": hnsw_m if backend == "hnsw" else None,
+        "source_indices": source_specs,
     }
+
+
+def round_robin_records(sources):
+    """Deterministically interleave corpora so a bounded pilot is truly multi-source."""
+    active = [iter(source) for source in sources]
+    while active:
+        remaining = []
+        for source in active:
+            try:
+                yield next(source)
+                remaining.append(source)
+            except StopIteration:
+                continue
+        active = remaining
 
 
 def build(
@@ -226,10 +349,14 @@ def build(
     shards = []
     embed_parts, shard_rowids, pending = [], [], []
     total = duplicate = 0
+    source_counts = Counter()
+    source_to_id = {}
+    shard_source_ids = []
     shard_index = 0
 
     def encode_pending():
-        nonlocal pending, embed_parts, shard_rowids, total, duplicate, shard_index
+        nonlocal pending, embed_parts, shard_rowids, shard_source_ids
+        nonlocal total, duplicate, shard_index
         if not pending:
             return
         accepted = []
@@ -251,15 +378,23 @@ def build(
             vectors = encoder.encode(rows)
             embed_parts.append(vectors)
             shard_rowids.extend(rowid for _, rowid in accepted)
+            for row, _ in accepted:
+                source = str(row["source"])
+                source_counts[source] += 1
+                if source not in source_to_id:
+                    source_to_id[source] = len(source_to_id)
+                shard_source_ids.append(source_to_id[source])
             total += len(accepted)
         pending = []
         if len(shard_rowids) >= shard_size:
             db.commit()
-            shard = flush_shard(root, shard_index, embed_parts, shard_rowids)
+            shard = flush_shard(
+                root, shard_index, embed_parts, shard_rowids, shard_source_ids
+            )
             if shard:
                 shards.append(shard)
                 shard_index += 1
-            embed_parts, shard_rowids = [], []
+            embed_parts, shard_rowids, shard_source_ids = [], [], []
 
     for row in records:
         if limit and total + len(pending) >= limit:
@@ -270,7 +405,9 @@ def build(
     encode_pending()
     if shard_rowids:
         db.commit()
-        shard = flush_shard(root, shard_index, embed_parts, shard_rowids)
+        shard = flush_shard(
+            root, shard_index, embed_parts, shard_rowids, shard_source_ids
+        )
         if shard:
             shards.append(shard)
     db.commit()
@@ -278,11 +415,18 @@ def build(
     if not total or not shards:
         raise ValueError("knowledge-base build produced no documents")
 
-    faiss_index = build_faiss_index(root, shards, index_backend, hnsw_m)
+    source_vocab = [
+        source for source, _ in sorted(source_to_id.items(), key=lambda item: item[1])
+    ]
+    faiss_index = build_faiss_index(
+        root, shards, index_backend, hnsw_m, source_vocab
+    )
     payload = {
         "schema": "merit-medcpt-kb-v1",
         "source": "biomedical_literature",
         "documents": total,
+        "source_counts": dict(sorted(source_counts.items())),
+        "source_vocab": source_vocab,
         "duplicates_skipped": duplicate,
         "embedding_dim": 768,
         "article_encoder": str(Path(article_encoder).expanduser().resolve()),
@@ -305,9 +449,14 @@ def build(
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    source = parser.add_mutually_exclusive_group(required=True)
-    source.add_argument("--pubmed-dir")
-    source.add_argument("--jsonl")
+    parser.add_argument("--pubmed-dir")
+    parser.add_argument("--statpearls-dir")
+    parser.add_argument(
+        "--jsonl",
+        action="append",
+        default=[],
+        help="additional answer-free literature JSONL; may be repeated",
+    )
     parser.add_argument("--article-encoder", required=True)
     parser.add_argument("--output", default="artifacts/knowledge/medcpt-pubmed")
     parser.add_argument("--limit", type=int, default=0)
@@ -318,11 +467,15 @@ def main():
     args = parser.parse_args()
     if args.limit < 0 or min(args.batch_size, args.shard_size, args.hnsw_m) < 1:
         parser.error("limit must be nonnegative and batch/shard/HNSW sizes positive")
-    records = (
-        pubmed_records(args.pubmed_dir)
-        if args.pubmed_dir
-        else jsonl_records(args.jsonl)
-    )
+    sources = []
+    if args.pubmed_dir:
+        sources.append(pubmed_records(args.pubmed_dir))
+    if args.statpearls_dir:
+        sources.append(statpearls_records(args.statpearls_dir))
+    sources.extend(jsonl_records(path) for path in args.jsonl)
+    if not sources:
+        parser.error("provide at least one of --pubmed-dir, --statpearls-dir, or --jsonl")
+    records = round_robin_records(sources)
     result = build(
         records,
         args.output,
