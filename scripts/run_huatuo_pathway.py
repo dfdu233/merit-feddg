@@ -239,6 +239,9 @@ def main():
             for p in sorted(checkpoint.glob('*')) if p.is_file()
         } if checkpoint.is_dir() else {}
         frozen['identity'] = fingerprint({k: v for k, v in frozen.items() if k != 'identity'})
+        # Config dictionaries may contain integer keys (e.g. id2label). Compare
+        # their JSON representation, identical to the persisted protocol.
+        frozen = json.loads(json.dumps(frozen, allow_nan=False))
         protocol_path = args.output / 'protocol.json'
         if protocol_path.exists():
             if read(protocol_path) != frozen:
