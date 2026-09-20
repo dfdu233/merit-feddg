@@ -1,0 +1,33 @@
+{
+  "schema": "bard-validation-v1",
+  "base_commit": "fc93dcad9965d5a979960c7fd94f7e4bd8966101",
+  "validated_head_before_report": "c48ad2607aa3e0cf647ed06e6bf84d7fe1368835",
+  "local_isolated_tests": {
+    "command": "PYTHONPATH=/mnt/data/barddev python -m pytest tests/test_bard.py tests/test_bard_protocol.py -q",
+    "passed": 12,
+    "failed": 0,
+    "scope": "BARD numerical aggregation, bounded-fault commit, exact shared-prefix decoding, isolated acquisition/transport; lightweight stubs only"
+  },
+  "github_actions": {
+    "run_id": 35529676717,
+    "torch_enabled_job": "open-generation-cpu",
+    "targeted_pytest_including_tests_test_bard_py": "passed",
+    "bard_specific_ruff_findings": 0,
+    "full_workflow_conclusion": "failure_due_to_pre_existing_repository_ci_issues",
+    "pre_existing_full_test_blocker": "The generic test job installs no torch but collects existing spatial tests that import torch.",
+    "pre_existing_ruff_examples": [
+      "scripts/run_vqarad_official_new_method.py: EXE001",
+      "tests/test_semantic_spatial.py: existing import/noqa/mutable-default findings",
+      "tests/test_vector_gate.py: existing import-order finding"
+    ]
+  },
+  "real_medical_model_run": false,
+  "gpu_experiment_run": false,
+  "clinical_efficacy_evaluated": false,
+  "target_answers_used_for_inference": false,
+  "notes": [
+    "BARD CI tests run in the repository torch-enabled job and passed.",
+    "The bounded-fault rule is a robustness heuristic, not a medical correctness guarantee.",
+    "A source-side/cached expert canary is required before any large benchmark run."
+  ]
+}
