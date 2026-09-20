@@ -265,6 +265,7 @@ def _filter_optional_experts(specs, artifacts):
                     "capabilities": list(spec.get("capabilities", [])),
                     "scope": spec.get("scope"),
                     "download_attempted": False,
+                    "preparation_hint": spec.get("preparation_hint"),
                 }
                 continue
         active[name] = spec
