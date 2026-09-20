@@ -1,5 +1,12 @@
 # BARD v1: Byzantine-Anchored Residual Decoding
 
+> **Superseded on `implementation/adaptive-bard-medcpt-kb-v1`.** The original
+> fixed `3f+1` eligibility below is retained as historical design documentation.
+> The active implementation uses centralized `f < n/2` robust aggregation,
+> unanimous non-forcing consensus for two nodes, single-node fallback, explicit
+> fault groups, native spatial receiver branches, and the optional MedCPT
+> knowledge expert. See `docs/ADAPTIVE_BARD_MEDCPT.md`.
+
 ## Status
 
 This branch implements a **training-free research candidate**, not an established
