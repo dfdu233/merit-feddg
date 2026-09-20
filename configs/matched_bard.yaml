@@ -4,6 +4,8 @@ base_config: configs/llava_med_capabilities.yaml
 prompt_contract: anchor-ce-v1
 generalist:
   deterministic_image_padding: true
+  training_free_spatial: true
+  spatial_max_records: 64
 capability_value:
   generation:
     max_new_tokens: 64
@@ -38,5 +40,11 @@ bard:
   aggregation: geometric_median
   median_iterations: 12
   median_tolerance: 0.000001
+  single_expert_policy: baseline
+  pair_policy: unanimous
   # Diagnostic-only residual corruption severity; never used for token choice.
   fault_probe_scale: 8.0
+
+expert_overrides:
+  cxr_findings:
+    spatial_support: true
