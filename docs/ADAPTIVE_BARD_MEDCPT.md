@@ -178,11 +178,39 @@ independently.
 
 This removes duplicate experimental computation without changing any arm.
 
-### Implemented already: native expert cache
+### Implemented now: expert-major cache preparation
 
-Compatible specialist outputs and Generalist baselines can be reused via the
-existing matched-evaluation cache/provenance checks. The MedCPT KB manifest and
-reranker assets are part of model provenance.
+For heterogeneous experts with incompatible memory footprints, the recommended
+execution is two-phase rather than keeping every model resident beside LLaVA-Med.
+
+Phase A runs one specialist model across the frozen queue, writes the exact raw
+native `CapabilityResult` cache, releases that model, then proceeds to the next
+specialist:
+
+    python scripts/prepare_bard_expert_cache.py \
+      --manifest /absolute/path/to/manifest.jsonl \
+      --config configs/matched_bard.yaml \
+      --output runs/bard-expert-cache
+
+If a compatible routing JSON already exists, pass `--routing-json` to avoid
+loading the Generalist during this preparation phase.
+
+Phase B runs BARD with the resulting donor directory:
+
+    python -m merit_feddg.matched_evaluation \
+      --protocol bard \
+      --config configs/matched_bard.yaml \
+      --manifest /absolute/path/to/manifest.jsonl \
+      --output runs/adaptive-bard \
+      --reuse-expert-run /absolute/path/to/completed-cache-run
+
+The existing donor checks bind the full manifest, routes, expert configuration,
+model provenance and exact request keys. A cache-only run does not load
+references or benchmark answers.
+
+This avoids requiring LLaVA-Med, CheXagent, BiomedParse and MedCPT to remain
+simultaneously resident. Compatible Generalist baselines can still be reused
+separately through `--reuse-generalist`.
 
 ### Deferred until efficacy signal: persistent KV
 
