@@ -115,6 +115,7 @@ def main():
     parser.add_argument("--output", default="runs/bard-expert-cache")
     parser.add_argument("--artifacts", default="artifacts")
     parser.add_argument("--routing-json")
+    parser.add_argument("--coverage-only", action="store_true")
     args = parser.parse_args()
 
     config = load_experiment_yaml(args.config)
@@ -248,6 +249,29 @@ def main():
         + " ".join(f"{key}={value}" for key, value in histogram.items()),
         flush=True,
     )
+
+    if args.coverage_only:
+        atomic_json(
+            root / "coverage-protocol.json",
+            {
+                "schema": "bard-coverage-only-v1",
+                "identity": identity,
+                "n": len(original),
+                "config": config,
+                "expert_provenance": expert_ids,
+                "excluded": excluded,
+                "routing": routing_audit,
+                "coverage": {
+                    "fault_group_histogram": coverage["fault_group_histogram"],
+                    "by_modality": coverage["by_modality"],
+                },
+                "expert_inference_executed": False,
+                "answers_loaded": False,
+                "references_loaded": False,
+            },
+        )
+        print(root)
+        return
 
     from merit_feddg.capability_experts import CapabilityPool
 
