@@ -28,7 +28,7 @@ def legacy_runner():
     return module
 
 
-def check_device(uuid):
+def check_device(uuid, allowed_display_contexts=()):
     if not isinstance(uuid, str) or not uuid.startswith('GPU-'):
         raise ValueError('Explicit authorized physical GPU UUID required')
     if os.environ.get('CUDA_VISIBLE_DEVICES') != uuid:
@@ -39,9 +39,25 @@ def check_device(uuid):
         raise RuntimeError('Authorized device is not visible')
     processes = subprocess.check_output(['nvidia-smi','--query-compute-apps=gpu_uuid,pid',
                                          '--format=csv,noheader,nounits'], text=True, timeout=10)
+    allowed = {}
+    if allowed_display_contexts:
+        import xml.etree.ElementTree as ET
+        tree = ET.fromstring(subprocess.check_output(['nvidia-smi','-q','-x'], text=True, timeout=10))
+        for gpu in tree.findall('gpu'):
+            if gpu.findtext('uuid') != uuid:
+                continue
+            for proc in gpu.findall('./processes/process_info'):
+                for entry in allowed_display_contexts:
+                    # A frozen, identified desktop context is not a blanket
+                    # exemption for small compute jobs or other C+G clients.
+                    if (proc.findtext('type') == 'C+G'
+                            and proc.findtext('process_name') == entry['process_name'] == '/usr/bin/nautilus'
+                            and int(proc.findtext('pid')) == entry['pid']
+                            and 0 < int(proc.findtext('used_memory').split()[0]) <= entry['max_memory_mib'] <= 64):
+                        allowed[entry['pid']] = entry
     for line in processes.splitlines():
         values = [v.strip() for v in line.split(',')]
-        if len(values) == 2 and values[0] == uuid and int(values[1]) != os.getpid():
+        if len(values) == 2 and values[0] == uuid and int(values[1]) != os.getpid() and int(values[1]) not in allowed:
             raise RuntimeError('Another compute process owns the authorized GPU; no job is killed')
 
 
@@ -149,7 +165,7 @@ def run_job(job, output):
 
     runtime = job['runtime']
     pin_files(runtime['pins'])
-    check_device(runtime['gpu_uuid'])
+    check_device(runtime['gpu_uuid'], runtime.get('allowed_display_contexts', ()))
     for variable in ('HF_HUB_OFFLINE','TRANSFORMERS_OFFLINE'):
         os.environ[variable] = '1'
     for root in runtime.get('import_roots', []):
@@ -279,6 +295,8 @@ def run_job(job, output):
                                                 case['arms']['compact']['token_ids'])
                     except (PathwayError,ValueError) as error:
                         record['diagnostic'] = dict(status='failed',error=str(error))
+                        if hasattr(error, 'parity_details'):
+                            record['diagnostic']['parity_details'] = error.parity_details
                     _sync(model.device)
                     record['diagnostic']['measured_seconds'] = time.perf_counter()-diagnostic_start
                     record['diagnostic']['measured_forwards'] = budget.used-diagnostic_forwards

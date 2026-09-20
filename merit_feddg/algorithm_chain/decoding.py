@@ -206,6 +206,21 @@ def _contrast(logits, policy, prefix, a, b):
                 probability_margin=float(p[a] - p[b]))
 
 
+def _replay_logits(model, prepared, prefix, relay, mode, step, layer=None):
+    """Rebuild the complete prefix with the native prefill/one-token shapes.
+
+    BF16 full-sequence recomputation need not preserve incremental argmax.
+    Every replay starts with a fresh private cache and consumes all committed
+    tokens; only the final decision forward is observed/intervened on. Earlier
+    prompt/prefix queries and their KV state remain entirely unpatched.
+    """
+    stream = _Stream(model, prepared)
+    for consumed in range(len(prefix)):
+        stream.advance(prefix[:consumed])
+    with relay.use(mode, step, layer):
+        return stream.advance(prefix)
+
+
 def diagnose(model, reference, receiver, policy, *, context_limit, max_prefix=16):
     """A. Locate actual first greedy disagreement, then re-prefill at that prefix.
 
@@ -232,13 +247,16 @@ def diagnose(model, reference, receiver, policy, *, context_limit, max_prefix=16
             if a != b:
                 result.update(status='divergence', a=a, b=b, prefix_ids=list(prefix), step=step)
                 with ResidualRelay(model, layers) as relay:
-                    with relay.use('reference', step):
-                        fresh0 = _full_logits(model, reference, prefix)
-                    with relay.use('audit', step):
-                        freshE = _full_logits(model, receiver, prefix)
-                    forwards += 2
+                    fresh0 = _replay_logits(model, reference, prefix, relay, 'reference', step)
+                    freshE = _replay_logits(model, receiver, prefix, relay, 'audit', step)
+                    forwards += 2 * (len(prefix) + 1)
                     if policy.select(fresh0, prefix) != a or policy.select(freshE, prefix) != b:
-                        raise PathwayError('Full-prefix and cached decision parity failed')
+                        error = PathwayError('Full-prefix and cached decision parity failed')
+                        error.parity_details = dict(step=step, prefix_ids=list(prefix),
+                            cached_tokens=[a,b], replay_tokens=[policy.select(fresh0,prefix),policy.select(freshE,prefix)],
+                            cache_logit_max_abs=[float((fresh0.float()-z0.float()).abs().max()),
+                                                 float((freshE.float()-ze.float()).abs().max())])
+                        raise error
                     result['baseline'] = _contrast(fresh0, policy, prefix, a, b)
                     result['expert'] = _contrast(freshE, policy, prefix, a, b)
                     # Report numerical differences; equality of greedy tokens is not logit equality.
@@ -247,9 +265,8 @@ def diagnose(model, reference, receiver, policy, *, context_limit, max_prefix=16
                     for layer in layers:
                         records = {}
                         for mode in ('restore', 'roll'):
-                            with relay.use(mode, step, layer):
-                                logits = _full_logits(model, receiver, prefix)
-                            forwards += 1
+                            logits = _replay_logits(model, receiver, prefix, relay, mode, step, layer)
+                            forwards += len(prefix) + 1
                             records[mode] = _contrast(logits, policy, prefix, a, b)
                             records[mode]['token'] = policy.select(logits, prefix)
                         result['sites'].append(dict(layer=layer, **records))
@@ -261,7 +278,8 @@ def diagnose(model, reference, receiver, policy, *, context_limit, max_prefix=16
                 break
     _sync(receiver.embeds.device)
     result.update(forwards=forwards, seconds=time.perf_counter()-started,
-                  labels_used=False, prefix_budget=max_prefix, tested_layers=list(layers))
+                  labels_used=False, prefix_budget=max_prefix, tested_layers=list(layers),
+                  replay_mode='native_incremental_prefix_rebuild')
     return result
 
 

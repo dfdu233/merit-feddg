@@ -26,8 +26,8 @@ def validate_policy(policy):
             raise ValueError('Fraction must be strictly between zero and one: '+key)
     if not 0 < policy['min_delta'] < 1 or not 0 <= policy['cohort_noninferiority_margin'] < 1:
         raise ValueError('Invalid score thresholds')
-    if policy['max_seconds_per_case'] <= 0 or policy['max_node_attempts'] > 2:
-        raise ValueError('Positive cost budget and at most one technical retry allowed')
+    if policy['max_seconds_per_case'] <= 0 or policy['max_node_attempts'] > 3:
+        raise ValueError('Positive cost budget and at most three explicitly frozen attempts allowed')
     return policy
 
 

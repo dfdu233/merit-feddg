@@ -223,3 +223,27 @@ OPEN 口径。生成器不按模态/closed-open 改 Gate 或候选；原 benchma
 研究背景中的 activation patching 和视觉信息经文本位置转发，不证明本次候选一定有效。
 尤其 B 的 residual 不是已分离的纯视觉部分；C 的布局控制也不是已验证的真实域控制。
 如 A/B/C 全部失败，应保留完整负结果与明确停止原因，再提出新的假设，不在本链内临时换算法。
+
+### Server compatibility amendment (2026-09-20)
+
+The default attempt ceiling remains 2. An explicitly authorized successor can
+freeze a ceiling of 3; the user approved this for the blocked Huatuo campaign.
+`scripts/migrate_chain_repair.py` inherits its two failures, forward costs and
+technical preflight costs into a new blocked identity. The normal `retry` command
+then grants attempt 3. Dataset, generation, scoring and scientific thresholds
+cannot change through this migration.
+
+A now rebuilds each full committed prefix using the native prefill followed by
+single-token cached forwards, with a fresh private cache for each replay. Only
+the final query forward is hooked. This preserves BF16 computation shapes:
+whole-sequence recomputation changed a greedy token on the real failing case;
+native-shape rebuild produced exactly identical logits on both streams. The
+strict parity check is retained; every rebuilding forward counts toward cost.
+The residual/coordinate-roll operators and fixed boundaries are unchanged.
+
+Device policy remains exclusive by default. A successor runtime can explicitly
+list `allowed_display_contexts` entries with `pid`, `process_name`, and
+`max_memory_mib`. The current narrow exception accepts only the exact declared
+`/usr/bin/nautilus` PID, confirmed C+G in driver XML and using at most 64 MiB.
+Other compute jobs remain rejected. This is a declared resource-policy amendment,
+not an assertion that the GPU has no other context.
