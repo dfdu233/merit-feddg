@@ -34,3 +34,30 @@ def test_expansion_technical_failure_remains_retryable(tmp_path,monkeypatch):
     monkeypatch.setattr(cli,'quality',lambda *a,**k:dict(verdict='technical_failure'))
     cli.execute(tmp_path)
     assert read(tmp_path/'state.json')['node']=='BLOCKED_TECHNICAL'
+
+
+def test_expansion_device_change_preserves_cost_but_requires_new_runtime(tmp_path,monkeypatch):
+    from merit_feddg.algorithm_chain.policy import DEFAULTS
+    from merit_feddg.algorithm_chain.storage import digest,fingerprint
+    source=tmp_path/'source';source.mkdir()
+    directory=source/'C-attempt-1';directory.mkdir()
+    write(directory/'decision.json',{'verdict':'fail'})
+    write(directory/'budget.json',{'used':17})
+    prior=dict(policy=DEFAULTS|{'max_node_attempts':3},runtime=dict(gpu_uuid='GPU-old',pins={'weights':'same'}),scorer=dict(import_roots=[],pins={'scorer':'same'}),
+        exposed_pixels='exposed',test_pixels='test',inventory={'development':[{'records':[{'pixel_sha256':'old-pixel'}]}]},generation={'prior':{'max_new_tokens':1024}},code_pins={})
+    prior['identity']=fingerprint(prior);write(source/'plan.json',prior)
+    state=dict(plan_sha=prior['identity'],node='STOP_NO_CANDIDATE',candidate=dict(algorithm='project',layer=None,control='layout_average'),
+        holdout_consumed=False,attempts={'C':1},forwards_used=17,runtime_sha='GPU-old-runtime',history=[dict(node='C',verdict='fail',directory=directory.name,report_sha=digest(directory/'decision.json'))])
+    write(source/'state.json',state)
+    spec={k:v for k,v in prior.items() if k!='identity'}
+    spec.update(runtime=dict(gpu_uuid='GPU-new',pins={'weights':'same'}),confirmation=[],extension=[])
+    inp=tmp_path/'input.json';write(inp,spec)
+    def freeze(p,root):
+        return p|dict(identity='new-plan',inventory={'development':[{'records':[{'pixel_sha256':'new-pixel'}]}]},generation={'added':{'max_new_tokens':1024}})
+    monkeypatch.setattr(cli,'freeze_plan',freeze)
+    out=tmp_path/'out';cli.freeze_expansion(inp,source,out)
+    result=read(out/'state.json')
+    assert result['forwards_used']==17 and result['attempts']=={'C':2}
+    assert 'runtime_sha' not in result and result['node']=='C'
+    assert read(source/'state.json')==state
+    assert read(out/'C-attempt-1/decision.json')=={'verdict':'fail'}

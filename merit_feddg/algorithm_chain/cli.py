@@ -37,8 +37,11 @@ def freeze_expansion(plan_input, source, output):
         if state['candidate'] != candidate or state['attempts'].get('C',0) >= prior['policy']['max_node_attempts']:
             raise ValueError('Require the fixed C candidate and remaining inherited attempt budget')
         spec = read(plan_input)
-        if spec.get('confirmation') or spec.get('extension') or spec['policy'] != prior['policy'] or spec['runtime'] != prior['runtime']:
-            raise ValueError('Expansion may not change scientific thresholds/runtime or declare holdouts')
+        runtime, prior_runtime = deepcopy(spec['runtime']), deepcopy(prior['runtime'])
+        for key in ('gpu_uuid','allowed_display_contexts'):
+            runtime.pop(key,None); prior_runtime.pop(key,None)
+        if spec.get('confirmation') or spec.get('extension') or spec['policy'] != prior['policy'] or runtime != prior_runtime:
+            raise ValueError('Expansion may not change scientific thresholds/model runtime or declare holdouts')
         for key in ('exposed_pixels','test_pixels'):
             if spec[key] != prior[key]:
                 raise ValueError('Keep the existing exposure and TEST audit')
@@ -76,6 +79,8 @@ def freeze_expansion(plan_input, source, output):
         inherited=deepcopy(state)
         inherited.update(plan_sha=plan['identity'],node='C',experiment_mode=plan['experiment_mode'])
         inherited.pop('blocked_node',None)
+        if spec['runtime']['gpu_uuid'] != prior['runtime']['gpu_uuid']:
+            inherited.pop('runtime_sha',None)
         inherited['attempts']['C'] += 1
         with lock(output/'.controller.lock'):
             for entry in state['history']:
