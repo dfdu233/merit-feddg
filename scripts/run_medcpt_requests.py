@@ -1,6 +1,6 @@
 """Execute frozen MedCPT requests on the machine containing the pinned PubMed KB."""
+import argparse
 import json
-import sys
 from dataclasses import asdict
 from pathlib import Path
 
@@ -8,13 +8,19 @@ from merit_feddg.capabilities import CapabilityRequest, validate_result
 from merit_feddg.experts.medcpt_retriever import MedCPTRetrievalExpert
 from merit_feddg.open_study import atomic_json
 
-requests = json.loads(Path(sys.argv[1]).read_text())
-root = Path(sys.argv[2])
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('requests', type=Path)
+parser.add_argument('output', type=Path)
+parser.add_argument('--model-root', type=Path, default=Path('/root/merit-medcpt-artifacts/models'))
+parser.add_argument('--kb-root', type=Path, default=Path('/root/merit-medcpt-artifacts/medcpt-pubmed'))
+args = parser.parse_args()
+requests = json.loads(args.requests.read_text())
+root = args.output
 expert = MedCPTRetrievalExpert(
-    model_id='/root/merit-medcpt-artifacts/models/ncbi--MedCPT-Query-Encoder',
+    model_id=str(args.model_root / 'ncbi--MedCPT-Query-Encoder'),
     expert_id='medcpt_pubmed',
-    kb_manifest='/root/merit-medcpt-artifacts/medcpt-pubmed/manifest.json',
-    cross_encoder_path='/root/merit-medcpt-artifacts/models/ncbi--MedCPT-Cross-Encoder',
+    kb_manifest=str(args.kb_root / 'manifest.json'),
+    cross_encoder_path=str(args.model_root / 'ncbi--MedCPT-Cross-Encoder'),
     device='cuda', candidate_k=32, top_k=3, max_query_tokens=64, max_pair_tokens=512,
 )
 for index, row in enumerate(requests):
