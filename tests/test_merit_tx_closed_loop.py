@@ -9,6 +9,7 @@ from merit_feddg.transactional_runtime import (
     transaction_claim_spec,
     verify_transaction,
 )
+from scripts.build_merit_tx_source_observations import report_outcome
 
 
 def _spec(role, capability, *, group, modality="cxr", task="report_generation"):
@@ -306,3 +307,32 @@ def test_report_add_is_verified_end_to_end_with_real_vs_knockoff_evidence():
     assert decision.reason == "proof-carrying-transaction"
     assert evidence[0]["differential_effect"] == pytest.approx(1.8)
     assert audit["controls"]["visual"]["count"] == 4
+
+
+def test_source_report_add_counts_unsupported_addition_as_harm():
+    candidate = AtomicClinicalClaim(
+        "candidate",
+        "The image shows pleural effusion.",
+        None,
+        grounding={
+            "schema": "radgraph-xl",
+            "observation": "pleural effusion",
+            "tags": ["definitely present"],
+            "located_at": [],
+            "suggestive_of": [],
+        },
+    )
+    transaction = ClaimTransaction(
+        "tx-add",
+        "ADD",
+        candidate,
+        "Small pleural effusion.",
+    )
+    assert report_outcome(transaction, (), ()) == -1.0
+    reference = AtomicClinicalClaim(
+        "reference",
+        candidate.proposition,
+        None,
+        grounding=dict(candidate.grounding),
+    )
+    assert report_outcome(transaction, (), (reference,)) == 1.0
