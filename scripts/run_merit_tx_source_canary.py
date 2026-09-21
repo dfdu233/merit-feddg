@@ -5,10 +5,11 @@ this program runs.  Target/test rows and labels in the generation manifest are
 forbidden.  Optional source references are read only after every transaction
 decision and final output have been frozen, solely for post-hoc canary scoring.
 """
+
 import argparse
-from dataclasses import asdict
 import hashlib
 import json
+from dataclasses import asdict
 from pathlib import Path
 
 from merit_feddg.capability_study import _filter_optional_experts
@@ -347,12 +348,24 @@ def main():
                             tx_policy.get("radiology_grounding", "modern-radgraph-xl")
                         )
                     )
-                score_fn = lambda text: report_claim_f1(
-                    text, references[sample_id], report_claimizer
+                case_references = references[sample_id]
+                scores["baseline"].append(
+                    report_claim_f1(
+                        baseline[sample_id], case_references, report_claimizer
+                    )
                 )
-                scores["baseline"].append(score_fn(baseline[sample_id]))
-                scores["candidate"].append(score_fn(candidate[sample_id]))
-                scores["merit_tx"].append(score_fn(final_outputs[sample_id]["text"]))
+                scores["candidate"].append(
+                    report_claim_f1(
+                        candidate[sample_id], case_references, report_claimizer
+                    )
+                )
+                scores["merit_tx"].append(
+                    report_claim_f1(
+                        final_outputs[sample_id]["text"],
+                        case_references,
+                        report_claimizer,
+                    )
+                )
             else:
                 for name, text in (
                     ("baseline", baseline[sample_id]),
