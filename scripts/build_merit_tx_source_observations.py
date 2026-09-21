@@ -394,13 +394,22 @@ def main():
             "no source qualification observations were produced; inspect the skip audit"
         )
 
+    # Preserve transaction-level observations for interaction-aware portfolio
+    # fitting.  The per-expert qualification file below is still collapsed to
+    # one conservative row per patient/study and expert cell, but portfolio
+    # simulation needs experts from the same frozen transaction aligned together.
+    target = Path(args.output)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    transaction_target = Path(str(target) + ".transactions.jsonl")
+    with transaction_target.open("w", encoding="utf-8") as handle:
+        for observation in output_rows:
+            handle.write(json.dumps(observation, ensure_ascii=False) + "\n")
+
     # Qualification samples are patient/study groups, not claim count.  A long
     # report may yield several transactions for one expert; counting them
     # independently would create pseudo-replication.
     output_rows = collapse_group_observations(output_rows)
 
-    target = Path(args.output)
-    target.parent.mkdir(parents=True, exist_ok=True)
     with target.open("w", encoding="utf-8") as handle:
         for row in output_rows:
             handle.write(json.dumps(row, ensure_ascii=False) + "\n")
@@ -411,6 +420,12 @@ def main():
         "proposer_expert_ids": list(proposer_ids),
         "n_manifest": len(rows),
         "observations": len(output_rows),
+        "transaction_observations_path": str(transaction_target.resolve()),
+        "transaction_observations": sum(
+            1
+            for line in transaction_target.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ),
         "qualification_unit": "unique source group; worst transaction retained within group",
         "expert_counts": dict(sorted(expert_counts.items())),
         "knockoff_controls": knockoff_count,
