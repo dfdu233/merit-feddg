@@ -61,8 +61,9 @@ class MeritTxConfig:
     min_support_groups: int = 1
     qualification_min_domains: int = 2
     qualification_max_harm_ucb: float = 0.25
-    qualification_min_specificity_lcb: float = 0.5
+    qualification_min_support_precision_lcb: float = 0.5
     qualification_min_veto_precision_lcb: float = 0.5
+    qualification_min_consequential: int = 4
 
     def __post_init__(self):
         if type(self.min_support_groups) is not int or self.min_support_groups < 1:
@@ -71,12 +72,19 @@ class MeritTxConfig:
             raise ValueError("qualification_min_domains must be positive")
         if not 0 <= self.qualification_max_harm_ucb <= 1:
             raise ValueError("qualification_max_harm_ucb must be in [0,1]")
-        if not 0 <= self.qualification_min_specificity_lcb <= 1:
-            raise ValueError("qualification_min_specificity_lcb must be in [0,1]")
+        if not 0 <= self.qualification_min_support_precision_lcb <= 1:
+            raise ValueError(
+                "qualification_min_support_precision_lcb must be in [0,1]"
+            )
         if not 0 <= self.qualification_min_veto_precision_lcb <= 1:
             raise ValueError(
                 "qualification_min_veto_precision_lcb must be in [0,1]"
             )
+        if (
+            type(self.qualification_min_consequential) is not int
+            or self.qualification_min_consequential < 0
+        ):
+            raise ValueError("qualification_min_consequential must be nonnegative")
 
 
 def differential_margin(
@@ -279,15 +287,18 @@ def decide_transaction(
             and qcard.authorizes_commit(
                 min_domains=config.qualification_min_domains,
                 max_harm_ucb=config.qualification_max_harm_ucb,
-                min_specificity_lcb=config.qualification_min_specificity_lcb,
+                min_support_precision_lcb=(
+                    config.qualification_min_support_precision_lcb
+                ),
+                min_consequential=config.qualification_min_consequential,
             )
         )
         veto_authorized = (
             qcard is not None
             and qcard.authorizes_veto(
                 min_domains=config.qualification_min_domains,
-                min_specificity_lcb=config.qualification_min_specificity_lcb,
                 min_veto_precision_lcb=config.qualification_min_veto_precision_lcb,
+                min_consequential=config.qualification_min_consequential,
             )
         )
         # Knowledge/proposal experts remain useful in the audit, but they do not

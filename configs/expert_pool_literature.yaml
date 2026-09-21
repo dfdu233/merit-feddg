@@ -3,12 +3,14 @@
 # source-only qualification card and a claim-compatible interface.
 
 selection_principles:
-  - capability_complementarity
-  - modality_scope
-  - claim_verifiability
+  - capability_complementarity_before_model_count
+  - modality_task_and_input_dimensionality_scope
+  - native_claim_verifiability_without_new_task_training
   - independent_failure_group
-  - public_or_auditable_weights
-  - source_only_qualification_before_commit
+  - public_or_auditable_frozen_weights
+  - source_only_action_qualification_before_commit
+  - source_only_interaction_aware_portfolio_selection
+  - empty_portfolio_allowed_when_removing_experts_is_safer
   - no_target_test_selection
 
 models:
@@ -72,6 +74,18 @@ models:
     weights: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
     rationale: Reuses an already integrated frozen biomedical image-text model as a dynamic candidate-vs-incumbent claim scorer, primarily filling CT/MRI verification gaps. It is not trusted by default and fails closed without a source card.
 
+  medimageinsight:
+    status: candidate_transaction_only
+    role: direct_visual_verifier
+    modalities: [cxr, xray, ct, mri, dermatology, oct, fundus, ultrasound, pathology, mammography]
+    capabilities: [classification, retrieval]
+    evidence:
+      - "MedImageInsight, ML4H 2024 / Microsoft Research"
+    weights: official_Microsoft_MedImageInsight_release
+    interface: native_image_text_similarity
+    training_required_for_commit_interface: false
+    rationale: Broad medical image-text embeddings across nine imaging domains make this a high-value coverage candidate. It may verify candidate-vs-incumbent propositions without a new task head, but source-only qualification and an official-runtime parity canary are mandatory before authority.
+
   medsiglip:
     status: candidate_gated_transaction_only
     role: direct_visual_verifier
@@ -113,6 +127,18 @@ models:
       - "VILA-M3, CVPR 2025"
     rationale: VILA-M3 model cards use VISTA3D for CT anatomy/tumor segmentation; requires 3D-volume support absent from current 2D manifests.
 
+  flair_retina:
+    status: candidate_open_transaction_only
+    role: direct_visual_verifier
+    modalities: [fundus]
+    capabilities: [classification, retrieval]
+    evidence:
+      - "FLAIR, Medical Image Analysis 2025"
+    weights: jusiro2/FLAIR
+    native_interface: fundus_image_text_similarity
+    training_required_for_commit_interface: false
+    rationale: Public fundus language-image model with strong zero-shot generalization. Prefer it over a generic broad encoder for retinal claims when the input is a supported fundus image; adapter migration and source qualification are still required.
+
   retfound:
     status: candidate_source_image_retrieval
     role: ophthalmology_image_retriever
@@ -121,6 +147,18 @@ models:
     evidence:
       - "RETFound, Nature 2023"
     rationale: Public retinal foundation-model weights exist for fundus and OCT, but the pretrained encoder is not a direct text/claim verifier. Use only with a real source-image index and source-only qualification.
+
+  monet:
+    status: transaction_only
+    role: direct_visual_verifier
+    modalities: [dermatology]
+    capabilities: [classification, retrieval]
+    evidence:
+      - "MONET, Nature Medicine 2024"
+    weights: chanwkim/monet
+    native_interface: zero_shot_image_text_similarity
+    training_required_for_commit_interface: false
+    rationale: Public dermatology image-text model with board-certified dermatologist validation and a released zero-shot concept-annotation interface. Use candidate-specific propositions rather than a fixed disease catalog; source qualification and portfolio selection remain mandatory.
 
   panderm:
     status: candidate_requires_downstream_head
@@ -148,3 +186,76 @@ models:
     evidence:
       - "Virchow, Nature Medicine 2024"
     rationale: Strong pathology foundation model; defer until a source-image retrieval protocol is frozen.
+
+  musk:
+    status: candidate_gated_transaction_only
+    role: direct_visual_verifier
+    modalities: [pathology]
+    capabilities: [classification, retrieval]
+    evidence:
+      - "MUSK, Nature 2025: vision-language pathology foundation model"
+    weights: xiangjx/musk
+    interface: native_image_text_similarity
+    training_required_for_commit_interface: false
+    rationale: MUSK exposes pathology image-text retrieval and zero-shot classification over a failure group distinct from CONCH/PLIP. Gated non-commercial weights and a dedicated adapter/parity canary are required before source qualification.
+
+  eyeclip:
+    status: candidate_transaction_only
+    role: direct_visual_verifier
+    modalities: [fundus, oct, ophthalmic_photo]
+    capabilities: [classification, retrieval]
+    evidence:
+      - "EyeCLIP, npj Digital Medicine 2025"
+    weights: official_EyeCLIP_release
+    interface: native_image_text_similarity
+    training_required_for_commit_interface: false
+    rationale: The official repository provides zero-shot classification and cross-modal retrieval across multimodal ophthalmic imaging. It is a principled ophthalmology verifier candidate rather than a generic biomedical fallback.
+
+  echoclip:
+    status: candidate_requires_video_contract
+    role: direct_visual_verifier
+    modalities: [echocardiography]
+    capabilities: [classification, retrieval]
+    evidence:
+      - "EchoCLIP, Nature Medicine 2024"
+    weights: official_EchoCLIP_release
+    interface: native_echo_image_text_similarity
+    training_required_for_commit_interface: false
+    rationale: EchoCLIP supports zero-shot clinical prediction and semantic search, but its native evidence is echocardiography video/frame data. Current still-image ultrasound manifests must not count it as covered until a frozen temporal/frame contract is implemented.
+
+  usfm:
+    status: candidate_source_image_retrieval
+    role: ultrasound_image_retriever
+    modalities: [ultrasound]
+    capabilities: [retrieval]
+    evidence:
+      - "USFM, Medical Image Analysis 2024"
+    interface: vision_encoder
+    training_required_for_commit_interface: true
+    rationale: A strong ultrasound foundation encoder can improve source-image retrieval coverage, but without a frozen text-aligned verifier or trained task head it must not directly authorize a diagnosis.
+
+  nv_segment_ctmr:
+    status: candidate_requires_3d_volume
+    role: spatial_localizer
+    modalities: [ct, mri]
+    capabilities: [segmentation]
+    evidence:
+      - "VISTA3D, CVPR 2025"
+      - "NV-Segment-CTMR official MONAI release"
+    weights: nvidia/NV-Segment-CTMR
+    interface: native_3d_segmentation
+    training_required_for_commit_interface: false
+    rationale: VISTA3D established the 3D segmentation expert methodology; the newer CT-MR bundle expands automatic anatomy coverage. It is only valid when the input is a real 3D volume, never when a benchmark supplies an isolated 2D slice.
+
+  merlin:
+    status: candidate_requires_3d_volume
+    role: direct_visual_verifier
+    modalities: [ct]
+    capabilities: [classification, retrieval]
+    evidence:
+      - "Merlin, Nature 2026"
+    weights: stanfordmimi/Merlin
+    interface: native_3d_ct_vision_language
+    training_required_for_commit_interface: false
+    rationale: Merlin is a released 3D CT vision-language model with zero-shot finding prediction and retrieval. It can fill a genuine CT verification gap only for volumetric CT studies; 2D PathVQA/SLAKE slices do not satisfy that contract.
+

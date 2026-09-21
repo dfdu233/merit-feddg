@@ -70,8 +70,14 @@ def _card(expert, capability, scope, *, utility=0.2, harm=0.1, specificity=0.7):
         utility_lcb=utility,
         harm_ucb=harm,
         specificity_lcb=specificity,
+        action_rate_lcb=0.5,
         support_n=40,
         support_domains=("site-a", "site-b"),
+        support_consequential_n=40,
+        support_help_n=35,
+        support_harm_n=5,
+        support_neutral_n=0,
+        support_precision_lcb=specificity,
     )
 
 
@@ -851,7 +857,8 @@ def test_runtime_commits_only_with_source_qualified_real_vs_knockoff_support():
         tx_policy={
             "qualification_min_domains": 2,
             "qualification_max_harm_ucb": 0.25,
-            "qualification_min_specificity_lcb": 0.5,
+            "qualification_min_support_precision_lcb": 0.5,
+            "qualification_min_consequential": 4,
             "min_support_groups": 1,
             "require_independent_validator": True,
             "require_patient_specific_support": True,

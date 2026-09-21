@@ -76,12 +76,25 @@ class SourceQualificationCard:
     domains: tuple[str, ...]
     utility_lcb: float
     harm_ucb: float
-    specificity_lcb: float
+    # Deprecated v2 audit field.  It is retained for provenance only and is no
+    # longer an authorization threshold because neutral transactions should not
+    # be counted as directional failures.
+    specificity_lcb: float = 0.0
+    action_rate_lcb: float = 0.0
     support_n: int = 0
     support_domains: tuple[str, ...] = ()
+    support_consequential_n: int = 0
+    support_help_n: int = 0
+    support_harm_n: int = 0
+    support_neutral_n: int = 0
+    support_precision_lcb: float = 0.0
     veto_precision_lcb: float = 0.0
     veto_n: int = 0
     veto_domains: tuple[str, ...] = ()
+    veto_consequential_n: int = 0
+    veto_harm_n: int = 0
+    veto_help_n: int = 0
+    veto_neutral_n: int = 0
     source_only: bool = True
 
     def __post_init__(self):
@@ -93,16 +106,41 @@ class SourceQualificationCard:
             self.utility_lcb,
             self.harm_ucb,
             self.specificity_lcb,
+            self.action_rate_lcb,
+            self.support_precision_lcb,
             self.veto_precision_lcb,
         ):
             if not math.isfinite(value):
                 raise ValueError("qualification statistics must be finite")
-        if not 0 <= self.veto_precision_lcb <= 1:
-            raise ValueError("veto_precision_lcb must be in [0,1]")
-        if type(self.support_n) is not int or self.support_n < 0:
-            raise ValueError("support_n must be a nonnegative integer")
-        if type(self.veto_n) is not int or self.veto_n < 0:
-            raise ValueError("veto_n must be a nonnegative integer")
+        for name, value in (
+            ("action_rate_lcb", self.action_rate_lcb),
+            ("support_precision_lcb", self.support_precision_lcb),
+            ("veto_precision_lcb", self.veto_precision_lcb),
+        ):
+            if not 0 <= value <= 1:
+                raise ValueError(f"{name} must be in [0,1]")
+        for name, value in (
+            ("support_n", self.support_n),
+            ("support_consequential_n", self.support_consequential_n),
+            ("support_help_n", self.support_help_n),
+            ("support_harm_n", self.support_harm_n),
+            ("support_neutral_n", self.support_neutral_n),
+            ("veto_n", self.veto_n),
+            ("veto_consequential_n", self.veto_consequential_n),
+            ("veto_harm_n", self.veto_harm_n),
+            ("veto_help_n", self.veto_help_n),
+            ("veto_neutral_n", self.veto_neutral_n),
+        ):
+            if type(value) is not int or value < 0:
+                raise ValueError(f"{name} must be a nonnegative integer")
+        if self.support_consequential_n != self.support_help_n + self.support_harm_n:
+            raise ValueError("support consequential count must equal help + harm")
+        if self.support_n != self.support_consequential_n + self.support_neutral_n:
+            raise ValueError("support count must equal consequential + neutral")
+        if self.veto_consequential_n != self.veto_harm_n + self.veto_help_n:
+            raise ValueError("veto consequential count must equal harm + help")
+        if self.veto_n != self.veto_consequential_n + self.veto_neutral_n:
+            raise ValueError("veto count must equal consequential + neutral")
         if self.support_n and not self.support_domains:
             raise ValueError("support actions require support_domains")
         if self.veto_n and not self.veto_domains:
@@ -124,34 +162,42 @@ class SourceQualificationCard:
         *,
         min_domains=2,
         max_harm_ucb=0.5,
-        min_specificity_lcb=0.5,
+        min_support_precision_lcb=0.0,
+        min_consequential=0,
     ) -> bool:
+        """Authorize positive support using action-conditional source evidence.
+
+        Neutral candidate transactions are retained in expected utility/harm
+        estimates but are excluded from directional precision.  This prevents a
+        sparse-yet-correct verifier from failing merely because most frozen
+        proposals did not change the task score.
+        """
         return (
             self.support_n > 0
+            and self.support_consequential_n >= min_consequential
             and len(set(self.support_domains)) >= min_domains
             and self.utility_lcb > 0
             and self.harm_ucb <= max_harm_ucb
-            and self.specificity_lcb >= min_specificity_lcb
+            and self.support_precision_lcb >= min_support_precision_lcb
         )
 
     def authorizes_veto(
         self,
         *,
         min_domains=2,
-        min_specificity_lcb=0.5,
         min_veto_precision_lcb=0.5,
+        min_consequential=0,
     ) -> bool:
         """Whether negative D_e may block a transaction.
 
-        Veto authority is intentionally separate from commit authority.  A
-        verifier that is safe when supporting candidates is not assumed to be
-        safe when opposing them.
+        Veto authority is estimated separately and only on consequential source
+        actions; neutral proposals neither prove nor disprove veto precision.
         """
         return (
             self.veto_n > 0
+            and self.veto_consequential_n >= min_consequential
             and len(set(self.veto_domains)) >= min_domains
             and self.veto_precision_lcb >= min_veto_precision_lcb
-            and self.specificity_lcb >= min_specificity_lcb
         )
 
 
@@ -195,7 +241,7 @@ def load_qualification_cards(path):
     if path is None:
         return {}
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
-    if payload.get("schema") != "merit-expert-qualification-v2":
+    if payload.get("schema") != "merit-expert-qualification-v3":
         raise ValueError("unsupported expert qualification card schema")
     if payload.get("source_only") is not True:
         raise ValueError("expert qualification must be source-only")
@@ -277,9 +323,11 @@ def select_expert_descriptors(
     region_available=False,
     qualification_min_domains=2,
     qualification_max_harm_ucb=0.25,
-    qualification_min_specificity_lcb=0.5,
+    qualification_min_support_precision_lcb=0.5,
     qualification_min_veto_precision_lcb=0.5,
+    qualification_min_consequential=4,
     allowed_evidence_roles=None,
+    allowed_expert_ids=None,
     allowed_capabilities=None,
 ):
     """Coverage-first, diversity-aware expert selection with source-only authority.
@@ -301,6 +349,11 @@ def select_expert_descriptors(
         if allowed_capabilities is None
         else frozenset(str(value) for value in allowed_capabilities)
     )
+    allowed_expert_ids = (
+        None
+        if allowed_expert_ids is None
+        else frozenset(str(value) for value in allowed_expert_ids)
+    )
     role_priority = {
         "direct_visual_verifier": 0,
         "spatial_localizer": 1,
@@ -316,6 +369,8 @@ def select_expert_descriptors(
         expert = descriptor["expert"]
         card = role_card(expert, specs[expert])
         if specs[expert].get("expert_pool_enabled", True) is False:
+            continue
+        if allowed_expert_ids is not None and expert not in allowed_expert_ids:
             continue
         capability_name = descriptor["capability"]
         if (
@@ -343,7 +398,8 @@ def select_expert_descriptors(
             and qcard.authorizes_commit(
                 min_domains=qualification_min_domains,
                 max_harm_ucb=qualification_max_harm_ucb,
-                min_specificity_lcb=qualification_min_specificity_lcb,
+                min_support_precision_lcb=qualification_min_support_precision_lcb,
+                min_consequential=qualification_min_consequential,
             )
         )
         veto_authorized = (
@@ -351,8 +407,8 @@ def select_expert_descriptors(
             and qcard is not None
             and qcard.authorizes_veto(
                 min_domains=qualification_min_domains,
-                min_specificity_lcb=qualification_min_specificity_lcb,
                 min_veto_precision_lcb=qualification_min_veto_precision_lcb,
+                min_consequential=qualification_min_consequential,
             )
         )
         if require_commit_authority and not commit_authorized:
@@ -426,12 +482,22 @@ def select_expert_descriptors(
                         "domains": list(qcard.domains),
                         "utility_lcb": qcard.utility_lcb,
                         "harm_ucb": qcard.harm_ucb,
-                        "specificity_lcb": qcard.specificity_lcb,
+                        "specificity_lcb_deprecated": qcard.specificity_lcb,
+                        "action_rate_lcb": qcard.action_rate_lcb,
                         "support_n": qcard.support_n,
                         "support_domains": list(qcard.support_domains),
+                        "support_consequential_n": qcard.support_consequential_n,
+                        "support_help_n": qcard.support_help_n,
+                        "support_harm_n": qcard.support_harm_n,
+                        "support_neutral_n": qcard.support_neutral_n,
+                        "support_precision_lcb": qcard.support_precision_lcb,
                         "veto_precision_lcb": qcard.veto_precision_lcb,
                         "veto_n": qcard.veto_n,
                         "veto_domains": list(qcard.veto_domains),
+                        "veto_consequential_n": qcard.veto_consequential_n,
+                        "veto_harm_n": qcard.veto_harm_n,
+                        "veto_help_n": qcard.veto_help_n,
+                        "veto_neutral_n": qcard.veto_neutral_n,
                     }
                     if qcard is not None
                     else None

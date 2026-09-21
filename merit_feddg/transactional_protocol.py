@@ -26,7 +26,8 @@ def plan_transaction_experts(
     region_available=False,
     qualification_min_domains=2,
     qualification_max_harm_ucb=0.25,
-    qualification_min_specificity_lcb=0.5,
+    qualification_min_support_precision_lcb=0.5,
+    qualification_min_consequential=4,
 ):
     descriptors = transaction_descriptors(specs, row)
     selected, audit = select_expert_descriptors(
@@ -40,7 +41,10 @@ def plan_transaction_experts(
         region_available=region_available,
         qualification_min_domains=qualification_min_domains,
         qualification_max_harm_ucb=qualification_max_harm_ucb,
-        qualification_min_specificity_lcb=qualification_min_specificity_lcb,
+        qualification_min_support_precision_lcb=(
+            qualification_min_support_precision_lcb
+        ),
+        qualification_min_consequential=qualification_min_consequential,
     )
     return {
         "descriptors": selected,

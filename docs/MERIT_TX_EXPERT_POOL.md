@@ -1,5 +1,8 @@
 # MERIT-Tx: Literature-Grounded Expert Pool and Proof-Carrying Transactions
 
+The detailed v3 subset-selection rationale and literature matrix are in
+[EXPERT_PORTFOLIO_V3.md](EXPERT_PORTFOLIO_V3.md).
+
 ## Why this revision exists
 
 Full PathVQA runs showed that adding more specialists does not monotonically improve a strong medical VLM. Some specialists changed the receiver frequently without adding question-specific medical information, and disabling an expert could improve the aggregate result.
@@ -40,28 +43,70 @@ commit_authority = never is used for experts whose output is useful context or p
 
 commit_authority = source_qualified means that an expert is structurally eligible to verify a patient-specific claim, but it still cannot commit until a source-only qualification card is present.
 
-### SourceQualificationCard
+### SourceQualificationCard v3
 
-Qualification is indexed by expert, capability, scope, modality, task, and claim_type. A card contains conservative source/development statistics:
+Qualification is indexed by expert, capability, scope, modality, task, and
+claim_type.  The previous v2 statistic conflated two different questions:
+"does this expert act often?" and "when it acts on a consequential proposal,
+does it point in the correct direction?"  This was especially damaging when
+most frozen candidate transactions had zero task-utility change.
 
-- utility_lcb
-- harm_ucb
-- specificity_lcb
-- support_n / support_domains
-- veto_precision_lcb
-- veto_n / veto_domains
-- domains
-- n
+The v3 schema (`merit-expert-qualification-v3`) separates:
 
-The v2 qualification schema (`merit-expert-qualification-v2`) is **action-conditional** rather than candidate-method conditional. Utility and harm are estimated only over source transactions for which the expert would actually support commit (`D_e > 0`). The specificity lower bound measures whether `sign(D_e)` agrees with the sign of source-only transaction utility, so the card evaluates the expert's decision signal rather than inheriting the average quality of the frozen candidate generator. Negative decisions are qualified separately: `veto_precision_lcb` is the conservative precision of `D_e < 0` for truly harmful source transactions, and an expert with no qualified negative observations has **zero veto authority** even if its positive support is safe. Domain coverage is action-specific: `support_domains` gates positive commit authority and `veto_domains` gates negative veto authority, so inactive samples from another site cannot manufacture cross-domain evidence for an action. The card is a fixed statistical permission, not a trained router or gate.
+- `action_rate_lcb`: how often the expert produces a nonzero differential;
+- `utility_lcb`: conservative task utility over positive-support actions;
+- `harm_ucb`: upper bound on harmful positive-support actions;
+- `support_precision_lcb`: beneficial fraction **conditional on consequential**
+  positive-support actions;
+- `veto_precision_lcb`: harmful fraction **conditional on consequential**
+  negative/veto actions;
+- support/veto action counts and their domain coverage;
+- neutral-action counts, retained for coverage/cost but not mislabeled as
+  directional failures.
 
-Build cards from source/development observations:
+This keeps useful-action prevalence, conditional discrimination, and harm risk
+as separate quantities.  A stable but mostly irrelevant expert therefore
+cannot look reliable merely by rarely changing anything, while a sparse expert
+is not automatically failed because most frozen proposals were score-neutral.
+
+Build cards only from source/development observations:
 
     python scripts/fit_expert_qualification.py \
       --input runs/source-tx-observations.jsonl \
-      --output artifacts/qualification/merit-expert-qualification.json
+      --output artifacts/qualification/merit-expert-qualification-v3.json
 
-The fitter rejects rows marked target or test.
+The fitter rejects target/test rows.
+
+### Interaction-aware Source Expert Portfolio
+
+Per-expert qualification is necessary but not sufficient. Two experts can each
+look acceptable alone while their joint use is redundant or harmful, exactly
+matching the observed "disabling one expert improves the system" failure mode.
+
+MERIT-Tx v3 therefore replays every feasible, independent verifier subset over
+the **same frozen source transactions**.  For each modality/task/claim cell it
+records:
+
+- conservative population utility and action-conditional utility;
+- harmful-commit upper bound and beneficial-action precision lower bound;
+- intervention coverage;
+- expert cost units;
+- leave-one-out marginal utility/harm;
+- pairwise interaction utility.
+
+The empty portfolio is a first-class option. If no non-empty source portfolio
+has positive conservative utility with bounded harm, the frozen policy selects
+no verifier and preserves the immutable Generalist.
+
+    python scripts/fit_expert_portfolio.py \
+      --input runs/source-tx-observations.jsonl.transactions.jsonl \
+      --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json \
+      --config configs/merit_tx.yaml \
+      --output artifacts/qualification/merit-expert-portfolio-v1.json
+
+This is a source-only subset-selection policy, not a target-trained router. It
+makes expert removal auditable rather than treating ablations as a post-hoc
+paper result.
 
 ## Differential evidence effect
 
@@ -86,7 +131,7 @@ A positive differential effect is patient-specific support for the candidate and
 ## Adaptive BARD is a proposal mechanism, not commit proof
 
 Adaptive BARD remains useful because it can move the frozen Generalist toward
-specialist-informed candidate answers without training. In MERIT-Tx v2 that
+specialist-informed candidate answers without training. In MERIT-Tx v3 that
 movement is deliberately treated as **proposal generation**:
 
     b = frozen Generalist(I, q)
@@ -110,7 +155,8 @@ XRV and BiomedCLIP should declare the full frozen provenance set:
       --candidate /path/to/source-adaptive-bard.json \
       --candidate-name adaptive-bard-v1 \
       --proposer-expert-ids chexagent_description cxr_findings biomedclip_claim_verifier \
-      --qualification-cards artifacts/qualification/merit-expert-qualification.json \
+      --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json \
+      --portfolio-policy artifacts/qualification/merit-expert-portfolio-v1.json \
       --config configs/merit_tx.yaml \
       --output runs/merit-tx-source-canary
 
@@ -161,6 +207,7 @@ Integrated or transaction-ready:
 | MedCPT | knowledge retriever | PubMed | never |
 | BiomedCLIP dynamic claim verifier | direct visual verifier | CXR/X-ray/CT/MRI/pathology | source-qualified |
 | MedSigLIP (gated optional) | direct visual verifier | CXR/CT/MRI/pathology/dermatology/fundus | source-qualified |
+| MedImageInsight (candidate) | direct visual verifier | X-ray/CT/MRI/dermatology/OCT/fundus/ultrasound/pathology | source-qualified after adapter + source qualification |
 
 Candidate models intentionally not faked as active coverage:
 
@@ -244,48 +291,87 @@ It deliberately does not claim a new benchmark improvement yet.
 
 ### Frozen execution order
 
-Do not use target/test results to decide which experts survive. The source workflow is:
+Do not use target/test results to decide which experts survive. The v3 source
+workflow deliberately separates **qualification**, **portfolio selection**, and
+**canary confirmation**.
 
-1. **Freeze one proposal distribution** on source/development data. The proposal output set must exist before qualification statistics are read.
-2. Build native source observations:
+1. **Freeze one proposal mechanism** before reading source references.
 
-       python scripts/build_merit_tx_source_observations.py \
-         --manifest /path/to/source-manifest.jsonl \
-         --baseline /path/to/source-generalist.json \
-         --candidate proposal=/path/to/frozen-source-candidate.json \
-         --references /path/to/source-references.json \
-         --config configs/merit_tx.yaml \
-         --output runs/source-tx-observations.jsonl
+2. Create an answer-blind three-way patient/image split. Rows sharing either a
+   declared group_id or identical image bytes are forced into the same stage:
 
-   References are joined only after the candidate outputs have been frozen. For reports, one patient/study contributes at most one conservative observation per expert qualification cell.
-
-3. Freeze qualification cards:
-
-       python scripts/fit_expert_qualification.py \
-         --input runs/source-tx-observations.jsonl \
-         --output artifacts/qualification/merit-expert-qualification.json
-
-4. Audit effective commit-authorized role/fault-group coverage with the frozen cards:
-
-       python scripts/audit_transactional_expert_pool.py \
-         --manifest /path/to/source-manifest.jsonl \
-         --config configs/merit_tx.yaml \
-         --qualification-cards artifacts/qualification/merit-expert-qualification.json \
-         --output runs/merit-tx-expert-pool-audit.json
-
-5. Run the source canary. The transaction decisions do not open references; optional source scoring occurs only after outputs are frozen:
-
-       python scripts/run_merit_tx_source_canary.py \
+       python scripts/split_merit_tx_source.py \
          --manifest /path/to/source-manifest.jsonl \
          --baseline /path/to/source-generalist.json \
          --candidate /path/to/frozen-source-candidate.json \
-         --candidate-name proposal-v1 \
-         --qualification-cards artifacts/qualification/merit-expert-qualification.json \
-         --config configs/merit_tx.yaml \
          --references /path/to/source-references.json \
+         --output runs/merit-tx-source-splits
+
+   This produces source-Q (`qualification/`), source-P (`portfolio/`) and
+   source-C (`canary/`). Assignment is frozen before optional reference files
+   are opened.
+
+3. Build source-Q native observations and freeze the v3 per-expert cards:
+
+       python scripts/build_merit_tx_source_observations.py \
+         --manifest runs/merit-tx-source-splits/qualification/manifest.jsonl \
+         --baseline runs/merit-tx-source-splits/qualification/baseline.json \
+         --candidate proposal=runs/merit-tx-source-splits/qualification/candidate.json \
+         --references runs/merit-tx-source-splits/qualification/references.json \
+         --config configs/merit_tx.yaml \
+         --output runs/source-q-observations.jsonl
+
+       python scripts/fit_expert_qualification.py \
+         --input runs/source-q-observations.jsonl \
+         --output artifacts/qualification/merit-expert-qualification-v3.json
+
+4. Run the same frozen proposal mechanism on the disjoint source-P set and build
+   a separate observation file:
+
+       python scripts/build_merit_tx_source_observations.py \
+         --manifest runs/merit-tx-source-splits/portfolio/manifest.jsonl \
+         --baseline runs/merit-tx-source-splits/portfolio/baseline.json \
+         --candidate proposal=runs/merit-tx-source-splits/portfolio/candidate.json \
+         --references runs/merit-tx-source-splits/portfolio/references.json \
+         --config configs/merit_tx.yaml \
+         --output runs/source-p-observations.jsonl
+
+   Freeze the interaction-aware expert portfolio from its **transaction-level**
+   sidecar. The fitter rejects any source-P patient/study also seen in source-Q:
+
+       python scripts/fit_expert_portfolio.py \
+         --input runs/source-p-observations.jsonl.transactions.jsonl \
+         --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json \
+         --config configs/merit_tx.yaml \
+         --output artifacts/qualification/merit-expert-portfolio-v1.json
+
+5. Audit effective commit-authorized coverage with both frozen policies:
+
+       python scripts/audit_transactional_expert_pool.py \
+         --manifest runs/merit-tx-source-splits/canary/manifest.jsonl \
+         --config configs/merit_tx.yaml \
+         --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json \
+         --portfolio-policy artifacts/qualification/merit-expert-portfolio-v1.json \
+         --output runs/merit-tx-expert-pool-audit.json
+
+6. Run the fresh source-C canary. The executable verifies source-C has no
+   patient/study overlap with source-Q or source-P. Transaction decisions never
+   open references; optional source scoring occurs only after outputs are frozen:
+
+       python scripts/run_merit_tx_source_canary.py \
+         --manifest runs/merit-tx-source-splits/canary/manifest.jsonl \
+         --baseline runs/merit-tx-source-splits/canary/baseline.json \
+         --candidate runs/merit-tx-source-splits/canary/candidate.json \
+         --candidate-name proposal-v1 \
+         --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json \
+         --portfolio-policy artifacts/qualification/merit-expert-portfolio-v1.json \
+         --config configs/merit_tx.yaml \
+         --references runs/merit-tx-source-splits/canary/references.json \
          --output runs/merit-tx-source-canary
 
-6. Only if the source canary shows useful nonzero commit coverage with bounded harm should the exact frozen policy be evaluated on untouched target/test data.
+7. Only if the fresh canary shows useful nonzero commit coverage with bounded
+   harm should the exact frozen policy be evaluated once on untouched
+   target/test data.
 
 Candidate-oracle and first-divergence analysis of already-completed target experiments remains diagnostic only; it cannot choose experts, qualification thresholds, or transaction rules.
 
@@ -303,3 +389,10 @@ Candidate-oracle and first-divergence analysis of already-completed target exper
 - Gao et al., RARR, ACL 2023.
 - Ostmeier et al., GREEN, EMNLP Findings 2024.
 - CLEAR, EMNLP Findings 2025.
+- Xiang et al., MUSK, Nature 2025.
+- EyeCLIP, npj Digital Medicine 2025.
+- EchoCLIP, Nature Medicine 2024.
+- Jiao et al., USFM, Medical Image Analysis 2024.
+- Blankemeier et al., Merlin, Nature 2026.
+- He et al., VISTA3D, CVPR 2025.
+- Codella et al., MedImageInsight, ML4H 2024 / Microsoft Research.

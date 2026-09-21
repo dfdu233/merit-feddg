@@ -87,6 +87,51 @@ experts:
       - "PLIP, Nature Medicine 2023: pathology zero-shot classification and image-text retrieval"
     description: Independent pathology image-text verifier trained from OpenPath. Used only for candidate-specific claim scoring and never as an unqualified vote.
 
+  musk_claim_verifier:
+    id: xiangjx/musk
+    checkpoint_path: artifacts/models/xiangjx--musk
+    adapter: contrastive_musk
+    source_path: upstream/MUSK
+    source_revision: 714b666969c1911e5efe70d991140a21030f4ef3
+    transaction_only: true
+    optional: true
+    required_local_paths:
+      - upstream/MUSK/musk/modeling.py
+      - upstream/MUSK/musk/models/tokenizer.spm
+    preparation_hint: python scripts/prepare_expert_pool_assets.py --print-commands
+    evidence_role: direct_visual_verifier
+    commit_authority: source_qualified
+    fault_group: musk_pathology
+    modalities: [pathology]
+    tasks: [open_vqa]
+    capabilities: [classification]
+    scope: pathology_claim_support
+    prefix_invariant: true
+    portfolio_cost_units: 1.25
+    literature:
+      - "MUSK, Nature 2025: pathology vision-language model with zero-shot classification and image-text retrieval"
+    description: Independent pathology candidate verifier using the official MUSK zero-shot image-text head. Gated non-commercial weights; similarity is not a diagnosis probability and gains no authority before source qualification and portfolio selection.
+
+  monet_claim_verifier:
+    id: chanwkim/monet
+    checkpoint_path: artifacts/models/chanwkim--monet
+    adapter: contrastive_monet
+    transaction_only: true
+    optional: true
+    preparation_hint: python scripts/prepare_expert_pool_assets.py --download-open
+    evidence_role: direct_visual_verifier
+    commit_authority: source_qualified
+    fault_group: monet_dermatology
+    modalities: [dermatology]
+    tasks: [open_vqa]
+    capabilities: [classification]
+    scope: dermatology_claim_support
+    prefix_invariant: true
+    portfolio_cost_units: 1.0
+    literature:
+      - "MONET, Nature Medicine 2024: dermatology image-text foundation model for zero-shot concept annotation"
+    description: Candidate-specific dermatology image-text verifier using the official MONET zero-shot interface. Similarity is not a diagnosis probability and gains no authority before source qualification and portfolio selection.
+
   medsam_prompted:
     id: wanglab/medsam-vit-base
     checkpoint_path: artifacts/models/wanglab--medsam-vit-base

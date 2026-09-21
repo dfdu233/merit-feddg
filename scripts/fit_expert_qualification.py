@@ -8,15 +8,18 @@ records. Required fields:
 outcome_delta is the bounded score change (candidate transaction minus immutable
 Generalist) in [-1, 1]. real_effect/knockoff_effect are label-free expert-native
 margins measured with current-patient evidence and matched wrong-patient
-controls. Qualification is action-conditional: utility/harm are estimated only
-on transactions the expert would support (D_e > 0), while specificity measures
-whether the sign of D_e agrees with the sign of source-only transaction utility.
-The script stores conservative lower/upper bounds; it trains no gate.
+controls. Qualification is action-conditional. Utility/harm are estimated on transactions
+the expert would support (D_e > 0), while support/veto precision are estimated
+only on consequential source transactions (outcome_delta != 0). Neutral frozen
+proposals therefore measure action prevalence/cost but are not mislabeled as
+directional verification failures. The script stores conservative bounds; it
+trains no gate.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 from collections import defaultdict
@@ -110,10 +113,14 @@ def fit(rows, *, z=1.96):
         ]
         supported = [float(row["outcome_delta"]) for row in supported_rows]
         support_domains = sorted({row["domain"] for row in supported_rows})
+        support_help_n = sum(delta > 0 for delta in supported)
+        support_harm_n = sum(delta < 0 for delta in supported)
+        support_neutral_n = sum(delta == 0 for delta in supported)
+        support_consequential_n = support_help_n + support_harm_n
         if supported:
             utility_lcb = mean_lcb(supported, z)
             harm_ucb = wilson(
-                sum(delta < 0 for delta in supported),
+                support_harm_n,
                 len(supported),
                 z,
                 upper=True,
@@ -123,6 +130,16 @@ def fit(rows, *, z=1.96):
             # safely authorize a commit under the frozen candidate distribution.
             utility_lcb = -1.0
             harm_ucb = 1.0
+        support_precision_lcb = (
+            wilson(
+                support_help_n,
+                support_consequential_n,
+                z,
+                upper=False,
+            )
+            if support_consequential_n
+            else 0.0
+        )
 
         veto_rows = [
             row
@@ -131,19 +148,44 @@ def fit(rows, *, z=1.96):
         ]
         veto_deltas = [float(row["outcome_delta"]) for row in veto_rows]
         veto_domains = sorted({row["domain"] for row in veto_rows})
+        veto_harm_n = sum(delta < 0 for delta in veto_deltas)
+        veto_help_n = sum(delta > 0 for delta in veto_deltas)
+        veto_neutral_n = sum(delta == 0 for delta in veto_deltas)
+        veto_consequential_n = veto_harm_n + veto_help_n
         veto_precision_lcb = (
             wilson(
-                sum(delta < 0 for delta in veto_deltas),
-                len(veto_deltas),
+                veto_harm_n,
+                veto_consequential_n,
                 z,
                 upper=False,
             )
-            if veto_deltas
+            if veto_consequential_n
             else 0.0
         )
+        consequential_pairs = [
+            (delta, effect)
+            for delta, effect in zip(deltas, effects, strict=True)
+            if delta != 0 and effect != 0
+        ]
         directional_successes = sum(
             (effect > 0 and delta > 0) or (effect < 0 and delta < 0)
-            for delta, effect in zip(deltas, effects, strict=True)
+            for delta, effect in consequential_pairs
+        )
+        directional_precision_lcb = (
+            wilson(
+                directional_successes,
+                len(consequential_pairs),
+                z,
+                upper=False,
+            )
+            if consequential_pairs
+            else 0.0
+        )
+        action_n = sum(effect != 0 for effect in effects)
+        action_rate_lcb = (
+            wilson(action_n, len(values), z, upper=False)
+            if values
+            else 0.0
         )
         card = dict(zip(KEYS, key, strict=True))
         card.update(
@@ -151,23 +193,37 @@ def fit(rows, *, z=1.96):
             domains=sorted({row["domain"] for row in values}),
             utility_lcb=utility_lcb,
             harm_ucb=harm_ucb,
-            specificity_lcb=wilson(
-                directional_successes,
-                len(values),
-                z,
-                upper=False,
-            ),
+            # Retained only as a v2-compatible audit field.  In v3 it is
+            # conditional on consequential, nonzero decisions and is not an
+            # authorization threshold.
+            specificity_lcb=directional_precision_lcb,
+            action_rate_lcb=action_rate_lcb,
             support_n=len(supported),
             support_domains=support_domains,
+            support_consequential_n=support_consequential_n,
+            support_help_n=support_help_n,
+            support_harm_n=support_harm_n,
+            support_neutral_n=support_neutral_n,
+            support_precision_lcb=support_precision_lcb,
             veto_precision_lcb=veto_precision_lcb,
             veto_n=len(veto_deltas),
             veto_domains=veto_domains,
+            veto_consequential_n=veto_consequential_n,
+            veto_harm_n=veto_harm_n,
+            veto_help_n=veto_help_n,
+            veto_neutral_n=veto_neutral_n,
             source_only=True,
         )
         cards.append(card)
+    source_group_ids = sorted({str(row["group_id"]) for row in rows})
+    source_groups_sha256 = hashlib.sha256(
+        json.dumps(source_group_ids, separators=(",", ":"), ensure_ascii=False).encode()
+    ).hexdigest()
     return {
-        "schema": "merit-expert-qualification-v2",
+        "schema": "merit-expert-qualification-v3",
         "source_only": True,
+        "source_group_ids": source_group_ids,
+        "source_groups_sha256": source_groups_sha256,
         "statistical_rule": {
             "utility": (
                 "normal lower confidence bound on outcome_delta conditional on "
@@ -177,13 +233,21 @@ def fit(rows, *, z=1.96):
                 "Wilson upper confidence bound for outcome_delta < 0 conditional "
                 "on D_e > 0"
             ),
-            "specificity": (
-                "Wilson lower confidence bound for sign(D_e) agreeing with "
-                "sign(outcome_delta); zero utility is conservatively not success"
+            "action_rate": (
+                "Wilson lower bound for a nonzero differential expert action; "
+                "reported separately from action correctness"
+            ),
+            "support_precision": (
+                "Wilson lower bound for beneficial outcome among consequential "
+                "D_e > 0 actions; neutral outcomes are excluded"
+            ),
+            "specificity_deprecated": (
+                "directional precision on consequential nonzero outcomes only; "
+                "retained for audit and not used for authority"
             ),
             "veto_precision": (
-                "Wilson lower confidence bound for outcome_delta < 0 "
-                "conditional on D_e < 0"
+                "Wilson lower bound for harmful outcome among consequential "
+                "D_e < 0 actions; neutral outcomes are excluded"
             ),
             "z": z,
         },
