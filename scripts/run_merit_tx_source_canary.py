@@ -15,6 +15,7 @@ from pathlib import Path
 from merit_feddg.capability_study import _filter_optional_experts
 from merit_feddg.contribution import answer_metrics
 from merit_feddg.expert_policy import load_qualification_cards
+from merit_feddg.expert_portfolio import load_expert_portfolio
 from merit_feddg.io import load_experiment_yaml
 from merit_feddg.open_experts import OpenExpertPool
 from merit_feddg.open_study import atomic_json
@@ -126,6 +127,7 @@ def main():
     parser.add_argument("--candidate", required=True)
     parser.add_argument("--candidate-name", required=True)
     parser.add_argument("--qualification-cards")
+    parser.add_argument("--portfolio-policy")
     parser.add_argument("--config", default="configs/merit_tx.yaml")
     parser.add_argument("--artifacts", default="artifacts")
     parser.add_argument("--proposer-expert-id")
@@ -180,6 +182,12 @@ def main():
             "frozen source qualification cards are required before the MERIT-Tx canary"
         )
     cards = load_qualification_cards(card_path)
+    portfolio_path = args.portfolio_policy or tx_policy.get("portfolio_cards")
+    if not portfolio_path or not Path(portfolio_path).is_file():
+        raise FileNotFoundError(
+            "frozen source expert portfolio is required before the MERIT-Tx v3 canary"
+        )
+    portfolio_policy = load_expert_portfolio(portfolio_path)
     max_calls = (
         args.max_calls
         if args.max_calls is not None
@@ -212,6 +220,9 @@ def main():
         "config_sha256": sha256(args.config),
         "qualification_cards": str(Path(card_path).resolve()),
         "qualification_cards_sha256": sha256(card_path),
+        "portfolio_policy": str(Path(portfolio_path).resolve()),
+        "portfolio_policy_sha256": sha256(portfolio_path),
+        "portfolio_selection_source_only": True,
         "max_calls": max_calls,
         "knockoff_controls": knockoff_count,
         "immutable_incumbent": True,
@@ -266,6 +277,7 @@ def main():
                     claim_type=claim_type,
                     max_calls=max_calls,
                     knockoff_count=knockoff_count,
+                    portfolio_policy=portfolio_policy,
                 )
                 decisions.append(decision)
                 verification.append(
