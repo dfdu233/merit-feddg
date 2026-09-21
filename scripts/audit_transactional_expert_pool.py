@@ -28,7 +28,14 @@ def main():
     config = load_experiment_yaml(args.config)
     specs, excluded = _filter_optional_experts(config["experts"], args.artifacts)
     specs.pop("source_cases", None)
-    cards = load_qualification_cards(args.qualification_cards)
+    configured_cards = config.get("merit_tx", {}).get("qualification_cards")
+    card_path = args.qualification_cards or configured_cards
+    if card_path and Path(card_path).is_file():
+        cards = load_qualification_cards(card_path)
+        card_status = "loaded"
+    else:
+        cards = {}
+        card_status = "missing"
     rows = load_manifest(args.manifest, include_answer_type=False)
 
     role_counts = Counter()
@@ -93,6 +100,8 @@ def main():
             "verification before proposal/knowledge; commit authority source-only"
         ),
         "qualification_cards_loaded": bool(cards),
+        "qualification_card_status": card_status,
+        "qualification_card_path": str(card_path) if card_path else None,
         "fault_group_histogram": dict(sorted(group_hist.items())),
         "patient_specific_fault_group_histogram": dict(sorted(patient_hist.items())),
         "selected_role_counts": dict(sorted(role_counts.items())),
