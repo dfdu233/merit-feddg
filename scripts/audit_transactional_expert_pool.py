@@ -19,6 +19,7 @@ def main():
     parser.add_argument("--config", default="configs/merit_tx.yaml")
     parser.add_argument("--artifacts", default="artifacts")
     parser.add_argument("--qualification-cards")
+    parser.add_argument("--proposal-policy")
     parser.add_argument("--max-calls", type=int, default=6)
     parser.add_argument("--output")
     args = parser.parse_args()
@@ -32,6 +33,14 @@ def main():
     card_path = args.qualification_cards or configured_cards
     if card_path and Path(card_path).is_file():
         cards = load_qualification_cards(card_path)
+        if not args.proposal_policy:
+            raise ValueError(
+                "--proposal-policy is required when qualification cards are loaded"
+            )
+        if cards.proposal_policy != args.proposal_policy:
+            raise ValueError(
+                "qualification proposal_policy does not match --proposal-policy"
+            )
         card_status = "loaded"
     else:
         cards = {}
@@ -116,6 +125,10 @@ def main():
         },
         "qualification_card_status": card_status,
         "qualification_card_path": str(card_path) if card_path else None,
+        "proposal_policy": args.proposal_policy,
+        "qualification_proposal_policy": (
+            cards.proposal_policy if hasattr(cards, "proposal_policy") else None
+        ),
         "fault_group_histogram": dict(sorted(group_hist.items())),
         "patient_specific_fault_group_histogram": dict(sorted(patient_hist.items())),
         "selected_role_counts": dict(sorted(role_counts.items())),
