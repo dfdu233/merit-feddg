@@ -50,7 +50,7 @@ Qualification is indexed by expert, capability, scope, modality, task, and claim
 - domains
 - n
 
-The deployed permission rule requires positive lower-bound utility, bounded upper-confidence harm, sufficient current-patient-vs-knockoff specificity, and source-domain coverage. The card is a fixed statistical permission, not a trained router or gate.
+The deployed permission rule is **action-conditional** rather than candidate-method conditional. Utility and harm are estimated only over source transactions for which the expert would actually support commit (`D_e > 0`). The specificity lower bound measures whether `sign(D_e)` agrees with the sign of source-only transaction utility, so the card evaluates the expert's decision signal rather than inheriting the average quality of the frozen candidate generator. Source-domain coverage is still required. The card is a fixed statistical permission, not a trained router or gate.
 
 Build cards from source/development observations:
 
@@ -78,7 +78,7 @@ Examples:
 - XRV: strict native-label claim scoring only when the proposition uniquely names an XRV finding. Raw sigmoid outputs are converted to symmetric log-odds comparison scores; unsupported diagnoses fail closed rather than being guessed.
 - segmentation/localization: candidate-specific spatial support relative to the same operator on a matched control.
 
-A nonpositive differential effect is not commit proof.
+A positive differential effect is patient-specific support for the candidate. A negative differential effect is patient-specific support for retaining the incumbent; when the same source-qualified verifier passes the directional reliability requirement, it can veto a transaction. Zero differential effect carries no proof in either direction.
 
 ## Proposer is not the sole validator
 
@@ -186,8 +186,8 @@ This branch now implements:
 - conservative candidate-to-transaction compilation shared by VQA and reports;
 - report patch atomicity: all clinical claims carried by the same sentence-level patch must be approved, otherwise the incumbent sentence is preserved;
 - literature-grounded role cards and capability/fault-group diversity selection;
-- source-only expert qualification with utility LCB, harm UCB, and specificity LCB;
-- multi-control real-vs-knockoff differential margins;
+- source-only **action-conditional** expert qualification with utility LCB, harm UCB, and directional-specificity LCB;
+- signed multi-control real-vs-knockoff differential margins, including qualified contradiction vetoes;
 - patient/study-level qualification aggregation for reports, preventing pseudo-replication from many claims in one report;
 - proposer/validator separation;
 - claim-specific CONCH and PLIP pathology verification;
@@ -195,6 +195,8 @@ This branch now implements:
 - MedSAM prerequisite-aware spatial registration;
 - answer-blind expert-pool and coverage audits;
 - source qualification observation generation;
+- report ADD verification through an explicit presence/absence counterfactual; uncertain ADD claims fail closed and omission never implies DELETE;
+- verifier-specific call budgeting so non-verifying roles cannot consume independent-verifier slots;
 - an end-to-end source MERIT-Tx canary runner;
 - asset download/audit helpers.
 
