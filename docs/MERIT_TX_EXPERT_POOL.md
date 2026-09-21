@@ -249,6 +249,8 @@ Candidate-oracle and first-divergence analysis of already-completed target exper
 
 A qualification registry fitted on `proposal-v1` is invalid for `proposal-v2`, even when the same experts and source images are used. This prevents candidate-distribution shift from being hidden inside an apparently reusable expert reliability card.
 
+Each card also stores the provenance fingerprint of the exact expert checkpoint/adapter assets used to create its source observations. Both the coverage audit and source canary recompute current expert provenance before inference and fail closed on any mismatch. Replacing a checkpoint under the same configured name therefore invalidates its old source qualification.
+
 ## References
 
 - Savage et al., MedRAX, ICML 2025.
