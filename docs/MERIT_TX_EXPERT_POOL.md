@@ -47,12 +47,13 @@ Qualification is indexed by expert, capability, scope, modality, task, and claim
 - utility_lcb
 - harm_ucb
 - specificity_lcb
+- support_n / support_domains
 - veto_precision_lcb
-- veto_n
+- veto_n / veto_domains
 - domains
 - n
 
-The deployed permission rule is **action-conditional** rather than candidate-method conditional. Utility and harm are estimated only over source transactions for which the expert would actually support commit (`D_e > 0`). The specificity lower bound measures whether `sign(D_e)` agrees with the sign of source-only transaction utility, so the card evaluates the expert's decision signal rather than inheriting the average quality of the frozen candidate generator. Negative decisions are qualified separately: `veto_precision_lcb` is the conservative precision of `D_e < 0` for truly harmful source transactions, and an expert with no qualified negative observations has **zero veto authority** even if its positive support is safe. Source-domain coverage is still required. The card is a fixed statistical permission, not a trained router or gate.
+The v2 qualification schema (`merit-expert-qualification-v2`) is **action-conditional** rather than candidate-method conditional. Utility and harm are estimated only over source transactions for which the expert would actually support commit (`D_e > 0`). The specificity lower bound measures whether `sign(D_e)` agrees with the sign of source-only transaction utility, so the card evaluates the expert's decision signal rather than inheriting the average quality of the frozen candidate generator. Negative decisions are qualified separately: `veto_precision_lcb` is the conservative precision of `D_e < 0` for truly harmful source transactions, and an expert with no qualified negative observations has **zero veto authority** even if its positive support is safe. Domain coverage is action-specific: `support_domains` gates positive commit authority and `veto_domains` gates negative veto authority, so inactive samples from another site cannot manufacture cross-domain evidence for an action. The card is a fixed statistical permission, not a trained router or gate.
 
 Build cards from source/development observations:
 
