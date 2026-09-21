@@ -7,6 +7,7 @@ from merit_feddg.expert_portfolio import (
     fit_expert_portfolios,
     load_expert_portfolio,
     portfolio_experts_for,
+    require_disjoint_source_groups,
 )
 from scripts.fit_expert_qualification import fit as fit_qualification
 
@@ -255,3 +256,40 @@ def test_musk_claim_phrasing_is_candidate_specific_without_loading_weights():
     assert MuskConceptExpert._phrase(
         "The histopathology image shows adenocarcinoma."
     ) == "The histopathology image shows adenocarcinoma."
+
+def test_source_policy_stages_require_group_disjointness():
+    result = require_disjoint_source_groups(
+        qualification={"patient-a", "patient-b"},
+        portfolio_selection={"patient-c", "patient-d"},
+        fresh_canary={"patient-e"},
+    )
+    assert result["qualification"] == ("patient-a", "patient-b")
+    with pytest.raises(ValueError, match="overlap"):
+        require_disjoint_source_groups(
+            qualification={"patient-a", "patient-b"},
+            portfolio_selection={"patient-b", "patient-c"},
+        )
+
+
+def test_v3_qualification_records_source_group_identity():
+    rows = []
+    for index in range(8):
+        rows.append(
+            {
+                "expert_id": "visual",
+                "capability": "classification",
+                "scope": "classification",
+                "modality": "pathology",
+                "task": "open_vqa",
+                "claim_type": "*",
+                "domain": "site-a" if index % 2 == 0 else "site-b",
+                "group_id": f"patient-{index}",
+                "outcome_delta": 0.5 if index < 4 else 0.0,
+                "real_effect": 0.8,
+                "knockoff_effect": 0.0,
+            }
+        )
+    payload = fit_qualification(rows)
+    assert payload["source_group_ids"] == [f"patient-{index}" for index in range(8)]
+    assert len(payload["source_groups_sha256"]) == 64
+
