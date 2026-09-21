@@ -1,0 +1,110 @@
+{
+  "conch_tissue": {
+    "n": 3503,
+    "bard": 32.127052835452915,
+    "greedy": 33.88212787262871,
+    "lower_than_greedy": 291,
+    "higher_than_greedy": 231,
+    "baseline_fully_correct_bard_not": 227,
+    "mean_commits": 2.750499571795604
+  },
+  "biomedparse_objects": {
+    "n": 4410,
+    "bard": 31.485464372965158,
+    "greedy": 32.745419222721004,
+    "lower_than_greedy": 348,
+    "higher_than_greedy": 296,
+    "baseline_fully_correct_bard_not": 271,
+    "mean_commits": 3.0151927437641723
+  },
+  "medcpt_pubmed": {
+    "n": 6717,
+    "bard": 30.88656029861558,
+    "greedy": 31.675728875639255,
+    "lower_than_greedy": 350,
+    "higher_than_greedy": 299,
+    "baseline_fully_correct_bard_not": 271,
+    "mean_commits": 1.9793062379038262
+  },
+  "COMBO:conch_tissue,biomedparse_objects,medcpt_pubmed": {
+    "n": 3502,
+    "bard": 32.13622675116835,
+    "greedy": 33.89180295197555,
+    "lower_than_greedy": 291,
+    "higher_than_greedy": 231,
+    "baseline_fully_correct_bard_not": 227,
+    "mean_commits": 2.7507138777841234
+  },
+  "COMBO:medcpt_pubmed": {
+    "n": 2308,
+    "bard": 29.728824801137165,
+    "greedy": 29.618098823860066,
+    "lower_than_greedy": 2,
+    "higher_than_greedy": 3,
+    "baseline_fully_correct_bard_not": 0,
+    "mean_commits": 0.0
+  },
+  "chexagent_description": {
+    "n": 248,
+    "bard": 32.81838931151076,
+    "greedy": 32.25807754863732,
+    "lower_than_greedy": 24,
+    "higher_than_greedy": 29,
+    "baseline_fully_correct_bard_not": 18,
+    "mean_commits": 4.580645161290323
+  },
+  "COMBO:chexagent_description,biomedparse_objects,medcpt_pubmed": {
+    "n": 227,
+    "bard": 35.4139231244699,
+    "greedy": 35.24230498705751,
+    "lower_than_greedy": 24,
+    "higher_than_greedy": 28,
+    "baseline_fully_correct_bard_not": 18,
+    "mean_commits": 4.643171806167401
+  },
+  "COMBO:biomedparse_objects,medcpt_pubmed": {
+    "n": 659,
+    "bard": 27.573400990789196,
+    "greedy": 26.886497120363046,
+    "lower_than_greedy": 33,
+    "higher_than_greedy": 36,
+    "baseline_fully_correct_bard_not": 26,
+    "mean_commits": 3.8330804248861914
+  },
+  "torchxrayvision": {
+    "n": 21,
+    "bard": 4.761904761904762,
+    "greedy": 0.0,
+    "lower_than_greedy": 0,
+    "higher_than_greedy": 1,
+    "baseline_fully_correct_bard_not": 0,
+    "mean_commits": 3.9047619047619047
+  },
+  "COMBO:torchxrayvision,chexagent_description,biomedparse_objects,medcpt_pubmed": {
+    "n": 21,
+    "bard": 4.761904761904762,
+    "greedy": 0.0,
+    "lower_than_greedy": 0,
+    "higher_than_greedy": 1,
+    "baseline_fully_correct_bard_not": 0,
+    "mean_commits": 3.9047619047619047
+  },
+  "COMBO:conch_tissue,biomedparse_objects": {
+    "n": 1,
+    "bard": 0.0,
+    "greedy": 0.0,
+    "lower_than_greedy": 0,
+    "higher_than_greedy": 0,
+    "baseline_fully_correct_bard_not": 0,
+    "mean_commits": 2.0
+  },
+  "COMBO:": {
+    "n": 1,
+    "bard": 0.0,
+    "greedy": 0.0,
+    "lower_than_greedy": 0,
+    "higher_than_greedy": 0,
+    "baseline_fully_correct_bard_not": 0,
+    "mean_commits": 0.0
+  }
+}

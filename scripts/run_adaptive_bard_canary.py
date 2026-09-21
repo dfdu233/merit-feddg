@@ -149,6 +149,7 @@ def main():
     parser.add_argument('--methods', nargs='+', choices=['generalist', 'joint_all', 'isolated_mean', 'isolated_geomedian', 'bard'], default=['generalist', 'joint_all', 'isolated_mean', 'isolated_geomedian', 'bard'])
     parser.add_argument('--skip-stress', action='store_true')
     parser.add_argument('--prevent-empty-eos', action='store_true', help='Separate repair protocol: reject selected EOS only while decoded output is blank')
+    parser.add_argument('--drop-expert-group', action='append', default=[], help='Exploratory ablation: remove a fault group after frozen selection, without refilling the expert budget')
     parser.add_argument('--compress-artifacts', action='store_true',
                         help='Losslessly gzip complete per-case JSON artifacts; no evidence is removed')
     parser.add_argument('--reference-native-evidence', action='store_true',
@@ -173,6 +174,11 @@ def main():
         raise ValueError('Native expert specifications differ from frozen donor cache')
     specs = {k: v for k, v in config['experts'].items()
              if k != 'source_cases' and k not in protocol['excluded']}
+    known_groups = {v.get('fault_group', k) for k, v in specs.items()}
+    if set(args.drop_expert_group) - known_groups:
+        raise ValueError('Unknown expert fault group requested for ablation')
+    if args.drop_expert_group and args.methods != ['bard']:
+        raise ValueError('Expert-group ablation requires bard-only execution')
     routes = json.loads((cache / 'routing.json').read_text())
     original = load_manifest(args.manifest)
     # Preserve the already-frozen, answer-blind benchmark prompt, including
@@ -204,6 +210,8 @@ def main():
                 continue
             check_row = dict(source, modality=routes[source['id']]['modality'], group_id=source['image_sha256'])
             for descriptor in schedule[source['id']]:
+                if specs[descriptor['expert']].get('fault_group', descriptor['expert']) in args.drop_expert_group:
+                    continue
                 request = make_request(check_row, descriptor, decoder)
                 key = fingerprint(['infer', descriptor['expert'], asdict(request)])
                 path = cache / 'expert-cache' / fingerprint(source['id']) / f'{key}.json'
@@ -249,7 +257,13 @@ def main():
                 outputs[method] = runtime.run('generalist' if method == 'generalist' else 'all_evidence')
                 save_case(out / row['id'] / f'{method}.json', outputs[method])
             isolated = [m for m in ('bard', 'isolated_mean', 'isolated_geomedian') if m in args.methods]
-            acquisition = acquire_expert_groups(engine) if isolated else {'groups': {}, 'events': [], 'fault_group_members': {}}
+            acquisition = acquire_expert_groups(engine, excluded_groups=args.drop_expert_group) if isolated else {'groups': {}, 'events': [], 'fault_group_members': {}}
+            excluded_groups = sorted(set(args.drop_expert_group))
+            removed_groups = sorted({event['fault_group'] for event in acquisition['events'] if event.get('ablation_skipped')})
+            acquisition['groups'] = {
+                key: value for key, value in acquisition['groups'].items()
+                if key not in excluded_groups
+            }
             if args.cached_receiver or not isolated:
                 for method in isolated:
                     outputs[method] = run_bard_method(session, acquisition, config.get('bard', {}), method, fault_probe=not args.skip_stress, prevent_empty_eos=args.prevent_empty_eos)
@@ -279,6 +293,7 @@ def main():
                 'acquisition_events': acquisition['events'],
                 'fault_group_members': acquisition['fault_group_members'],
                 'answers_loaded': False,
+                'expert_group_ablation': {'requested': excluded_groups, 'removed': removed_groups, 'refill_budget': False},
                 'empty_eos_repair': 'selected-eos-visible-continuation-v1' if args.prevent_empty_eos else None,
             })
             print('COMPLETE', index, row['id'], 'forwards', count[0] - before,

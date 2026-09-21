@@ -37,7 +37,7 @@ def select_bard_descriptors(candidates, specs, max_calls):
     return (primary_visual + primary_knowledge + repeated)[:max_calls]
 
 
-def acquire_expert_groups(runtime):
+def acquire_expert_groups(runtime, excluded_groups=()):
     """Acquire a frozen budget of tools from clean independent states.
 
     Every native request is executed from an empty answer/evidence state, so one
@@ -61,6 +61,9 @@ def acquire_expert_groups(runtime):
     for descriptor in descriptors:
         expert = descriptor["expert"]
         node = fault_node(descriptor)
+        if node in excluded_groups:
+            events.append({"expert": expert, "fault_group": node, "ablation_skipped": True})
+            continue
         if node not in groups:
             groups[node] = []
             members[node] = []
@@ -86,7 +89,7 @@ def acquire_expert_groups(runtime):
     return {
         "groups": groups,
         "events": events,
-        "native_requests": len(descriptors),
+        "native_requests": sum(not event.get("ablation_skipped", False) for event in events),
         "seconds": perf_counter() - started,
         "selection": (
             "compatible descriptors under frozen max_expert_calls; distinct "

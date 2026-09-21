@@ -1,0 +1,9 @@
+# Exploratory PathVQA expert removal
+
+User authorizes identifying and masking harmful specialists, with progressive scaling and same-ID historical baselines. This is TEST-guided exploratory ablation, not an independent held-out claim.
+
+Full original cohort audit finds3502cases with admittedCONCH+BiomedParse+MedCPT. Order fixedbySHA256(pathvqa-expert-ablation-v1:ID), without correctness filtering. First64 screen allthree single-group removals. Remaining192 expand the selected arm to256; next768 can extend to1024 if the disjoint192 subset also improves over the original full-expert method. Retain all attempted arms, samples and failures. If no screen arm improves, stop attributing harm to any single expert and report that result; no label-driven changes to prompts/routes/generation.
+
+Same original frozen model/config/routes/nativecache/prompts/64token budget. Remove a group after the frozen descriptor selection, before cache acquisition; do NOT refill the expert budget or reroute. This is equivalent to omitting that group's receiver branch, with no need to read its unused heavy masks. Remaining native requests retain exact keys and identity. Preserve full audit of skipped descriptors. Empty-EOS repair OFF. No baseline generation; use archived Greedy and available complete baselines on exactly selectedIDs, with the same local v14 scoring code for all.
+
+Initialscreen:dropCONCH anddropMedCPT onhostGPU1 (twoindependentworkers);dropBiomedParse on40297GPU0. Cloud initiallaunches failed selected-cacheprecheck beforemodelload; noresultsproduced. Missinglightcache128files/97KB retrievedfrom5090completecache, SHA8ef79e1a28bd1be2b275cfd32f97533fb13e2062aa67c14a7c05a8973f34ea72. Hostcontainsallrawvisualmasks. Cross-runtime comparisons retain the same limitations as the existing multi-node original evaluation.
