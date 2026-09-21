@@ -122,6 +122,21 @@ def fit(rows, *, z=1.96):
             utility_lcb = -1.0
             harm_ucb = 1.0
 
+        veto_deltas = [
+            delta
+            for delta, effect in zip(deltas, effects, strict=True)
+            if effect < 0
+        ]
+        veto_precision_lcb = (
+            wilson(
+                sum(delta < 0 for delta in veto_deltas),
+                len(veto_deltas),
+                z,
+                upper=False,
+            )
+            if veto_deltas
+            else 0.0
+        )
         directional_successes = sum(
             (effect > 0 and delta > 0) or (effect < 0 and delta < 0)
             for delta, effect in zip(deltas, effects, strict=True)
@@ -138,6 +153,8 @@ def fit(rows, *, z=1.96):
                 z,
                 upper=False,
             ),
+            veto_precision_lcb=veto_precision_lcb,
+            veto_n=len(veto_deltas),
             source_only=True,
         )
         cards.append(card)
@@ -156,6 +173,10 @@ def fit(rows, *, z=1.96):
             "specificity": (
                 "Wilson lower confidence bound for sign(D_e) agreeing with "
                 "sign(outcome_delta); zero utility is conservatively not success"
+            ),
+            "veto_precision": (
+                "Wilson lower confidence bound for outcome_delta < 0 "
+                "conditional on D_e < 0"
             ),
             "z": z,
         },
