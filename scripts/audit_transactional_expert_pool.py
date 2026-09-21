@@ -37,6 +37,12 @@ def main():
         cards = {}
         card_status = "missing"
     rows = load_manifest(args.manifest, include_answer_type=False)
+    tx_policy = config.get("merit_tx", {})
+    qualification_min_domains = int(tx_policy.get("qualification_min_domains", 2))
+    qualification_max_harm_ucb = float(tx_policy.get("qualification_max_harm_ucb", 0.25))
+    qualification_min_specificity_lcb = float(
+        tx_policy.get("qualification_min_specificity_lcb", 0.5)
+    )
 
     role_counts = Counter()
     commit_role_counts = Counter()
@@ -50,6 +56,9 @@ def main():
             specs,
             qualification_cards=cards,
             max_calls=args.max_calls,
+            qualification_min_domains=qualification_min_domains,
+            qualification_max_harm_ucb=qualification_max_harm_ucb,
+            qualification_min_specificity_lcb=qualification_min_specificity_lcb,
         )
         audit = plan["audit"]
         groups = sorted({entry["fault_group"] for entry in audit})
@@ -100,6 +109,11 @@ def main():
             "verification before proposal/knowledge; commit authority source-only"
         ),
         "qualification_cards_loaded": bool(cards),
+        "qualification_policy": {
+            "min_domains": qualification_min_domains,
+            "max_harm_ucb": qualification_max_harm_ucb,
+            "min_specificity_lcb": qualification_min_specificity_lcb,
+        },
         "qualification_card_status": card_status,
         "qualification_card_path": str(card_path) if card_path else None,
         "fault_group_histogram": dict(sorted(group_hist.items())),
