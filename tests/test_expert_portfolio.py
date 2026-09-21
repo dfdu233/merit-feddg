@@ -10,6 +10,7 @@ from merit_feddg.expert_portfolio import (
     require_disjoint_source_groups,
 )
 from scripts.fit_expert_qualification import fit as fit_qualification
+from scripts.split_merit_tx_source import assign_units, build_units
 
 
 def _spec(expert, group):
@@ -293,3 +294,40 @@ def test_v3_qualification_records_source_group_identity():
     assert payload["source_group_ids"] == [f"patient-{index}" for index in range(8)]
     assert len(payload["source_groups_sha256"]) == 64
 
+
+
+def test_three_way_source_units_merge_duplicate_images_even_with_different_groups(tmp_path):
+    shared = tmp_path / "shared.png"
+    other = tmp_path / "other.png"
+    shared.write_bytes(b"same-image-bytes")
+    other.write_bytes(b"different-image-bytes")
+    rows = [
+        {
+            "id": "a",
+            "image": str(shared),
+            "domain": "site-a",
+            "group_id": "patient-a",
+        },
+        {
+            "id": "b",
+            "image": str(shared),
+            "domain": "site-b",
+            "group_id": "patient-b",
+        },
+        {
+            "id": "c",
+            "image": str(other),
+            "domain": "site-a",
+            "group_id": "patient-c",
+        },
+    ]
+    units = build_units(rows)
+    assert len(units) == 2
+    merged = next(unit for unit in units if set(unit["sample_ids"]) == {"a", "b"})
+    assert merged["group_ids"] == ["patient-a", "patient-b"]
+    assignment = assign_units(
+        units,
+        seed="frozen",
+        ratios=(0.5, 0.25, 0.25),
+    )
+    assert assignment[merged["root"]] in {"qualification", "portfolio", "canary"}
