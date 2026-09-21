@@ -8,6 +8,7 @@ from dataclasses import asdict
 
 from .claims import CandidateProposition, ClaimSpec
 from .expert_policy import select_expert_descriptors, transaction_descriptors
+from .expert_portfolio import portfolio_experts_for
 from .knockoff import select_matched_knockoffs
 from .merit_tx import (
     MeritTxConfig,
@@ -39,8 +40,9 @@ def merit_tx_config(mapping):
         "min_support_groups",
         "qualification_min_domains",
         "qualification_max_harm_ucb",
-        "qualification_min_specificity_lcb",
+        "qualification_min_support_precision_lcb",
         "qualification_min_veto_precision_lcb",
+        "qualification_min_consequential",
     }
     return MeritTxConfig(**{key: mapping[key] for key in keys if key in mapping})
 
@@ -170,6 +172,7 @@ def selected_native_verifiers(
     claim_type,
     tx_policy,
     max_calls,
+    portfolio_policy=None,
 ):
     """Reserve the verification budget for commit-capable native verifiers.
 
@@ -179,6 +182,12 @@ def selected_native_verifiers(
     discarded after budgeting.
     """
     descriptors = transaction_descriptors(specs, row)
+    portfolio_ids = portfolio_experts_for(
+        portfolio_policy,
+        modality=row["modality"],
+        task=row["task"],
+        claim_type=claim_type,
+    )
     selected, audit = select_expert_descriptors(
         descriptors,
         specs,
@@ -193,16 +202,26 @@ def selected_native_verifiers(
         qualification_max_harm_ucb=float(
             tx_policy.get("qualification_max_harm_ucb", 0.25)
         ),
-        qualification_min_specificity_lcb=float(
-            tx_policy.get("qualification_min_specificity_lcb", 0.5)
+        qualification_min_support_precision_lcb=float(
+            tx_policy.get("qualification_min_support_precision_lcb", 0.5)
         ),
         qualification_min_veto_precision_lcb=float(
             tx_policy.get("qualification_min_veto_precision_lcb", 0.5)
         ),
+        qualification_min_consequential=int(
+            tx_policy.get("qualification_min_consequential", 4)
+        ),
         allowed_evidence_roles=("direct_visual_verifier",),
         allowed_capabilities=("classification",),
+        allowed_expert_ids=portfolio_ids,
     )
-    return selected, audit
+    return selected, audit, {
+        "policy_present": portfolio_policy is not None,
+        "selected_expert_ids": (
+            list(portfolio_ids) if portfolio_ids is not None else None
+        ),
+        "fail_closed_empty": portfolio_ids == (),
+    }
 
 
 def verify_transaction(
@@ -218,6 +237,7 @@ def verify_transaction(
     claim_type,
     max_calls,
     knockoff_count,
+    portfolio_policy=None,
 ):
     """Verify one transaction without reading a reference answer."""
     if transaction.operation == "DELETE":
@@ -257,13 +277,14 @@ def verify_transaction(
                 "controls": {},
             },
         )
-    verifiers, plan_audit = selected_native_verifiers(
+    verifiers, plan_audit, portfolio_audit = selected_native_verifiers(
         row,
         specs,
         qualification_cards,
         claim_type=claim_type,
         tx_policy=tx_policy,
         max_calls=max_calls,
+        portfolio_policy=portfolio_policy,
     )
     evidences = []
     skipped = []
@@ -326,6 +347,7 @@ def verify_transaction(
         [asdict(evidence) for evidence in evidences],
         {
             "selected": plan_audit,
+            "portfolio": portfolio_audit,
             "skipped": skipped,
             "controls": control_audit,
         },
