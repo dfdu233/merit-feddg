@@ -8,11 +8,9 @@ Crucially, the incumbent text is immutable: rejected transactions cannot alter
 its decoding trajectory or untouched spans.
 """
 
-from __future__ import annotations
-
-import re
 from dataclasses import dataclass, field
 from itertools import pairwise
+import re
 from typing import Any
 
 
