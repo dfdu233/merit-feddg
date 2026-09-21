@@ -47,10 +47,19 @@ class MeritTxConfig:
     require_patient_specific_support: bool = True
     reject_on_qualified_contradiction: bool = True
     min_support_groups: int = 1
+    qualification_min_domains: int = 2
+    qualification_max_harm_ucb: float = 0.25
+    qualification_min_specificity_lcb: float = 0.5
 
     def __post_init__(self):
         if type(self.min_support_groups) is not int or self.min_support_groups < 1:
             raise ValueError("min_support_groups must be a positive integer")
+        if type(self.qualification_min_domains) is not int or self.qualification_min_domains < 1:
+            raise ValueError("qualification_min_domains must be positive")
+        if not 0 <= self.qualification_max_harm_ucb <= 1:
+            raise ValueError("qualification_max_harm_ucb must be in [0,1]")
+        if not 0 <= self.qualification_min_specificity_lcb <= 1:
+            raise ValueError("qualification_min_specificity_lcb must be in [0,1]")
 
 
 def differential_margin(
@@ -173,7 +182,11 @@ def decide_transaction(
         )
         source_qualified = (
             qcard is not None
-            and qcard.authorizes_commit()
+            and qcard.authorizes_commit(
+                min_domains=config.qualification_min_domains,
+                max_harm_ucb=config.qualification_max_harm_ucb,
+                min_specificity_lcb=config.qualification_min_specificity_lcb,
+            )
         )
         # A negative/zero real-vs-knockoff effect is not patient-specific proof,
         # regardless of whether the raw expert output agrees with the candidate.
