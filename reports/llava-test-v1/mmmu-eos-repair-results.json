@@ -1,0 +1,28 @@
+{
+  "policy": "selected-eos-visible-continuation-v1",
+  "n": 10500,
+  "original_score_percent": 20.295238095238094,
+  "repaired_score_percent": 21.39047619047619,
+  "original_correct": 2131,
+  "repaired_correct": 2246,
+  "new_correct_among_659": 115,
+  "original_empty": 659,
+  "repaired_empty": 0,
+  "unchanged_nonempty": 9841,
+  "retry_unfinished": 228,
+  "no_guard_intervention_ids": [],
+  "no_guard_intervention_correct": 0,
+  "repaired_unparseable": 2605,
+  "original_unparseable": 3014,
+  "repaired_parse_rate": 0.7519047619047619,
+  "original_answers_sha256": "dbe2bacc9419fd30000d8b62d5102708cd108451120958168e82ae672d0c3ca6",
+  "repaired_answers_sha256": "16dda9da7dc0f7ab9847c5d8becb22a3a4ae5af37c97ab869ab3df939d366813",
+  "all_retry_ids_exactly_original_empty": true,
+  "nonempty_original_records_exactly_unchanged": true,
+  "evaluation": "Pinned official MMMU parser; random fallback counted wrong; separate revised decoding protocol. All659final retries triggered guard.",
+  "source_environment_rechecks": [
+    "test_Geography_123",
+    "test_Geography_471"
+  ],
+  "source_environment_recheck_policy": "Both discrepant host cases replaced with source-environment retries, irrespective of labels; original empty tokens reproduced, then guard genuinely intervened. All attempts retained."
+}
