@@ -13,6 +13,7 @@ def select_matched_knockoffs(
     *,
     expert_id,
     count=4,
+    match_fields=(),
 ):
     """Select stable wrong-patient controls without consulting labels or scores."""
     if type(count) is not int or count < 1:
@@ -22,6 +23,14 @@ def select_matched_knockoffs(
         raise ValueError("current row needs id/image/modality/task/group_id")
     if not expert_id:
         raise ValueError("expert_id cannot be empty")
+    match_fields = tuple(str(value).strip() for value in match_fields)
+    if any(not value or value in _LABEL_KEYS for value in match_fields):
+        raise ValueError("knockoff match fields must be non-label metadata")
+    expected = {
+        field: current_row.get(field)
+        for field in match_fields
+        if current_row.get(field) not in {None, ""}
+    }
 
     candidates = []
     for row in source_rows:
@@ -38,6 +47,7 @@ def select_matched_knockoffs(
             or public["group_id"] == current_row["group_id"]
             or public["modality"] != current_row["modality"]
             or public["task"] != current_row["task"]
+            or any(row.get(field) != value for field, value in expected.items())
         ):
             continue
         digest = hashlib.sha256(
@@ -59,7 +69,14 @@ def select_matched_knockoffs(
         {
             **row,
             "role": "knockoff_control",
-            "selection": "same-modality-task different-group stable-hash",
+            "selection": (
+                "same-modality-task different-group stable-hash"
+                + (
+                    " matched-" + "-".join(sorted(expected))
+                    if expected
+                    else ""
+                )
+            ),
             "labels_consulted": False,
             "discarded_label_keys": sorted(_LABEL_KEYS.intersection(source_rows[0]))
             if source_rows
