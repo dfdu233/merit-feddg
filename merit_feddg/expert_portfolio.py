@@ -460,6 +460,51 @@ def fit_expert_portfolios(
                     }
                 )
 
+        add_one = []
+        selected_set = set(selected.expert_ids)
+        for expert_id in eligible:
+            if expert_id in selected_set:
+                continue
+            augmented_ids = tuple(sorted((*selected.expert_ids, expert_id)))
+            groups = [
+                role_card(value, specs[value]).fault_group
+                for value in augmented_ids
+            ]
+            if len(groups) != len(set(groups)):
+                continue
+            augmented = by_ids.get(augmented_ids)
+            if augmented is None:
+                augmented = _simulate_subset(
+                    values,
+                    augmented_ids,
+                    specs=specs,
+                    qualification_cards=qualification_cards,
+                    policy=policy,
+                    z=z,
+                )
+            add_one.append(
+                {
+                    "expert_id": expert_id,
+                    "utility_mean_delta_when_added": (
+                        augmented.utility_mean - selected.utility_mean
+                    ),
+                    "utility_lcb_delta_when_added": (
+                        augmented.utility_lcb - selected.utility_lcb
+                    ),
+                    "harm_ucb_delta_when_added": (
+                        augmented.harm_ucb - selected.harm_ucb
+                    ),
+                    "coverage_lcb_delta_when_added": (
+                        augmented.coverage_lcb - selected.coverage_lcb
+                    ),
+                    "adding_expert_reduces_mean_utility": (
+                        augmented.utility_mean < selected.utility_mean
+                    ),
+                    "augmented_feasible": augmented.feasible,
+                    "augmented_reason": augmented.reason,
+                }
+            )
+
         pair_interactions = []
         # Audit *all* individually eligible experts, including experts excluded
         # from the selected portfolio.  Otherwise "removing expert B helped"
@@ -491,6 +536,7 @@ def fit_expert_portfolios(
                 "selected": _card_dict(selected),
                 "eligible_experts": eligible,
                 "leave_one_out": leave_one_out,
+                "add_one": add_one,
                 "pair_interactions": pair_interactions,
                 "candidate_portfolios": [
                     _card_dict(card)
