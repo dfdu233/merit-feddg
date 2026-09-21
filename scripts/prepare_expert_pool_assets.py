@@ -16,6 +16,7 @@ OPEN_MODELS = {
 GATED_MODELS = {
     "conch": ("MahmoodLab/CONCH", "artifacts/models/MahmoodLab--CONCH"),
     "maira2": ("microsoft/maira-2", "artifacts/models/microsoft--maira-2"),
+    "medsiglip": ("google/medsiglip-448", "artifacts/models/google--medsiglip-448"),
 }
 
 
