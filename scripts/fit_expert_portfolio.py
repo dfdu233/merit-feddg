@@ -18,7 +18,7 @@ import math
 from pathlib import Path
 
 from merit_feddg.expert_policy import load_qualification_cards
-from merit_feddg.expert_portfolio import fit_expert_portfolios
+from merit_feddg.expert_portfolio import fit_expert_portfolios, require_disjoint_source_groups
 from merit_feddg.io import load_experiment_yaml
 
 
@@ -81,12 +81,10 @@ def main():
 
     input_rows=read_rows(args.input)
     portfolio_groups={str(row["group_id"]) for row in input_rows}
-    overlap=sorted(qualification_groups & portfolio_groups)
-    if overlap:
-        raise ValueError(
-            "qualification and portfolio-selection source groups must be disjoint; "
-            f"overlap={len(overlap)}"
-        )
+    require_disjoint_source_groups(
+        qualification=qualification_groups,
+        portfolio_selection=portfolio_groups,
+    )
     payload=fit_expert_portfolios(
         input_rows,
         specs=specs,
