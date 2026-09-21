@@ -225,6 +225,7 @@ def select_expert_descriptors(
     qualification_cards=None,
     max_calls=6,
     require_commit_authority=False,
+    region_available=False,
 ):
     """Coverage-first, diversity-aware expert selection with source-only authority."""
     if type(max_calls) is not int or max_calls < 1:
@@ -240,6 +241,8 @@ def select_expert_descriptors(
 
     rows = []
     for index, descriptor in enumerate(descriptors):
+        if descriptor.get("requires_region") and not region_available:
+            continue
         expert = descriptor["expert"]
         card = role_card(expert, specs[expert])
         if specs[expert].get("expert_pool_enabled", True) is False:
