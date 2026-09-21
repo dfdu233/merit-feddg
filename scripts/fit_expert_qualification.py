@@ -11,12 +11,10 @@ effects measured with current-patient evidence and a matched wrong-patient
 control. The script stores conservative lower/upper bounds; it trains no gate.
 """
 
-from __future__ import annotations
-
 import argparse
+from collections import defaultdict
 import json
 import math
-from collections import defaultdict
 from pathlib import Path
 
 
