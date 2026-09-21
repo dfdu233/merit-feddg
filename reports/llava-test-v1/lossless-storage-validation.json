@@ -1,0 +1,14 @@
+[
+  {
+    "file": "bard.json",
+    "raw_bytes": 28200148,
+    "stored_bytes": 4989,
+    "full_nested_roundtrip_equal": true
+  },
+  {
+    "file": "provenance.json",
+    "raw_bytes": 14106947,
+    "stored_bytes": 6597,
+    "full_nested_roundtrip_equal": true
+  }
+]

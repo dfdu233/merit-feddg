@@ -1,5 +1,6 @@
 """Replay the frozen BARD protocol from native caches without loading specialists."""
 import argparse
+import gzip
 import hashlib
 import json
 from pathlib import Path
@@ -24,6 +25,74 @@ from merit_feddg.matched_evaluation import (
     load_manifest,
 )
 from merit_feddg.open_study import atomic_json, fingerprint
+
+
+def native_evidence_references(directory, cache):
+    """Index immutable native items already retained in the frozen cache."""
+    index = {}
+    for source in sorted(directory.glob('*.json')):
+        raw = source.read_bytes()
+        record = json.loads(raw)
+        for position, item in enumerate(record.get('output', {}).get('items', [])):
+            key = item.get('evidence_id')
+            if key is None:
+                continue
+            index.setdefault(key, []).append((item, {
+                'cache_identity': record['identity'],
+                'relative_path': str(source.relative_to(cache)),
+                'file_sha256': hashlib.sha256(raw).hexdigest(),
+                'item_index': position,
+            }))
+    return index
+
+
+def reference_native_evidence(value, index):
+    """Replace only exact native-item duplicates with content-verified references."""
+    if isinstance(value, dict):
+        for original, reference in index.get(value.get('evidence_id'), []):
+            if value == original:
+                return {'__native_evidence_ref_v1__': reference}
+        return {key: reference_native_evidence(item, index) for key, item in value.items()}
+    if isinstance(value, list):
+        return [reference_native_evidence(item, index) for item in value]
+    return value
+
+
+def restore_native_evidence(value, cache, loaded=None):
+    """Losslessly expand stored references, rejecting mismatched cache bytes."""
+    loaded = {} if loaded is None else loaded
+    if isinstance(value, dict):
+        if set(value) == {'__native_evidence_ref_v1__'}:
+            ref = value['__native_evidence_ref_v1__']
+            path = (cache / ref['relative_path']).resolve()
+            if not path.is_relative_to(cache.resolve()):
+                raise ValueError('Native evidence reference escapes cache')
+            if path not in loaded:
+                raw = path.read_bytes()
+                loaded[path] = (hashlib.sha256(raw).hexdigest(), json.loads(raw))
+            digest, record = loaded[path]
+            if digest != ref['file_sha256'] or record['identity'] != ref['cache_identity']:
+                raise ValueError('Native evidence reference provenance mismatch')
+            return record['output']['items'][ref['item_index']]
+        return {key: restore_native_evidence(item, cache, loaded) for key, item in value.items()}
+    if isinstance(value, list):
+        return [restore_native_evidence(item, cache, loaded) for item in value]
+    return value
+
+
+def write_case_artifact(path, value, *, compressed=False, native_index=None):
+    """Keep complete evidence, optionally using lossless gzip on disk."""
+    if native_index is not None:
+        value = reference_native_evidence(value, native_index)
+    if not compressed:
+        atomic_json(path, value)
+        return
+    path = Path(str(path) + '.gz')
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = Path(str(path) + '.tmp')
+    with gzip.open(temporary, 'wt', encoding='utf-8', compresslevel=1) as handle:
+        json.dump(value, handle, ensure_ascii=False, indent=2)
+    temporary.replace(path)
 
 
 def stress_audit(session, acquisition, bard_config, tokens):
@@ -79,6 +148,10 @@ def main():
     parser.add_argument('--output', required=True)
     parser.add_argument('--methods', nargs='+', choices=['generalist', 'joint_all', 'isolated_mean', 'isolated_geomedian', 'bard'], default=['generalist', 'joint_all', 'isolated_mean', 'isolated_geomedian', 'bard'])
     parser.add_argument('--skip-stress', action='store_true')
+    parser.add_argument('--compress-artifacts', action='store_true',
+                        help='Losslessly gzip complete per-case JSON artifacts; no evidence is removed')
+    parser.add_argument('--reference-native-evidence', action='store_true',
+                        help='Store exact native evidence duplicates as SHA-verified references; retain native cache')
     parser.add_argument('--max-forwards', type=int, default=200000)
     parser.add_argument('--cached-receiver', action='store_true', help='Use separately parity-validated native receiver KV scores')
     parser.add_argument('--start-index', type=int, default=0)
@@ -113,6 +186,9 @@ def main():
     arms = experiment_arms(decoder, 'bard')
     out = Path(args.output)
     out.mkdir(parents=True, exist_ok=True)
+    native_index = None
+    def save_case(path, value):
+        write_case_artifact(path, value, compressed=args.compress_artifacts, native_index=native_index)
     if partial_cache:
         from dataclasses import asdict
 
@@ -154,6 +230,8 @@ def main():
                        task=original_row.get('task', 'open_vqa'), domain=original_row['domain'],
                        domain_kind='official_dataset_split', role=original_row.get('role', 'target'), group_id=row['image_sha256'])
             pool = SharedExpertPool(None, cache / 'expert-cache' / fingerprint(row['id']), protocol['identity'])
+            native_index = (native_evidence_references(pool.directory, cache)
+                            if args.reference_native_evidence else None)
             prompt = benchmark_prompts.get(row['id'], generation_prompt(original_row, config))
             session = NativeSession(probe, row['image'], prompt, row['question'], decoder)
             engine = CapabilityRuntime(session, pool, row, specs, decoder, None)
@@ -166,26 +244,29 @@ def main():
                 arm_session = NativeSession(probe, row['image'], prompt, row['question'], arm)
                 runtime = CapabilityRuntime(arm_session, pool, row, specs, arm, None)
                 outputs[method] = runtime.run('generalist' if method == 'generalist' else 'all_evidence')
-                atomic_json(out / row['id'] / f'{method}.json', outputs[method])
+                save_case(out / row['id'] / f'{method}.json', outputs[method])
             isolated = [m for m in ('bard', 'isolated_mean', 'isolated_geomedian') if m in args.methods]
             acquisition = acquire_expert_groups(engine) if isolated else {'groups': {}, 'events': [], 'fault_group_members': {}}
             if args.cached_receiver or not isolated:
                 for method in isolated:
                     outputs[method] = run_bard_method(session, acquisition, config.get('bard', {}), method, fault_probe=not args.skip_stress)
-                    atomic_json(out / row['id'] / f'{method}.json', outputs[method])
+                    save_case(out / row['id'] / f'{method}.json', outputs[method])
             else:
                 outputs.update(run_bard_bundle(session, acquisition, config.get('bard', {})))
                 for method in ('isolated_mean', 'isolated_geomedian', 'bard'):
-                    atomic_json(out / row['id'] / f'{method}.json', outputs[method])
+                    save_case(out / row['id'] / f'{method}.json', outputs[method])
             if not args.skip_stress and 'bard' in outputs:
-                atomic_json(out / row['id'] / 'stress.json', stress_audit(
+                save_case(out / row['id'] / 'stress.json', stress_audit(
                     session, acquisition, config.get('bard', {}), outputs['bard']['token_ids']))
-            atomic_json(out / row['id'] / 'provenance.json', {
+            save_case(out / row['id'] / 'provenance.json', {
                 'cache_identity': protocol['identity'], 'row': row,
                 'receiver_config': config, 'prompt': prompt, 'methods': args.methods,
                 'prompt_source': 'frozen_benchmark_prompt' if row['id'] in benchmark_prompts else 'generation_prompt',
                 'manifest_sha256': hashlib.sha256(Path(args.manifest).read_bytes()).hexdigest(),
                 'receiver_execution': 'parity_validated_kv' if args.cached_receiver else 'production_replay',
+                'artifact_encoding': 'gzip-json' if args.compress_artifacts else 'json',
+                'native_evidence_storage': ('sha256-verified-cache-references-v1'
+                                            if args.reference_native_evidence else 'inline'),
                 'routing_source': protocol['routing'],
                 'protocol_sha256': hashlib.sha256((cache / 'protocol.json').read_bytes()).hexdigest(),
                 'native_cache_sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest()

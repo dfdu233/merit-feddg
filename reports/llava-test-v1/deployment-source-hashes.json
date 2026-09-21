@@ -1,0 +1,10 @@
+{
+  "merit_feddg/bard.py": "6a921c6bf40798c5eda6dea9dae061fc434b0a2cf9f21a40c9747e3256720faf",
+  "merit_feddg/bard_protocol.py": "4f8719f0853d5cd58d6480e7576b706b6e02a1c9e46e5db6a55d813412bbd547",
+  "merit_feddg/spatial_evidence.py": "79136bf16cfa285334f0702bca580b5080c0aa00b5fb9cad6c7435ae4bbc8211",
+  "merit_feddg/tensor_bridge.py": "5a29eb5d9c190ba9928ab53dbc14544908c09cf444f9f71cac6664fd5dc96c87",
+  "merit_feddg/llava_generalist.py": "c1b96981f9ba3013c654cb7ee838061723a97aaa4d6867317cf9fd6c6d728df2",
+  "merit_feddg/huatuo_generalist.py": "61c120f5e05eecce3583ee0e3242fbffc93d53259be2d5a8fb7862338cd86b20",
+  "scripts/run_adaptive_bard_canary.py": "383b11b4310ee958a7d24f54b9137c05f5c9f80753a14617cfef5af9bc6a99d5",
+  "runs/llava-test-v1/config.yaml": "0d3f8c62b6ba02d944dbcd7d59a33f585777b8c5e7093bb692d4edb8285147a7"
+}

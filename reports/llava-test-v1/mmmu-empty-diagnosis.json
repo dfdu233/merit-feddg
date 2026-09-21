@@ -1,0 +1,142 @@
+[
+  {
+    "id": "test_Accounting_49",
+    "saved_tokens": [
+      28705,
+      2
+    ],
+    "native_tokens": [
+      28705,
+      2
+    ],
+    "native_text": "",
+    "checks": [
+      {
+        "exact": true,
+        "production_argmax": 28705,
+        "cached_argmax": 28705
+      },
+      {
+        "exact": true,
+        "production_argmax": 2,
+        "cached_argmax": 2
+      }
+    ],
+    "structural_fallback": true
+  },
+  {
+    "id": "test_Agriculture_1",
+    "saved_tokens": [
+      28705,
+      2
+    ],
+    "native_tokens": [
+      28705,
+      2
+    ],
+    "native_text": "",
+    "checks": [
+      {
+        "exact": true,
+        "production_argmax": 28705,
+        "cached_argmax": 28705
+      },
+      {
+        "exact": true,
+        "production_argmax": 2,
+        "cached_argmax": 2
+      }
+    ],
+    "structural_fallback": true
+  },
+  {
+    "id": "test_Architecture_and_Engineering_43",
+    "saved_tokens": [
+      28705,
+      2
+    ],
+    "native_tokens": [
+      28705,
+      2
+    ],
+    "native_text": "",
+    "checks": [
+      {
+        "exact": true,
+        "production_argmax": 28705,
+        "cached_argmax": 28705
+      },
+      {
+        "exact": true,
+        "production_argmax": 2,
+        "cached_argmax": 2
+      }
+    ],
+    "structural_fallback": true
+  },
+  {
+    "id": "test_Accounting_44",
+    "saved_tokens": [
+      415,
+      9410,
+      28742,
+      28713,
+      2668,
+      13833,
+      4144,
+      349,
+      429,
+      28781,
+      28783,
+      28723,
+      28750,
+      28782,
+      28723,
+      28705,
+      2
+    ],
+    "native_tokens": [
+      415,
+      9410,
+      28742,
+      28713,
+      2668,
+      13833,
+      4144,
+      349,
+      429,
+      28781,
+      28783,
+      28723,
+      28750,
+      28782,
+      28723,
+      28705,
+      2
+    ],
+    "native_text": "The bond's market conversion price is $48.25.",
+    "checks": [
+      {
+        "exact": true,
+        "production_argmax": 415,
+        "cached_argmax": 415
+      },
+      {
+        "exact": true,
+        "production_argmax": 9410,
+        "cached_argmax": 9410
+      },
+      {
+        "exact": true,
+        "production_argmax": 28742,
+        "cached_argmax": 28742
+      },
+      {
+        "exact": true,
+        "production_argmax": 28713,
+        "cached_argmax": 28713
+      }
+    ],
+    "structural_fallback": true
+  }
+]
