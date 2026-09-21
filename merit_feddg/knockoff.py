@@ -1,5 +1,7 @@
 """Deterministic answer-blind matched controls for MERIT-Tx evidence specificity."""
 
+from __future__ import annotations
+
 import hashlib
 
 
