@@ -10,6 +10,7 @@ from merit_feddg.merit_tx import (
     MeritTxConfig,
     TransactionEvidence,
     decide_transaction,
+    differential_margin,
 )
 from merit_feddg.transactional_claims import (
     AtomicClinicalClaim,
@@ -381,3 +382,18 @@ def test_region_prompted_expert_is_not_counted_without_real_region():
         region_available=True,
     )
     assert {row["expert"] for row in selected} == {"automatic", "prompted"}
+
+
+def test_differential_margin_removes_shared_context_shift():
+    # Both real and wrong-patient evidence add a +2 common shift to candidate
+    # and incumbent. Only the patient-specific relative margin remains.
+    value = differential_margin(
+        incumbent_real=7.0,
+        candidate_real=9.0,
+        incumbent_knockoff=7.5,
+        candidate_knockoff=8.0,
+    )
+    assert value["real_margin"] == 2.0
+    assert value["knockoff_margin"] == 0.5
+    assert value["differential_effect"] == 1.5
+    assert value["support_direction"] == 1
