@@ -84,11 +84,16 @@ def differential_margin(
         raise ValueError("differential margins require finite scores")
     real_margin = values[1] - values[0]
     knockoff_margin = values[3] - values[2]
+    differential = real_margin - knockoff_margin
     return {
         "real_margin": real_margin,
         "knockoff_margin": knockoff_margin,
-        "differential_effect": real_margin - knockoff_margin,
-        "support_direction": 1 if real_margin > 0 else -1 if real_margin < 0 else 0,
+        "differential_effect": differential,
+        # Direction is defined by the patient-specific contrast D_e, not by
+        # the expert's absolute candidate-vs-incumbent margin.  A biased
+        # verifier may prefer the incumbent on every image while still moving
+        # specifically toward the candidate on the current patient.
+        "support_direction": 1 if differential > 0 else -1 if differential < 0 else 0,
     }
 
 
@@ -119,13 +124,14 @@ def differential_margin_controls(
         margins.append(value["knockoff_margin"])
     knockoff_margin = float(median(margins))
     real_margin = float(real["real_margin"])
+    differential = real_margin - knockoff_margin
     return {
         "real_margin": real_margin,
         "knockoff_margin": knockoff_margin,
         "knockoff_margins": tuple(float(value) for value in margins),
         "controls": len(margins),
-        "differential_effect": real_margin - knockoff_margin,
-        "support_direction": 1 if real_margin > 0 else -1 if real_margin < 0 else 0,
+        "differential_effect": differential,
+        "support_direction": 1 if differential > 0 else -1 if differential < 0 else 0,
     }
 
 
@@ -200,6 +206,12 @@ def evidence_from_expert(
     differential = float(real_effect) - float(knockoff_effect)
     if not math.isfinite(differential):
         raise ValueError("real/knockoff evidence effects must be finite")
+    if int(support_direction) not in {-1, 0, 1}:
+        raise ValueError("support direction must be -1, 0, or 1")
+    # Keep the argument for backward-compatible callers, but normalize the
+    # stored direction to the signed differential effect.  This makes support
+    # and contradiction two sides of the same matched-control statistic.
+    direction = 1 if differential > 0 else -1 if differential < 0 else 0
     return TransactionEvidence(
         expert_id=expert_id,
         capability=capability,
@@ -207,7 +219,7 @@ def evidence_from_expert(
         fault_group=card.fault_group,
         evidence_role=card.evidence_role,
         differential_effect=differential,
-        support_direction=int(support_direction),
+        support_direction=direction,
         patient_specific=card.patient_specific,
     )
 
@@ -253,20 +265,18 @@ def decide_transaction(
                 min_specificity_lcb=config.qualification_min_specificity_lcb,
             )
         )
-        # A negative/zero real-vs-knockoff effect is not patient-specific proof,
-        # regardless of whether the raw expert output agrees with the candidate.
-        if evidence.differential_effect <= 0:
-            continue
-
         # Knowledge/proposal experts remain useful in the audit, but they do not
         # become patient-specific proof merely because they agree with a candidate.
         if not evidence.patient_specific:
             continue
         if not source_qualified:
             continue
-        if evidence.support_direction > 0:
+        if evidence.differential_effect > 0:
             qualified_support.setdefault(evidence.fault_group, []).append(evidence)
-        elif evidence.support_direction < 0:
+        elif evidence.differential_effect < 0:
+            # Negative D_e is genuine patient-specific evidence for retaining
+            # the incumbent.  Treat it as a veto-capable contradiction instead
+            # of silently discarding it.
             qualified_contradiction.setdefault(evidence.fault_group, []).append(evidence)
 
     support_groups = set(qualified_support)
