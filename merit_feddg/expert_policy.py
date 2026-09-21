@@ -260,8 +260,10 @@ def select_expert_descriptors(
             task=task,
             claim_type=claim_type,
         )
+        literature_grounded = "legacy-unreviewed-role-card" not in card.literature
         commit_authorized = (
             card.commit_authority == "source_qualified"
+            and literature_grounded
             and qcard is not None
             and qcard.authorizes_commit(
                 min_domains=qualification_min_domains,
@@ -327,6 +329,7 @@ def select_expert_descriptors(
                 "evidence_role": card.evidence_role,
                 "patient_specific": card.patient_specific,
                 "commit_authority": card.commit_authority,
+                "literature_grounded": "legacy-unreviewed-role-card" not in card.literature,
                 "commit_authorized": row["commit_authorized"],
                 "qualification": (
                     {
