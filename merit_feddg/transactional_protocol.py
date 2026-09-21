@@ -23,6 +23,7 @@ def plan_transaction_experts(
     qualification_cards=None,
     claim_type="*",
     max_calls=6,
+    region_available=False,
 ):
     descriptors = transaction_descriptors(specs, row)
     selected, audit = select_expert_descriptors(
@@ -33,6 +34,7 @@ def plan_transaction_experts(
         claim_type=claim_type,
         qualification_cards=qualification_cards,
         max_calls=max_calls,
+        region_available=region_available,
     )
     return {
         "descriptors": selected,
