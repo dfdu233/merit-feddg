@@ -1,4 +1,5 @@
 import json
+
 import pytest
 
 from merit_feddg.expert_policy import (
