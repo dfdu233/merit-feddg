@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 
-
 _LABEL_KEYS = frozenset(
     {"answer", "answers", "label", "labels", "reference", "references", "ground_truth"}
 )
