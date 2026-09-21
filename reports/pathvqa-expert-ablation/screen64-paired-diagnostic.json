@@ -1,0 +1,60 @@
+{
+  "gain_cases": 4,
+  "loss_cases": 3,
+  "examples": [
+    {
+      "id": "pathvqa-test-00-000827",
+      "question": "does this image show heart, right coronary artery, atherosclerosis and acute thrombus?",
+      "reference": "yes",
+      "original": "No, the image does not show heart, right coronary artery, atherosclerosis, and acute thrombus.",
+      "drop_conch": "Yes, the image shows the heart, right coronary artery, atherosclerosis, and acute thrombus.",
+      "original_score": 0.0,
+      "drop_score": 1.0
+    },
+    {
+      "id": "pathvqa-test-01-001005",
+      "question": "does this image show sickle cell disease, spleen?",
+      "reference": "yes",
+      "original": "The image is a histopathology slide of a spleen from a patient with sickle cell disease. The image is stained with hematoxylin and eosin (H&E) and is at 10x magnification. The presence of sickle cell disease in the spleen is the focus",
+      "drop_conch": "Yes, the image is related to sickle cell disease and the spleen.",
+      "original_score": 0.0,
+      "drop_score": 1.0
+    },
+    {
+      "id": "pathvqa-test-01-001390",
+      "question": "is tuberculosis present?",
+      "reference": "yes",
+      "original": "The image is a histopathology slide, and the question is related to the presence of tuberculosis. However, without more information or the ability to view the image, I cannot provide a definitive answer. Histopathology images are typically used to examine tissue samples and identify any abnormalities or diseases,",
+      "drop_conch": "The image is from a patient with tuberculosis, so the answer is Yes.",
+      "original_score": 0.0,
+      "drop_score": 1.0
+    },
+    {
+      "id": "pathvqa-test-01-000279",
+      "question": "what is present?",
+      "reference": "sickle cell disease",
+      "original": "The image shows the presence of necrotic tissue, which is tissue that has undergone cell death.",
+      "drop_conch": "The image shows the presence of a tumor.",
+      "original_score": 0.3333333333333333,
+      "drop_score": 0.0
+    },
+    {
+      "id": "pathvqa-test-01-002033",
+      "question": "is metastatic neuroblastoma present?",
+      "reference": "no",
+      "original": "The image does not show metastatic neuroblastoma.",
+      "drop_conch": "The image shows the presence of metastatic neuroblastoma.",
+      "original_score": 1.0,
+      "drop_score": 0.0
+    },
+    {
+      "id": "pathvqa-test-02-001543",
+      "question": "does hematoma show thermal burned skin?",
+      "reference": "no",
+      "original": "No, the hematoma does not show thermal burned skin.",
+      "drop_conch": "Yes, the hematoma in the image shows thermal burned skin.",
+      "original_score": 1.0,
+      "drop_score": 0.0
+    }
+  ]
+}

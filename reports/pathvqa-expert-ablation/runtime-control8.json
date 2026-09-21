@@ -1,0 +1,34 @@
+[
+  {
+    "id": "pathvqa-test-02-002131",
+    "exact_tokens": true
+  },
+  {
+    "id": "pathvqa-test-02-001290",
+    "exact_tokens": true
+  },
+  {
+    "id": "pathvqa-test-00-001259",
+    "exact_tokens": true
+  },
+  {
+    "id": "pathvqa-test-02-001525",
+    "exact_tokens": true
+  },
+  {
+    "id": "pathvqa-test-01-000521",
+    "exact_tokens": true
+  },
+  {
+    "id": "pathvqa-test-01-000247",
+    "exact_tokens": true
+  },
+  {
+    "id": "pathvqa-test-00-001720",
+    "exact_tokens": true
+  },
+  {
+    "id": "pathvqa-test-00-001730",
+    "exact_tokens": true
+  }
+]
