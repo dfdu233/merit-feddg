@@ -138,9 +138,13 @@ If removing an expert improves source utility, that fact is recorded explicitly 
 
 1. Freeze the Generalist incumbent and one proposal distribution **before**
    reading source references.
-2. Partition source/development groups into three patient/study-disjoint sets:
-   qualification, portfolio-selection, and fresh-canary. Never split by QA row
-   when several questions share one image/patient.
+2. Partition source/development groups into three patient/study/image-disjoint
+   sets: qualification, portfolio-selection, and fresh-canary. Never split by QA
+   row when several questions share one image/patient. The answer-blind splitter
+   additionally unions identical image bytes even when group IDs differ:
+
+    python scripts/split_merit_tx_source.py --manifest /path/to/source.jsonl --baseline /path/to/generalist.json --candidate /path/to/proposal.json --references /path/to/references.json --output runs/merit-tx-source-splits
+
 3. Build qualification observations on source-Q:
 
     python scripts/build_merit_tx_source_observations.py --manifest /path/to/source-q.jsonl --baseline /path/to/q-generalist.json --candidate proposal=/path/to/q-proposal.json --references /path/to/q-references.json --config configs/merit_tx.yaml --output runs/source-q-observations.jsonl
