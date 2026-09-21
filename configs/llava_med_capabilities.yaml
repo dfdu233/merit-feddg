@@ -92,6 +92,7 @@ experts:
     checkpoint_path: artifacts/models/xiangjx--musk
     adapter: contrastive_musk
     source_path: upstream/MUSK
+    source_revision: 714b666969c1911e5efe70d991140a21030f4ef3
     transaction_only: true
     optional: true
     required_local_paths:
