@@ -198,6 +198,22 @@ def qualification_for(
     return cards.get(wildcard)
 
 
+def transaction_descriptors(specs, row):
+    """Build claim-transaction descriptors, including transaction-only experts."""
+    from .capabilities import tool_descriptors
+
+    transaction_specs = {
+        name: {
+            **spec,
+            "enabled": True,
+            "transaction_only": False,
+        }
+        for name, spec in specs.items()
+        if spec.get("expert_pool_enabled", True) is not False
+    }
+    return tool_descriptors(transaction_specs, row)
+
+
 def select_expert_descriptors(
     descriptors,
     specs,
@@ -225,7 +241,7 @@ def select_expert_descriptors(
     for index, descriptor in enumerate(descriptors):
         expert = descriptor["expert"]
         card = role_card(expert, specs[expert])
-        if specs[expert].get("enabled_by_default", True) is False:
+        if specs[expert].get("expert_pool_enabled", True) is False:
             continue
         capability_name = descriptor["capability"]
         qcard = qualification_for(
