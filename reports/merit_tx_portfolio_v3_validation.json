@@ -1,14 +1,14 @@
 {
   "schema": "merit-tx-portfolio-v3-validation-v1",
   "base_branch": "implementation/merit-tx-closed-loop-v2",
-  "validated_code_commit": "bdbb86cb520ceebcaef122b36a67e29e978b908f",
+  "validated_code_commit": "50f356af38441f9f8beaca8386daf55c858b2ab3",
   "github_actions": {
-    "run_id": 35639910289,
+    "run_id": 35640488358,
     "torch_enabled_job": "open-generation-cpu",
     "pytest": {
       "passed": 273,
       "failed": 0,
-      "seconds": 7.28,
+      "seconds": 7.76,
       "includes": [
         "tests/test_merit_tx.py",
         "tests/test_merit_tx_closed_loop.py",
@@ -90,6 +90,7 @@
     "The v3 portfolio is a source-only policy for deciding which qualified verifiers may run together; it is not a target-trained gate.",
     "Research-roadmap models do not count as active coverage until their exact input/runtime contracts and source qualification are validated.",
     "MUSK and MONET configuration presence does not grant authority; both still require real checkpoint/runtime and source qualification validation.",
-    "This report records engineering/protocol validation only and makes no new benchmark gain claim."
+    "This report records engineering/protocol validation only and makes no new benchmark gain claim.",
+    "The MONET runtime/download identity was cross-checked against the official repository and pinned to Hugging Face checkpoint chanwkim/monet."
   ]
 }
