@@ -131,7 +131,7 @@ A positive differential effect is patient-specific support for the candidate and
 ## Adaptive BARD is a proposal mechanism, not commit proof
 
 Adaptive BARD remains useful because it can move the frozen Generalist toward
-specialist-informed candidate answers without training. In MERIT-Tx v2 that
+specialist-informed candidate answers without training. In MERIT-Tx v3 that
 movement is deliberately treated as **proposal generation**:
 
     b = frozen Generalist(I, q)
@@ -155,7 +155,8 @@ XRV and BiomedCLIP should declare the full frozen provenance set:
       --candidate /path/to/source-adaptive-bard.json \
       --candidate-name adaptive-bard-v1 \
       --proposer-expert-ids chexagent_description cxr_findings biomedclip_claim_verifier \
-      --qualification-cards artifacts/qualification/merit-expert-qualification.json \
+      --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json \
+      --portfolio-policy artifacts/qualification/merit-expert-portfolio-v1.json \
       --config configs/merit_tx.yaml \
       --output runs/merit-tx-source-canary
 
