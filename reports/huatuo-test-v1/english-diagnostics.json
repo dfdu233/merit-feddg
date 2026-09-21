@@ -1,0 +1,40 @@
+{
+  "english_image_cluster_n": 96,
+  "paired_delta_bootstrap_95ci_pp": [
+    -2.3231159692104377,
+    1.168346886294132
+  ],
+  "native_annotation_breakdown": {
+    "OPEN": {
+      "n": 645,
+      "scores": {
+        "generalist": 0.4416451335055985,
+        "bard": 0.45647717484926764
+      }
+    },
+    "CLOSED": {
+      "n": 416,
+      "scores": {
+        "generalist": 0.7475961538461539,
+        "bard": 0.7091346153846154
+      }
+    }
+  },
+  "expert_branch_count": {
+    "1": 528,
+    "2": 172,
+    "4": 316,
+    "5": 27,
+    "3": 18
+  },
+  "structural_fallback_cases": 528,
+  "cases_with_committed_token": 226,
+  "token_reasons": {
+    "single_expert_unidentifiable": 2376,
+    "unanimous_nonforcing_consensus": 149,
+    "aggregate_agrees_with_base": 3085,
+    "pair_disagreement_or_weak_support": 96,
+    "insufficient_branch_consensus": 93,
+    "centralized_bounded_fault_consensus": 370
+  }
+}

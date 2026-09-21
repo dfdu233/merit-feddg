@@ -1,0 +1,152 @@
+{
+  "vqa_rad": {
+    "best_archived_decode_baseline": {
+      "family": "decode",
+      "dataset": "vqa_rad",
+      "method": "DoLa",
+      "status": "certified",
+      "n": 451,
+      "score": 0.4880566034113707,
+      "answers_sha256": "bc1f19ac514514e139a806dedc07e647a5261f842979fc3277eaf0a0486a7ba1",
+      "qualification_passed": true,
+      "hash_chain_valid": true,
+      "directory": "/root/autodl-tmp/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/llava_med_final_v1/results_common_protocol_v1/DoLa/vqa_rad"
+    },
+    "old_method": null,
+    "priority_basis": "complete shorter datasets first; PathVQA and MMMU old-method deficits verified; no external SOTA claim",
+    "best_archived_nontrained_baseline": {
+      "family": "decode",
+      "dataset": "vqa_rad",
+      "method": "DoLa",
+      "status": "certified",
+      "n": 451,
+      "score": 0.4880566034113707,
+      "answers_sha256": "bc1f19ac514514e139a806dedc07e647a5261f842979fc3277eaf0a0486a7ba1",
+      "qualification_passed": true,
+      "hash_chain_valid": true,
+      "directory": "/root/autodl-tmp/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/llava_med_final_v1/results_common_protocol_v1/DoLa/vqa_rad"
+    },
+    "status": "excluded by user; stopped after184 partial candidate outputs; do not resume"
+  },
+  "slake": {
+    "best_archived_decode_baseline": {
+      "family": "decode",
+      "dataset": "slake",
+      "method": "opera",
+      "status": "certified",
+      "n": 2094,
+      "score": 0.35955154629939734,
+      "answers_sha256": "0b714446678a74a567659cf9273f62e08fee925730af224b6161d3e433fdccc2",
+      "qualification_passed": true,
+      "hash_chain_valid": true,
+      "directory": "/root/autodl-tmp/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/llava_med_final_v1/results_common_protocol_v1/opera/slake"
+    },
+    "old_method": null,
+    "priority_basis": "complete shorter datasets first; PathVQA and MMMU old-method deficits verified; no external SOTA claim",
+    "best_archived_nontrained_baseline": {
+      "family": "decode",
+      "dataset": "slake",
+      "method": "opera",
+      "status": "certified",
+      "n": 2094,
+      "score": 0.35955154629939734,
+      "answers_sha256": "0b714446678a74a567659cf9273f62e08fee925730af224b6161d3e433fdccc2",
+      "qualification_passed": true,
+      "hash_chain_valid": true,
+      "directory": "/root/autodl-tmp/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/llava_med_final_v1/results_common_protocol_v1/opera/slake"
+    }
+  },
+  "pathvqa": {
+    "best_archived_decode_baseline": {
+      "family": "decode",
+      "dataset": "pathvqa",
+      "method": "opera",
+      "status": "certified",
+      "n": 6719,
+      "score": 0.3314387769594409,
+      "answers_sha256": "66c7b22c76297129a0bc6f7ae30c562218e5433a1805c7d9c34b6e65f47b1500",
+      "qualification_passed": true,
+      "hash_chain_valid": true,
+      "directory": "/root/autodl-tmp/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/llava_med_final_v1/results_common_protocol_v1/opera/pathvqa"
+    },
+    "old_method": {
+      "score": 0.316571986903,
+      "n": 6719,
+      "source": "/home/dbw/merit-feddg-expert-coverage/runs/pathvqa-capability-pool-v1/independent-metric-analysis-20260918.md",
+      "qualification": "independent rescore; scorer identity guard had changed"
+    },
+    "priority_basis": "complete shorter datasets first; PathVQA and MMMU old-method deficits verified; no external SOTA claim",
+    "best_archived_nontrained_baseline": {
+      "family": "decode",
+      "dataset": "pathvqa",
+      "method": "opera",
+      "status": "certified",
+      "n": 6719,
+      "score": 0.3314387769594409,
+      "answers_sha256": "66c7b22c76297129a0bc6f7ae30c562218e5433a1805c7d9c34b6e65f47b1500",
+      "qualification_passed": true,
+      "hash_chain_valid": true,
+      "directory": "/root/autodl-tmp/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/llava_med_final_v1/results_common_protocol_v1/opera/pathvqa"
+    }
+  },
+  "mmmu": {
+    "best_archived_decode_baseline": {
+      "family": "decode",
+      "dataset": "mmmu",
+      "method": "CVE",
+      "status": "certified",
+      "n": 10500,
+      "score": 0.21780952380952381,
+      "answers_sha256": "343ad22142fb1ce92c227c0f97a845423bd5b08f3639204094cd136714ff02f7",
+      "qualification_passed": true,
+      "hash_chain_valid": true,
+      "directory": "/root/autodl-tmp/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/llava_med_final_v1/cross_common_protocol_v1/mmmu/cve"
+    },
+    "old_method": {
+      "score": 0.2042857142857143,
+      "n": 10500,
+      "source": "/home/dbw/merit-feddg-expert-coverage/runs/mmmu-native-expanded-v2/official_review/evaluation_mixed_vqa_table.json"
+    },
+    "priority_basis": "complete shorter datasets first; PathVQA and MMMU old-method deficits verified; no external SOTA claim",
+    "best_archived_nontrained_baseline": {
+      "family": "rag",
+      "dataset": "mmmu",
+      "method": "MedRAG",
+      "status": "certified",
+      "n": 10500,
+      "score": 0.22104761904761905,
+      "answers_sha256": "686553de411fe948ab23980a85aa410fdb44a0af92137a5fb45579e1fc2a621d",
+      "qualification_passed": true,
+      "hash_chain_valid": true,
+      "directory": "/root/autodl-tmp/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/medrag_medcpt_textbooks_v1/results_common_protocol_final_v1/mmmu"
+    }
+  },
+  "pmcvqa": {
+    "best_archived_decode_baseline": {
+      "family": "decode",
+      "dataset": "pmcvqa",
+      "method": "AGLA",
+      "status": "certified",
+      "n": 33430,
+      "score": 0.14792102901585402,
+      "answers_sha256": "e8d9f9c642405e414ba6e00f114067d95c16f16ee25e4d05469868801dff8ece",
+      "qualification_passed": true,
+      "hash_chain_valid": true,
+      "directory": "/root/autodl-tmp/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/llava_med_final_v1/cross_common_protocol_v1/pmcvqa/agla"
+    },
+    "old_method": null,
+    "priority_basis": "complete shorter datasets first; PathVQA and MMMU old-method deficits verified; no external SOTA claim",
+    "best_archived_nontrained_baseline": {
+      "family": "decode",
+      "dataset": "pmcvqa",
+      "method": "AGLA",
+      "status": "certified",
+      "n": 33430,
+      "score": 0.14792102901585402,
+      "answers_sha256": "e8d9f9c642405e414ba6e00f114067d95c16f16ee25e4d05469868801dff8ece",
+      "qualification_passed": true,
+      "hash_chain_valid": true,
+      "directory": "/root/autodl-tmp/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/llava_med_final_v1/cross_common_protocol_v1/pmcvqa/agla"
+    }
+  }
+}

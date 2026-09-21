@@ -1,0 +1,328 @@
+[
+  {
+    "id": "vqa-rad-test-0000",
+    "branches": [
+      {
+        "spatial": false,
+        "checks": [
+          {
+            "step": 0,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 3,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 24,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          }
+        ]
+      },
+      {
+        "spatial": true,
+        "checks": [
+          {
+            "step": 0,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 3,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 24,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          }
+        ]
+      }
+    ],
+    "native": {
+      "text": "No, there is no evidence of an aortic aneurysm in the chest X-ray image.",
+      "input_tokens": 31,
+      "output_tokens": 25,
+      "token_ids": [
+        1770,
+        28725,
+        736,
+        349,
+        708,
+        5566,
+        302,
+        396,
+        264,
+        419,
+        294,
+        396,
+        7093,
+        846,
+        28719,
+        297,
+        272,
+        8118,
+        1500,
+        28733,
+        919,
+        3469,
+        28723,
+        28705,
+        2
+      ]
+    }
+  },
+  {
+    "id": "vqa-rad-test-0005",
+    "branches": [
+      {
+        "spatial": false,
+        "checks": [
+          {
+            "step": 0,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 3,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 13,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          }
+        ]
+      },
+      {
+        "spatial": true,
+        "checks": [
+          {
+            "step": 0,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 3,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 13,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          }
+        ]
+      }
+    ],
+    "native": {
+      "text": "No, the kidneys are not present in this image.",
+      "input_tokens": 27,
+      "output_tokens": 14,
+      "token_ids": [
+        1770,
+        28725,
+        272,
+        6371,
+        26983,
+        460,
+        459,
+        2169,
+        297,
+        456,
+        3469,
+        28723,
+        28705,
+        2
+      ]
+    }
+  },
+  {
+    "id": "vqa-rad-test-0016",
+    "branches": [
+      {
+        "spatial": false,
+        "checks": [
+          {
+            "step": 0,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 3,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 10,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          }
+        ]
+      },
+      {
+        "spatial": true,
+        "checks": [
+          {
+            "step": 0,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 3,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 10,
+            "exact": true,
+            "argmax_equal": true,
+            "same_support": true,
+            "max_delta": 0.0
+          }
+        ]
+      }
+    ],
+    "native": {
+      "text": "This is a chest X-ray image.",
+      "input_tokens": 31,
+      "output_tokens": 11,
+      "token_ids": [
+        851,
+        349,
+        264,
+        8118,
+        1500,
+        28733,
+        919,
+        3469,
+        28723,
+        28705,
+        2
+      ]
+    }
+  }
+]

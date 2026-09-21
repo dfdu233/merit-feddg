@@ -1,0 +1,942 @@
+[
+  {
+    "id": "11938",
+    "question": "Does the picture contain liver?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "11949",
+    "question": "Does the picture contain liver?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "11959",
+    "question": "Does the picture contain liver?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "11978",
+    "question": "Does the picture contain kidney?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "11979",
+    "question": "Does the picture contain spleen?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": 1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "11985",
+    "question": "Where is/are the abnormality located?",
+    "answer": "Left Lung, Lower Right",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 0.5,
+    "generalist": "Left lung field",
+    "bard": "Left lung and right lower lobe."
+  },
+  {
+    "id": "12028",
+    "question": "Where is/are the abnormality located?",
+    "answer": "Left Lung, Right",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 0.33333333333333337,
+    "generalist": "Right lung field",
+    "bard": "Left lung, right lower lobe."
+  },
+  {
+    "id": "12033",
+    "question": "What is the largest organ in the picture?",
+    "answer": "Lung",
+    "native_answer_type": "OPEN",
+    "category": "Size",
+    "delta": 1.0,
+    "generalist": "Lungs",
+    "bard": "Lung"
+  },
+  {
+    "id": "12036",
+    "question": "Does this image look normal?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Abnormality",
+    "delta": 1.0,
+    "generalist": "Yes",
+    "bard": "No"
+  },
+  {
+    "id": "12038",
+    "question": "Which organ is abnormal, heart or lung?",
+    "answer": "Lung",
+    "native_answer_type": "CLOSED",
+    "category": "Abnormality",
+    "delta": 1.0,
+    "generalist": "Heart",
+    "bard": "Lung"
+  },
+  {
+    "id": "12043",
+    "question": "What diseases are included in the picture?",
+    "answer": "Atelectasis",
+    "native_answer_type": "OPEN",
+    "category": "Abnormality",
+    "delta": 1.0,
+    "generalist": "Pneumonia, pulmonary edema and pleural effusion.",
+    "bard": "Pneumonia, pleural effusion and atelectasis."
+  },
+  {
+    "id": "12044",
+    "question": "Where is/are the abnormality located?",
+    "answer": "Right Lung, Lower Left",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 0.25,
+    "generalist": "Right lower lobe of lung.",
+    "bard": "Right lung and left lower lobe."
+  },
+  {
+    "id": "12070",
+    "question": "What diseases are included in the picture?",
+    "answer": "Pneumothorax",
+    "native_answer_type": "OPEN",
+    "category": "Abnormality",
+    "delta": 1.0,
+    "generalist": "Pneumonia, pleural effusion.",
+    "bard": "Pneumonia, pleural effusion and pneumothorax."
+  },
+  {
+    "id": "12080",
+    "question": "Does the picture contain spleen?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12083",
+    "question": "Where is the liver?",
+    "answer": "Left",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 1.0,
+    "generalist": "Right side of abdomen.",
+    "bard": "The liver is in the upper right quadrant of your abdomen. It's a large, dark organ that sits just below and to the left of your diaphragm (the muscle you use when breathing). The liver has many important functions including filtering blood from your digestive tract before it enters other parts of your body.\n\nIf this answer doesn't help or if there are any more questions about where organs like the liver might be located within our bodies please let me know! I'm here to assist with all sorts of medical inquiries so feel free to ask anything else related too."
+  },
+  {
+    "id": "12095",
+    "question": "Does the picture contain liver?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": 1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12096",
+    "question": "Does the picture contain kidney?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12097",
+    "question": "Does the picture contain spleen?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12110",
+    "question": "Does the picture contain kidney?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12112",
+    "question": "Does the picture contain lung?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": 1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12114",
+    "question": "Where is the liver?",
+    "answer": "Left",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 1.0,
+    "generalist": "Right side of abdomen.",
+    "bard": "The liver is in the upper right quadrant of your abdomen. It's a large, dark organ that sits under your diaphragm and helps filter blood from your digestive system before it enters other organs like the portal vein or hepatic veins.\n\nIn medical terms, this means:\n\n- The liver occupies most of the space on the right side of your abdominal cavity.\n- Its location can be described as being just below the ribcage (intra-abdominal) but above where you would find your stomach and intestines.\n- You might also hear doctors refer to specific parts of the liver by their names: the left lobe, middle lobe, caudate lobe, and right lobe - each with its own unique function within overall liver health.\n\nRemember though, while I've provided some basic information here about where exactly the liver is located physically inside your body, any concerns regarding its condition should always be discussed directly with healthcare professionals who have access to detailed imaging studies such as CT scans for accurate diagnosis and treatment planning purposes."
+  },
+  {
+    "id": "12127",
+    "question": "Where is the liver?",
+    "answer": "Left and top",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 0.6666666666666666,
+    "generalist": "Right side of abdomen.",
+    "bard": "The liver is in the upper right quadrant of your abdomen. It's a large organ that helps filter blood from your digestive system, store energy as glycogen and produce important proteins like albumin and clotting factors.\n\nIn this CT scan image you provided, we can see various structures within the abdominal cavity including what appears to be part of the liver on the left side (which would actually be the patient’s right side due to how medical images are typically displayed). The liver occupies much of the space above the diaphragm and below the ribs; it has an irregular shape but generally looks homogenous without any obvious lesions or abnormalities visible at this slice level.\n\nRemember though, for accurate diagnosis and assessment, such interpretations should always be confirmed by qualified healthcare professionals who have access to full clinical context along with these imaging findings."
+  },
+  {
+    "id": "12142",
+    "question": "Does the picture contain kidney?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12159",
+    "question": "Does the picture contain kidney?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12160",
+    "question": "Does the picture contain spleen?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": 1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12164",
+    "question": "Does the picture contain liver?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12165",
+    "question": "Does the picture contain kidney?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12166",
+    "question": "Does the picture contain spleen?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12175",
+    "question": "Does the picture contain kidney?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12176",
+    "question": "Does the picture contain spleen?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12179",
+    "question": "What diseases are included in the picture?",
+    "answer": "Liver Cancer",
+    "native_answer_type": "OPEN",
+    "category": "Abnormality",
+    "delta": -0.5,
+    "generalist": "Pneumonia, pulmonary embolism and lung cancer.",
+    "bard": "Pneumonia, pulmonary embolism and pleural effusion."
+  },
+  {
+    "id": "12181",
+    "question": "Where is/are the abnormality located?",
+    "answer": "Liver",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": -1.0,
+    "generalist": "Liver and right lung.",
+    "bard": "Lung"
+  },
+  {
+    "id": "12196",
+    "question": "Does the picture contain spleen?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": 1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12212",
+    "question": "Does the picture contain kidney?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12213",
+    "question": "Does the picture contain spleen?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12224",
+    "question": "Does the picture contain liver?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12226",
+    "question": "Does the picture contain spleen?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12240",
+    "question": "Does the picture contain spleen?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": 1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12241",
+    "question": "Does the picture contain lung?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": 1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12255",
+    "question": "Does the picture contain lung?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": 1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12265",
+    "question": "What is the scanning plane of this image?",
+    "answer": "Coronal Plane",
+    "native_answer_type": "OPEN",
+    "category": "Plane",
+    "delta": 0.5,
+    "generalist": "Posteroanterior (PA) plane.",
+    "bard": "Coronal plane."
+  },
+  {
+    "id": "12277",
+    "question": "What kind of symptoms will the disease on the upper right of lung bring to the patient?",
+    "answer": "Chest pain, dyspnea",
+    "native_answer_type": "OPEN",
+    "category": "KG",
+    "delta": 0.6666666666666666,
+    "generalist": "Cough, fever, shortness of breath.",
+    "bard": "Cough, shortness of breath, chest pain."
+  },
+  {
+    "id": "12281",
+    "question": "Which part of the human body is the organ located in the image?",
+    "answer": "Chest",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": -1.0,
+    "generalist": "Chest",
+    "bard": "Lung"
+  },
+  {
+    "id": "12282",
+    "question": "Where is the abnormality in this image?",
+    "answer": "Lower Right Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": -0.3333333333333333,
+    "generalist": "Left lower lobe of lung.",
+    "bard": "Left lung field."
+  },
+  {
+    "id": "12297",
+    "question": "Which side of lung is abnormal in this image,left or right?",
+    "answer": "Left",
+    "native_answer_type": "CLOSED",
+    "category": "Position",
+    "delta": -1.0,
+    "generalist": "Left",
+    "bard": "Left side."
+  },
+  {
+    "id": "12298",
+    "question": "Where is the mass in this image?",
+    "answer": "Lower Left Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": -0.3333333333333333,
+    "generalist": "Right upper lobe of lung.",
+    "bard": "No mass visible in image."
+  },
+  {
+    "id": "12304",
+    "question": "What color is the lung in the picture?",
+    "answer": "Black",
+    "native_answer_type": "OPEN",
+    "category": "Color",
+    "delta": 1.0,
+    "generalist": "White",
+    "bard": "Black."
+  },
+  {
+    "id": "12312",
+    "question": "Where is the abnormality in this image?",
+    "answer": "Lower Left Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": -0.33333333333333337,
+    "generalist": "Left lower lobe of lung.",
+    "bard": "Left lung."
+  },
+  {
+    "id": "12325",
+    "question": "What is the scanning plane of this image?",
+    "answer": "Coronal Plane",
+    "native_answer_type": "OPEN",
+    "category": "Plane",
+    "delta": 0.5,
+    "generalist": "AP (anteroposterior)",
+    "bard": "AP (anteroposterior) plane."
+  },
+  {
+    "id": "12328",
+    "question": "Where is the pneumonia in the lung?",
+    "answer": "Right Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": -0.5,
+    "generalist": "Right lung base",
+    "bard": "Left lung."
+  },
+  {
+    "id": "12337",
+    "question": "How to treat the disease located on the right of lung in this image?",
+    "answer": "Medical therapy, supportive therapy",
+    "native_answer_type": "OPEN",
+    "category": "KG",
+    "delta": 0.25,
+    "generalist": "Pneumonia",
+    "bard": "Treatment depends on specific diagnosis, which requires further medical evaluation and testing. Consult a healthcare professional for accurate assessment and appropriate treatment plan."
+  },
+  {
+    "id": "12343",
+    "question": "Where is the cardiomegaly in this image?",
+    "answer": "Heart",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": -1.0,
+    "generalist": "Left side of heart",
+    "bard": "Left side of the image."
+  },
+  {
+    "id": "12358",
+    "question": "Where is the pulmonary infiltration in this image?",
+    "answer": "Lower Left Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 0.33333333333333337,
+    "generalist": "Left lung base",
+    "bard": "Left lung, lower lobe."
+  },
+  {
+    "id": "12365",
+    "question": "How many organs are there in this image?",
+    "answer": "2",
+    "native_answer_type": "OPEN",
+    "category": "Quantity",
+    "delta": -1.0,
+    "generalist": "2",
+    "bard": "10"
+  },
+  {
+    "id": "12372",
+    "question": "Where is the abnormality in this image?",
+    "answer": "Lower Left Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": -0.3333333333333333,
+    "generalist": "Right lung field",
+    "bard": "No abnormality visible."
+  },
+  {
+    "id": "12373",
+    "question": "Where is the pulmonary nodule located in this image?",
+    "answer": "Lower Left Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 0.3333333333333333,
+    "generalist": "Right upper lobe of lung.",
+    "bard": "Right lung, lower lobe."
+  },
+  {
+    "id": "12378",
+    "question": "Can nodule be observed on the lower left lung in this picture?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Abnormality",
+    "delta": -1.0,
+    "generalist": "Yes",
+    "bard": "No"
+  },
+  {
+    "id": "12382",
+    "question": "How to treat the disease located on the lower left of lung in this image?",
+    "answer": "Medical treatment, surgical treatment",
+    "native_answer_type": "OPEN",
+    "category": "KG",
+    "delta": 0.5,
+    "generalist": "Surgery, radiation therapy or chemotherapy.",
+    "bard": "Treatment depends on specific diagnosis, which requires further medical evaluation and testing. Possible treatments could include medications like antibiotics or steroids for infections or inflammations; surgery might be needed in cases of tumors or severe structural issues. It's crucial to consult a healthcare professional who can provide an accurate diagnosis based on the full clinical picture including this X-ray image."
+  },
+  {
+    "id": "12387",
+    "question": "Where is/are the abnormality located in this picture?",
+    "answer": "Upper Right Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": -0.3333333333333333,
+    "generalist": "Left lung field.",
+    "bard": "No abnormality detected."
+  },
+  {
+    "id": "12388",
+    "question": "Where is the nodule in this image?",
+    "answer": "Upper Right Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 0.6666666666666667,
+    "generalist": "Left lung field, near hilum.",
+    "bard": "Right lung, upper lobe."
+  },
+  {
+    "id": "12397",
+    "question": "What kind of symptoms will the disease on the upper right lung bring to the patient?",
+    "answer": "Chest tightness, fatigue",
+    "native_answer_type": "OPEN",
+    "category": "KG",
+    "delta": 0.3333333333333333,
+    "generalist": "Cough, fever, shortness of breath.",
+    "bard": "Cough, shortness of breath, chest pain."
+  },
+  {
+    "id": "12402",
+    "question": "Where is the abnormality in this image?",
+    "answer": "Upper Left Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": -0.6666666666666666,
+    "generalist": "Left lung field",
+    "bard": "No abnormality detected."
+  },
+  {
+    "id": "12408",
+    "question": "Can pneumothorax be observed on the lower right lung in this picture?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Abnormality",
+    "delta": 1.0,
+    "generalist": "Yes",
+    "bard": "No"
+  },
+  {
+    "id": "12415",
+    "question": "What scanning plane does this image belong to?",
+    "answer": "Coronal Plane",
+    "native_answer_type": "OPEN",
+    "category": "Plane",
+    "delta": 0.5,
+    "generalist": "Posterior-anterior (PA) plane.",
+    "bard": "Coronal plane."
+  },
+  {
+    "id": "12416",
+    "question": "Do the organs in the image exist in the abdomen?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Position",
+    "delta": 1.0,
+    "generalist": "Yes",
+    "bard": "No"
+  },
+  {
+    "id": "12418",
+    "question": "Where is the pneumothorax in this image?",
+    "answer": "Lower Left Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 0.3333333333333333,
+    "generalist": "Left side of chest.",
+    "bard": "Left lung apex."
+  },
+  {
+    "id": "12423",
+    "question": "Can pneumothorax be observed on the lower left lung in this picture?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Abnormality",
+    "delta": -1.0,
+    "generalist": "Yes",
+    "bard": "No"
+  },
+  {
+    "id": "12438",
+    "question": "Can nodule be observed on the lower right lung in this picture?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Abnormality",
+    "delta": 1.0,
+    "generalist": "Yes",
+    "bard": "No"
+  },
+  {
+    "id": "12445",
+    "question": "What scanning plane does this image belong to?",
+    "answer": "Coronal Plane",
+    "native_answer_type": "OPEN",
+    "category": "Plane",
+    "delta": 0.5,
+    "generalist": "Posterior-anterior (PA) plane.",
+    "bard": "Coronal plane."
+  },
+  {
+    "id": "12447",
+    "question": "Which side of lung is abnormal in this image,left or right?",
+    "answer": "Left",
+    "native_answer_type": "CLOSED",
+    "category": "Position",
+    "delta": -1.0,
+    "generalist": "Left",
+    "bard": "Left side."
+  },
+  {
+    "id": "12457",
+    "question": "How to treat the disease located on the lower left of lung in this image?",
+    "answer": "Medical therapy, supportive therapy",
+    "native_answer_type": "OPEN",
+    "category": "KG",
+    "delta": 0.25,
+    "generalist": "Surgery, radiation therapy or chemotherapy.",
+    "bard": "Treatment depends on specific diagnosis, which requires further medical evaluation and testing. Possible treatments could include medications like antibiotics or steroids for infections or inflammation; oxygen therapy if there is difficulty breathing; in severe cases surgery might be necessary to remove damaged lung tissue. It's crucial that a healthcare professional assesses the condition thoroughly before deciding upon an appropriate treatment plan."
+  },
+  {
+    "id": "12462",
+    "question": "Where is the abnormality in this image?",
+    "answer": "Upper Right Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": -0.6666666666666666,
+    "generalist": "Right lung field",
+    "bard": "No abnormality detected."
+  },
+  {
+    "id": "12468",
+    "question": "Can pneumonia be observed on the upper right lung in this picture?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Abnormality",
+    "delta": -1.0,
+    "generalist": "Yes",
+    "bard": "No"
+  },
+  {
+    "id": "12478",
+    "question": "Where is the pneumonia in the lung?",
+    "answer": "Lower Right Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 0.33333333333333337,
+    "generalist": "Right lung base",
+    "bard": "Right lung, lower lobe."
+  },
+  {
+    "id": "12502",
+    "question": "What kind of symptoms will the disease on the lower left of lung bring to the patient?",
+    "answer": "Chest pain, cough, expectoration",
+    "native_answer_type": "OPEN",
+    "category": "KG",
+    "delta": 0.25,
+    "generalist": "Cough, fever, shortness of breath.",
+    "bard": "Shortness of breath, coughing and chest pain."
+  },
+  {
+    "id": "12508",
+    "question": "Where is/are the effusion located?",
+    "answer": "Lower Left Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 0.3333333333333333,
+    "generalist": "Left side of chest.",
+    "bard": "Left lung base."
+  },
+  {
+    "id": "12513",
+    "question": "Can effusion be observed on the lower left lung in this picture?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Abnormality",
+    "delta": -1.0,
+    "generalist": "Yes",
+    "bard": "No"
+  },
+  {
+    "id": "12514",
+    "question": "What color does the left lung show in the picture?",
+    "answer": "Black",
+    "native_answer_type": "OPEN",
+    "category": "Color",
+    "delta": 1.0,
+    "generalist": "White",
+    "bard": "Black."
+  },
+  {
+    "id": "12520",
+    "question": "What scanning plane does this image belong to?",
+    "answer": "Coronal Plane",
+    "native_answer_type": "OPEN",
+    "category": "Plane",
+    "delta": 0.5,
+    "generalist": "Posterior-anterior (PA) plane.",
+    "bard": "Coronal plane."
+  },
+  {
+    "id": "12521",
+    "question": "Do the organs in the image exist in the chest?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Position",
+    "delta": 1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12522",
+    "question": "Where is the heart in this image?",
+    "answer": "Center",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 1.0,
+    "generalist": "Left side of image.",
+    "bard": "Center of the chest, between lungs."
+  },
+  {
+    "id": "12523",
+    "question": "Where is the pleural effusion?",
+    "answer": "Lower Left Lung",
+    "native_answer_type": "OPEN",
+    "category": "Position",
+    "delta": 0.3333333333333333,
+    "generalist": "Left side of chest x-ray.",
+    "bard": "Left lung base."
+  },
+  {
+    "id": "12526",
+    "question": "What diseases are included in the picture?",
+    "answer": "Pleural Effusion",
+    "native_answer_type": "OPEN",
+    "category": "Abnormality",
+    "delta": 1.0,
+    "generalist": "Pneumonia, pulmonary edema.",
+    "bard": "Pneumonia, pleural effusion and pulmonary edema."
+  },
+  {
+    "id": "12532",
+    "question": "What kind of symptoms will the disease on the lower left of lung bring to the patient?",
+    "answer": "Chest tightness, dyspnea, chest pain",
+    "native_answer_type": "OPEN",
+    "category": "KG",
+    "delta": 0.4,
+    "generalist": "Cough, fever, shortness of breath.",
+    "bard": "Cough, shortness of breath, chest pain."
+  },
+  {
+    "id": "12539",
+    "question": "Is this a study of the abdomen?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12567",
+    "question": "Is this a study of the abdomen?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12653",
+    "question": "Do the organs in the image exist in the abdomen?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Position",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12680",
+    "question": "Do the organs in the image exist in the abdomen?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Position",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12785",
+    "question": "What color is the spleen in the picture?",
+    "answer": "Gray",
+    "native_answer_type": "OPEN",
+    "category": "Color",
+    "delta": -1.0,
+    "generalist": "Gray",
+    "bard": "Grayish white."
+  },
+  {
+    "id": "12786",
+    "question": "Which is smaller in this image,liver or right kidney?",
+    "answer": "Right Kidney",
+    "native_answer_type": "CLOSED",
+    "category": "Size",
+    "delta": 1.0,
+    "generalist": "Liver",
+    "bard": "Right kidney"
+  },
+  {
+    "id": "12806",
+    "question": "Does the lung exist in this picture?",
+    "answer": "Yes",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": 1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12929",
+    "question": "Which is bigger in this image, small bowel or colon?",
+    "answer": "Small Bowel",
+    "native_answer_type": "CLOSED",
+    "category": "Size",
+    "delta": -1.0,
+    "generalist": "Small bowel",
+    "bard": "Colon is bigger."
+  },
+  {
+    "id": "12984",
+    "question": "Does the picture contain liver?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  },
+  {
+    "id": "12992",
+    "question": "Does the picture contain liver?",
+    "answer": "No",
+    "native_answer_type": "CLOSED",
+    "category": "Organ",
+    "delta": -1.0,
+    "generalist": "No",
+    "bard": "Yes"
+  }
+]

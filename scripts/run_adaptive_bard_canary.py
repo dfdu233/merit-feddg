@@ -80,7 +80,7 @@ def main():
     parser.add_argument('--methods', nargs='+', choices=['generalist', 'joint_all', 'isolated_mean', 'isolated_geomedian', 'bard'], default=['generalist', 'joint_all', 'isolated_mean', 'isolated_geomedian', 'bard'])
     parser.add_argument('--skip-stress', action='store_true')
     parser.add_argument('--max-forwards', type=int, default=200000)
-    parser.add_argument('--cached-receiver', action='store_true', help='Use separately parity-validated native Huatuo KV scores')
+    parser.add_argument('--cached-receiver', action='store_true', help='Use separately parity-validated native receiver KV scores')
     parser.add_argument('--start-index', type=int, default=0)
     parser.add_argument('--end-index', type=int)
     parser.add_argument('--shard-index', type=int, required=True)
@@ -99,6 +99,15 @@ def main():
              if k != 'source_cases' and k not in protocol['excluded']}
     routes = json.loads((cache / 'routing.json').read_text())
     original = load_manifest(args.manifest)
+    # Preserve the already-frozen, answer-blind benchmark prompt, including
+    # multiple-choice options. Native expert requests still use the question.
+    benchmark_prompts = {}
+    for source in map(json.loads, Path(args.manifest).read_text().splitlines()):
+        if 'benchmark_prompt' in source:
+            prompt = source['benchmark_prompt']
+            if not isinstance(prompt, str) or not prompt.strip():
+                raise ValueError('Frozen benchmark prompt must be nonempty text')
+            benchmark_prompts[source['id']] = prompt
     assert set(routes) == {r['id'] for r in original}
     decoder = ValueGenerationConfig(**config['capability_value']['generation'])
     arms = experiment_arms(decoder, 'bard')
@@ -145,7 +154,7 @@ def main():
                        task=original_row.get('task', 'open_vqa'), domain=original_row['domain'],
                        domain_kind='official_dataset_split', role=original_row.get('role', 'target'), group_id=row['image_sha256'])
             pool = SharedExpertPool(None, cache / 'expert-cache' / fingerprint(row['id']), protocol['identity'])
-            prompt = generation_prompt(original_row, config)
+            prompt = benchmark_prompts.get(row['id'], generation_prompt(original_row, config))
             session = NativeSession(probe, row['image'], prompt, row['question'], decoder)
             engine = CapabilityRuntime(session, pool, row, specs, decoder, None)
             before = count[0]
@@ -174,6 +183,8 @@ def main():
             atomic_json(out / row['id'] / 'provenance.json', {
                 'cache_identity': protocol['identity'], 'row': row,
                 'receiver_config': config, 'prompt': prompt, 'methods': args.methods,
+                'prompt_source': 'frozen_benchmark_prompt' if row['id'] in benchmark_prompts else 'generation_prompt',
+                'manifest_sha256': hashlib.sha256(Path(args.manifest).read_bytes()).hexdigest(),
                 'receiver_execution': 'parity_validated_kv' if args.cached_receiver else 'production_replay',
                 'routing_source': protocol['routing'],
                 'protocol_sha256': hashlib.sha256((cache / 'protocol.json').read_bytes()).hexdigest(),

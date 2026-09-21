@@ -1,4 +1,4 @@
-"""Opt-in native Huatuo KV replay; validate against production before use."""
+"""Opt-in native receiver KV replay; validate each backend before use."""
 
 import numpy as np
 
@@ -82,12 +82,40 @@ class CachedHuatuoSession:
                 raise RuntimeError("Invalid cached receiver scores")
 
 
+class CachedLlavaSession:
+    """Adapt the existing LLaVA persistent stream to exact-prefix requests."""
+
+    def __init__(self, session):
+        self.session = session
+        self.stream = None
+        self.consumed = ()
+
+    def __getattr__(self, name):
+        return getattr(self.session, name)
+
+    def share_vision_cache_from(self, other):
+        self.session.share_vision_cache_from(getattr(other, "session", other))
+
+    def next_scores(self, prefix):
+        prefix = tuple(prefix)
+        if self.stream is None or prefix[:len(self.consumed)] != self.consumed:
+            self.stream = self.session.new_incremental_stream()
+            self.consumed = ()
+        for token in prefix[len(self.consumed):]:
+            self.stream.commit(token)
+        self.consumed = prefix
+        scores = self.stream.current_scores()
+        if prefix:
+            scores[len(self.generalist.tokenizer):] = -np.inf
+        return scores
+
+
 def enable_cached_sessions(probe):
     original_plain = probe.new_answer_session
     original_spatial = probe.new_tensor_answer_session
-    probe.new_answer_session = lambda *args, **kwargs: CachedHuatuoSession(
-        original_plain(*args, **kwargs)
-    )
-    probe.new_tensor_answer_session = lambda *args, **kwargs: CachedHuatuoSession(
-        original_spatial(*args, **kwargs)
-    )
+    def wrap(session):
+        wrapper = CachedLlavaSession if hasattr(session, "new_incremental_stream") else CachedHuatuoSession
+        return wrapper(session)
+
+    probe.new_answer_session = lambda *args, **kwargs: wrap(original_plain(*args, **kwargs))
+    probe.new_tensor_answer_session = lambda *args, **kwargs: wrap(original_spatial(*args, **kwargs))

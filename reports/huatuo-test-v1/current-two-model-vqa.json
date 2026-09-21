@@ -1,0 +1,121 @@
+{
+  "utc": "2026-09-21T08:09:54.469917+00:00",
+  "huatuo": {
+    "n": 407,
+    "baseline": {
+      "primary_unified": {
+        "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+        "score": 0.6561799993618176,
+        "n": 407,
+        "ce_n": 230,
+        "oe_n": 177,
+        "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+      },
+      "paper_primary": {
+        "metric": "closed_accuracy_invalid_as_error",
+        "score": 0.7782608695652173,
+        "n": 230,
+        "open_rows_excluded": 177,
+        "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+      },
+      "open_auxiliary": {
+        "metric": "answer_token_recall",
+        "score": 0.4975438403404506,
+        "n": 177
+      },
+      "diagnostic_unified": {
+        "sample_weighted_score": 0.6561799993618176,
+        "ce_oe_macro_score": 0.637902354952834,
+        "n": 407,
+        "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+      }
+    },
+    "bard": {
+      "primary_unified": {
+        "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+        "score": 0.6470247402065584,
+        "n": 407,
+        "ce_n": 230,
+        "oe_n": 177,
+        "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+      },
+      "paper_primary": {
+        "metric": "closed_accuracy_invalid_as_error",
+        "score": 0.7782608695652173,
+        "n": 230,
+        "open_rows_excluded": 177,
+        "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+      },
+      "open_auxiliary": {
+        "metric": "answer_token_recall",
+        "score": 0.476491916746154,
+        "n": 177
+      },
+      "diagnostic_unified": {
+        "sample_weighted_score": 0.6470247402065584,
+        "ce_oe_macro_score": 0.6273763931556857,
+        "n": 407,
+        "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+      }
+    }
+  },
+  "llava": {
+    "n": 84,
+    "baseline": {
+      "primary_unified": {
+        "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+        "score": 0.4851190476190476,
+        "n": 84,
+        "ce_n": 52,
+        "oe_n": 32,
+        "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+      },
+      "paper_primary": {
+        "metric": "closed_accuracy_invalid_as_error",
+        "score": 0.6153846153846154,
+        "n": 52,
+        "open_rows_excluded": 32,
+        "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+      },
+      "open_auxiliary": {
+        "metric": "answer_token_recall",
+        "score": 0.2734375,
+        "n": 32
+      },
+      "diagnostic_unified": {
+        "sample_weighted_score": 0.4851190476190476,
+        "ce_oe_macro_score": 0.4444110576923077,
+        "n": 84,
+        "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+      }
+    },
+    "bard": {
+      "primary_unified": {
+        "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+        "score": 0.49702380952380953,
+        "n": 84,
+        "ce_n": 52,
+        "oe_n": 32,
+        "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+      },
+      "paper_primary": {
+        "metric": "closed_accuracy_invalid_as_error",
+        "score": 0.6153846153846154,
+        "n": 52,
+        "open_rows_excluded": 32,
+        "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+      },
+      "open_auxiliary": {
+        "metric": "answer_token_recall",
+        "score": 0.3046875,
+        "n": 32
+      },
+      "diagnostic_unified": {
+        "sample_weighted_score": 0.49702380952380953,
+        "ce_oe_macro_score": 0.4600360576923077,
+        "n": 84,
+        "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+      }
+    }
+  }
+}
