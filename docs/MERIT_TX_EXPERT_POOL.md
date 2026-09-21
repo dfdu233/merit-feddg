@@ -47,10 +47,12 @@ Qualification is indexed by expert, capability, scope, modality, task, and claim
 - utility_lcb
 - harm_ucb
 - specificity_lcb
+- veto_precision_lcb
+- veto_n
 - domains
 - n
 
-The deployed permission rule is **action-conditional** rather than candidate-method conditional. Utility and harm are estimated only over source transactions for which the expert would actually support commit (`D_e > 0`). The specificity lower bound measures whether `sign(D_e)` agrees with the sign of source-only transaction utility, so the card evaluates the expert's decision signal rather than inheriting the average quality of the frozen candidate generator. Source-domain coverage is still required. The card is a fixed statistical permission, not a trained router or gate.
+The deployed permission rule is **action-conditional** rather than candidate-method conditional. Utility and harm are estimated only over source transactions for which the expert would actually support commit (`D_e > 0`). The specificity lower bound measures whether `sign(D_e)` agrees with the sign of source-only transaction utility, so the card evaluates the expert's decision signal rather than inheriting the average quality of the frozen candidate generator. Negative decisions are qualified separately: `veto_precision_lcb` is the conservative precision of `D_e < 0` for truly harmful source transactions, and an expert with no qualified negative observations has **zero veto authority** even if its positive support is safe. Source-domain coverage is still required. The card is a fixed statistical permission, not a trained router or gate.
 
 Build cards from source/development observations:
 
@@ -78,7 +80,7 @@ Examples:
 - XRV: strict native-label claim scoring only when the proposition uniquely names an XRV finding. Raw sigmoid outputs are converted to symmetric log-odds comparison scores; unsupported diagnoses fail closed rather than being guessed.
 - segmentation/localization: candidate-specific spatial support relative to the same operator on a matched control.
 
-A positive differential effect is patient-specific support for the candidate. A negative differential effect is patient-specific support for retaining the incumbent; when the same source-qualified verifier passes the directional reliability requirement, it can veto a transaction. Zero differential effect carries no proof in either direction.
+A positive differential effect is patient-specific support for the candidate and is usable only with support/commit authority. A negative differential effect is patient-specific support for retaining the incumbent and is usable only with separately qualified veto authority. Positive support reliability is deliberately **not** reused as proof that negative vetoes are safe. Zero differential effect carries no proof in either direction.
 
 ## Proposer is not the sole validator
 
@@ -185,6 +187,7 @@ This branch now implements:
 - VQA decontextualization and optional RadGraph-XL report claimization;
 - conservative candidate-to-transaction compilation shared by VQA and reports;
 - report patch atomicity: all clinical claims carried by the same sentence-level patch must be approved, otherwise the incumbent sentence is preserved;
+- patch-safe report compilation: mixed ADD+REPLACE sentences, implicit sibling deletion, and cross-incumbent-sentence merges fail closed; pure ADD sentences are decomposed into atomic proposition patches;
 - literature-grounded role cards and capability/fault-group diversity selection;
 - source-only **action-conditional** expert qualification with utility LCB, harm UCB, and directional-specificity LCB;
 - signed multi-control real-vs-knockoff differential margins, including qualified contradiction vetoes;
