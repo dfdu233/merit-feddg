@@ -397,3 +397,24 @@ def test_differential_margin_removes_shared_context_shift():
     assert value["knockoff_margin"] == 0.5
     assert value["differential_effect"] == 1.5
     assert value["support_direction"] == 1
+
+
+def test_role_diversity_precedes_second_same_role_verifier():
+    specs = {
+        "visual_a": _spec("direct_visual_verifier", "classification", group="visual-a"),
+        "visual_b": _spec("direct_visual_verifier", "classification", group="visual-b"),
+        "spatial": _spec("spatial_localizer", "segmentation", group="spatial"),
+    }
+    descriptors = [
+        _descriptor("visual_a", "classification"),
+        _descriptor("visual_b", "classification"),
+        _descriptor("spatial", "segmentation"),
+    ]
+    selected, _audit = select_expert_descriptors(
+        descriptors,
+        specs,
+        modality="pathology",
+        task="open_vqa",
+        max_calls=2,
+    )
+    assert [row["expert"] for row in selected] == ["visual_a", "spatial"]
