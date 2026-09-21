@@ -200,11 +200,14 @@ class RadGraphClaimizer:
 def apply_transactions(baseline_text, baseline_claims, transactions, decisions):
     """Apply only committed non-overlapping edits to an immutable baseline."""
     baseline_text = str(baseline_text)
+    baseline_claims = tuple(baseline_claims)
+    transactions = tuple(transactions)
+    decisions = tuple(decisions)
     claims = {claim.claim_id: claim for claim in baseline_claims}
-    if len(claims) != len(tuple(baseline_claims)):
+    if len(claims) != len(baseline_claims):
         raise ValueError("baseline claim ids must be unique")
     decision_map = {decision.transaction_id: decision for decision in decisions}
-    if len(decision_map) != len(tuple(decisions)):
+    if len(decision_map) != len(decisions):
         raise ValueError("transaction decisions must be unique")
 
     edits = []
