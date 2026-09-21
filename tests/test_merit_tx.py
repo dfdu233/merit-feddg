@@ -7,6 +7,7 @@ from merit_feddg.expert_policy import (
     load_qualification_cards,
     select_expert_descriptors,
     transaction_descriptors,
+    validate_qualification_provenance,
 )
 from merit_feddg.io import load_experiment_yaml
 from merit_feddg.knockoff import select_matched_knockoffs
@@ -1032,3 +1033,44 @@ def test_source_qualified_proof_channel_beats_unqualified_context_under_budget()
     )
     assert {row["expert"] for row in selected} == {"visual_a", "visual_b"}
     assert all(row["commit_authorized"] for row in audit)
+
+
+def test_qualification_provenance_rejects_replaced_expert_weights(tmp_path):
+    from merit_feddg.open_study import fingerprint, model_provenance
+
+    checkpoint = tmp_path / "expert.bin"
+    checkpoint.write_bytes(b"version-one")
+    spec = {
+        "id": "local/expert",
+        "checkpoint_path": str(checkpoint),
+        "adapter": "contrastive_plip",
+        "modalities": ["pathology"],
+        "tasks": ["open_vqa"],
+        "capabilities": ["classification"],
+        "scope": "classification",
+        "literature": ["peer-reviewed"],
+        "evidence_role": "direct_visual_verifier",
+        "commit_authority": "source_qualified",
+    }
+    qualified = fingerprint(model_provenance(spec, tmp_path))
+    card = SourceQualificationCard(
+        expert_id="expert",
+        capability="classification",
+        scope="classification",
+        modality="pathology",
+        task="open_vqa",
+        claim_type="diagnosis",
+        n=40,
+        domains=("a", "b"),
+        utility_lcb=0.2,
+        harm_ucb=0.1,
+        specificity_lcb=0.7,
+        expert_provenance_fingerprint=qualified,
+    )
+    cards = {card.key: card}
+    observed = validate_qualification_provenance(cards, {"expert": spec}, tmp_path)
+    assert observed["expert"] == qualified
+
+    checkpoint.write_bytes(b"version-two-longer")
+    with pytest.raises(ValueError, match="provenance mismatch"):
+        validate_qualification_provenance(cards, {"expert": spec}, tmp_path)
