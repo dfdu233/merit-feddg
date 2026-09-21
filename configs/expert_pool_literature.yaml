@@ -136,6 +136,18 @@ models:
       - "RETFound, Nature 2023"
     rationale: Public retinal foundation-model weights exist for fundus and OCT, but the pretrained encoder is not a direct text/claim verifier. Use only with a real source-image index and source-only qualification.
 
+  monet:
+    status: transaction_only
+    role: direct_visual_verifier
+    modalities: [dermatology]
+    capabilities: [classification, retrieval]
+    evidence:
+      - "MONET, Nature Medicine 2024"
+    weights: suinleelab/monet
+    native_interface: zero_shot_image_text_similarity
+    training_required_for_commit_interface: false
+    rationale: Public dermatology image-text model with board-certified dermatologist validation and a released zero-shot concept-annotation interface. Use candidate-specific propositions rather than a fixed disease catalog; source qualification and portfolio selection remain mandatory.
+
   panderm:
     status: candidate_requires_downstream_head
     role: dermatology_foundation_encoder
