@@ -17,11 +17,11 @@ GATED_MODELS = {
     "conch": ("MahmoodLab/CONCH", "artifacts/models/MahmoodLab--CONCH"),
     "maira2": ("microsoft/maira-2", "artifacts/models/microsoft--maira-2"),
     "medsiglip": ("google/medsiglip-448", "artifacts/models/google--medsiglip-448"),
+    "musk": ("xiangjx/musk", "artifacts/models/xiangjx--musk"),
 }
 RESEARCH_MODELS = {
-    # These are literature-selected coverage candidates, not active MERIT-Tx
-    # experts. Downloading them does not grant commit authority.
-    "musk": ("xiangjx/musk", "artifacts/models/xiangjx--musk", "gated"),
+    # Literature-selected coverage candidates without an active runtime adapter.
+    # Downloading them does not grant commit authority.
     "merlin": ("stanfordmimi/Merlin", "artifacts/models/stanfordmimi--Merlin", "open"),
 }
 
@@ -39,6 +39,8 @@ def commands():
     for name, (repo, target) in GATED_MODELS.items():
         rows.append(f"# {name}: gated; accept upstream terms first")
         rows.append(f"hf download {repo} --local-dir {target}")
+    rows.append("# MUSK also requires the official source package for its timm registration/tokenizer")
+    rows.append("git clone https://github.com/lilab-stanford/MUSK upstream/MUSK")
     rows.append("# Literature-selected research candidates; no runtime authority yet")
     for name, (repo, target, access) in RESEARCH_MODELS.items():
         label = "gated; accept upstream terms first" if access == "gated" else "open"
