@@ -1,0 +1,100 @@
+{
+  "schema": "merit-tx-expert-pool-validation-v1",
+  "base_branch": "implementation/huatuo-adaptive-bard-spatial-v1",
+  "validated_code_commit": "fa31d707bc20a86a551659a128fe967b59be1b32",
+  "branch_head_before_report": "129a06cc6763863eb034d339e36762c3efedfdf9",
+  "github_actions": {
+    "run_id": 35623702879,
+    "torch_enabled_job": "open-generation-cpu",
+    "pytest": {
+      "passed": 244,
+      "failed": 0,
+      "seconds": 7.00,
+      "includes": [
+        "tests/test_merit_tx.py",
+        "tests/test_huatuo_generalist.py",
+        "tests/test_bard.py",
+        "tests/test_medcpt_kb.py",
+        "existing LLaVA/capability integration tests"
+      ]
+    },
+    "cli_smoke": {
+      "fit_expert_qualification_help": "passed",
+      "prepare_expert_pool_assets_help": "passed",
+      "audit_transactional_expert_pool_help": "passed",
+      "audit_merit_tx_failure_help": "passed",
+      "build_merit_tx_source_observations_help": "passed",
+      "run_merit_tx_source_canary_help": "passed"
+    },
+    "new_merit_tx_ruff_findings": 0,
+    "workflow_green": false,
+    "workflow_blockers": [
+      "generic repository test job installs no torch while collecting existing spatial tests that import torch",
+      "repository-wide Ruff has pre-existing findings in unrelated legacy files"
+    ]
+  },
+  "implemented": {
+    "immutable_incumbent_transactions": true,
+    "same_transaction_structure_for_vqa_and_report_generation": true,
+    "atomic_vqa_decontextualization": true,
+    "optional_radgraph_xl_report_claimization": true,
+    "candidate_transaction_compilation": true,
+    "report_patch_all_or_none_claim_atomicity": true,
+    "source_only_expert_qualification_cards": true,
+    "qualification_utility_lcb": true,
+    "qualification_harm_ucb": true,
+    "qualification_specificity_lcb": true,
+    "multi_knockoff_median_specificity": true,
+    "answer_blind_knockoff_metadata_matching": true,
+    "patient_level_report_qualification_aggregation": true,
+    "proposer_validator_separation": true,
+    "capability_and_fault_group_diversity_selection": true,
+    "plip_pathology_claim_verifier": true,
+    "conch_dynamic_pathology_claim_verifier": true,
+    "xrv_strict_native_claim_verifier": true,
+    "biomedclip_dynamic_claim_verifier": true,
+    "medsiglip_gated_dynamic_claim_verifier": true,
+    "medsam_roi_prerequisite": true,
+    "medcpt_context_only": true,
+    "source_observation_builder": true,
+    "source_canary_runner": true,
+    "candidate_oracle_and_first_divergence_audit": true,
+    "asset_audit_and_download_helpers": true
+  },
+  "expert_pool_methodology": {
+    "selection": [
+      "capability complementarity before redundant model count",
+      "modality/task/scope applicability",
+      "native candidate-specific claim verifiability",
+      "independent failure groups",
+      "public or auditable frozen weights",
+      "source-only qualification before commit",
+      "target/test labels forbidden for expert selection"
+    ],
+    "authority": "expert availability does not imply commit authority",
+    "gated_models": [
+      "MahmoodLab/CONCH",
+      "microsoft/maira-2",
+      "google/medsiglip-448"
+    ]
+  },
+  "not_validated": {
+    "real_source_qualification_cards_fitted": false,
+    "real_source_merit_tx_canary_run": false,
+    "real_radgraph_xl_report_canary": false,
+    "real_plip_checkpoint_loaded_in_ci": false,
+    "real_medsiglip_checkpoint_loaded_in_ci": false,
+    "real_medsam_checkpoint_loaded_in_ci": false,
+    "pathvqa_accuracy_improvement": false,
+    "mimic_report_metric_improvement": false,
+    "target_test_policy_run": false
+  },
+  "notes": [
+    "The new algorithm intentionally does not infer DELETE transactions from report omissions.",
+    "Several RadGraph claims may share one sentence-level patch; the patch is applied only when all clinical changes represented by that identical patch are approved.",
+    "Contrastive expert image features are keyed by expert and image, preventing wrong-patient knockoff controls from accidentally reusing the current-patient feature.",
+    "MedSigLIP is optional and gated; configuration presence does not make it available or trusted.",
+    "Source references are not available to transaction decisions in run_merit_tx_source_canary.py; optional evaluation opens references only after outputs.json is frozen.",
+    "No new benchmark gain is claimed by this implementation validation."
+  ]
+}
