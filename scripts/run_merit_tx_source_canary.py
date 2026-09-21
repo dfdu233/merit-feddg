@@ -159,6 +159,11 @@ def main():
             "frozen source qualification cards are required before the MERIT-Tx canary"
         )
     cards = load_qualification_cards(card_path)
+    if cards.proposal_policy != args.candidate_name:
+        raise ValueError(
+            "qualification proposal_policy does not match --candidate-name: "
+            f"{cards.proposal_policy!r} != {args.candidate_name!r}"
+        )
     max_calls = (
         args.max_calls
         if args.max_calls is not None
@@ -190,6 +195,7 @@ def main():
         "config_sha256": sha256(args.config),
         "qualification_cards": str(Path(card_path).resolve()),
         "qualification_cards_sha256": sha256(card_path),
+        "qualification_proposal_policy": cards.proposal_policy,
         "max_calls": max_calls,
         "knockoff_controls": knockoff_count,
         "immutable_incumbent": True,
