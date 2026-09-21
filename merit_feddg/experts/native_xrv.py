@@ -9,8 +9,8 @@ SHA-256. These outputs are research observations, not clinical diagnoses.
 from __future__ import annotations
 
 import hashlib
-from pathlib import Path
 import re
+from pathlib import Path
 
 import numpy as np
 
