@@ -1,0 +1,46 @@
+{
+  "new768": {
+    "original_bard": {
+      "mean_difference_pp": 0.7006938012797388,
+      "image_cluster_95pct_ci_pp": [
+        -1.205009200057526,
+        2.623689105498164
+      ],
+      "image_clusters": 363,
+      "repetitions": 3000,
+      "seed": 20260921
+    },
+    "greedy": {
+      "mean_difference_pp": -1.2645478075165575,
+      "image_cluster_95pct_ci_pp": [
+        -3.051731257566018,
+        0.4631843112827591
+      ],
+      "image_clusters": 363,
+      "repetitions": 3000,
+      "seed": 20260921
+    }
+  },
+  "combined1024": {
+    "original_bard": {
+      "mean_difference_pp": 0.7336152074921606,
+      "image_cluster_95pct_ci_pp": [
+        -0.9655814873115987,
+        2.385617164117335
+      ],
+      "image_clusters": 406,
+      "repetitions": 3000,
+      "seed": 20260921
+    },
+    "greedy": {
+      "mean_difference_pp": -0.652347869144744,
+      "image_cluster_95pct_ci_pp": [
+        -2.0644181638300103,
+        0.8037429928827163
+      ],
+      "image_clusters": 406,
+      "repetitions": 3000,
+      "seed": 20260921
+    }
+  }
+}

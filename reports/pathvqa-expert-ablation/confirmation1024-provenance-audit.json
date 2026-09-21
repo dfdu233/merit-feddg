@@ -1,0 +1,55 @@
+{
+  "new768": {
+    "confirmation-drop-conch-40297": {
+      "n": 151,
+      "receiver_config_sha256": [
+        "7842c2679cfc0c2fd39153d9238590abcfbec9e871bf724741e7b92566db554a"
+      ],
+      "protocol_sha256": [
+        "b03d4ef4b7a897212040c7a64341f9c23ac63107fc930ef2184d968474583fca"
+      ],
+      "checks": "labels not loaded; EOS repair off; CONCH only removed; no refill; same cache identity"
+    },
+    "confirmation-drop-conch-44450": {
+      "n": 142,
+      "receiver_config_sha256": [
+        "7842c2679cfc0c2fd39153d9238590abcfbec9e871bf724741e7b92566db554a"
+      ],
+      "protocol_sha256": [
+        "b03d4ef4b7a897212040c7a64341f9c23ac63107fc930ef2184d968474583fca"
+      ],
+      "checks": "labels not loaded; EOS repair off; CONCH only removed; no refill; same cache identity"
+    },
+    "confirmation-drop-conch-42865": {
+      "n": 138,
+      "receiver_config_sha256": [
+        "7842c2679cfc0c2fd39153d9238590abcfbec9e871bf724741e7b92566db554a"
+      ],
+      "protocol_sha256": [
+        "b03d4ef4b7a897212040c7a64341f9c23ac63107fc930ef2184d968474583fca"
+      ],
+      "checks": "labels not loaded; EOS repair off; CONCH only removed; no refill; same cache identity"
+    },
+    "confirmation-drop-conch-host0": {
+      "n": 169,
+      "receiver_config_sha256": [
+        "7842c2679cfc0c2fd39153d9238590abcfbec9e871bf724741e7b92566db554a"
+      ],
+      "protocol_sha256": [
+        "08e14d4774aeb000753e87b3d660f24d4cc8bb5d069e716889450dbc41c9dd69"
+      ],
+      "checks": "labels not loaded; EOS repair off; CONCH only removed; no refill; same cache identity"
+    },
+    "confirmation-drop-conch-host1": {
+      "n": 168,
+      "receiver_config_sha256": [
+        "7842c2679cfc0c2fd39153d9238590abcfbec9e871bf724741e7b92566db554a"
+      ],
+      "protocol_sha256": [
+        "08e14d4774aeb000753e87b3d660f24d4cc8bb5d069e716889450dbc41c9dd69"
+      ],
+      "checks": "labels not loaded; EOS repair off; CONCH only removed; no refill; same cache identity"
+    }
+  },
+  "cache_protocol_note": "Host/cloud protocol.json differs in cache construction/status metadata; receiver config SHA256 identical and runner validates selected exact request keys. Torch environments differ; original-candidate host replay control8 matched 8/8 original token sequences."
+}

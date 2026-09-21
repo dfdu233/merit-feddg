@@ -1,0 +1,242 @@
+{
+  "pathvqa-test-00-000827": {
+    "expert_id": "conch_tissue",
+    "capability": "classification",
+    "items": [
+      {
+        "evidence_id": "conch_tissue:pathvqa-test-00-000827:catalog",
+        "expert_id": "conch_tissue",
+        "capability": "classification",
+        "scope": "tissue_appearance",
+        "payload": {
+          "catalog": [
+            {
+              "concept": "adipose tissue",
+              "prompt": "A histopathology image of adipose tissue.",
+              "similarity": 0.2884635266254191
+            },
+            {
+              "concept": "skeletal muscle",
+              "prompt": "A histopathology image of skeletal muscle tissue.",
+              "similarity": 0.2579139516623775
+            },
+            {
+              "concept": "smooth muscle",
+              "prompt": "A histopathology image of smooth muscle tissue.",
+              "similarity": 0.22512156351900403
+            },
+            {
+              "concept": "connective tissue",
+              "prompt": "A histopathology image of connective tissue.",
+              "similarity": 0.21148328214423986
+            },
+            {
+              "concept": "squamous epithelium",
+              "prompt": "A histopathology image of squamous epithelial tissue.",
+              "similarity": 0.16206036239131177
+            },
+            {
+              "concept": "neural tissue",
+              "prompt": "A histopathology image of neural tissue.",
+              "similarity": 0.1501915642972809
+            },
+            {
+              "concept": "blood vessels",
+              "prompt": "A histopathology image of blood vessels.",
+              "similarity": 0.0710256180537044
+            },
+            {
+              "concept": "necrotic tissue",
+              "prompt": "A histopathology image of necrotic tissue.",
+              "similarity": 0.05597234279546617
+            },
+            {
+              "concept": "glandular epithelium",
+              "prompt": "A histopathology image of glandular epithelial tissue.",
+              "similarity": 0.028715732879542474
+            },
+            {
+              "concept": "lymphoid tissue",
+              "prompt": "A histopathology image of lymphoid tissue.",
+              "similarity": -0.13773313966041598
+            }
+          ],
+          "score_semantics": "relative_similarity",
+          "catalog_exhaustive": false,
+          "unlisted_concepts": "unknown"
+        },
+        "summary": "Relative visual matches within a fixed catalog (not diagnosis probabilities): adipose tissue (0.288); skeletal muscle (0.258); smooth muscle (0.225)",
+        "confidence": null,
+        "provenance": {
+          "adapter": "contrastive_conch",
+          "catalog_sha256": "597b18856eb3a2fc1f658dfbe2ae4f01b28b753e229082aec8c487de4fd4f4ef",
+          "target_candidates_used": false,
+          "image_minus_null": false,
+          "query_used": false,
+          "spatial_scope": "whole_image"
+        }
+      }
+    ],
+    "reason": "ok"
+  },
+  "pathvqa-test-01-001390": {
+    "expert_id": "conch_tissue",
+    "capability": "classification",
+    "items": [
+      {
+        "evidence_id": "conch_tissue:pathvqa-test-01-001390:catalog",
+        "expert_id": "conch_tissue",
+        "capability": "classification",
+        "scope": "tissue_appearance",
+        "payload": {
+          "catalog": [
+            {
+              "concept": "neural tissue",
+              "prompt": "A histopathology image of neural tissue.",
+              "similarity": 0.3221090798713784
+            },
+            {
+              "concept": "lymphoid tissue",
+              "prompt": "A histopathology image of lymphoid tissue.",
+              "similarity": 0.2533632308568251
+            },
+            {
+              "concept": "necrotic tissue",
+              "prompt": "A histopathology image of necrotic tissue.",
+              "similarity": 0.1660474769221812
+            },
+            {
+              "concept": "connective tissue",
+              "prompt": "A histopathology image of connective tissue.",
+              "similarity": 0.11267436156028354
+            },
+            {
+              "concept": "blood vessels",
+              "prompt": "A histopathology image of blood vessels.",
+              "similarity": 0.1056871525786359
+            },
+            {
+              "concept": "adipose tissue",
+              "prompt": "A histopathology image of adipose tissue.",
+              "similarity": 0.08190366724704526
+            },
+            {
+              "concept": "glandular epithelium",
+              "prompt": "A histopathology image of glandular epithelial tissue.",
+              "similarity": 0.05604883598404167
+            },
+            {
+              "concept": "smooth muscle",
+              "prompt": "A histopathology image of smooth muscle tissue.",
+              "similarity": 0.025928896457441824
+            },
+            {
+              "concept": "squamous epithelium",
+              "prompt": "A histopathology image of squamous epithelial tissue.",
+              "similarity": 0.00998713708255587
+            },
+            {
+              "concept": "skeletal muscle",
+              "prompt": "A histopathology image of skeletal muscle tissue.",
+              "similarity": -0.045473479417196885
+            }
+          ],
+          "score_semantics": "relative_similarity",
+          "catalog_exhaustive": false,
+          "unlisted_concepts": "unknown"
+        },
+        "summary": "Relative visual matches within a fixed catalog (not diagnosis probabilities): neural tissue (0.322); lymphoid tissue (0.253); necrotic tissue (0.166)",
+        "confidence": null,
+        "provenance": {
+          "adapter": "contrastive_conch",
+          "catalog_sha256": "597b18856eb3a2fc1f658dfbe2ae4f01b28b753e229082aec8c487de4fd4f4ef",
+          "target_candidates_used": false,
+          "image_minus_null": false,
+          "query_used": false,
+          "spatial_scope": "whole_image"
+        }
+      }
+    ],
+    "reason": "ok"
+  },
+  "pathvqa-test-01-002033": {
+    "expert_id": "conch_tissue",
+    "capability": "classification",
+    "items": [
+      {
+        "evidence_id": "conch_tissue:pathvqa-test-01-002033:catalog",
+        "expert_id": "conch_tissue",
+        "capability": "classification",
+        "scope": "tissue_appearance",
+        "payload": {
+          "catalog": [
+            {
+              "concept": "skeletal muscle",
+              "prompt": "A histopathology image of skeletal muscle tissue.",
+              "similarity": 0.11272104006296998
+            },
+            {
+              "concept": "necrotic tissue",
+              "prompt": "A histopathology image of necrotic tissue.",
+              "similarity": 0.06464464973988315
+            },
+            {
+              "concept": "connective tissue",
+              "prompt": "A histopathology image of connective tissue.",
+              "similarity": -0.01594009512104989
+            },
+            {
+              "concept": "squamous epithelium",
+              "prompt": "A histopathology image of squamous epithelial tissue.",
+              "similarity": -0.028963260772945698
+            },
+            {
+              "concept": "adipose tissue",
+              "prompt": "A histopathology image of adipose tissue.",
+              "similarity": -0.03056148879911564
+            },
+            {
+              "concept": "neural tissue",
+              "prompt": "A histopathology image of neural tissue.",
+              "similarity": -0.04778618907852222
+            },
+            {
+              "concept": "smooth muscle",
+              "prompt": "A histopathology image of smooth muscle tissue.",
+              "similarity": -0.0800045377824079
+            },
+            {
+              "concept": "lymphoid tissue",
+              "prompt": "A histopathology image of lymphoid tissue.",
+              "similarity": -0.08910445138553003
+            },
+            {
+              "concept": "glandular epithelium",
+              "prompt": "A histopathology image of glandular epithelial tissue.",
+              "similarity": -0.16490805184985846
+            },
+            {
+              "concept": "blood vessels",
+              "prompt": "A histopathology image of blood vessels.",
+              "similarity": -0.30074242723815764
+            }
+          ],
+          "score_semantics": "relative_similarity",
+          "catalog_exhaustive": false,
+          "unlisted_concepts": "unknown"
+        },
+        "summary": "Relative visual matches within a fixed catalog (not diagnosis probabilities): skeletal muscle (0.113); necrotic tissue (0.065); connective tissue (-0.016)",
+        "confidence": null,
+        "provenance": {
+          "adapter": "contrastive_conch",
+          "catalog_sha256": "597b18856eb3a2fc1f658dfbe2ae4f01b28b753e229082aec8c487de4fd4f4ef",
+          "target_candidates_used": false,
+          "image_minus_null": false,
+          "query_used": false,
+          "spatial_scope": "whole_image"
+        }
+      }
+    ],
+    "reason": "ok"
+  }
+}

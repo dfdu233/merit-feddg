@@ -1,0 +1,18 @@
+{
+  "original_bard": {
+    "images": 193,
+    "paired_mean_percentage_points": 0.8323794261294256,
+    "cluster_bootstrap_95_percent_interval": [
+      -2.5016222067692655,
+      4.399313887072531
+    ]
+  },
+  "greedy": {
+    "images": 193,
+    "paired_mean_percentage_points": 1.184251945970696,
+    "cluster_bootstrap_95_percent_interval": [
+      -1.5474895216586297,
+      4.112930301348615
+    ]
+  }
+}

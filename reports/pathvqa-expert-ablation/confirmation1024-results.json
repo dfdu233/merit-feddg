@@ -1,0 +1,716 @@
+{
+  "protocol": "medheval-decoded-eval-v14-explicit-binary-conclusion",
+  "scope": "TEST-guided exploratory ablation; fixed SHA256 order within 3502 original triple-expert cases; no held-out or full-test claim",
+  "stages": {
+    "new768": {
+      "n": 768,
+      "scores": {
+        "drop_conch": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.332754907852564,
+            "n": 768,
+            "ce_n": 449,
+            "oe_n": 319,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5256124721603563,
+            "n": 449,
+            "open_rows_excluded": 319,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.06130335182059318,
+            "n": 319
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.332754907852564,
+            "ce_oe_macro_score": 0.2934579119904748,
+            "n": 768,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "original_bard": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.3257479698397666,
+            "n": 768,
+            "ce_n": 449,
+            "oe_n": 319,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5189309576837416,
+            "n": 449,
+            "open_rows_excluded": 319,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.05383837252959509,
+            "n": 319
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.3257479698397666,
+            "ce_oe_macro_score": 0.2863846651066684,
+            "n": 768,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "greedy": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.3454003859277294,
+            "n": 768,
+            "ce_n": 449,
+            "oe_n": 319,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5456570155902004,
+            "n": 449,
+            "open_rows_excluded": 319,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.06353447144983192,
+            "n": 319
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.3454003859277294,
+            "ce_oe_macro_score": 0.30459574352001617,
+            "n": 768,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "VCD": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.33770858770858764,
+            "n": 768,
+            "ce_n": 449,
+            "oe_n": 319,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5367483296213809,
+            "n": 449,
+            "open_rows_excluded": 319,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.05755547134857479,
+            "n": 319
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.33770858770858764,
+            "ce_oe_macro_score": 0.2971519004849778,
+            "n": 768,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "ICD": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.33815573893698875,
+            "n": 768,
+            "ce_n": 449,
+            "oe_n": 319,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.534521158129176,
+            "n": 449,
+            "open_rows_excluded": 319,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.06176679468215517,
+            "n": 319
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.33815573893698875,
+            "ce_oe_macro_score": 0.2981439764056656,
+            "n": 768,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "AGLA": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.35177206871542793,
+            "n": 768,
+            "ce_n": 449,
+            "oe_n": 319,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5523385300668151,
+            "n": 449,
+            "open_rows_excluded": 319,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.06947005885093657,
+            "n": 319
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.35177206871542793,
+            "ce_oe_macro_score": 0.31090429445887585,
+            "n": 768,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "VISTA": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.342026383627946,
+            "n": 768,
+            "ce_n": 449,
+            "oe_n": 319,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5412026726057907,
+            "n": 449,
+            "open_rows_excluded": 319,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.0616810740635192,
+            "n": 319
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.342026383627946,
+            "ce_oe_macro_score": 0.30144187333465494,
+            "n": 768,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "DoLa": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.34618318602693576,
+            "n": 768,
+            "ce_n": 449,
+            "oe_n": 319,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5456570155902004,
+            "n": 449,
+            "open_rows_excluded": 319,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.06541908109306226,
+            "n": 319
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.34618318602693576,
+            "ce_oe_macro_score": 0.30553804834163134,
+            "n": 768,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "PAI": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.3451562453027295,
+            "n": 768,
+            "ce_n": 449,
+            "oe_n": 319,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5434298440979956,
+            "n": 449,
+            "open_rows_excluded": 319,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.0660814933934056,
+            "n": 319
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.3451562453027295,
+            "ce_oe_macro_score": 0.3047556687457006,
+            "n": 768,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "avisc": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.3548806662087909,
+            "n": 768,
+            "ce_n": 449,
+            "oe_n": 319,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5590200445434298,
+            "n": 449,
+            "open_rows_excluded": 319,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.0675496916876227,
+            "n": 319
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.3548806662087909,
+            "ce_oe_macro_score": 0.31328486811552625,
+            "n": 768,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "opera": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.37337925384800386,
+            "n": 768,
+            "ce_n": 449,
+            "oe_n": 319,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5835189309576837,
+            "n": 449,
+            "open_rows_excluded": 319,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.07760271772810957,
+            "n": 319
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.37337925384800386,
+            "ce_oe_macro_score": 0.33056082434289663,
+            "n": 768,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "MedRAG": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.3334560964932058,
+            "n": 768,
+            "ce_n": 449,
+            "oe_n": 319,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.532293986636971,
+            "n": 449,
+            "open_rows_excluded": 319,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.053587091243831056,
+            "n": 319
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.3334560964932058,
+            "ce_oe_macro_score": 0.29294053894040106,
+            "n": 768,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        }
+      },
+      "paired": {
+        "original_bard": {
+          "higher": 40,
+          "lower": 33,
+          "equal": 695
+        },
+        "greedy": {
+          "higher": 32,
+          "lower": 41,
+          "equal": 695
+        }
+      },
+      "empty": 0,
+      "unfinished": 72
+    },
+    "combined1024": {
+      "n": 1024,
+      "scores": {
+        "drop_conch": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.33432664882860186,
+            "n": 1024,
+            "ce_n": 583,
+            "oe_n": 441,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5454545454545454,
+            "n": 583,
+            "open_rows_excluded": 441,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.055216526985234445,
+            "n": 441
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.33432664882860186,
+            "ce_oe_macro_score": 0.30033553621988995,
+            "n": 1024,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "original_bard": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.32699049675368036,
+            "n": 1024,
+            "ce_n": 583,
+            "oe_n": 441,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5334476843910806,
+            "n": 583,
+            "open_rows_excluded": 441,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.05405503101081332,
+            "n": 441
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.32699049675368036,
+            "ce_oe_macro_score": 0.29375135770094696,
+            "n": 1024,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "greedy": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.3408501275200492,
+            "n": 1024,
+            "ce_n": 583,
+            "oe_n": 441,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5557461406518011,
+            "n": 583,
+            "open_rows_excluded": 441,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.056758572744967276,
+            "n": 441
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.3408501275200492,
+            "ce_oe_macro_score": 0.3062523566983842,
+            "n": 1024,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "VCD": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.33586679162851013,
+            "n": 1024,
+            "ce_n": 583,
+            "oe_n": 441,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5471698113207547,
+            "n": 583,
+            "open_rows_excluded": 441,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.05652515788570207,
+            "n": 441
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.33586679162851013,
+            "ce_oe_macro_score": 0.3018474846032284,
+            "n": 1024,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "ICD": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.34011111772342223,
+            "n": 1024,
+            "ce_n": 583,
+            "oe_n": 441,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5523156089193825,
+            "n": 583,
+            "open_rows_excluded": 441,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.05957774274100803,
+            "n": 441
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.34011111772342223,
+            "ce_oe_macro_score": 0.30594667583019525,
+            "n": 1024,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "AGLA": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.3466519550870134,
+            "n": 1024,
+            "ce_n": 583,
+            "oe_n": 441,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5626072041166381,
+            "n": 583,
+            "open_rows_excluded": 441,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.06116009525873469,
+            "n": 441
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.3466519550870134,
+            "ce_oe_macro_score": 0.3118836496876864,
+            "n": 1024,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "VISTA": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.3390171704380687,
+            "n": 1024,
+            "ce_n": 583,
+            "oe_n": 441,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5540308747855918,
+            "n": 583,
+            "open_rows_excluded": 441,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.05477002840948417,
+            "n": 441
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.3390171704380687,
+            "ce_oe_macro_score": 0.304400451597538,
+            "n": 1024,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "DoLa": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.34143722759445394,
+            "n": 1024,
+            "ce_n": 583,
+            "oe_n": 441,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5557461406518011,
+            "n": 583,
+            "open_rows_excluded": 441,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.05812181645514976,
+            "n": 441
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.34143722759445394,
+            "ce_oe_macro_score": 0.30693397855347543,
+            "n": 1024,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "PAI": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.3446639528548706,
+            "n": 1024,
+            "ce_n": 583,
+            "oe_n": 441,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5574614065180102,
+            "n": 583,
+            "open_rows_excluded": 441,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.0633466841800175,
+            "n": 441
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.3446639528548706,
+            "ce_oe_macro_score": 0.3104040453490139,
+            "n": 1024,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "avisc": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.3418358361473593,
+            "n": 1024,
+            "ce_n": 583,
+            "oe_n": 441,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5506003430531733,
+            "n": 583,
+            "open_rows_excluded": 441,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.065850104795683,
+            "n": 441
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.3418358361473593,
+            "ce_oe_macro_score": 0.30822522392442814,
+            "n": 1024,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "opera": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.37300500877161025,
+            "n": 1024,
+            "ce_n": 583,
+            "oe_n": 441,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.6003430531732419,
+            "n": 583,
+            "open_rows_excluded": 441,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.07246514508419269,
+            "n": 441
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.37300500877161025,
+            "ce_oe_macro_score": 0.33640409912871727,
+            "n": 1024,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        },
+        "MedRAG": {
+          "primary_unified": {
+            "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+            "score": 0.3347623662687139,
+            "n": 1024,
+            "ce_n": 583,
+            "oe_n": 441,
+            "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+          },
+          "paper_primary": {
+            "metric": "closed_accuracy_invalid_as_error",
+            "score": 0.5523156089193825,
+            "n": 583,
+            "open_rows_excluded": 441,
+            "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+          },
+          "open_auxiliary": {
+            "metric": "answer_token_recall",
+            "score": 0.04715796612055114,
+            "n": 441
+          },
+          "diagnostic_unified": {
+            "sample_weighted_score": 0.3347623662687139,
+            "ce_oe_macro_score": 0.2997367875199668,
+            "n": 1024,
+            "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+          }
+        }
+      },
+      "paired": {
+        "original_bard": {
+          "higher": 55,
+          "lower": 48,
+          "equal": 921
+        },
+        "greedy": {
+          "higher": 45,
+          "lower": 51,
+          "equal": 928
+        }
+      },
+      "empty": 0,
+      "unfinished": 94
+    }
+  }
+}
