@@ -55,7 +55,7 @@ def main():
     specs=dict(config["experts"])
     specs.pop("source_cases",None)
     qualification_payload=json.loads(Path(args.qualification_cards).read_text(encoding="utf-8"))
-    qualification_groups=set(str(value) for value in qualification_payload.get("source_group_ids", ()))
+    qualification_groups={str(value) for value in qualification_payload.get("source_group_ids", ())}
     if not qualification_groups:
         raise ValueError("v3 qualification cards must record source_group_ids")
     cards=load_qualification_cards(args.qualification_cards)
