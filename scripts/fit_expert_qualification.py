@@ -3,7 +3,8 @@
 Input JSONL rows are paired source/development observations, never target-test
 records. Required fields:
   expert_id, capability, scope, modality, task, claim_type, domain, group_id,
-  outcome_delta, real_effect, knockoff_effect, candidate_method
+  outcome_delta, real_effect, knockoff_effect, candidate_method,
+  expert_provenance_fingerprint
 
 outcome_delta is the bounded score change (expert transaction minus immutable
 Generalist) in [-1, 1]. real_effect/knockoff_effect are label-free receiver
@@ -69,6 +70,7 @@ def read_rows(path):
                 "real_effect",
                 "knockoff_effect",
                 "candidate_method",
+                "expert_provenance_fingerprint",
             )
             if key not in row
         ]
@@ -83,6 +85,13 @@ def read_rows(path):
             raise ValueError(f"line {line_number}: invalid source domain")
         if not isinstance(row["candidate_method"], str) or not row["candidate_method"].strip():
             raise ValueError(f"line {line_number}: invalid candidate_method")
+        if (
+            not isinstance(row["expert_provenance_fingerprint"], str)
+            or not row["expert_provenance_fingerprint"].strip()
+        ):
+            raise ValueError(
+                f"line {line_number}: invalid expert_provenance_fingerprint"
+            )
         if not isinstance(row["group_id"], str) or not row["group_id"].strip():
             raise ValueError(f"line {line_number}: invalid group_id")
         for key in ("outcome_delta", "real_effect", "knockoff_effect"):
@@ -114,6 +123,14 @@ def fit(rows, *, z=1.96):
         groups = [row["group_id"] for row in values]
         if len(groups) != len(set(groups)):
             raise ValueError(f"duplicate group_id within qualification cell: {key}")
+        provenance = {
+            str(row["expert_provenance_fingerprint"]).strip()
+            for row in values
+        }
+        if len(provenance) != 1:
+            raise ValueError(
+                f"mixed expert provenance within qualification cell: {key}"
+            )
         deltas = [float(row["outcome_delta"]) for row in values]
         harms = sum(value < 0 for value in deltas)
         specificity = sum(
@@ -127,6 +144,7 @@ def fit(rows, *, z=1.96):
             utility_lcb=mean_lcb(deltas, z),
             harm_ucb=wilson(harms, len(values), z, upper=True),
             specificity_lcb=wilson(specificity, len(values), z, upper=False),
+            expert_provenance_fingerprint=next(iter(provenance)),
             source_only=True,
         )
         cards.append(card)
