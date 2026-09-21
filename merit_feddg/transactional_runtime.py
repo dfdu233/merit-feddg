@@ -17,6 +17,19 @@ from .merit_tx import (
 from .transactional_protocol import claimize_incumbent
 
 
+def normalize_proposer_expert_ids(single=None, multiple=()):
+    """Normalize frozen proposal provenance while preserving declaration order."""
+    values = []
+    if single is not None and str(single).strip():
+        values.append(str(single).strip())
+    for raw in multiple or ():
+        for value in str(raw).split(","):
+            value = value.strip()
+            if value:
+                values.append(value)
+    return tuple(dict.fromkeys(values))
+
+
 def merit_tx_config(mapping):
     mapping = dict(mapping or {})
     keys = {
