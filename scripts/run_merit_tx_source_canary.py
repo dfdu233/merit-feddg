@@ -14,7 +14,10 @@ from pathlib import Path
 
 from merit_feddg.capability_study import _filter_optional_experts
 from merit_feddg.contribution import answer_metrics
-from merit_feddg.expert_policy import load_qualification_cards
+from merit_feddg.expert_policy import (
+    load_qualification_cards,
+    validate_qualification_provenance,
+)
 from merit_feddg.io import load_experiment_yaml
 from merit_feddg.open_experts import OpenExpertPool
 from merit_feddg.open_study import atomic_json
@@ -164,6 +167,9 @@ def main():
             "qualification proposal_policy does not match --candidate-name: "
             f"{cards.proposal_policy!r} != {args.candidate_name!r}"
         )
+    qualification_expert_provenance = validate_qualification_provenance(
+        cards, specs, args.artifacts
+    )
     max_calls = (
         args.max_calls
         if args.max_calls is not None
@@ -196,6 +202,7 @@ def main():
         "qualification_cards": str(Path(card_path).resolve()),
         "qualification_cards_sha256": sha256(card_path),
         "qualification_proposal_policy": cards.proposal_policy,
+        "qualification_expert_provenance": qualification_expert_provenance,
         "max_calls": max_calls,
         "knockoff_controls": knockoff_count,
         "immutable_incumbent": True,
