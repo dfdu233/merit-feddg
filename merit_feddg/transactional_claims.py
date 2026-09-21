@@ -43,6 +43,7 @@ class ClaimTransaction:
     replacement_text: str
     baseline_claim_id: str | None = None
     proposer_expert_id: str | None = None
+    proposer_expert_ids: tuple[str, ...] = ()
 
     def __post_init__(self):
         if self.operation not in {"ADD", "DELETE", "REPLACE"}:
@@ -55,6 +56,11 @@ class ClaimTransaction:
             raise ValueError("ADD cannot target a baseline claim")
         if self.operation != "DELETE" and not self.replacement_text.strip():
             raise ValueError("ADD/REPLACE require replacement text")
+        proposer_ids = tuple(str(value).strip() for value in self.proposer_expert_ids)
+        if any(not value for value in proposer_ids):
+            raise ValueError("proposer expert ids cannot be empty")
+        if len(proposer_ids) != len(set(proposer_ids)):
+            raise ValueError("proposer expert ids must be unique")
 
 
 @dataclass(frozen=True)
@@ -236,6 +242,7 @@ def candidate_transactions(
     baseline_claims,
     candidate_claims,
     proposer_expert_id=None,
+    proposer_expert_ids=(),
     transaction_prefix="tx",
 ):
     """Compile candidate output into conservative atomic transactions.
@@ -246,6 +253,7 @@ def candidate_transactions(
     """
     baseline_claims = tuple(baseline_claims)
     candidate_claims = tuple(candidate_claims)
+    proposer_expert_ids = tuple(str(value) for value in proposer_expert_ids)
     if str(candidate_text).strip() == str(baseline_text).strip():
         return ()
     if task != "report_generation":
@@ -260,6 +268,7 @@ def candidate_transactions(
                 replacement_text=str(candidate_text),
                 baseline_claim_id=baseline_claims[0].claim_id,
                 proposer_expert_id=proposer_expert_id,
+                proposer_expert_ids=proposer_expert_ids,
             ),
         )
 
@@ -312,6 +321,7 @@ def candidate_transactions(
                         replacement_text=candidate.proposition,
                         baseline_claim_id=None,
                         proposer_expert_id=proposer_expert_id,
+                        proposer_expert_ids=proposer_expert_ids,
                     )
                 )
             continue
