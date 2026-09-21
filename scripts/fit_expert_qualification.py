@@ -12,9 +12,9 @@ control. The script stores conservative lower/upper bounds; it trains no gate.
 """
 
 import argparse
-from collections import defaultdict
 import json
 import math
+from collections import defaultdict
 from pathlib import Path
 
 
