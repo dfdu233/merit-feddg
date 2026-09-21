@@ -24,6 +24,9 @@ def plan_transaction_experts(
     claim_type="*",
     max_calls=6,
     region_available=False,
+    qualification_min_domains=2,
+    qualification_max_harm_ucb=0.25,
+    qualification_min_specificity_lcb=0.5,
 ):
     descriptors = transaction_descriptors(specs, row)
     selected, audit = select_expert_descriptors(
@@ -35,6 +38,9 @@ def plan_transaction_experts(
         qualification_cards=qualification_cards,
         max_calls=max_calls,
         region_available=region_available,
+        qualification_min_domains=qualification_min_domains,
+        qualification_max_harm_ucb=qualification_max_harm_ucb,
+        qualification_min_specificity_lcb=qualification_min_specificity_lcb,
     )
     return {
         "descriptors": selected,
