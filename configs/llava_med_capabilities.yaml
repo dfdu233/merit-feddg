@@ -113,8 +113,8 @@ experts:
     description: Independent pathology candidate verifier using the official MUSK zero-shot image-text head. Gated non-commercial weights; similarity is not a diagnosis probability and gains no authority before source qualification and portfolio selection.
 
   monet_claim_verifier:
-    id: suinleelab/monet
-    checkpoint_path: artifacts/models/suinleelab--monet
+    id: chanwkim/monet
+    checkpoint_path: artifacts/models/chanwkim--monet
     adapter: contrastive_monet
     transaction_only: true
     optional: true
