@@ -1,6 +1,10 @@
 import pytest
 
-from merit_feddg.expert_policy import SourceQualificationCard, select_expert_descriptors
+from merit_feddg.expert_policy import (
+    SourceQualificationCard,
+    load_qualification_cards,
+    select_expert_descriptors,
+)
 from merit_feddg.med_defer import NativeEvidence
 from merit_feddg.merit_tx import (
     MeritTxConfig,
@@ -692,3 +696,26 @@ def test_action_domain_coverage_cannot_be_borrowed_from_inactive_domains():
     assert card.domains == ("site-a", "site-b")
     assert card.support_domains == ("site-a",)
     assert not card.authorizes_commit(min_domains=2)
+
+
+def test_v2_qualification_schema_rejects_legacy_cards(tmp_path):
+    rows = [
+        _qualification_row(
+            index,
+            outcome_delta=0.5,
+            effect=0.8,
+            domain="site-a" if index < 20 else "site-b",
+        )
+        for index in range(40)
+    ]
+    payload = fit(rows)
+    assert payload["schema"] == "merit-expert-qualification-v2"
+    path = tmp_path / "cards.json"
+    path.write_text(__import__("json").dumps(payload), encoding="utf-8")
+    loaded = load_qualification_cards(path)
+    assert len(loaded) == 1
+
+    payload["schema"] = "merit-expert-qualification-v1"
+    path.write_text(__import__("json").dumps(payload), encoding="utf-8")
+    with pytest.raises(ValueError, match="unsupported expert qualification"):
+        load_qualification_cards(path)
