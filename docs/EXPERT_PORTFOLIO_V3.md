@@ -136,24 +136,35 @@ If removing an expert improves source utility, that fact is recorded explicitly 
 
 ## 8. Frozen workflow
 
-1. Freeze the Generalist incumbent and one proposal distribution.
-2. Build source observations. This now also writes an aligned transaction-level sidecar:
+1. Freeze the Generalist incumbent and one proposal distribution **before**
+   reading source references.
+2. Partition source/development groups into three patient/study-disjoint sets:
+   qualification, portfolio-selection, and fresh-canary. Never split by QA row
+   when several questions share one image/patient.
+3. Build qualification observations on source-Q:
 
-    python scripts/build_merit_tx_source_observations.py --manifest /path/to/source.jsonl --baseline /path/to/generalist.json --candidate proposal=/path/to/frozen-proposal.json --references /path/to/source-references.json --config configs/merit_tx.yaml --output runs/source-tx-observations.jsonl
+    python scripts/build_merit_tx_source_observations.py --manifest /path/to/source-q.jsonl --baseline /path/to/q-generalist.json --candidate proposal=/path/to/q-proposal.json --references /path/to/q-references.json --config configs/merit_tx.yaml --output runs/source-q-observations.jsonl
 
-3. Fit v3 per-expert qualification:
+4. Fit v3 per-expert qualification on source-Q:
 
-    python scripts/fit_expert_qualification.py --input runs/source-tx-observations.jsonl --output artifacts/qualification/merit-expert-qualification-v3.json
+    python scripts/fit_expert_qualification.py --input runs/source-q-observations.jsonl --output artifacts/qualification/merit-expert-qualification-v3.json
 
-4. Fit the interaction-aware portfolio:
+5. Independently build transaction observations on source-P using the **same
+   frozen proposal mechanism**, then fit the interaction-aware portfolio:
 
-    python scripts/fit_expert_portfolio.py --input runs/source-tx-observations.jsonl.transactions.jsonl --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json --config configs/merit_tx.yaml --output artifacts/qualification/merit-expert-portfolio-v1.json
+    python scripts/build_merit_tx_source_observations.py --manifest /path/to/source-p.jsonl --baseline /path/to/p-generalist.json --candidate proposal=/path/to/p-proposal.json --references /path/to/p-references.json --config configs/merit_tx.yaml --output runs/source-p-observations.jsonl
 
-5. Audit effective coverage after source qualification and portfolio selection:
+    python scripts/fit_expert_portfolio.py --input runs/source-p-observations.jsonl.transactions.jsonl --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json --config configs/merit_tx.yaml --output artifacts/qualification/merit-expert-portfolio-v1.json
+
+   The fitter hard-fails if any source-P group appeared in source-Q.
+6. Audit effective coverage after source qualification and portfolio selection:
 
     python scripts/audit_transactional_expert_pool.py --manifest /path/to/source.jsonl --config configs/merit_tx.yaml --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json --portfolio-policy artifacts/qualification/merit-expert-portfolio-v1.json --output runs/merit-tx-expert-pool-audit.json
 
-6. Run a fresh group-disjoint source canary. Only if it shows nonzero useful intervention with bounded harm may the exact frozen policy run once on untouched target/test data.
+7. Run source-C as a fresh canary. The canary executable hard-fails if any
+   source-C group overlaps source-Q or source-P. Only if source-C shows nonzero
+   useful intervention with bounded harm may the exact frozen policy run once
+   on untouched target/test data.
 
 ## 9. Asset policy
 
