@@ -70,8 +70,14 @@ def _card(expert, capability, scope, *, utility=0.2, harm=0.1, specificity=0.7):
         utility_lcb=utility,
         harm_ucb=harm,
         specificity_lcb=specificity,
+        action_rate_lcb=0.5,
         support_n=40,
         support_domains=("site-a", "site-b"),
+        support_consequential_n=40,
+        support_help_n=35,
+        support_harm_n=5,
+        support_neutral_n=0,
+        support_precision_lcb=specificity,
     )
 
 
