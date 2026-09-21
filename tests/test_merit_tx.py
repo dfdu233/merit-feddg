@@ -70,6 +70,8 @@ def _card(expert, capability, scope, *, utility=0.2, harm=0.1, specificity=0.7):
         utility_lcb=utility,
         harm_ucb=harm,
         specificity_lcb=specificity,
+        support_n=40,
+        support_domains=("site-a", "site-b"),
     )
 
 
