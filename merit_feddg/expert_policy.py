@@ -282,6 +282,7 @@ def select_expert_descriptors(
         )
 
     selected = []
+    seen_roles = set()
     seen_cells = set()
     seen_fault_groups = set()
     while rows and len(selected) < max_calls:
@@ -296,6 +297,7 @@ def select_expert_descriptors(
             new_cell = cell not in seen_cells
             new_fault = card.fault_group not in seen_fault_groups
             return (
+                card.evidence_role in seen_roles,
                 role_priority[card.evidence_role],
                 not new_cell,
                 not new_fault,
@@ -308,6 +310,7 @@ def select_expert_descriptors(
         selected.append(row)
         card = row["card"]
         descriptor = row["descriptor"]
+        seen_roles.add(card.evidence_role)
         seen_cells.add(
             (card.evidence_role, descriptor["capability"], card.fault_group)
         )
