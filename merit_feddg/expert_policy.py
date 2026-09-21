@@ -88,6 +88,7 @@ class SourceQualificationCard:
     utility_lcb: float
     harm_ucb: float
     specificity_lcb: float
+    expert_provenance_fingerprint: str
     source_only: bool = True
 
     def __post_init__(self):
@@ -95,6 +96,8 @@ class SourceQualificationCard:
             raise ValueError("target outcomes cannot enter an expert qualification card")
         if self.n < 1 or len(set(self.domains)) < 1:
             raise ValueError("qualification card needs source observations")
+        if not str(self.expert_provenance_fingerprint).strip():
+            raise ValueError("qualification card needs expert provenance")
         for value in (self.utility_lcb, self.harm_ucb, self.specificity_lcb):
             if not math.isfinite(value):
                 raise ValueError("qualification statistics must be finite")
@@ -210,6 +213,32 @@ def qualification_for(
         "*",
     )
     return cards.get(wildcard)
+
+
+def validate_qualification_provenance(cards, specs, artifacts):
+    """Fail closed when current expert assets differ from qualified assets."""
+    from .open_study import fingerprint, model_provenance
+
+    current = {}
+    for expert_id in sorted({card.expert_id for card in cards.values()}):
+        if expert_id not in specs:
+            raise ValueError(f"qualified expert is absent from current config: {expert_id}")
+        value = fingerprint(model_provenance(specs[expert_id], artifacts))
+        current[expert_id] = value
+    mismatches = []
+    for card in cards.values():
+        observed = current[card.expert_id]
+        if observed != card.expert_provenance_fingerprint:
+            mismatches.append(
+                {
+                    "expert_id": card.expert_id,
+                    "qualified": card.expert_provenance_fingerprint,
+                    "current": observed,
+                }
+            )
+    if mismatches:
+        raise ValueError(f"expert qualification provenance mismatch: {mismatches}")
+    return current
 
 
 def transaction_descriptors(specs, row):
