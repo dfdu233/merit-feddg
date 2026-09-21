@@ -210,6 +210,7 @@ def transaction_descriptors(specs, row):
         }
         for name, spec in specs.items()
         if spec.get("expert_pool_enabled", True) is not False
+        and (spec.get("enabled", True) is not False or spec.get("transaction_only", False))
     }
     return tool_descriptors(transaction_specs, row)
 
