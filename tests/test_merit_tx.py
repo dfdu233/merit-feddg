@@ -1,6 +1,4 @@
 import json
-from pathlib import Path
-
 import pytest
 
 from merit_feddg.expert_policy import (
