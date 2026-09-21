@@ -14,12 +14,15 @@ from merit_feddg.merit_tx import (
     TransactionEvidence,
     decide_transaction,
     differential_margin,
+    differential_margin_controls,
 )
 from merit_feddg.transactional_claims import (
     AtomicClinicalClaim,
     ClaimTransaction,
     TransactionDecision,
     apply_transactions,
+    candidate_transactions,
+    claim_truth_key,
     claimize_vqa,
 )
 from scripts.fit_expert_qualification import fit, read_rows
@@ -461,3 +464,152 @@ def test_knockoff_selection_is_answer_blind_stable_and_cross_group():
     assert all(row["group_id"] != current["group_id"] for row in first)
     assert all("answer" not in row for row in first)
     assert all(row["labels_consulted"] is False for row in first)
+
+
+def test_multiple_knockoffs_use_median_control_margin():
+    value = differential_margin_controls(
+        incumbent_real=1.0,
+        candidate_real=2.0,
+        knockoff_pairs=((1.0, 1.2), (2.0, 2.3), (0.0, 9.0), (3.0, 3.4)),
+    )
+    assert value["real_margin"] == pytest.approx(1.0)
+    assert value["knockoff_margin"] == pytest.approx(0.35)
+    assert value["differential_effect"] == pytest.approx(0.65)
+    assert value["controls"] == 4
+
+
+def test_knockoff_can_match_answer_blind_question_type():
+    current = {
+        "id": "target",
+        "image": "target.png",
+        "modality": "pathology",
+        "task": "open_vqa",
+        "group_id": "patient-target",
+        "question_type": "diagnosis",
+    }
+    source = [
+        {
+            "id": f"d{i}",
+            "image": f"d{i}.png",
+            "modality": "pathology",
+            "task": "open_vqa",
+            "group_id": f"d-{i}",
+            "question_type": "diagnosis",
+            "answer": "SECRET",
+        }
+        for i in range(5)
+    ] + [
+        {
+            "id": "location",
+            "image": "location.png",
+            "modality": "pathology",
+            "task": "open_vqa",
+            "group_id": "location",
+            "question_type": "location",
+            "answer": "SECRET",
+        }
+    ]
+    selected = select_matched_knockoffs(
+        source,
+        current,
+        expert_id="conch",
+        count=4,
+        match_fields=("question_type",),
+    )
+    assert all(row["question_type"] == "diagnosis" for row in selected)
+    assert all("answer" not in row for row in selected)
+
+
+def test_report_candidate_compiler_never_deletes_for_omission():
+    baseline = (
+        AtomicClinicalClaim(
+            "base-effusion",
+            "The image does not show pleural effusion.",
+            (0, 20),
+            grounding={
+                "schema": "radgraph-xl",
+                "observation": "pleural effusion",
+                "tags": ["definitely absent"],
+                "located_at": [],
+                "suggestive_of": [],
+            },
+        ),
+        AtomicClinicalClaim(
+            "base-heart",
+            "The image shows cardiomegaly.",
+            (21, 40),
+            grounding={
+                "schema": "radgraph-xl",
+                "observation": "cardiomegaly",
+                "tags": ["definitely present"],
+                "located_at": [],
+                "suggestive_of": [],
+            },
+        ),
+    )
+    candidate = (
+        AtomicClinicalClaim(
+            "candidate-effusion",
+            "The image shows pleural effusion.",
+            (0, 24),
+            grounding={
+                "schema": "radgraph-xl",
+                "observation": "pleural effusion",
+                "tags": ["definitely present"],
+                "located_at": [],
+                "suggestive_of": [],
+            },
+        ),
+    )
+    tx = candidate_transactions(
+        task="report_generation",
+        question="Generate report",
+        baseline_text="No effusion. Cardiomegaly.",
+        candidate_text="Small pleural effusion.",
+        baseline_claims=baseline,
+        candidate_claims=candidate,
+        proposer_expert_id="proposal",
+    )
+    assert len(tx) == 1
+    assert tx[0].operation == "REPLACE"
+    assert tx[0].baseline_claim_id == "base-effusion"
+    assert all(value.operation != "DELETE" for value in tx)
+    assert claim_truth_key(tx[0].proposed_claim) != claim_truth_key(baseline[0])
+
+
+def test_xrv_claim_scoring_requires_unique_native_finding():
+    import numpy as np
+
+    from merit_feddg.experts.native_xrv import XrvCapabilityAdapter
+
+    expert = object.__new__(XrvCapabilityAdapter)
+    expert.capability = "classification"
+    expert.targets = ("Cardiomegaly", "Effusion")
+    expert.classify = lambda _image: (
+        expert.targets,
+        np.asarray([0.8, 0.2], dtype=np.float32),
+        {},
+    )
+    scores = expert.score_claims(
+        "unused",
+        "",
+        "",
+        [
+            "The image shows cardiomegaly.",
+            "The image does not show pleural effusion.",
+        ],
+    )
+    assert scores[0] > 0
+    assert scores[1] > 0
+    with pytest.raises(ValueError, match="does not uniquely name"):
+        expert.score_claims("unused", "", "", ["The image shows adenocarcinoma."])
+
+
+def test_open_expert_pool_image_cache_key_changes_with_pixels():
+    from PIL import Image
+
+    from merit_feddg.open_experts import OpenExpertPool
+
+    left = Image.new("RGB", (2, 2), (0, 0, 0))
+    right = Image.new("RGB", (2, 2), (255, 255, 255))
+    assert OpenExpertPool._image_key(left) != OpenExpertPool._image_key(right)
