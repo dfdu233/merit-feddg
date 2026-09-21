@@ -62,6 +62,17 @@ class ExpertRoleCard:
         return self.evidence_role in _PATIENT_SPECIFIC_ROLES
 
 
+class QualificationRegistry(dict):
+    """Qualification cards bound to one frozen candidate proposal policy."""
+
+    def __init__(self, *args, proposal_policy, **kwargs):
+        super().__init__(*args, **kwargs)
+        proposal_policy = str(proposal_policy).strip()
+        if not proposal_policy:
+            raise ValueError("qualification registry requires a proposal_policy")
+        self.proposal_policy = proposal_policy
+
+
 @dataclass(frozen=True)
 class SourceQualificationCard:
     """Source-only permission to let one expert influence a claim transaction."""
@@ -152,13 +163,16 @@ def role_card(expert_id, spec) -> ExpertRoleCard:
 
 def load_qualification_cards(path):
     if path is None:
-        return {}
+        return QualificationRegistry(proposal_policy="unbound")
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
-    if payload.get("schema") != "merit-expert-qualification-v1":
+    if payload.get("schema") != "merit-expert-qualification-v2":
         raise ValueError("unsupported expert qualification card schema")
     if payload.get("source_only") is not True:
         raise ValueError("expert qualification must be source-only")
-    result = {}
+    proposal_policy = str(payload.get("proposal_policy", "")).strip()
+    if not proposal_policy:
+        raise ValueError("expert qualification cards must bind one proposal_policy")
+    result = QualificationRegistry(proposal_policy=proposal_policy)
     for row in payload.get("cards", []):
         card = SourceQualificationCard(**{**row, "domains": tuple(row["domains"])})
         if card.key in result:
