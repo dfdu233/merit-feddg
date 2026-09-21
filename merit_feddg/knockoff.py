@@ -38,10 +38,13 @@ def select_matched_knockoffs(
             raise ValueError("source knockoff rows need id/image/modality/task/group_id")
         # Label fields may exist in a source-training record, but selection is
         # deliberately projected onto answer-blind metadata before ranking.
-        public = {
-            key: row[key]
-            for key in required
-        }
+        public = {key: row[key] for key in required}
+        public.update(
+            {
+                field: row.get(field)
+                for field in expected
+            }
+        )
         if (
             public["id"] == current_row["id"]
             or public["group_id"] == current_row["group_id"]
