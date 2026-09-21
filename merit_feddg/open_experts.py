@@ -38,7 +38,9 @@ class OpenExpertPool:
             if capability != "classification":
                 raise ValueError("non-classification adapters must implement infer_claims")
             queries = [p.proposition for p in claim.propositions]
-            if spec.get("adapter") in {"contrastive_conch", "contrastive_biomedclip"}:
+            if spec.get("adapter") in {
+                "contrastive_conch", "contrastive_biomedclip", "contrastive_plip"
+            }:
                 if name not in self.features:
                     rgb = load_rgb(image)
                     self.features[name] = model._image_embedding(rgb) - model._image_embedding(
