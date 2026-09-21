@@ -3,7 +3,11 @@ import pytest
 from merit_feddg.expert_policy import SourceQualificationCard, select_expert_descriptors
 from merit_feddg.med_defer import NativeEvidence
 from merit_feddg.merit_tx import MeritTxConfig, TransactionEvidence, decide_transaction, differential_margin_controls
-from merit_feddg.transactional_claims import AtomicClinicalClaim, ClaimTransaction
+from merit_feddg.transactional_claims import (
+    AtomicClinicalClaim,
+    ClaimTransaction,
+    candidate_transactions,
+)
 from merit_feddg.transactional_runtime import (
     counterfactual_addition_proposition,
     transaction_claim_spec,
@@ -397,3 +401,195 @@ def test_qualification_rewards_bidirectional_differential_alignment():
     assert card["utility_lcb"] > 0
     assert card["harm_ucb"] < 0.25
     assert card["specificity_lcb"] > 0.8
+
+
+def _rad_claim(claim_id, observation, *, present=True, span=None, location=()):
+    tag = "definitely present" if present else "definitely absent"
+    proposition = (
+        f"The image shows {observation}"
+        if present
+        else f"The image does not show {observation}"
+    )
+    if location:
+        proposition += " at " + ", ".join(location)
+    proposition += "."
+    return AtomicClinicalClaim(
+        claim_id,
+        proposition,
+        span,
+        grounding={
+            "schema": "radgraph-xl",
+            "observation": observation,
+            "tags": [tag],
+            "located_at": list(location),
+            "suggestive_of": [],
+        },
+    )
+
+
+def test_report_compiler_blocks_mixed_replace_and_add_in_same_candidate_sentence():
+    baseline_text = "No pleural effusion."
+    candidate_text = "Small pleural effusion with adjacent atelectasis."
+    baseline = (
+        _rad_claim(
+            "base-effusion",
+            "pleural effusion",
+            present=False,
+            span=(0, len(baseline_text)),
+        ),
+    )
+    candidate = (
+        _rad_claim(
+            "candidate-effusion",
+            "pleural effusion",
+            present=True,
+            span=(0, len(candidate_text)),
+        ),
+        _rad_claim(
+            "candidate-atelectasis",
+            "atelectasis",
+            present=True,
+            span=(0, len(candidate_text)),
+        ),
+    )
+    transactions = candidate_transactions(
+        task="report_generation",
+        question="Generate report",
+        baseline_text=baseline_text,
+        candidate_text=candidate_text,
+        baseline_claims=baseline,
+        candidate_claims=candidate,
+        proposer_expert_id="proposal",
+    )
+    assert transactions == ()
+
+
+def test_report_compiler_pure_add_uses_atomic_propositions_not_whole_sentence():
+    baseline_text = "Heart size is normal."
+    candidate_text = "Heart size is normal. Small pleural effusion with atelectasis."
+    baseline = (
+        _rad_claim(
+            "heart",
+            "normal heart size",
+            present=True,
+            span=(0, len("Heart size is normal.")),
+        ),
+    )
+    added_sentence_start = candidate_text.index("Small")
+    candidate = (
+        _rad_claim(
+            "heart-candidate",
+            "normal heart size",
+            present=True,
+            span=(0, len("Heart size is normal.")),
+        ),
+        _rad_claim(
+            "effusion",
+            "pleural effusion",
+            present=True,
+            span=(added_sentence_start, len(candidate_text)),
+        ),
+        _rad_claim(
+            "atelectasis",
+            "atelectasis",
+            present=True,
+            span=(added_sentence_start, len(candidate_text)),
+        ),
+    )
+    transactions = candidate_transactions(
+        task="report_generation",
+        question="Generate report",
+        baseline_text=baseline_text,
+        candidate_text=candidate_text,
+        baseline_claims=baseline,
+        candidate_claims=candidate,
+        proposer_expert_id="proposal",
+    )
+    assert len(transactions) == 2
+    assert all(tx.operation == "ADD" for tx in transactions)
+    assert {tx.replacement_text for tx in transactions} == {
+        "The image shows pleural effusion.",
+        "The image shows atelectasis.",
+    }
+    assert all("with" not in tx.replacement_text for tx in transactions)
+
+
+def test_report_compiler_does_not_replace_sentence_if_candidate_omits_baseline_sibling():
+    baseline_text = "No pleural effusion or pneumothorax."
+    candidate_text = "Small pleural effusion."
+    shared_span = (0, len(baseline_text))
+    baseline = (
+        _rad_claim(
+            "base-effusion",
+            "pleural effusion",
+            present=False,
+            span=shared_span,
+        ),
+        _rad_claim(
+            "base-pneumothorax",
+            "pneumothorax",
+            present=False,
+            span=shared_span,
+        ),
+    )
+    candidate = (
+        _rad_claim(
+            "candidate-effusion",
+            "pleural effusion",
+            present=True,
+            span=(0, len(candidate_text)),
+        ),
+    )
+    transactions = candidate_transactions(
+        task="report_generation",
+        question="Generate report",
+        baseline_text=baseline_text,
+        candidate_text=candidate_text,
+        baseline_claims=baseline,
+        candidate_claims=candidate,
+    )
+    assert transactions == ()
+
+
+def test_report_compiler_does_not_merge_multiple_incumbent_sentences_into_one_patch():
+    baseline_text = "No pleural effusion. No pneumothorax."
+    first_end = len("No pleural effusion.")
+    second_start = first_end + 1
+    candidate_text = "Small pleural effusion and pneumothorax."
+    baseline = (
+        _rad_claim(
+            "base-effusion",
+            "pleural effusion",
+            present=False,
+            span=(0, first_end),
+        ),
+        _rad_claim(
+            "base-pneumothorax",
+            "pneumothorax",
+            present=False,
+            span=(second_start, len(baseline_text)),
+        ),
+    )
+    candidate = (
+        _rad_claim(
+            "candidate-effusion",
+            "pleural effusion",
+            present=True,
+            span=(0, len(candidate_text)),
+        ),
+        _rad_claim(
+            "candidate-pneumothorax",
+            "pneumothorax",
+            present=True,
+            span=(0, len(candidate_text)),
+        ),
+    )
+    transactions = candidate_transactions(
+        task="report_generation",
+        question="Generate report",
+        baseline_text=baseline_text,
+        candidate_text=candidate_text,
+        baseline_claims=baseline,
+        candidate_claims=candidate,
+    )
+    assert transactions == ()
