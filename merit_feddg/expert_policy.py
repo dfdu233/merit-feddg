@@ -77,6 +77,8 @@ class SourceQualificationCard:
     utility_lcb: float
     harm_ucb: float
     specificity_lcb: float
+    veto_precision_lcb: float = 0.0
+    veto_n: int = 0
     source_only: bool = True
 
     def __post_init__(self):
@@ -84,9 +86,18 @@ class SourceQualificationCard:
             raise ValueError("target outcomes cannot enter an expert qualification card")
         if self.n < 1 or len(set(self.domains)) < 1:
             raise ValueError("qualification card needs source observations")
-        for value in (self.utility_lcb, self.harm_ucb, self.specificity_lcb):
+        for value in (
+            self.utility_lcb,
+            self.harm_ucb,
+            self.specificity_lcb,
+            self.veto_precision_lcb,
+        ):
             if not math.isfinite(value):
                 raise ValueError("qualification statistics must be finite")
+        if not 0 <= self.veto_precision_lcb <= 1:
+            raise ValueError("veto_precision_lcb must be in [0,1]")
+        if type(self.veto_n) is not int or self.veto_n < 0:
+            raise ValueError("veto_n must be a nonnegative integer")
 
     @property
     def key(self):
@@ -110,6 +121,26 @@ class SourceQualificationCard:
             len(set(self.domains)) >= min_domains
             and self.utility_lcb > 0
             and self.harm_ucb <= max_harm_ucb
+            and self.specificity_lcb >= min_specificity_lcb
+        )
+
+    def authorizes_veto(
+        self,
+        *,
+        min_domains=2,
+        min_specificity_lcb=0.5,
+        min_veto_precision_lcb=0.5,
+    ) -> bool:
+        """Whether negative D_e may block a transaction.
+
+        Veto authority is intentionally separate from commit authority.  A
+        verifier that is safe when supporting candidates is not assumed to be
+        safe when opposing them.
+        """
+        return (
+            len(set(self.domains)) >= min_domains
+            and self.veto_n > 0
+            and self.veto_precision_lcb >= min_veto_precision_lcb
             and self.specificity_lcb >= min_specificity_lcb
         )
 
@@ -225,10 +256,12 @@ def select_expert_descriptors(
     qualification_cards=None,
     max_calls=6,
     require_commit_authority=False,
+    require_transaction_authority=False,
     region_available=False,
     qualification_min_domains=2,
     qualification_max_harm_ucb=0.25,
     qualification_min_specificity_lcb=0.5,
+    qualification_min_veto_precision_lcb=0.5,
     allowed_evidence_roles=None,
     allowed_capabilities=None,
 ):
@@ -296,7 +329,20 @@ def select_expert_descriptors(
                 min_specificity_lcb=qualification_min_specificity_lcb,
             )
         )
+        veto_authorized = (
+            card.commit_authority == "source_qualified"
+            and qcard is not None
+            and qcard.authorizes_veto(
+                min_domains=qualification_min_domains,
+                min_specificity_lcb=qualification_min_specificity_lcb,
+                min_veto_precision_lcb=qualification_min_veto_precision_lcb,
+            )
+        )
         if require_commit_authority and not commit_authorized:
+            continue
+        if require_transaction_authority and not (
+            commit_authorized or veto_authorized
+        ):
             continue
         rows.append(
             {
@@ -304,6 +350,7 @@ def select_expert_descriptors(
                 "card": card,
                 "qualification": qcard,
                 "commit_authorized": commit_authorized,
+                "veto_authorized": veto_authorized,
                 "original_index": index,
             }
         )
@@ -355,6 +402,7 @@ def select_expert_descriptors(
                 "patient_specific": card.patient_specific,
                 "commit_authority": card.commit_authority,
                 "commit_authorized": row["commit_authorized"],
+                "veto_authorized": row["veto_authorized"],
                 "qualification": (
                     {
                         "n": qcard.n,
@@ -362,6 +410,8 @@ def select_expert_descriptors(
                         "utility_lcb": qcard.utility_lcb,
                         "harm_ucb": qcard.harm_ucb,
                         "specificity_lcb": qcard.specificity_lcb,
+                        "veto_precision_lcb": qcard.veto_precision_lcb,
+                        "veto_n": qcard.veto_n,
                     }
                     if qcard is not None
                     else None
