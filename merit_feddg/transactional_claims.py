@@ -15,7 +15,6 @@ from dataclasses import dataclass, field
 from itertools import pairwise
 from typing import Any
 
-
 _SENTENCE = re.compile(r"[^\n.!?]+(?:[.!?]+|$)")
 
 
