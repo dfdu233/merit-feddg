@@ -148,6 +148,7 @@ def main():
     parser.add_argument('--output', required=True)
     parser.add_argument('--methods', nargs='+', choices=['generalist', 'joint_all', 'isolated_mean', 'isolated_geomedian', 'bard'], default=['generalist', 'joint_all', 'isolated_mean', 'isolated_geomedian', 'bard'])
     parser.add_argument('--skip-stress', action='store_true')
+    parser.add_argument('--prevent-empty-eos', action='store_true', help='Separate repair protocol: reject selected EOS only while decoded output is blank')
     parser.add_argument('--compress-artifacts', action='store_true',
                         help='Losslessly gzip complete per-case JSON artifacts; no evidence is removed')
     parser.add_argument('--reference-native-evidence', action='store_true',
@@ -159,6 +160,8 @@ def main():
     parser.add_argument('--shard-index', type=int, required=True)
     parser.add_argument('--shard-count', type=int, default=4)
     args = parser.parse_args()
+    if args.prevent_empty_eos and (not args.cached_receiver or args.methods != ['bard'] or not args.skip_stress):
+        raise ValueError('Empty-EOS repair requires cached receiver, bard only, and skip-stress')
     cache = Path(args.cache)
     protocol = json.loads((cache / 'protocol.json').read_text())
     assert protocol['cache_only']
@@ -249,7 +252,7 @@ def main():
             acquisition = acquire_expert_groups(engine) if isolated else {'groups': {}, 'events': [], 'fault_group_members': {}}
             if args.cached_receiver or not isolated:
                 for method in isolated:
-                    outputs[method] = run_bard_method(session, acquisition, config.get('bard', {}), method, fault_probe=not args.skip_stress)
+                    outputs[method] = run_bard_method(session, acquisition, config.get('bard', {}), method, fault_probe=not args.skip_stress, prevent_empty_eos=args.prevent_empty_eos)
                     save_case(out / row['id'] / f'{method}.json', outputs[method])
             else:
                 outputs.update(run_bard_bundle(session, acquisition, config.get('bard', {})))
@@ -276,6 +279,7 @@ def main():
                 'acquisition_events': acquisition['events'],
                 'fault_group_members': acquisition['fault_group_members'],
                 'answers_loaded': False,
+                'empty_eos_repair': 'selected-eos-visible-continuation-v1' if args.prevent_empty_eos else None,
             })
             print('COMPLETE', index, row['id'], 'forwards', count[0] - before,
                   {m: v['text'] for m, v in outputs.items()}, flush=True)

@@ -483,6 +483,7 @@ def decode_bard(
     aggregation=None,
     bounded_commit=True,
     fault_probe=False,
+    prevent_empty_eos=False,
 ):
     """Decode with exact shared committed tokens across isolated receiver branches."""
     if type(max_tokens) is not int or max_tokens < 1:
@@ -530,6 +531,30 @@ def decode_bard(
                 aggregation=aggregation,
                 bounded_commit=bounded_commit,
             )
+        if prevent_empty_eos and token in base_session.eos_ids and not base_session.decode(prefix).strip():
+            original_audit = dict(audit)
+            allowed_base = np.array(base_scores, copy=True)
+            allowed_experts = [np.array(scores, copy=True) for scores in expert_scores]
+            for scores in [allowed_base, *allowed_experts]:
+                scores[list(base_session.eos_ids)] = -np.inf
+            rejected = list(base_session.eos_ids)
+            while True:
+                if structural_fallback:
+                    token = int(np.argmax(allowed_base))
+                    audit = dict(original_audit, base_token=token, candidate_token=token, selected_token=token)
+                else:
+                    token, audit = bard_step(
+                        allowed_base, allowed_experts, config,
+                        aggregation=aggregation, bounded_commit=bounded_commit,
+                    )
+                if base_session.decode(prefix + [int(token)]).strip():
+                    break
+                rejected.append(int(token))
+                for scores in [allowed_base, *allowed_experts]:
+                    scores[token] = -np.inf
+                if not np.isfinite(allowed_base).any():
+                    raise ValueError("No visible continuation is available for empty-EOS repair")
+            audit["empty_eos_repair"] = {"policy": "selected-eos-visible-continuation-v1", "original_decision": original_audit, "rejected_token_ids": rejected}
         audit["step"] = step
         audit["experts"] = names
         if fault_probe and expert_scores:

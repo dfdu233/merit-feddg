@@ -186,7 +186,7 @@ def build_isolated_sessions(native_session, groups):
     return base, sessions, audits
 
 
-def run_bard_method(native_session, acquisition, bard_config, method, *, fault_probe=True):
+def run_bard_method(native_session, acquisition, bard_config, method, *, fault_probe=True, prevent_empty_eos=False):
     """Run one matched isolated-expert ablation using shared native acquisitions."""
     if method not in BARD_METHODS:
         raise ValueError("unknown BARD matched arm")
@@ -209,6 +209,7 @@ def run_bard_method(native_session, acquisition, bard_config, method, *, fault_p
         aggregation=aggregation,
         bounded_commit=bounded,
         fault_probe=fault_probe and method == "bard",
+        prevent_empty_eos=prevent_empty_eos,
     )
     decode_seconds = perf_counter() - started
     evidence = [
@@ -396,4 +397,3 @@ def run_bard_incremental_method(
         "fast_path_activated": True,
         "medical_correctness_guaranteed": False,
     }
-
