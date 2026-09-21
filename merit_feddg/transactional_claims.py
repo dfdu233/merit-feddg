@@ -307,47 +307,60 @@ def apply_transactions(baseline_text, baseline_claims, transactions, decisions):
     if len(decision_map) != len(decisions):
         raise ValueError("transaction decisions must be unique")
 
-    edits = []
-    committed = []
+    patch_groups = {}
+    decision_state = {}
     for transaction in transactions:
         decision = decision_map.get(transaction.transaction_id)
-        if decision is None or not decision.commit:
-            continue
-        if not (
-            decision.patient_specific_support
-            and decision.source_qualified_support
-            and decision.verifier_fault_groups
-        ):
-            raise ValueError(
-                "committed transaction requires patient-specific, source-qualified support"
-            )
+        if decision is not None and decision.commit:
+            if not (
+                decision.patient_specific_support
+                and decision.source_qualified_support
+                and decision.verifier_fault_groups
+            ):
+                raise ValueError(
+                    "committed transaction requires patient-specific, source-qualified support"
+                )
+            decision_state[transaction.transaction_id] = True
+        else:
+            decision_state[transaction.transaction_id] = False
+
         if transaction.operation == "ADD":
             position = len(baseline_text)
             replacement = (
                 ("" if not baseline_text or baseline_text.endswith((" ", "\n")) else " ")
                 + transaction.replacement_text.strip()
             )
-            edits.append((position, position, replacement, transaction.transaction_id))
+            patch = (position, position, replacement)
         else:
             claim = claims.get(transaction.baseline_claim_id)
             if claim is None or claim.source_span is None:
                 raise ValueError("transaction target has no patchable baseline span")
             start, end = claim.source_span
             replacement = "" if transaction.operation == "DELETE" else transaction.replacement_text
-            edits.append((start, end, replacement, transaction.transaction_id))
-        committed.append(transaction.transaction_id)
+            patch = (start, end, replacement)
+        patch_groups.setdefault(patch, []).append(transaction.transaction_id)
+
+    # A report sentence can contain several RadGraph observations.  Replacing
+    # that sentence is safe only when every changed claim represented by the
+    # same textual patch was approved.  Partial semantic approval must not leak
+    # unverified sibling claims through a whole-sentence replacement.
+    edits = []
+    committed = []
+    suppressed = []
+    for (start, end, replacement), transaction_ids in patch_groups.items():
+        states = [decision_state[transaction_id] for transaction_id in transaction_ids]
+        if all(states):
+            edits.append((start, end, replacement, tuple(transaction_ids)))
+            committed.extend(transaction_ids)
+        elif any(states):
+            suppressed.extend(
+                transaction_id
+                for transaction_id, state in zip(transaction_ids, states, strict=True)
+                if state
+            )
 
     edits.sort(key=lambda value: (value[0], value[1], value[2]))
-    merged_edits = []
-    for edit in edits:
-        if (
-            merged_edits
-            and edit[0] == merged_edits[-1][0]
-            and edit[1] == merged_edits[-1][1]
-            and edit[2] == merged_edits[-1][2]
-        ):
-            continue
-        merged_edits.append(edit)
+    merged_edits = edits
     for left, right in pairwise(merged_edits):
         if right[0] < left[1]:
             raise ValueError(
@@ -355,15 +368,16 @@ def apply_transactions(baseline_text, baseline_claims, transactions, decisions):
             )
 
     result = baseline_text
-    for start, end, replacement, _transaction_id in reversed(merged_edits):
+    for start, end, replacement, _transaction_ids in reversed(merged_edits):
         result = result[:start] + replacement + result[end:]
     return {
         "text": result,
         "baseline_text": baseline_text,
         "committed_transactions": committed,
+        "suppressed_partial_patch_transactions": suppressed,
         "fallback_exact": not committed and result == baseline_text,
         "untouched_baseline_preserved": all(
             result[:start] == baseline_text[:start]
-            for start, _end, _replacement, _id in merged_edits[:1]
+            for start, _end, _replacement, _ids in merged_edits[:1]
         ) if merged_edits else True,
     }
