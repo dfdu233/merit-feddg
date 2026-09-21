@@ -40,6 +40,17 @@ class TransactionEvidence:
             raise ValueError("support_direction must be -1, 0, or 1")
         if not math.isfinite(self.differential_effect):
             raise ValueError("differential effect must be finite")
+        expected_direction = (
+            1
+            if self.differential_effect > 0
+            else -1
+            if self.differential_effect < 0
+            else 0
+        )
+        if self.support_direction != expected_direction:
+            raise ValueError(
+                "support_direction must equal sign(differential_effect)"
+            )
 
 
 @dataclass(frozen=True)
@@ -51,6 +62,7 @@ class MeritTxConfig:
     qualification_min_domains: int = 2
     qualification_max_harm_ucb: float = 0.25
     qualification_min_specificity_lcb: float = 0.5
+    qualification_min_veto_precision_lcb: float = 0.5
 
     def __post_init__(self):
         if type(self.min_support_groups) is not int or self.min_support_groups < 1:
@@ -61,6 +73,10 @@ class MeritTxConfig:
             raise ValueError("qualification_max_harm_ucb must be in [0,1]")
         if not 0 <= self.qualification_min_specificity_lcb <= 1:
             raise ValueError("qualification_min_specificity_lcb must be in [0,1]")
+        if not 0 <= self.qualification_min_veto_precision_lcb <= 1:
+            raise ValueError(
+                "qualification_min_veto_precision_lcb must be in [0,1]"
+            )
 
 
 def differential_margin(
@@ -84,11 +100,16 @@ def differential_margin(
         raise ValueError("differential margins require finite scores")
     real_margin = values[1] - values[0]
     knockoff_margin = values[3] - values[2]
+    differential = real_margin - knockoff_margin
     return {
         "real_margin": real_margin,
         "knockoff_margin": knockoff_margin,
-        "differential_effect": real_margin - knockoff_margin,
-        "support_direction": 1 if real_margin > 0 else -1 if real_margin < 0 else 0,
+        "differential_effect": differential,
+        # Direction is defined by the patient-specific contrast D_e, not by
+        # the expert's absolute candidate-vs-incumbent margin.  A biased
+        # verifier may prefer the incumbent on every image while still moving
+        # specifically toward the candidate on the current patient.
+        "support_direction": 1 if differential > 0 else -1 if differential < 0 else 0,
     }
 
 
@@ -119,13 +140,14 @@ def differential_margin_controls(
         margins.append(value["knockoff_margin"])
     knockoff_margin = float(median(margins))
     real_margin = float(real["real_margin"])
+    differential = real_margin - knockoff_margin
     return {
         "real_margin": real_margin,
         "knockoff_margin": knockoff_margin,
         "knockoff_margins": tuple(float(value) for value in margins),
         "controls": len(margins),
-        "differential_effect": real_margin - knockoff_margin,
-        "support_direction": 1 if real_margin > 0 else -1 if real_margin < 0 else 0,
+        "differential_effect": differential,
+        "support_direction": 1 if differential > 0 else -1 if differential < 0 else 0,
     }
 
 
@@ -200,6 +222,12 @@ def evidence_from_expert(
     differential = float(real_effect) - float(knockoff_effect)
     if not math.isfinite(differential):
         raise ValueError("real/knockoff evidence effects must be finite")
+    if int(support_direction) not in {-1, 0, 1}:
+        raise ValueError("support direction must be -1, 0, or 1")
+    # Keep the argument for backward-compatible callers, but normalize the
+    # stored direction to the signed differential effect.  This makes support
+    # and contradiction two sides of the same matched-control statistic.
+    direction = 1 if differential > 0 else -1 if differential < 0 else 0
     return TransactionEvidence(
         expert_id=expert_id,
         capability=capability,
@@ -207,7 +235,7 @@ def evidence_from_expert(
         fault_group=card.fault_group,
         evidence_role=card.evidence_role,
         differential_effect=differential,
-        support_direction=int(support_direction),
+        support_direction=direction,
         patient_specific=card.patient_specific,
     )
 
@@ -226,12 +254,13 @@ def decide_transaction(
     """Decide one atomic transaction without changing the incumbent trajectory."""
     config = config or MeritTxConfig()
     evidences = tuple(evidences)
-    proposer_group = None
+    proposer_ids = list(transaction.proposer_expert_ids)
     if transaction.proposer_expert_id:
-        proposer_group = role_card(
-            transaction.proposer_expert_id,
-            specs[transaction.proposer_expert_id],
-        ).fault_group
+        proposer_ids.append(transaction.proposer_expert_id)
+    proposer_groups = {
+        role_card(expert_id, specs[expert_id]).fault_group
+        for expert_id in proposer_ids
+    }
 
     qualified_support = {}
     qualified_contradiction = {}
@@ -245,7 +274,7 @@ def decide_transaction(
             task=task,
             claim_type=claim_type,
         )
-        source_qualified = (
+        support_authorized = (
             qcard is not None
             and qcard.authorizes_commit(
                 min_domains=config.qualification_min_domains,
@@ -253,27 +282,31 @@ def decide_transaction(
                 min_specificity_lcb=config.qualification_min_specificity_lcb,
             )
         )
-        # A negative/zero real-vs-knockoff effect is not patient-specific proof,
-        # regardless of whether the raw expert output agrees with the candidate.
-        if evidence.differential_effect <= 0:
-            continue
-
+        veto_authorized = (
+            qcard is not None
+            and qcard.authorizes_veto(
+                min_domains=config.qualification_min_domains,
+                min_specificity_lcb=config.qualification_min_specificity_lcb,
+                min_veto_precision_lcb=config.qualification_min_veto_precision_lcb,
+            )
+        )
         # Knowledge/proposal experts remain useful in the audit, but they do not
         # become patient-specific proof merely because they agree with a candidate.
         if not evidence.patient_specific:
             continue
-        if not source_qualified:
-            continue
-        if evidence.support_direction > 0:
+        if evidence.differential_effect > 0 and support_authorized:
             qualified_support.setdefault(evidence.fault_group, []).append(evidence)
-        elif evidence.support_direction < 0:
+        elif evidence.differential_effect < 0 and veto_authorized:
+            # Negative D_e can veto only when negative decisions themselves
+            # have a conservative source-only precision bound.  Safe positive
+            # support does not imply safe contradiction.
             qualified_contradiction.setdefault(evidence.fault_group, []).append(evidence)
 
     support_groups = set(qualified_support)
     contradiction_groups = set(qualified_contradiction)
     independent_support = set(support_groups)
-    if config.require_independent_validator and proposer_group is not None:
-        independent_support.discard(proposer_group)
+    if config.require_independent_validator:
+        independent_support.difference_update(proposer_groups)
 
     if config.reject_on_qualified_contradiction and contradiction_groups:
         return TransactionDecision(
@@ -295,7 +328,7 @@ def decide_transaction(
     if config.require_patient_specific_support and len(usable_groups) < required_groups:
         reason = (
             "proposer-has-no-independent-qualified-validator"
-            if support_groups and proposer_group is not None and not independent_support
+            if support_groups and proposer_groups and not independent_support
             else "insufficient-qualified-patient-specific-support"
         )
         return TransactionDecision(

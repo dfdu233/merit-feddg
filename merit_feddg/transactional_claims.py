@@ -43,6 +43,7 @@ class ClaimTransaction:
     replacement_text: str
     baseline_claim_id: str | None = None
     proposer_expert_id: str | None = None
+    proposer_expert_ids: tuple[str, ...] = ()
 
     def __post_init__(self):
         if self.operation not in {"ADD", "DELETE", "REPLACE"}:
@@ -55,6 +56,11 @@ class ClaimTransaction:
             raise ValueError("ADD cannot target a baseline claim")
         if self.operation != "DELETE" and not self.replacement_text.strip():
             raise ValueError("ADD/REPLACE require replacement text")
+        proposer_ids = tuple(str(value).strip() for value in self.proposer_expert_ids)
+        if any(not value for value in proposer_ids):
+            raise ValueError("proposer expert ids cannot be empty")
+        if len(proposer_ids) != len(set(proposer_ids)):
+            raise ValueError("proposer expert ids must be unique")
 
 
 @dataclass(frozen=True)
@@ -236,6 +242,7 @@ def candidate_transactions(
     baseline_claims,
     candidate_claims,
     proposer_expert_id=None,
+    proposer_expert_ids=(),
     transaction_prefix="tx",
 ):
     """Compile candidate output into conservative atomic transactions.
@@ -246,6 +253,7 @@ def candidate_transactions(
     """
     baseline_claims = tuple(baseline_claims)
     candidate_claims = tuple(candidate_claims)
+    proposer_expert_ids = tuple(str(value) for value in proposer_expert_ids)
     if str(candidate_text).strip() == str(baseline_text).strip():
         return ()
     if task != "report_generation":
@@ -260,38 +268,106 @@ def candidate_transactions(
                 replacement_text=str(candidate_text),
                 baseline_claim_id=baseline_claims[0].claim_id,
                 proposer_expert_id=proposer_expert_id,
+                proposer_expert_ids=proposer_expert_ids,
             ),
         )
 
     baseline_by_key = {}
+    baseline_by_span = {}
     for claim in baseline_claims:
         key = claim_match_key(claim)
         if key in baseline_by_key:
             raise ValueError("ambiguous duplicate baseline report observation")
         baseline_by_key[key] = claim
+        if claim.source_span is not None:
+            baseline_by_span.setdefault(claim.source_span, []).append(claim)
+
+    # RadGraph claims are observation-atomic but their patch span is a sentence.
+    # Compile only sentence transformations that cannot smuggle an unverified
+    # sibling claim or implicitly delete an omitted incumbent observation.
+    candidate_groups = {}
+    for index, candidate in enumerate(candidate_claims):
+        group_key = (
+            ("span", *candidate.source_span)
+            if candidate.source_span is not None
+            else ("claim", index)
+        )
+        candidate_groups.setdefault(group_key, []).append(candidate)
 
     transactions = []
-    for candidate in candidate_claims:
-        key = claim_match_key(candidate)
-        baseline = baseline_by_key.get(key)
-        if baseline is not None and claim_truth_key(baseline) == claim_truth_key(candidate):
+    for group in candidate_groups.values():
+        mapped = [
+            (candidate, baseline_by_key.get(claim_match_key(candidate)))
+            for candidate in group
+        ]
+        matched = [(candidate, baseline) for candidate, baseline in mapped if baseline is not None]
+        additions = [(candidate, baseline) for candidate, baseline in mapped if baseline is None]
+
+        if additions and matched:
+            # A full candidate sentence would couple a new claim to an existing
+            # sentence patch.  Without an atomic text span for every claim, the
+            # safe action is to preserve the incumbent sentence.
             continue
-        if candidate.source_span is not None:
-            start, end = candidate.source_span
-            replacement = str(candidate_text)[start:end]
-        else:
-            replacement = candidate.proposition
-        operation = "REPLACE" if baseline is not None else "ADD"
-        transactions.append(
-            ClaimTransaction(
-                transaction_id=f"{transaction_prefix}-{len(transactions)}",
-                operation=operation,
-                proposed_claim=candidate,
-                replacement_text=replacement,
-                baseline_claim_id=baseline.claim_id if baseline is not None else None,
-                proposer_expert_id=proposer_expert_id,
+
+        if additions:
+            # Pure additions are rendered as atomic propositions, not by
+            # appending the original multi-claim candidate sentence.
+            for candidate, _baseline in additions:
+                transactions.append(
+                    ClaimTransaction(
+                        transaction_id=f"{transaction_prefix}-{len(transactions)}",
+                        operation="ADD",
+                        proposed_claim=candidate,
+                        replacement_text=candidate.proposition,
+                        baseline_claim_id=None,
+                        proposer_expert_id=proposer_expert_id,
+                        proposer_expert_ids=proposer_expert_ids,
+                    )
+                )
+            continue
+
+        if not matched:
+            continue
+
+        target_spans = {baseline.source_span for _candidate, baseline in matched}
+        if None in target_spans or len(target_spans) != 1:
+            # Candidate sentence merges observations from multiple incumbent
+            # sentences; no single minimal patch can preserve untouched text.
+            continue
+        target_span = next(iter(target_spans))
+        incumbent_sentence_claims = baseline_by_span.get(target_span, [])
+        candidate_keys = {claim_match_key(candidate) for candidate, _baseline in matched}
+        incumbent_keys = {claim_match_key(claim) for claim in incumbent_sentence_claims}
+        if candidate_keys != incumbent_keys:
+            # Replacing the sentence would otherwise delete an omitted baseline
+            # claim or introduce an unmatched claim.
+            continue
+
+        changed = [
+            (candidate, baseline)
+            for candidate, baseline in matched
+            if claim_truth_key(candidate) != claim_truth_key(baseline)
+        ]
+        if not changed:
+            continue
+
+        first = group[0]
+        if first.source_span is None:
+            continue
+        start, end = first.source_span
+        replacement = str(candidate_text)[start:end]
+        for candidate, baseline in changed:
+            transactions.append(
+                ClaimTransaction(
+                    transaction_id=f"{transaction_prefix}-{len(transactions)}",
+                    operation="REPLACE",
+                    proposed_claim=candidate,
+                    replacement_text=replacement,
+                    baseline_claim_id=baseline.claim_id,
+                    proposer_expert_id=proposer_expert_id,
+                    proposer_expert_ids=proposer_expert_ids,
+                )
             )
-        )
     return tuple(transactions)
 
 

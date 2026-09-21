@@ -77,6 +77,11 @@ class SourceQualificationCard:
     utility_lcb: float
     harm_ucb: float
     specificity_lcb: float
+    support_n: int = 0
+    support_domains: tuple[str, ...] = ()
+    veto_precision_lcb: float = 0.0
+    veto_n: int = 0
+    veto_domains: tuple[str, ...] = ()
     source_only: bool = True
 
     def __post_init__(self):
@@ -84,9 +89,24 @@ class SourceQualificationCard:
             raise ValueError("target outcomes cannot enter an expert qualification card")
         if self.n < 1 or len(set(self.domains)) < 1:
             raise ValueError("qualification card needs source observations")
-        for value in (self.utility_lcb, self.harm_ucb, self.specificity_lcb):
+        for value in (
+            self.utility_lcb,
+            self.harm_ucb,
+            self.specificity_lcb,
+            self.veto_precision_lcb,
+        ):
             if not math.isfinite(value):
                 raise ValueError("qualification statistics must be finite")
+        if not 0 <= self.veto_precision_lcb <= 1:
+            raise ValueError("veto_precision_lcb must be in [0,1]")
+        if type(self.support_n) is not int or self.support_n < 0:
+            raise ValueError("support_n must be a nonnegative integer")
+        if type(self.veto_n) is not int or self.veto_n < 0:
+            raise ValueError("veto_n must be a nonnegative integer")
+        if self.support_n and not self.support_domains:
+            raise ValueError("support actions require support_domains")
+        if self.veto_n and not self.veto_domains:
+            raise ValueError("veto actions require veto_domains")
 
     @property
     def key(self):
@@ -107,9 +127,30 @@ class SourceQualificationCard:
         min_specificity_lcb=0.5,
     ) -> bool:
         return (
-            len(set(self.domains)) >= min_domains
+            self.support_n > 0
+            and len(set(self.support_domains)) >= min_domains
             and self.utility_lcb > 0
             and self.harm_ucb <= max_harm_ucb
+            and self.specificity_lcb >= min_specificity_lcb
+        )
+
+    def authorizes_veto(
+        self,
+        *,
+        min_domains=2,
+        min_specificity_lcb=0.5,
+        min_veto_precision_lcb=0.5,
+    ) -> bool:
+        """Whether negative D_e may block a transaction.
+
+        Veto authority is intentionally separate from commit authority.  A
+        verifier that is safe when supporting candidates is not assumed to be
+        safe when opposing them.
+        """
+        return (
+            self.veto_n > 0
+            and len(set(self.veto_domains)) >= min_domains
+            and self.veto_precision_lcb >= min_veto_precision_lcb
             and self.specificity_lcb >= min_specificity_lcb
         )
 
@@ -154,13 +195,20 @@ def load_qualification_cards(path):
     if path is None:
         return {}
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
-    if payload.get("schema") != "merit-expert-qualification-v1":
+    if payload.get("schema") != "merit-expert-qualification-v2":
         raise ValueError("unsupported expert qualification card schema")
     if payload.get("source_only") is not True:
         raise ValueError("expert qualification must be source-only")
     result = {}
     for row in payload.get("cards", []):
-        card = SourceQualificationCard(**{**row, "domains": tuple(row["domains"])})
+        card = SourceQualificationCard(
+            **{
+                **row,
+                "domains": tuple(row["domains"]),
+                "support_domains": tuple(row.get("support_domains", ())),
+                "veto_domains": tuple(row.get("veto_domains", ())),
+            }
+        )
         if card.key in result:
             raise ValueError(f"duplicate expert qualification card: {card.key}")
         result[card.key] = card
@@ -225,15 +273,34 @@ def select_expert_descriptors(
     qualification_cards=None,
     max_calls=6,
     require_commit_authority=False,
+    require_transaction_authority=False,
     region_available=False,
     qualification_min_domains=2,
     qualification_max_harm_ucb=0.25,
     qualification_min_specificity_lcb=0.5,
+    qualification_min_veto_precision_lcb=0.5,
+    allowed_evidence_roles=None,
+    allowed_capabilities=None,
 ):
-    """Coverage-first, diversity-aware expert selection with source-only authority."""
+    """Coverage-first, diversity-aware expert selection with source-only authority.
+
+    Optional role/capability filters are applied before the call budget.  This
+    matters for commit verification: non-verifying tools must not consume slots
+    that were reserved for independent native verifiers.
+    """
     if type(max_calls) is not int or max_calls < 1:
         raise ValueError("max_calls must be a positive integer")
     qualification_cards = qualification_cards or {}
+    allowed_evidence_roles = (
+        None
+        if allowed_evidence_roles is None
+        else frozenset(str(value) for value in allowed_evidence_roles)
+    )
+    allowed_capabilities = (
+        None
+        if allowed_capabilities is None
+        else frozenset(str(value) for value in allowed_capabilities)
+    )
     role_priority = {
         "direct_visual_verifier": 0,
         "spatial_localizer": 1,
@@ -251,6 +318,16 @@ def select_expert_descriptors(
         if specs[expert].get("expert_pool_enabled", True) is False:
             continue
         capability_name = descriptor["capability"]
+        if (
+            allowed_evidence_roles is not None
+            and card.evidence_role not in allowed_evidence_roles
+        ):
+            continue
+        if (
+            allowed_capabilities is not None
+            and capability_name not in allowed_capabilities
+        ):
+            continue
         qcard = qualification_for(
             qualification_cards,
             expert_id=expert,
@@ -269,7 +346,20 @@ def select_expert_descriptors(
                 min_specificity_lcb=qualification_min_specificity_lcb,
             )
         )
+        veto_authorized = (
+            card.commit_authority == "source_qualified"
+            and qcard is not None
+            and qcard.authorizes_veto(
+                min_domains=qualification_min_domains,
+                min_specificity_lcb=qualification_min_specificity_lcb,
+                min_veto_precision_lcb=qualification_min_veto_precision_lcb,
+            )
+        )
         if require_commit_authority and not commit_authorized:
+            continue
+        if require_transaction_authority and not (
+            commit_authorized or veto_authorized
+        ):
             continue
         rows.append(
             {
@@ -277,6 +367,7 @@ def select_expert_descriptors(
                 "card": card,
                 "qualification": qcard,
                 "commit_authorized": commit_authorized,
+                "veto_authorized": veto_authorized,
                 "original_index": index,
             }
         )
@@ -328,6 +419,7 @@ def select_expert_descriptors(
                 "patient_specific": card.patient_specific,
                 "commit_authority": card.commit_authority,
                 "commit_authorized": row["commit_authorized"],
+                "veto_authorized": row["veto_authorized"],
                 "qualification": (
                     {
                         "n": qcard.n,
@@ -335,6 +427,11 @@ def select_expert_descriptors(
                         "utility_lcb": qcard.utility_lcb,
                         "harm_ucb": qcard.harm_ucb,
                         "specificity_lcb": qcard.specificity_lcb,
+                        "support_n": qcard.support_n,
+                        "support_domains": list(qcard.support_domains),
+                        "veto_precision_lcb": qcard.veto_precision_lcb,
+                        "veto_n": qcard.veto_n,
+                        "veto_domains": list(qcard.veto_domains),
                     }
                     if qcard is not None
                     else None

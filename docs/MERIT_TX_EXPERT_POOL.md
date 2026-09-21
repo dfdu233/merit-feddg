@@ -47,10 +47,13 @@ Qualification is indexed by expert, capability, scope, modality, task, and claim
 - utility_lcb
 - harm_ucb
 - specificity_lcb
+- support_n / support_domains
+- veto_precision_lcb
+- veto_n / veto_domains
 - domains
 - n
 
-The deployed permission rule requires positive lower-bound utility, bounded upper-confidence harm, sufficient current-patient-vs-knockoff specificity, and source-domain coverage. The card is a fixed statistical permission, not a trained router or gate.
+The v2 qualification schema (`merit-expert-qualification-v2`) is **action-conditional** rather than candidate-method conditional. Utility and harm are estimated only over source transactions for which the expert would actually support commit (`D_e > 0`). The specificity lower bound measures whether `sign(D_e)` agrees with the sign of source-only transaction utility, so the card evaluates the expert's decision signal rather than inheriting the average quality of the frozen candidate generator. Negative decisions are qualified separately: `veto_precision_lcb` is the conservative precision of `D_e < 0` for truly harmful source transactions, and an expert with no qualified negative observations has **zero veto authority** even if its positive support is safe. Domain coverage is action-specific: `support_domains` gates positive commit authority and `veto_domains` gates negative veto authority, so inactive samples from another site cannot manufacture cross-domain evidence for an action. The card is a fixed statistical permission, not a trained router or gate.
 
 Build cards from source/development observations:
 
@@ -78,7 +81,43 @@ Examples:
 - XRV: strict native-label claim scoring only when the proposition uniquely names an XRV finding. Raw sigmoid outputs are converted to symmetric log-odds comparison scores; unsupported diagnoses fail closed rather than being guessed.
 - segmentation/localization: candidate-specific spatial support relative to the same operator on a matched control.
 
-A nonpositive differential effect is not commit proof.
+A positive differential effect is patient-specific support for the candidate and is usable only with support/commit authority. A negative differential effect is patient-specific support for retaining the incumbent and is usable only with separately qualified veto authority. Positive support reliability is deliberately **not** reused as proof that negative vetoes are safe. Zero differential effect carries no proof in either direction.
+
+## Adaptive BARD is a proposal mechanism, not commit proof
+
+Adaptive BARD remains useful because it can move the frozen Generalist toward
+specialist-informed candidate answers without training. In MERIT-Tx v2 that
+movement is deliberately treated as **proposal generation**:
+
+    b = frozen Generalist(I, q)
+    c = Adaptive-BARD(I, q, expert evidence)
+    T = atomic transactions compiled from c versus b
+    decision(T) = independent native verification + source qualification
+
+BARD residual/logit movement is not reused as transaction proof. All experts
+that may have influenced the frozen BARD candidate must be declared through
+`--proposer-expert-ids`; their fault groups are excluded from the independent
+support set for the resulting transactions. This prevents an expert from
+changing the candidate and then validating the same change through a second
+interface.
+
+For example, a source canary whose Adaptive BARD candidate may use CheXagent,
+XRV and BiomedCLIP should declare the full frozen provenance set:
+
+    python scripts/run_merit_tx_source_canary.py \
+      --manifest /path/to/source-manifest.jsonl \
+      --baseline /path/to/source-generalist.json \
+      --candidate /path/to/source-adaptive-bard.json \
+      --candidate-name adaptive-bard-v1 \
+      --proposer-expert-ids chexagent_description cxr_findings biomedclip_claim_verifier \
+      --qualification-cards artifacts/qualification/merit-expert-qualification.json \
+      --config configs/merit_tx.yaml \
+      --output runs/merit-tx-source-canary
+
+The provenance declaration is conservative: if routing differs per sample, the
+union of all experts that could influence the frozen candidate may be supplied.
+A future per-sample provenance manifest can tighten this without changing the
+transaction rule.
 
 ## Proposer is not the sole validator
 
@@ -185,9 +224,10 @@ This branch now implements:
 - VQA decontextualization and optional RadGraph-XL report claimization;
 - conservative candidate-to-transaction compilation shared by VQA and reports;
 - report patch atomicity: all clinical claims carried by the same sentence-level patch must be approved, otherwise the incumbent sentence is preserved;
+- patch-safe report compilation: mixed ADD+REPLACE sentences, implicit sibling deletion, and cross-incumbent-sentence merges fail closed; pure ADD sentences are decomposed into atomic proposition patches;
 - literature-grounded role cards and capability/fault-group diversity selection;
-- source-only expert qualification with utility LCB, harm UCB, and specificity LCB;
-- multi-control real-vs-knockoff differential margins;
+- source-only **action-conditional** expert qualification with utility LCB, harm UCB, and directional-specificity LCB;
+- signed multi-control real-vs-knockoff differential margins, including qualified contradiction vetoes;
 - patient/study-level qualification aggregation for reports, preventing pseudo-replication from many claims in one report;
 - proposer/validator separation;
 - claim-specific CONCH and PLIP pathology verification;
@@ -195,6 +235,8 @@ This branch now implements:
 - MedSAM prerequisite-aware spatial registration;
 - answer-blind expert-pool and coverage audits;
 - source qualification observation generation;
+- report ADD verification through an explicit presence/absence counterfactual; uncertain ADD claims fail closed and omission never implies DELETE;
+- verifier-specific call budgeting so non-verifying roles cannot consume independent-verifier slots;
 - an end-to-end source MERIT-Tx canary runner;
 - asset download/audit helpers.
 

@@ -24,7 +24,11 @@ from merit_feddg.transactional_claims import (
     candidate_transactions,
     claim_truth_key,
 )
-from merit_feddg.transactional_runtime import claimize_pair, verify_transaction
+from merit_feddg.transactional_runtime import (
+    claimize_pair,
+    normalize_proposer_expert_ids,
+    verify_transaction,
+)
 
 _LABEL_KEYS = frozenset(
     {"answer", "answers", "label", "labels", "reference", "references", "ground_truth"}
@@ -125,6 +129,15 @@ def main():
     parser.add_argument("--config", default="configs/merit_tx.yaml")
     parser.add_argument("--artifacts", default="artifacts")
     parser.add_argument("--proposer-expert-id")
+    parser.add_argument(
+        "--proposer-expert-ids",
+        nargs="*",
+        default=(),
+        help=(
+            "All experts that may have influenced the frozen candidate. "
+            "Accepts repeated values or comma-separated groups."
+        ),
+    )
     parser.add_argument("--claim-type", default="auto")
     parser.add_argument("--max-calls", type=int)
     parser.add_argument("--knockoff-controls", type=int)
@@ -150,8 +163,16 @@ def main():
     config = load_experiment_yaml(args.config)
     specs, excluded = _filter_optional_experts(config["experts"], args.artifacts)
     specs.pop("source_cases", None)
-    if args.proposer_expert_id and args.proposer_expert_id not in specs:
-        raise ValueError("proposer expert is unavailable under the frozen config")
+    proposer_ids = normalize_proposer_expert_ids(
+        args.proposer_expert_id,
+        args.proposer_expert_ids,
+    )
+    unknown_proposers = [expert_id for expert_id in proposer_ids if expert_id not in specs]
+    if unknown_proposers:
+        raise ValueError(
+            "proposer experts are unavailable under the frozen config: "
+            + ", ".join(unknown_proposers)
+        )
     tx_policy = config.get("merit_tx", {})
     card_path = args.qualification_cards or tx_policy.get("qualification_cards")
     if not card_path or not Path(card_path).is_file():
@@ -186,6 +207,7 @@ def main():
         "candidate_sha256": sha256(args.candidate),
         "candidate_name": args.candidate_name,
         "proposer_expert_id": args.proposer_expert_id,
+        "proposer_expert_ids": list(proposer_ids),
         "config": str(Path(args.config).resolve()),
         "config_sha256": sha256(args.config),
         "qualification_cards": str(Path(card_path).resolve()),
@@ -225,6 +247,7 @@ def main():
                 baseline_claims=baseline_claims,
                 candidate_claims=candidate_claims,
                 proposer_expert_id=args.proposer_expert_id,
+                proposer_expert_ids=proposer_ids,
                 transaction_prefix=f"{sample_id}:{args.candidate_name}",
             )
             decisions = []
