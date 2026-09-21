@@ -1,0 +1,13 @@
+# Frozen official TEST: Huatuo Generalist vs Adaptive BARD
+
+User explicitly requested direct full TEST comparison. Full VQA-RAD451 and SLAKE2094, preserving official membership; SLAKE includes1061English and1033Chinese, reported separately and jointly. These are new TEST predictions, not source canary scores. No test-label parameter tuning.
+
+All2545 original image file hashes and exact frozen historical Huatuo benchmark prompts were verified before inference. Historical Huatuo common protocol treats all SLAKE questions as short answers (avoids forcing Yes/No on nonbinary CLOSED questions). The original official native annotation is retained separately for offline breakdown; do not confuse prompt type and answer type. Benchmark source metadata is pinned in input-origins.json. Same1024-token greedy budget,repetition1.2,min_new1,eager attention for both arms.
+
+Primary methods: fresh Generalist and Adaptive BARD. Five-arm ablation is complete on source32. Existing published/baseline comparison artifacts may be scored only after verifying matching cases,prompts and generation contracts; do not label this model SOTA based on unmatched tables.
+
+CloudGPU1 initially generates all fresh baseline answers. CloudGPU0 computes MedCPT and then cached BARD batches; cached scores were validated bitwise on ordinary/spatial branches and15 complete cloud method outputs. HostGPU1 recomputes visual experts under their working frozen environment. Host receiver outputs are excluded because of historical cloud-token numeric mismatch. No hostGPU0 jobs.
+
+Reuse only frozen image-only Huatuo applicability routing (each image hash checked). All6987 native requests are recomputed for the new config: MedCPT2545, BiomedParse2545, CheXagent914, XRVfinding778, XRVanatomy139, BiomedCLIP66. No training, reference labels or ground-truth masks during inference. All original masks/CAMs retained. Native data transfer uses lossless tar/zstd with repeated-image ordering to reduce duplicates, not a change to evidence. Native experts/model assets and exact request keys are frozen under cache identity4665a34cfc1cad8b2883e493bd599b7f43415cbfe8b5ea5d0aab863aa2042c85.
+
+The cache stays explicitly incomplete until all requests are present. A bounded scheduling batch can run only after every requested native key for its cases passes cache identity validation. No missing request is silently replaced by baseline. Full manifest remains unchanged; batch boundaries are execution scheduling only. References are loaded only by offline evaluation. Report observed completed sample counts and matched pairs while running; no full-test claims from partial results.

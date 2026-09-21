@@ -1,0 +1,288 @@
+[
+  {
+    "id": "slake-train-2422",
+    "historical_parity": true,
+    "branches": [
+      {
+        "spatial": false,
+        "comparisons": [
+          {
+            "step": 0,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 2,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 3,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          }
+        ]
+      },
+      {
+        "spatial": true,
+        "comparisons": [
+          {
+            "step": 0,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 2,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 3,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "slake-train-3994",
+    "historical_parity": true,
+    "branches": [
+      {
+        "spatial": false,
+        "comparisons": [
+          {
+            "step": 0,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 2,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 3,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 12,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          }
+        ]
+      },
+      {
+        "spatial": true,
+        "comparisons": [
+          {
+            "step": 0,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 2,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 3,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 12,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "vqarad-017cf58e54447c1fd710-8e6c9e4dc146",
+    "historical_parity": false,
+    "branches": [
+      {
+        "spatial": false,
+        "comparisons": [
+          {
+            "step": 0,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 2,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 3,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 51,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 91,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          }
+        ]
+      },
+      {
+        "spatial": true,
+        "comparisons": [
+          {
+            "step": 0,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 2,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 3,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 51,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 91,
+            "exact_scores": true,
+            "same_support": true,
+            "argmax_equal": true,
+            "max_delta": 0.0
+          }
+        ]
+      }
+    ]
+  }
+]

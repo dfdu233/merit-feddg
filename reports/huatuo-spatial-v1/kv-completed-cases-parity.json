@@ -1,0 +1,77 @@
+[
+  {
+    "id": "slake-train-3489",
+    "method": "generalist",
+    "exact_tokens": true
+  },
+  {
+    "id": "slake-train-3489",
+    "method": "joint_all",
+    "exact_tokens": true
+  },
+  {
+    "id": "slake-train-3489",
+    "method": "isolated_mean",
+    "exact_tokens": true
+  },
+  {
+    "id": "slake-train-3489",
+    "method": "isolated_geomedian",
+    "exact_tokens": true
+  },
+  {
+    "id": "slake-train-3489",
+    "method": "bard",
+    "exact_tokens": true
+  },
+  {
+    "id": "vqarad-train-880",
+    "method": "generalist",
+    "exact_tokens": true
+  },
+  {
+    "id": "vqarad-train-880",
+    "method": "joint_all",
+    "exact_tokens": true
+  },
+  {
+    "id": "vqarad-train-880",
+    "method": "isolated_mean",
+    "exact_tokens": true
+  },
+  {
+    "id": "vqarad-train-880",
+    "method": "isolated_geomedian",
+    "exact_tokens": true
+  },
+  {
+    "id": "vqarad-train-880",
+    "method": "bard",
+    "exact_tokens": true
+  },
+  {
+    "id": "vqarad-train-1118",
+    "method": "generalist",
+    "exact_tokens": true
+  },
+  {
+    "id": "vqarad-train-1118",
+    "method": "joint_all",
+    "exact_tokens": true
+  },
+  {
+    "id": "vqarad-train-1118",
+    "method": "isolated_mean",
+    "exact_tokens": true
+  },
+  {
+    "id": "vqarad-train-1118",
+    "method": "isolated_geomedian",
+    "exact_tokens": true
+  },
+  {
+    "id": "vqarad-train-1118",
+    "method": "bard",
+    "exact_tokens": true
+  }
+]

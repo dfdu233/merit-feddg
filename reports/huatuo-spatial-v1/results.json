@@ -1,0 +1,921 @@
+{
+  "n": 32,
+  "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+  "datasets": {
+    "slake": {
+      "n": 16,
+      "methods": {
+        "generalist": {
+          "score": 0.65625,
+          "versus_generalist": {
+            "same": 16
+          }
+        },
+        "joint_all": {
+          "score": 0.625,
+          "versus_generalist": {
+            "same": 12,
+            "harmed": 2,
+            "improved": 2
+          }
+        },
+        "isolated_mean": {
+          "score": 0.625,
+          "versus_generalist": {
+            "same": 12,
+            "harmed": 2,
+            "improved": 2
+          }
+        },
+        "isolated_geomedian": {
+          "score": 0.625,
+          "versus_generalist": {
+            "same": 12,
+            "harmed": 2,
+            "improved": 2
+          }
+        },
+        "bard": {
+          "score": 0.65625,
+          "versus_generalist": {
+            "same": 16
+          }
+        }
+      }
+    },
+    "vqarad": {
+      "n": 16,
+      "methods": {
+        "generalist": {
+          "score": 0.34583333333333327,
+          "versus_generalist": {
+            "same": 16
+          }
+        },
+        "joint_all": {
+          "score": 0.2875,
+          "versus_generalist": {
+            "same": 12,
+            "harmed": 3,
+            "improved": 1
+          }
+        },
+        "isolated_mean": {
+          "score": 0.425,
+          "versus_generalist": {
+            "same": 12,
+            "improved": 2,
+            "harmed": 2
+          }
+        },
+        "isolated_geomedian": {
+          "score": 0.425,
+          "versus_generalist": {
+            "same": 12,
+            "improved": 2,
+            "harmed": 2
+          }
+        },
+        "bard": {
+          "score": 0.425,
+          "versus_generalist": {
+            "same": 12,
+            "improved": 2,
+            "harmed": 2
+          }
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "slake-train-3489",
+      "question": "Is the tumor enhancing?",
+      "reference": "No",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "No. The tumor is not enhancing in this image, which means it does not show increased contrast uptake typically seen with active or aggressive tumors on MRI scans. This characteristic can help differentiate between types of brain lesions and their potential aggressiveness.",
+        "joint_all": "No. The provided image is a brain MRI scan, not an imaging of the tumor itself to determine if it's enhancing or not.",
+        "isolated_mean": "No. The provided image is a brain MRI scan, not an imaging of the tumor itself to determine if it's enhancing or not.",
+        "isolated_geomedian": "No. The provided image is a brain MRI scan, not an imaging of the tumor itself to determine if it's enhancing or not.",
+        "bard": "No. The tumor is not enhancing in this image, which means it does not show increased contrast uptake typically seen with active or aggressive tumors on MRI scans. This characteristic can help differentiate between types of brain lesions and their potential aggressiveness."
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-3489"
+    },
+    {
+      "id": "slake-train-3420",
+      "question": "What is the scanning plane of this image?",
+      "reference": "Transverse Plane",
+      "scores": {
+        "generalist": 0.5,
+        "joint_all": 0.5,
+        "isolated_mean": 0.5,
+        "isolated_geomedian": 0.5,
+        "bard": 0.5
+      },
+      "texts": {
+        "generalist": "Axial plane",
+        "joint_all": "Axial plane.",
+        "isolated_mean": "Axial plane.",
+        "isolated_geomedian": "Axial plane.",
+        "bard": "Axial plane"
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-3420"
+    },
+    {
+      "id": "slake-train-3430",
+      "question": "Is this a transverse plane?",
+      "reference": "Yes",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "Yes.",
+        "joint_all": "No.",
+        "isolated_mean": "No.",
+        "isolated_geomedian": "No.",
+        "bard": "Yes."
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-3430"
+    },
+    {
+      "id": "slake-train-4151",
+      "question": "How many lungs are shown in this image?",
+      "reference": "0",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "0",
+        "joint_all": "2 lungs shown in the image.",
+        "isolated_mean": "2 lungs shown in the image.",
+        "isolated_geomedian": "2 lungs shown in the image.",
+        "bard": "0"
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-4151"
+    },
+    {
+      "id": "slake-train-559",
+      "question": "What modality is used to take this image?",
+      "reference": "X-Ray",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "X-ray",
+        "joint_all": "X-Ray Chest",
+        "isolated_mean": "X-ray",
+        "isolated_geomedian": "X-ray",
+        "bard": "X-ray"
+      },
+      "expert_nodes": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-559"
+    },
+    {
+      "id": "slake-train-3538",
+      "question": "Where is the brain tumor?",
+      "reference": "Right Lobe",
+      "scores": {
+        "generalist": 0.5,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 0.5
+      },
+      "texts": {
+        "generalist": "Right side of brain.",
+        "joint_all": "The brain tumor is located in the right frontal lobe.",
+        "isolated_mean": "The brain tumor is located in the right frontal lobe.",
+        "isolated_geomedian": "The brain tumor is located in the right frontal lobe.",
+        "bard": "Right side of brain."
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-3538"
+    },
+    {
+      "id": "slake-train-2860",
+      "question": "What color does the brain stem show in the picture?",
+      "reference": "Gray",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "texts": {
+        "generalist": "White",
+        "joint_all": "No color shown in the image. It is a grayscale CT scan of brain stem and surrounding structures.",
+        "isolated_mean": "No color shown in the image. It is a grayscale CT scan of brain stem and surrounding structures.",
+        "isolated_geomedian": "No color shown in the image. It is a grayscale CT scan of brain stem and surrounding structures.",
+        "bard": "White"
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-2860"
+    },
+    {
+      "id": "slake-train-1602",
+      "question": "What modality is used to take this image?",
+      "reference": "CT",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "CT scan",
+        "joint_all": "CT scan",
+        "isolated_mean": "CT scan",
+        "isolated_geomedian": "CT scan",
+        "bard": "CT scan"
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-1602"
+    },
+    {
+      "id": "slake-train-1139",
+      "question": "What is the scanning plane of this image?",
+      "reference": "Transverse  Plane",
+      "scores": {
+        "generalist": 0.5,
+        "joint_all": 0.5,
+        "isolated_mean": 0.5,
+        "isolated_geomedian": 0.5,
+        "bard": 0.5
+      },
+      "texts": {
+        "generalist": "Axial plane",
+        "joint_all": "Axial plane.",
+        "isolated_mean": "Axial plane.",
+        "isolated_geomedian": "Axial plane.",
+        "bard": "Axial plane"
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-1139"
+    },
+    {
+      "id": "slake-train-1538",
+      "question": "How many kidneys in this image?",
+      "reference": "2",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "2",
+        "joint_all": "2 kidneys in the image.",
+        "isolated_mean": "2 kidneys in the image.",
+        "isolated_geomedian": "2 kidneys in the image.",
+        "bard": "2"
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-1538"
+    },
+    {
+      "id": "slake-train-4735",
+      "question": "Which part of the body does this image belong to?",
+      "reference": "Brain",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 0.0
+      },
+      "texts": {
+        "generalist": "Head",
+        "joint_all": "Left hemisphere of the brain.",
+        "isolated_mean": "Left hemisphere of the brain.",
+        "isolated_geomedian": "Left hemisphere of the brain.",
+        "bard": "Head"
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-4735"
+    },
+    {
+      "id": "slake-train-4466",
+      "question": "Which is smaller in this image, bladder or small bowel?",
+      "reference": "Small Bowel",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "texts": {
+        "generalist": "Yes. The bladder is smaller than the small bowel in this image.",
+        "joint_all": "No. The small bowel is smaller in this image compared to the bladder.",
+        "isolated_mean": "No. The bladder is smaller than the small bowel in this image.",
+        "isolated_geomedian": "No. The bladder is smaller than the small bowel in this image.",
+        "bard": "No. The bladder is smaller than the small bowel in this image."
+      },
+      "expert_nodes": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-4466"
+    },
+    {
+      "id": "slake-train-1523",
+      "question": "How many kidneys in this image?",
+      "reference": "2",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "2",
+        "joint_all": "2 kidneys in the image.",
+        "isolated_mean": "2 kidneys in the image.",
+        "isolated_geomedian": "2 kidneys in the image.",
+        "bard": "2"
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-1523"
+    },
+    {
+      "id": "slake-train-2240",
+      "question": "How many existing heart in this image?",
+      "reference": "1",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "1",
+        "joint_all": "1",
+        "isolated_mean": "1",
+        "isolated_geomedian": "1",
+        "bard": "1"
+      },
+      "expert_nodes": [
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-2240"
+    },
+    {
+      "id": "slake-train-3828",
+      "question": "What is the organ system visualized?",
+      "reference": "Head",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "texts": {
+        "generalist": "Brain",
+        "joint_all": "Brain",
+        "isolated_mean": "Brain",
+        "isolated_geomedian": "Brain",
+        "bard": "Brain"
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-3828"
+    },
+    {
+      "id": "slake-train-1512",
+      "question": "Which part of the body does this image belong to?",
+      "reference": "Abdomen",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "Abdomen",
+        "joint_all": "Abdomen",
+        "isolated_mean": "Abdomen",
+        "isolated_geomedian": "Abdomen",
+        "bard": "Abdomen"
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/slake-train-1512"
+    },
+    {
+      "id": "vqarad-train-554",
+      "question": "is this a kub film?",
+      "reference": "no",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "No. This is a chest X-ray, not an abdominal film (KUB). The image shows the thoracic cavity and lungs clearly without any signs of foreign bodies or calcifications typically seen in KUB films that focus on the abdomen.",
+        "joint_all": "No. This is a chest X-ray (CXR) image, not a kidney-ureter-bladder film (KUB). A KUB film typically shows the kidneys, ureters, and bladder in an abdominal radiograph to identify stones or other abnormalities within these structures. The provided image displays clear lung fields, heart silhouette, ribs, diaphragm, clavicles, and upper abdomen without any signs of calcifications that would suggest urinary tract calculi. It does not show the typical anatomy seen on a KUB film such as renal outlines or gas patterns indicative of bowel loops. Therefore, it can be concluded confidently this is NOT a KUB film but rather a standard posteroanterior CXR view.",
+        "isolated_mean": "No. This is a chest X-ray, not a KUB (kidney-ureter-bladder) film. A KUB film would primarily show the abdominal area and pelvic region to evaluate for kidney stones or other abnormalities in those areas. The image provided shows thoracic structures such as lungs and ribs which are typical of a chest radiograph rather than an abdomen-focused imaging study like a KUB.",
+        "isolated_geomedian": "No. This is a chest X-ray, not a KUB (kidney-ureter-bladder) film. A KUB film would primarily show the abdominal and pelvic regions with an emphasis on the urinary system structures such as kidneys, ureters, bladder, and sometimes portions of the intestines. The image provided shows thoracic anatomy including ribs, lungs, heart shadow, diaphragm, clavicles, scapulae, upper abdomen, and soft tissues around these areas which are typical features seen in a chest radiograph or CXR (chest X-ray).",
+        "bard": "No. This is a chest X-ray, not a KUB (kidney-ureter-bladder) film. A KUB film would primarily show the abdominal area and pelvic region to evaluate for kidney stones or other abnormalities in those areas. The image provided shows thoracic structures such as ribs, lungs, heart shadow, clavicles which are typical of a chest radiograph rather than an abdomen focused imaging like that seen on a KUB study."
+      },
+      "expert_nodes": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/vqarad-train-554"
+    },
+    {
+      "id": "vqarad-train-880",
+      "question": "is this film taken in a pa modality?",
+      "reference": "yes",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "No. The image is taken in a posteroanterior (PA) modality, as indicated by the orientation of the patient and the view from behind to front. This can be identified by observing that both lungs are visible with their respective lobes clearly seen on either side of the heart shadow which appears centrally located due to this perspective. In PA views, the spine typically runs vertically down the center or slightly off-center towards one side depending upon whether it's an upright or supine position during imaging.",
+        "joint_all": "No. The image provided is a chest X-ray, not a film taken in the PA (posteroanterior) modality. A PA view means that the X-rays pass from back to front of the body and are captured on an imaging plate or film positioned opposite the patient's feet. This type of radiographic projection is commonly used for chest examinations.\n\nThe image you've shared appears more consistent with standard posteroanterior (PA) chest X-ray views which show both lungs, heart shadow, clavicles, ribs, spine, and diaphragm clearly without any signs of foreign objects like films within them. It’s important to note that this interpretation does not involve medical diagnosis but rather focuses solely on identifying whether it resembles a typical PA chest X-ray based on its visual characteristics. For actual diagnostic purposes, such images would be evaluated by qualified healthcare professionals who can provide accurate interpretations considering clinical context as well.",
+        "isolated_mean": "Yes.",
+        "isolated_geomedian": "Yes.",
+        "bard": "Yes."
+      },
+      "expert_nodes": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/vqarad-train-880"
+    },
+    {
+      "id": "vqarad-train-1346",
+      "question": "can the kidneys be visualized in this ct scan?",
+      "reference": "yes",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "Yes. The kidneys can be visualized in this CT scan, appearing as two bean-shaped structures located on either side of the spine at approximately mid-level height within the abdominal cavity. They are typically situated slightly above and medial to the psoas muscles which flank them laterally.\n\nIn a normal CT abdomen without contrast enhancement (which is what appears to have been performed here), both kidneys should show up with similar radiodensity due to their parenchymal tissue composition being largely renal cortex interspersed by medullary pyramids that may appear less dense than cortical areas depending upon the phase of excretion or other factors affecting kidney function during imaging acquisition.\n\nThe image provided does not indicate any obvious pathology such as stones, cysts, masses, hydronephrosis, or significant asymmetry between the left and right kidneys based solely on this single slice; however, full assessment would require viewing additional slices through different levels of the abdomen for comprehensive evaluation. It's also important to note that while I can provide information about visible anatomy from an image like this one, actual diagnosis must always involve clinical correlation and consideration of patient history and symptoms.",
+        "joint_all": "Yes. The CT scan image provided shows the kidneys clearly visible in cross-section, along with other abdominal structures such as blood vessels and intestines. This type of imaging is commonly used to visualize kidney anatomy for diagnostic purposes.",
+        "isolated_mean": "Yes. The CT scan image provided shows the kidneys clearly visible in cross-section, along with other abdominal structures such as blood vessels and intestines. This type of imaging is commonly used to visualize kidney anatomy for diagnostic purposes.",
+        "isolated_geomedian": "Yes. The CT scan image provided shows the kidneys clearly visible in cross-section, along with other abdominal structures such as blood vessels and intestines. This type of imaging is commonly used to visualize kidney anatomy for diagnostic purposes.",
+        "bard": "Yes. The kidneys can be visualized in this CT scan, appearing as two bean-shaped structures located on either side of the spine at approximately mid-level height within the abdominal cavity. They are typically situated slightly above and medial to the psoas muscles which flank them laterally.\n\nIn a normal CT abdomen without contrast enhancement (which is what appears to have been performed here), both kidneys should show up with similar radiodensity due to their parenchymal tissue composition being largely renal cortex interspersed by medullary pyramids that may appear less dense than cortical areas depending upon the phase of excretion or other factors affecting kidney function during imaging acquisition.\n\nThe image provided does not indicate any obvious pathology such as stones, cysts, masses, hydronephrosis, or significant asymmetry between the left and right kidneys based solely on this single slice; however, full assessment would require viewing additional slices through different levels of the abdomen for comprehensive evaluation. It's also important to note that while I can provide information about visible anatomy from an image like this one, actual diagnosis must always involve clinical correlation and consideration of patient history and symptoms."
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/supplemental-results/vqarad-train-1346"
+    },
+    {
+      "id": "vqarad-train-1493",
+      "question": "what is seen in the occipital lobe?",
+      "reference": "ring enhancing lesion",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "texts": {
+        "generalist": "Hemorrhagic infarct in occipital lobe.",
+        "joint_all": "Visual information processing, including perception of sounds and vocal categories.",
+        "isolated_mean": "Visual information processing, including perception of sounds and vocal categories.",
+        "isolated_geomedian": "Visual information processing, including perception of sounds and vocal categories.",
+        "bard": "Hemorrhagic infarct in occipital lobe."
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/vqarad-train-1493"
+    },
+    {
+      "id": "vqarad-train-164",
+      "question": "are there any fractures in this image?",
+      "reference": "no",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "No, there are no fractures visible in this image. The bones of the thorax appear intact without any signs of breaks or discontinuities.",
+        "joint_all": "No.",
+        "isolated_mean": "No. There are no fractures visible in this image. The chest X-ray shows clear lung fields and normal bony structures without any signs of fracture lines or abnormalities.",
+        "isolated_geomedian": "No. There are no fractures visible in this image.",
+        "bard": "No. There are no fractures visible in this image. The chest X-ray shows clear and intact bony structures without any signs of fracture lines or abnormalities."
+      },
+      "expert_nodes": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/supplemental-results/vqarad-train-164"
+    },
+    {
+      "id": "vqarad-train-649",
+      "question": "what other organs are present?",
+      "reference": "the lungs",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "texts": {
+        "generalist": "Liver, stomach and spleen.",
+        "joint_all": "Heart, brain, gut myenteric plexus cells.",
+        "isolated_mean": "Heart, brain, gut myenteric plexus cells.",
+        "isolated_geomedian": "Heart, brain, gut myenteric plexus cells.",
+        "bard": "Liver, stomach and spleen."
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/vqarad-train-649"
+    },
+    {
+      "id": "vqarad-train-1088",
+      "question": "are these small opacities in the right lung calcifications?",
+      "reference": "no",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "Yes. The small opacities observed in the right lung are indeed calcifications, which appear as tiny bright spots on this chest X-ray image. These findings can be associated with previous infections or inflammatory processes that have left behind calcium deposits within the tissue of the lungs. Such calcifications often represent a benign process but should always be correlated clinically and possibly further evaluated if there is any concern for underlying disease activity or other complications related to these changes.",
+        "joint_all": "Yes. The small opacities in the right lung are calcifications, as indicated by their appearance and location on the chest radiograph image provided. These findings can be associated with various conditions such as metastatic pulmonary calcification or other chronic diseases that lead to calcium deposition within the lungs' interstitium.\n\nThe presence of these calcified nodules is a significant finding which may require further investigation through additional imaging modalities like computed tomography (CT) scans for better characterization and assessment of any underlying pathology. It's also essential to correlate this radiographic finding with clinical history and symptoms presented by the patient to guide appropriate management strategies.",
+        "isolated_mean": "No. The opacities in the right lung are not calcifications; they appear to be areas of increased density, possibly due to other pathological processes such as infection or inflammation rather than calcification.",
+        "isolated_geomedian": "No. The opacities in the right lung are not calcifications; they appear to be areas of increased density, possibly due to fluid or consolidation rather than calcification.",
+        "bard": "No. The opacities in the right lung are not calcifications; they appear to be areas of increased density, possibly due to fluid or consolidation rather than calcification."
+      },
+      "expert_nodes": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/supplemental-results/vqarad-train-1088"
+    },
+    {
+      "id": "vqarad-train-1082",
+      "question": "is this film properly exposed?",
+      "reference": "yes",
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 0.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "texts": {
+        "generalist": "Yes. The film is properly exposed, as evidenced by the clear visualization of bony structures and soft tissues without any signs of under or overexposure.",
+        "joint_all": "No. The provided images are chest X-rays, not films that can be exposed or properly exposed in the context of photography. These radiographs show various anatomical structures such as bones and lungs but do not pertain to film exposure.",
+        "isolated_mean": "Yes.",
+        "isolated_geomedian": "Yes.",
+        "bard": "Yes."
+      },
+      "expert_nodes": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/vqarad-train-1082"
+    },
+    {
+      "id": "vqarad-train-899",
+      "question": "is the liver normal?",
+      "reference": "no",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 1.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "texts": {
+        "generalist": "Yes. The liver appears normal in the CT scan provided, with no visible abnormalities or lesions observed within its structure on this axial slice of imaging. It maintains a uniform density and smooth contour typical for healthy hepatic tissue. This assessment is based solely on visual inspection without any clinical context which would be necessary to confirm these findings definitively but from an image perspective alone, it seems unremarkable regarding hepatobiliary health at least up to the level shown here.",
+        "joint_all": "No. The CT scan shows an enlarged liver, which may indicate a medical condition such as fatty liver disease or cirrhosis. Further evaluation by a healthcare professional is necessary to determine the exact cause and appropriate treatment plan.",
+        "isolated_mean": "Yes. The liver appears normal in the provided CT scan image, with no visible abnormalities or lesions present within its structure.",
+        "isolated_geomedian": "Yes. The liver appears normal in the provided CT scan image, with no visible abnormalities or lesions present within its structure.",
+        "bard": "Yes. The liver appears normal in the provided CT scan image, with no visible abnormalities or lesions present within its structure."
+      },
+      "expert_nodes": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/final-cached-results/vqarad-train-899"
+    },
+    {
+      "id": "vqarad-train-724",
+      "question": "which organ has the abnormality?",
+      "reference": "pancreas",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "texts": {
+        "generalist": "Liver",
+        "joint_all": "No specific organ is mentioned in the provided image. The CT scan shows a cross-sectional view of an abdominal region, but no abnormalities are clearly visible or described within this context. For accurate diagnosis and identification of any potential abnormality, further medical evaluation by healthcare professionals would be necessary.",
+        "isolated_mean": "Stomach",
+        "isolated_geomedian": "Stomach",
+        "bard": "Liver"
+      },
+      "expert_nodes": [
+        "biomed_anatomy",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/vqarad-train-724"
+    },
+    {
+      "id": "vqarad-train-760",
+      "question": "what differentiates the common bile duct and cystic duct?",
+      "reference": "cystic duct is more tortuous",
+      "scores": {
+        "generalist": 0.6,
+        "joint_all": 0.6,
+        "isolated_mean": 0.6,
+        "isolated_geomedian": 0.6,
+        "bard": 0.6
+      },
+      "texts": {
+        "generalist": "The common bile duct is larger and drains the liver, while the cystic duct is smaller and drains the gallbladder.",
+        "joint_all": "The common bile duct and cystic duct are differentiated by their anatomical paths, with the common bile duct draining into the duodenum while the cystic duct drains directly into the gallbladder. The common bile duct is larger in diameter compared to the cystic duct. Additionally, they have different origins; the common bile duct arises from both hepatic ducts (right and left), whereas the cystic duct originates solely from the right hepatic duct.",
+        "isolated_mean": "The common bile duct and cystic duct are differentiated by their anatomical paths, with the common bile duct draining into the duodenum while the cystic duct drains directly into the gallbladder. The common bile duct is larger in diameter compared to the cystic duct. Additionally, they have different origins; the common bile duct arises from both hepatic ducts (right and left), whereas the cystic duct originates solely from the right hepatic duct.",
+        "isolated_geomedian": "The common bile duct and cystic duct are differentiated by their anatomical paths, with the common bile duct draining into the duodenum while the cystic duct drains directly into the gallbladder. The common bile duct is larger in diameter compared to the cystic duct. Additionally, they have different origins; the common bile duct arises from both hepatic ducts (right and left), whereas the cystic duct originates solely from the right hepatic duct.",
+        "bard": "The common bile duct is larger and drains the liver, while the cystic duct is smaller and drains the gallbladder."
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/final-cached-results/vqarad-train-760"
+    },
+    {
+      "id": "vqarad-train-1178",
+      "question": "would you suspect abcess or cancer for this finding?",
+      "reference": "abscess",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "texts": {
+        "generalist": "Abcess",
+        "joint_all": "Abcess or cancer cannot be determined from the provided image. Further clinical evaluation and diagnostic tests are required to make a definitive diagnosis.",
+        "isolated_mean": "Abcess or cancer cannot be determined from the provided image. Further clinical evaluation and diagnostic tests are required to make a definitive diagnosis.",
+        "isolated_geomedian": "Abcess or cancer cannot be determined from the provided image. Further clinical evaluation and diagnostic tests are required to make a definitive diagnosis.",
+        "bard": "Abcess"
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/vqarad-train-1178"
+    },
+    {
+      "id": "vqarad-train-1784",
+      "question": "where is the lesion located?",
+      "reference": "retrocardiac",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "texts": {
+        "generalist": "Left lower lobe of lung.",
+        "joint_all": "Subcortical region, periventricular region, (juxtac)ortical region or infratentorial region.",
+        "isolated_mean": "Left lung, lower lobe.",
+        "isolated_geomedian": "Left lung, lower lobe.",
+        "bard": "Left lung, lower lobe."
+      },
+      "expert_nodes": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/final-cached-results/vqarad-train-1784"
+    },
+    {
+      "id": "vqarad-train-414",
+      "question": "where is the gastric bubble placed?",
+      "reference": "underneath the right hemidiaphragm",
+      "scores": {
+        "generalist": 0.3333333333333333,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "texts": {
+        "generalist": "Gastric bubble is in the right hemi-diaphragm.",
+        "joint_all": "In the stomach.",
+        "isolated_mean": "Gastric bubble is placed in the left lower quadrant.",
+        "isolated_geomedian": "Gastric bubble is not visible in the image.",
+        "bard": "Gastric bubble is not visible in this image."
+      },
+      "expert_nodes": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/vqarad-train-414"
+    },
+    {
+      "id": "vqarad-train-768",
+      "question": "what density is the abnormality?",
+      "reference": "hypodense",
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "texts": {
+        "generalist": "40 Hounsfield units (HU)",
+        "joint_all": "No abnormal density mentioned in the provided images.",
+        "isolated_mean": "No abnormal density mentioned in the provided images.",
+        "isolated_geomedian": "No abnormal density mentioned in the provided images.",
+        "bard": "40 Hounsfield units (HU)"
+      },
+      "expert_nodes": [
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/final-cached-results/vqarad-train-768"
+    },
+    {
+      "id": "vqarad-train-1118",
+      "question": "what is happening with the path of the trachea?",
+      "reference": "it is shifted to the right",
+      "scores": {
+        "generalist": 0.6,
+        "joint_all": 0.0,
+        "isolated_mean": 0.2,
+        "isolated_geomedian": 0.2,
+        "bard": 0.2
+      },
+      "texts": {
+        "generalist": "Trachea is deviated to right.",
+        "joint_all": "No information provided.",
+        "isolated_mean": "No significant deviation or abnormality in the trachea's path is observed.",
+        "isolated_geomedian": "Trachea is midline.",
+        "bard": "Trachea is midline."
+      },
+      "expert_nodes": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ],
+      "raw_directory": "/home/dbw/merit-feddg-huatuo-spatial/runs/huatuo-spatial-v1/results/vqarad-train-1118"
+    }
+  ],
+  "fault_group_counts": {
+    "1": 19,
+    "2": 3,
+    "4": 9,
+    "3": 1
+  },
+  "stress": {
+    "min_nodes_1": {
+      "isolated_mean": {
+        "total": 357,
+        "same_as_clean": 118,
+        "fallback_to_base": 157
+      },
+      "isolated_geomedian": {
+        "total": 357,
+        "same_as_clean": 228,
+        "fallback_to_base": 202
+      },
+      "bard": {
+        "total": 357,
+        "same_as_clean": 326,
+        "fallback_to_base": 332
+      }
+    },
+    "min_nodes_2": {
+      "isolated_mean": {
+        "total": 270,
+        "same_as_clean": 117,
+        "fallback_to_base": 149
+      },
+      "isolated_geomedian": {
+        "total": 270,
+        "same_as_clean": 227,
+        "fallback_to_base": 194
+      },
+      "bard": {
+        "total": 270,
+        "same_as_clean": 239,
+        "fallback_to_base": 245
+      }
+    },
+    "min_nodes_3": {
+      "isolated_mean": {
+        "total": 234,
+        "same_as_clean": 110,
+        "fallback_to_base": 142
+      },
+      "isolated_geomedian": {
+        "total": 234,
+        "same_as_clean": 220,
+        "fallback_to_base": 187
+      },
+      "bard": {
+        "total": 234,
+        "same_as_clean": 207,
+        "fallback_to_base": 209
+      }
+    }
+  },
+  "completed_case_forwards": 110786,
+  "cost_caveat": "Excludes stopped work, duplicate parity runs, source technical probes, and native expert forwards."
+}

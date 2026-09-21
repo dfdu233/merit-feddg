@@ -116,6 +116,7 @@ def main():
     parser.add_argument("--artifacts", default="artifacts")
     parser.add_argument("--routing-json")
     parser.add_argument("--coverage-only", action="store_true")
+    parser.add_argument("--skip-expert", action="append", default=[], help="Prepare disjoint native stages; incomplete caches remain marked incomplete")
     args = parser.parse_args()
 
     config = load_experiment_yaml(args.config)
@@ -277,6 +278,8 @@ def main():
 
     summary = {}
     for expert in specs:
+        if expert in args.skip_expert:
+            continue
         selected = [
             (row, descriptor)
             for row in rows
@@ -320,12 +323,21 @@ def main():
             flush=True,
         )
 
+    missing_requests = []
+    for row in rows:
+        for descriptor in schedule[row["id"]]:
+            request = make_request(row, descriptor, generation)
+            key = fingerprint(["infer", descriptor["expert"], asdict(request)])
+            path = root / "expert-cache" / fingerprint(row["id"]) / f"{key}.json"
+            if load_cached(path, identity) is None:
+                missing_requests.append({"id": row["id"], "expert": descriptor["expert"], "key": key})
     protocol = {
         "schema": "bard-expert-cache-v1",
         "identity": identity,
         "n": len(original),
         "shards": 1,
-        "shards_complete": True,
+        "shards_complete": not missing_requests,
+        "missing_requests": missing_requests,
         "cache_only": True,
         "config": config,
         "expert_provenance": expert_ids,

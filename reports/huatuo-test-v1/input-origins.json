@@ -1,0 +1,12 @@
+{
+  "slake": {
+    "path": "/home/dbw/merit-feddg-chain-5066828/runs/official-test2545-inputs-v2/slake/protocol.json",
+    "sha256": "0b456987fa276fd70712581edbb3b6aa0462acb0215b4eaae1bd80000798bdef",
+    "n": 2094
+  },
+  "vqa_rad": {
+    "path": "/home/dbw/merit-feddg-chain-5066828/runs/official-test2545-inputs-v2/vqa_rad/protocol.json",
+    "sha256": "aacc69385006a070947b01189b273fa3bab650fcc235eed2b4ac07a1b8698bc4",
+    "n": 451
+  }
+}
