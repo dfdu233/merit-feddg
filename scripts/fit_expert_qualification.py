@@ -3,7 +3,7 @@
 Input JSONL rows are paired source/development observations, never target-test
 records. Required fields:
   expert_id, capability, scope, modality, task, claim_type, domain, group_id,
-  outcome_delta, real_effect, knockoff_effect
+  outcome_delta, real_effect, knockoff_effect, candidate_method
 
 outcome_delta is the bounded score change (expert transaction minus immutable
 Generalist) in [-1, 1]. real_effect/knockoff_effect are label-free receiver
@@ -59,8 +59,19 @@ def read_rows(path):
         if not line.strip():
             continue
         row = json.loads(line)
-        missing = [key for key in (*KEYS, "domain", "group_id", "outcome_delta",
-                                   "real_effect", "knockoff_effect") if key not in row]
+        missing = [
+            key
+            for key in (
+                *KEYS,
+                "domain",
+                "group_id",
+                "outcome_delta",
+                "real_effect",
+                "knockoff_effect",
+                "candidate_method",
+            )
+            if key not in row
+        ]
         if missing:
             raise ValueError(f"line {line_number}: missing {missing}")
         if row.get("split", "source") not in {"source", "train", "development", "dev"}:
@@ -70,6 +81,8 @@ def read_rows(path):
                 raise ValueError(f"line {line_number}: invalid {key}")
         if not isinstance(row["domain"], str) or not row["domain"].strip():
             raise ValueError(f"line {line_number}: invalid source domain")
+        if not isinstance(row["candidate_method"], str) or not row["candidate_method"].strip():
+            raise ValueError(f"line {line_number}: invalid candidate_method")
         if not isinstance(row["group_id"], str) or not row["group_id"].strip():
             raise ValueError(f"line {line_number}: invalid group_id")
         for key in ("outcome_delta", "real_effect", "knockoff_effect"):
@@ -85,6 +98,12 @@ def read_rows(path):
 
 
 def fit(rows, *, z=1.96):
+    proposal_policies = {str(row["candidate_method"]).strip() for row in rows}
+    if len(proposal_policies) != 1:
+        raise ValueError(
+            "qualification input must contain exactly one frozen candidate_method"
+        )
+    proposal_policy = next(iter(proposal_policies))
     grouped = defaultdict(list)
     for row in rows:
         grouped[tuple(row[key] for key in KEYS)].append(row)
@@ -112,8 +131,9 @@ def fit(rows, *, z=1.96):
         )
         cards.append(card)
     return {
-        "schema": "merit-expert-qualification-v1",
+        "schema": "merit-expert-qualification-v2",
         "source_only": True,
+        "proposal_policy": proposal_policy,
         "statistical_rule": {
             "utility": "normal lower confidence bound on bounded outcome_delta",
             "harm": "Wilson upper confidence bound for outcome_delta < 0",
