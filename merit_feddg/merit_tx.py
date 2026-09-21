@@ -118,19 +118,22 @@ def decide_transaction(
             qcard is not None
             and qcard.authorizes_commit()
         )
-        signed_specific = evidence.support_direction * evidence.differential_effect
+        # A negative/zero real-vs-knockoff effect is not patient-specific proof,
+        # regardless of whether the raw expert output agrees with the candidate.
+        if evidence.differential_effect <= 0:
+            continue
 
         # Knowledge/proposal experts remain useful in the audit, but they do not
         # become patient-specific proof merely because they agree with a candidate.
         if not evidence.patient_specific:
-            if evidence.support_direction > 0 and evidence.differential_effect > 0:
+            if evidence.support_direction > 0:
                 contextual_support.append(evidence.expert_id)
             continue
         if not source_qualified:
             continue
-        if signed_specific > 0:
+        if evidence.support_direction > 0:
             qualified_support.setdefault(evidence.fault_group, []).append(evidence)
-        elif signed_specific < 0:
+        elif evidence.support_direction < 0:
             qualified_contradiction.setdefault(evidence.fault_group, []).append(evidence)
 
     support_groups = set(qualified_support)
