@@ -68,14 +68,14 @@ For candidate claim c and immutable incumbent claim c0:
 
     m_real  = score_e(I, c)       - score_e(I, c0)
     m_knock = score_e(I_knock, c) - score_e(I_knock, c0)
-    D_e     = m_real - m_knock
+    D_e     = m_real - median_k(m_knock,k)
 
-The knockoff is a matched wrong-patient image/evidence observation from the same modality and expert protocol. This subtracts nonspecific expert/context preference.
+The implementation uses multiple deterministic matched wrong-patient controls (four by default), not a single arbitrary control. Controls are selected without labels from the same modality/task and, when available, the same answer-blind question type but a different patient/study group. The median control margin reduces sensitivity to one atypical wrong-patient case while subtracting nonspecific expert/context preference.
 
 Examples:
 
 - CONCH/PLIP: candidate-vs-incumbent image-text similarity margin.
-- XRV: matched finding-score margin when the concept is in the native vocabulary.
+- XRV: strict native-label claim scoring only when the proposition uniquely names an XRV finding. Raw sigmoid outputs are converted to symmetric log-odds comparison scores; unsupported diagnoses fail closed rather than being guessed.
 - segmentation/localization: candidate-specific spatial support relative to the same operator on a matched control.
 
 A nonpositive differential effect is not commit proof.
@@ -178,31 +178,73 @@ The algorithm has no separate VQA method and report method. Only claimization an
 
 ## Current implementation boundary
 
-This branch implements:
+This branch now implements:
 
-- immutable transaction representation and patching;
-- VQA decontextualization;
-- optional RadGraph-XL report claimization;
-- literature-grounded role cards;
-- source-only expert qualification;
-- native real-vs-knockoff differential margins;
+- immutable transaction representation and exact fallback;
+- VQA decontextualization and optional RadGraph-XL report claimization;
+- conservative candidate-to-transaction compilation shared by VQA and reports;
+- report patch atomicity: all clinical claims carried by the same sentence-level patch must be approved, otherwise the incumbent sentence is preserved;
+- literature-grounded role cards and capability/fault-group diversity selection;
+- source-only expert qualification with utility LCB, harm UCB, and specificity LCB;
+- multi-control real-vs-knockoff differential margins;
+- patient/study-level qualification aggregation for reports, preventing pseudo-replication from many claims in one report;
 - proposer/validator separation;
-- PLIP claim verification;
-- CONCH claim-specific transaction configuration;
-- MedSAM prerequisite-aware registration;
-- answer-blind expert-pool audit;
+- claim-specific CONCH and PLIP pathology verification;
+- strict native XRV CXR finding verification;
+- MedSAM prerequisite-aware spatial registration;
+- answer-blind expert-pool and coverage audits;
+- source qualification observation generation;
+- an end-to-end source MERIT-Tx canary runner;
 - asset download/audit helpers.
 
 It deliberately does not claim a new benchmark improvement yet.
 
-Before a new full PathVQA or MIMIC run:
+### Frozen execution order
 
-1. produce source/development qualification observations;
-2. freeze qualification cards;
-3. audit effective commit-authorized coverage;
-4. run candidate-oracle and first-divergence diagnostics;
-5. run a small MERIT-Tx source canary;
-6. only then evaluate the untouched target/test benchmark.
+Do not use target/test results to decide which experts survive. The source workflow is:
+
+1. **Freeze one proposal distribution** on source/development data. The proposal output set must exist before qualification statistics are read.
+2. Build native source observations:
+
+       python scripts/build_merit_tx_source_observations.py \
+         --manifest /path/to/source-manifest.jsonl \
+         --baseline /path/to/source-generalist.json \
+         --candidate proposal=/path/to/frozen-source-candidate.json \
+         --references /path/to/source-references.json \
+         --config configs/merit_tx.yaml \
+         --output runs/source-tx-observations.jsonl
+
+   References are joined only after the candidate outputs have been frozen. For reports, one patient/study contributes at most one conservative observation per expert qualification cell.
+
+3. Freeze qualification cards:
+
+       python scripts/fit_expert_qualification.py \
+         --input runs/source-tx-observations.jsonl \
+         --output artifacts/qualification/merit-expert-qualification.json
+
+4. Audit effective commit-authorized role/fault-group coverage with the frozen cards:
+
+       python scripts/audit_transactional_expert_pool.py \
+         --manifest /path/to/source-manifest.jsonl \
+         --config configs/merit_tx.yaml \
+         --qualification-cards artifacts/qualification/merit-expert-qualification.json \
+         --output runs/merit-tx-expert-pool-audit.json
+
+5. Run the source canary. The transaction decisions do not open references; optional source scoring occurs only after outputs are frozen:
+
+       python scripts/run_merit_tx_source_canary.py \
+         --manifest /path/to/source-manifest.jsonl \
+         --baseline /path/to/source-generalist.json \
+         --candidate /path/to/frozen-source-candidate.json \
+         --candidate-name proposal-v1 \
+         --qualification-cards artifacts/qualification/merit-expert-qualification.json \
+         --config configs/merit_tx.yaml \
+         --references /path/to/source-references.json \
+         --output runs/merit-tx-source-canary
+
+6. Only if the source canary shows useful nonzero commit coverage with bounded harm should the exact frozen policy be evaluated on untouched target/test data.
+
+Candidate-oracle and first-divergence analysis of already-completed target experiments remains diagnostic only; it cannot choose experts, qualification thresholds, or transaction rules.
 
 ## References
 
@@ -214,3 +256,7 @@ Before a new full PathVQA or MIMIC run:
 - Huang et al., PLIP/OpenPath, Nature Medicine 2023.
 - Jain et al., RadGraph, NeurIPS Datasets & Benchmarks 2021.
 - Delbrouck et al., RadGraph-XL, ACL Findings 2024.
+- Min et al., FActScore, EMNLP 2023.
+- Gao et al., RARR, ACL 2023.
+- Ostmeier et al., GREEN, EMNLP Findings 2024.
+- CLEAR, EMNLP Findings 2025.
