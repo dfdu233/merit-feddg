@@ -31,7 +31,7 @@ capability_value:
     native_entry_transport: false
     claim_attribute_filter: false
     claim_gate_max_checks: 2
-    vector_gate_probe_tokens: 256
+    vector_gate_probe_tokens: 64
     spatial_weighting: equal
     vector_gate_min_gain: 0.000001
 

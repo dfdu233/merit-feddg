@@ -1,0 +1,132 @@
+[
+  {
+    "id": "pathvqa-train-00005-001881",
+    "attention": "sdpa",
+    "cloud_token_match": true,
+    "branches": [
+      {
+        "spatial": false,
+        "checks": [
+          {
+            "step": 0,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 28,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          }
+        ]
+      },
+      {
+        "spatial": true,
+        "checks": [
+          {
+            "step": 0,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 28,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pathvqa-train-00005-001900",
+    "attention": "sdpa",
+    "cloud_token_match": true,
+    "branches": [
+      {
+        "spatial": false,
+        "checks": [
+          {
+            "step": 0,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 10,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          }
+        ]
+      },
+      {
+        "spatial": true,
+        "checks": [
+          {
+            "step": 0,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 1,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 8,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          },
+          {
+            "step": 10,
+            "exact": true,
+            "argmax_same": true,
+            "max_delta": 0.0
+          }
+        ]
+      }
+    ]
+  }
+]

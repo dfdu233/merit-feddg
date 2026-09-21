@@ -254,7 +254,7 @@ class HuatuoVisionGeneralist:
         self.min_new_tokens = int(min_new_tokens)
 
     def _generation_kwargs(self, *, max_new_tokens):
-        if max_new_tokens < 1 or self.min_new_tokens >= max_new_tokens:
+        if max_new_tokens < 1 or self.min_new_tokens > max_new_tokens:
             raise ValueError("invalid Huatuo generation budget")
         return {
             "max_new_tokens": int(max_new_tokens),

@@ -1,0 +1,9 @@
+{
+  "seed": "merit-tx-v2-image",
+  "source": "PathVQA official TRAIN plus external PathoROB four-center development panel; PathoROB is not a target claim in this experiment",
+  "target_overlap_excluded_rows": 0,
+  "unique_eligible_train_images": 2599,
+  "n": 304,
+  "source_labels_separate": true,
+  "selection_uses_correctness": false
+}

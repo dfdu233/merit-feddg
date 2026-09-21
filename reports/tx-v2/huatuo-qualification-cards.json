@@ -1,0 +1,183 @@
+{
+  "schema": "merit-expert-qualification-v2",
+  "source_only": true,
+  "statistical_rule": {
+    "utility": "normal lower confidence bound on outcome_delta conditional on signed differential effect D_e > 0",
+    "harm": "Wilson upper confidence bound for outcome_delta < 0 conditional on D_e > 0",
+    "specificity": "Wilson lower confidence bound for sign(D_e) agreeing with sign(outcome_delta); zero utility is conservatively not success",
+    "veto_precision": "Wilson lower confidence bound for outcome_delta < 0 conditional on D_e < 0",
+    "z": 1.96
+  },
+  "cards": [
+    {
+      "expert_id": "biomedclip_claim_verifier",
+      "capability": "classification",
+      "scope": "biomedical_claim_support",
+      "modality": "ct",
+      "task": "open_vqa",
+      "claim_type": "*",
+      "n": 10,
+      "domains": [
+        "pathvqa-official-train"
+      ],
+      "utility_lcb": -0.025991372990572754,
+      "harm_ucb": 0.769280067791163,
+      "specificity_lcb": 0.05668094798069326,
+      "support_n": 5,
+      "support_domains": [
+        "pathvqa-official-train"
+      ],
+      "veto_precision_lcb": 0.0,
+      "veto_n": 5,
+      "veto_domains": [
+        "pathvqa-official-train"
+      ],
+      "source_only": true
+    },
+    {
+      "expert_id": "biomedclip_claim_verifier",
+      "capability": "classification",
+      "scope": "biomedical_claim_support",
+      "modality": "gross_pathology",
+      "task": "open_vqa",
+      "claim_type": "*",
+      "n": 4,
+      "domains": [
+        "pathvqa-official-train"
+      ],
+      "utility_lcb": 0.0,
+      "harm_ucb": 0.5615060804490177,
+      "specificity_lcb": 0.0,
+      "support_n": 3,
+      "support_domains": [
+        "pathvqa-official-train"
+      ],
+      "veto_precision_lcb": 0.0,
+      "veto_n": 1,
+      "veto_domains": [
+        "pathvqa-official-train"
+      ],
+      "source_only": true
+    },
+    {
+      "expert_id": "biomedclip_claim_verifier",
+      "capability": "classification",
+      "scope": "biomedical_claim_support",
+      "modality": "mri",
+      "task": "open_vqa",
+      "claim_type": "*",
+      "n": 3,
+      "domains": [
+        "pathvqa-official-train"
+      ],
+      "utility_lcb": -0.05572956782199401,
+      "harm_ucb": 0.7923450448735121,
+      "specificity_lcb": 0.0,
+      "support_n": 3,
+      "support_domains": [
+        "pathvqa-official-train"
+      ],
+      "veto_precision_lcb": 0.0,
+      "veto_n": 0,
+      "veto_domains": [],
+      "source_only": true
+    },
+    {
+      "expert_id": "biomedclip_claim_verifier",
+      "capability": "classification",
+      "scope": "biomedical_claim_support",
+      "modality": "pathology",
+      "task": "open_vqa",
+      "claim_type": "*",
+      "n": 119,
+      "domains": [
+        "pathorob-VALSET1_UKK",
+        "pathorob-VALSET2_WNS",
+        "pathorob-VALSET3_TCGA",
+        "pathorob-VALSET4_CHA_FULL",
+        "pathvqa-official-train"
+      ],
+      "utility_lcb": -0.3226260586726777,
+      "harm_ucb": 0.52655223492844,
+      "specificity_lcb": 0.1115123807876709,
+      "support_n": 29,
+      "support_domains": [
+        "pathorob-VALSET1_UKK",
+        "pathorob-VALSET2_WNS",
+        "pathorob-VALSET3_TCGA",
+        "pathvqa-official-train"
+      ],
+      "veto_precision_lcb": 0.13366280607539827,
+      "veto_n": 82,
+      "veto_domains": [
+        "pathorob-VALSET1_UKK",
+        "pathorob-VALSET2_WNS",
+        "pathorob-VALSET3_TCGA",
+        "pathorob-VALSET4_CHA_FULL",
+        "pathvqa-official-train"
+      ],
+      "source_only": true
+    },
+    {
+      "expert_id": "conch_claim_verifier",
+      "capability": "classification",
+      "scope": "pathology_claim_support",
+      "modality": "pathology",
+      "task": "open_vqa",
+      "claim_type": "*",
+      "n": 119,
+      "domains": [
+        "pathorob-VALSET1_UKK",
+        "pathorob-VALSET2_WNS",
+        "pathorob-VALSET3_TCGA",
+        "pathorob-VALSET4_CHA_FULL",
+        "pathvqa-official-train"
+      ],
+      "utility_lcb": -0.11503919460282022,
+      "harm_ucb": 0.479297831907446,
+      "specificity_lcb": 0.13238464208785594,
+      "support_n": 45,
+      "support_domains": [
+        "pathorob-VALSET1_UKK",
+        "pathorob-VALSET2_WNS",
+        "pathorob-VALSET3_TCGA",
+        "pathvqa-official-train"
+      ],
+      "veto_precision_lcb": 0.10718501425764242,
+      "veto_n": 66,
+      "veto_domains": [
+        "pathorob-VALSET1_UKK",
+        "pathorob-VALSET2_WNS",
+        "pathorob-VALSET3_TCGA",
+        "pathorob-VALSET4_CHA_FULL",
+        "pathvqa-official-train"
+      ],
+      "source_only": true
+    },
+    {
+      "expert_id": "plip_claim_verifier",
+      "capability": "classification",
+      "scope": "pathology_claim_support",
+      "modality": "pathology",
+      "task": "open_vqa",
+      "claim_type": "*",
+      "n": 57,
+      "domains": [
+        "pathvqa-official-train"
+      ],
+      "utility_lcb": -0.07433249371017278,
+      "harm_ucb": 0.3433684249770991,
+      "specificity_lcb": 0.04914398953912691,
+      "support_n": 17,
+      "support_domains": [
+        "pathvqa-official-train"
+      ],
+      "veto_precision_lcb": 0.02583555677185824,
+      "veto_n": 40,
+      "veto_domains": [
+        "pathvqa-official-train"
+      ],
+      "source_only": true
+    }
+  ]
+}

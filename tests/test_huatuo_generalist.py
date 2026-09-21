@@ -17,6 +17,19 @@ from merit_feddg.spatial_evidence import SpatialEvidenceBridge
 from merit_feddg.tensor_bridge import validate_tensor_backend
 
 
+def test_single_token_receiver_budget_allows_minimum_equal_to_maximum():
+    from merit_feddg.huatuo_generalist import HuatuoVisionGeneralist
+
+    receiver = HuatuoVisionGeneralist.__new__(HuatuoVisionGeneralist)
+    receiver.min_new_tokens = 1
+    receiver.repetition_penalty = 1.2
+    receiver.tokenizer = SimpleNamespace(eos_token_id=2, pad_token_id=2)
+    options = receiver._generation_kwargs(max_new_tokens=1)
+    assert options['min_new_tokens'] == options['max_new_tokens'] == 1
+    with pytest.raises(ValueError, match='invalid Huatuo generation budget'):
+        receiver._generation_kwargs(max_new_tokens=0)
+
+
 def test_huatuo_prompt_matches_released_cli_contract():
     assert _serialized_prompt("What is visible?") == (
         "<|user|>\n<image>\nWhat is visible?\n<|assistant|>\n"

@@ -1,0 +1,127 @@
+{
+  "llava": [
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "ct",
+      "n": 2,
+      "support_n": 2,
+      "utility_lcb": -1.0,
+      "harm_ucb": 0.9054713451991339,
+      "specificity_lcb": 0.0,
+      "commit": false,
+      "veto": false
+    },
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "mri",
+      "n": 1,
+      "support_n": 0,
+      "utility_lcb": -1.0,
+      "harm_ucb": 1.0,
+      "specificity_lcb": 0.0,
+      "commit": false,
+      "veto": false
+    },
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "pathology",
+      "n": 94,
+      "support_n": 39,
+      "utility_lcb": -0.07135366658828551,
+      "harm_ucb": 0.13181286478627147,
+      "specificity_lcb": 0.01091242972824407,
+      "commit": false,
+      "veto": false
+    },
+    {
+      "expert": "conch_claim_verifier",
+      "modality": "pathology",
+      "n": 94,
+      "support_n": 38,
+      "utility_lcb": -0.11731234866860243,
+      "harm_ucb": 0.17285766881068843,
+      "specificity_lcb": 0.01091242972824407,
+      "commit": false,
+      "veto": false
+    },
+    {
+      "expert": "plip_claim_verifier",
+      "modality": "pathology",
+      "n": 83,
+      "support_n": 32,
+      "utility_lcb": 0.0,
+      "harm_ucb": 0.1071827150573635,
+      "specificity_lcb": 0.006633027079790216,
+      "commit": false,
+      "veto": false
+    }
+  ],
+  "huatuo": [
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "ct",
+      "n": 10,
+      "support_n": 5,
+      "utility_lcb": -0.5920000000000001,
+      "harm_ucb": 0.6244717358814613,
+      "specificity_lcb": 0.0,
+      "commit": false,
+      "veto": false
+    },
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "gross_pathology",
+      "n": 4,
+      "support_n": 3,
+      "utility_lcb": 0.0,
+      "harm_ucb": 0.5615060804490177,
+      "specificity_lcb": 0.0,
+      "commit": false,
+      "veto": false
+    },
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "mri",
+      "n": 3,
+      "support_n": 3,
+      "utility_lcb": 0.0,
+      "harm_ucb": 0.5615060804490177,
+      "specificity_lcb": 0.0,
+      "commit": false,
+      "veto": false
+    },
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "pathology",
+      "n": 119,
+      "support_n": 29,
+      "utility_lcb": -0.3428214319490476,
+      "harm_ucb": 0.3839044660825772,
+      "specificity_lcb": 0.07138672488935097,
+      "commit": false,
+      "veto": false
+    },
+    {
+      "expert": "conch_claim_verifier",
+      "modality": "pathology",
+      "n": 119,
+      "support_n": 45,
+      "utility_lcb": -0.27485638288767467,
+      "harm_ucb": 0.4103911669717528,
+      "specificity_lcb": 0.058629716308506635,
+      "commit": false,
+      "veto": false
+    },
+    {
+      "expert": "plip_claim_verifier",
+      "modality": "pathology",
+      "n": 57,
+      "support_n": 17,
+      "utility_lcb": -0.1212544339619922,
+      "harm_ucb": 0.3433684249770991,
+      "specificity_lcb": 0.009675461353255768,
+      "commit": false,
+      "veto": false
+    }
+  ]
+}

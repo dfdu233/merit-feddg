@@ -1,0 +1,30 @@
+{
+  "llava": {
+    "binary_reference_n": 81,
+    "paired_explicit_n": 73,
+    "excluded_ambiguous_n": 8,
+    "baseline_correct": 48,
+    "candidate_correct": 48,
+    "corrected": 0,
+    "broken": 0,
+    "same_polarity": 73,
+    "pathorob_candidate_distribution": {
+      "the short answer is: oesophageal mucosa": 31,
+      "the short answer is: tumor tissue": 1
+    }
+  },
+  "huatuo": {
+    "binary_reference_n": 81,
+    "paired_explicit_n": 81,
+    "excluded_ambiguous_n": 0,
+    "baseline_correct": 51,
+    "candidate_correct": 50,
+    "corrected": 7,
+    "broken": 8,
+    "same_polarity": 66,
+    "pathorob_candidate_distribution": {
+      "tumor tissue": 25,
+      "muscularis propria": 7
+    }
+  }
+}

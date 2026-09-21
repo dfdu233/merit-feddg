@@ -1,0 +1,83 @@
+{
+  "llava": [
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "ct",
+      "n": 2,
+      "nonzero": 1,
+      "perfect_nonzero_direction_specificity_lcb": 0.09452865480086614
+    },
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "mri",
+      "n": 1,
+      "nonzero": 0,
+      "perfect_nonzero_direction_specificity_lcb": 0.0
+    },
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "pathology",
+      "n": 94,
+      "nonzero": 7,
+      "perfect_nonzero_direction_specificity_lcb": 0.03653811601751902
+    },
+    {
+      "expert": "conch_claim_verifier",
+      "modality": "pathology",
+      "n": 94,
+      "nonzero": 7,
+      "perfect_nonzero_direction_specificity_lcb": 0.03653811601751902
+    },
+    {
+      "expert": "plip_claim_verifier",
+      "modality": "pathology",
+      "n": 83,
+      "nonzero": 3,
+      "perfect_nonzero_direction_specificity_lcb": 0.012367579124893058
+    }
+  ],
+  "huatuo": [
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "ct",
+      "n": 10,
+      "nonzero": 1,
+      "perfect_nonzero_direction_specificity_lcb": 0.01787574951572113
+    },
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "gross_pathology",
+      "n": 4,
+      "nonzero": 0,
+      "perfect_nonzero_direction_specificity_lcb": 0.0
+    },
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "mri",
+      "n": 3,
+      "nonzero": 0,
+      "perfect_nonzero_direction_specificity_lcb": 0.0
+    },
+    {
+      "expert": "biomedclip_claim_verifier",
+      "modality": "pathology",
+      "n": 119,
+      "nonzero": 25,
+      "perfect_nonzero_direction_specificity_lcb": 0.14654279199949025
+    },
+    {
+      "expert": "conch_claim_verifier",
+      "modality": "pathology",
+      "n": 119,
+      "nonzero": 25,
+      "perfect_nonzero_direction_specificity_lcb": 0.14654279199949025
+    },
+    {
+      "expert": "plip_claim_verifier",
+      "modality": "pathology",
+      "n": 57,
+      "nonzero": 4,
+      "perfect_nonzero_direction_specificity_lcb": 0.02762597299465902
+    }
+  ]
+}

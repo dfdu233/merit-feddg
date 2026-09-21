@@ -53,13 +53,13 @@ def routed_rows(original, config, root, identity, artifacts, routing_json=None):
             "id": row["id"],
             "image": row["image"],
             "question": row["question"],
-            "modality": "mixed",
+            "modality": row.get("modality", "mixed"),
             "capability": "classification",
             "task": row.get("task", "open_vqa"),
-            "domain": "official-test",
-            "domain_kind": "official_dataset_split",
-            "role": "target",
-            "group_id": row["image_sha256"],
+            "domain": row.get("domain", "official-test"),
+            "domain_kind": row.get("domain_kind", "official_dataset_split"),
+            "role": row.get("role", "target"),
+            "group_id": row.get("group_id", row["image_sha256"]),
             "image_sha256": row["image_sha256"],
         }
         for row in original
@@ -135,6 +135,11 @@ def main():
         )
 
     original = load_manifest(args.manifest)
+    metadata = {row['id']: row for row in map(json.loads, Path(args.manifest).read_text().splitlines())}
+    for row in original:
+        for key in ('modality', 'domain', 'domain_kind', 'role', 'group_id'):
+            if key in metadata[row['id']]:
+                row[key] = metadata[row['id']][key]
     # Force prompt validation now; prompts themselves are not needed by native tools.
     for row in original:
         generation_prompt(row, config)

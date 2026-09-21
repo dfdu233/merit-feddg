@@ -1,0 +1,10 @@
+{
+  "all.jsonl": "67619ff0af5109ced6762569150c70b70174636c687d3a9a8af1c4a4fd1aba10",
+  "qualification-routed.jsonl": "d99b0a3654cb02e04ed7a1565bc1819e54789b491aa5646b93542af66cc78f17",
+  "canary-routed.jsonl": "eeeb8b863109138ef5d5e538f035b5365122a8caed95c95a384bc5bec722f109",
+  "qualification-references.json": "6d8ce9ad8ce5c92349659643d953f6bdb0fbc057675b1351936bf8f39e63194b",
+  "canary-references.json": "a6dd01bc8650d50d3a388839210371af030f6571bda04e2f36f862c64ae167d3",
+  "config-llava.yaml": "e8beb5f47d3b4e5e561cd93762df2043e124a6f748b231c37b203e61278cbc6e",
+  "config-huatuo.yaml": "86a855d007e3a3dd3bcbc48255806d7610dd2d2c3a64f16d2ee2084fa3e8f93c",
+  "config-verifier.yaml": "893891e4a254af30332e969ddd5a086b3c2315871f05fe5e769122467ae58484"
+}

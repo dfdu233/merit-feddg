@@ -1,0 +1,296 @@
+{
+  "llava": {
+    "proposals": {
+      "all": {
+        "n": 224,
+        "improved": 16,
+        "harmed": 15,
+        "unchanged": 193,
+        "mean_gain": -0.0033080810278941454,
+        "baseline": 0.07254262929247789,
+        "candidate": 0.06923454826458375,
+        "oracle": 0.07512015528795565
+      },
+      "pathvqa": {
+        "n": 192,
+        "improved": 16,
+        "harmed": 15,
+        "unchanged": 161,
+        "mean_gain": -0.003859427865876503,
+        "baseline": 0.05077890084122421,
+        "candidate": 0.04691947297534771,
+        "oracle": 0.053786014502614936
+      },
+      "pathorob": {
+        "n": 32,
+        "improved": 0,
+        "harmed": 0,
+        "unchanged": 32,
+        "mean_gain": 0.0,
+        "baseline": 0.203125,
+        "candidate": 0.203125,
+        "oracle": 0.203125
+      }
+    },
+    "verifiers": {
+      "biomedclip_claim_verifier": {
+        "n": 97,
+        "actions": {
+          "D_positive": {
+            "n": 41,
+            "improved": 6,
+            "harmed": 10,
+            "unchanged": 25,
+            "mean_gain": -0.008252971528865862
+          },
+          "real_positive": {
+            "n": 44,
+            "improved": 9,
+            "harmed": 10,
+            "unchanged": 25,
+            "mean_gain": -0.011328765534305646
+          },
+          "both_positive": {
+            "n": 29,
+            "improved": 5,
+            "harmed": 7,
+            "unchanged": 17,
+            "mean_gain": -0.007336222167853004
+          },
+          "D_positive_real_nonpositive": {
+            "n": 12,
+            "improved": 1,
+            "harmed": 3,
+            "unchanged": 8,
+            "mean_gain": -0.010468449151313603
+          }
+        },
+        "auc_improved_vs_harmed": {
+          "differential_effect": 0.37777777777777777,
+          "real_effect": 0.3333333333333333
+        }
+      },
+      "conch_claim_verifier": {
+        "n": 94,
+        "actions": {
+          "D_positive": {
+            "n": 38,
+            "improved": 7,
+            "harmed": 9,
+            "unchanged": 22,
+            "mean_gain": -0.02034141895712175
+          },
+          "real_positive": {
+            "n": 28,
+            "improved": 4,
+            "harmed": 7,
+            "unchanged": 17,
+            "mean_gain": -0.020573941747900466
+          },
+          "both_positive": {
+            "n": 20,
+            "improved": 2,
+            "harmed": 7,
+            "unchanged": 11,
+            "mean_gain": -0.03030211788683656
+          },
+          "D_positive_real_nonpositive": {
+            "n": 18,
+            "improved": 5,
+            "harmed": 2,
+            "unchanged": 11,
+            "mean_gain": -0.009273975701883073
+          }
+        },
+        "auc_improved_vs_harmed": {
+          "differential_effect": 0.37142857142857144,
+          "real_effect": 0.3761904761904762
+        }
+      },
+      "plip_claim_verifier": {
+        "n": 83,
+        "actions": {
+          "D_positive": {
+            "n": 32,
+            "improved": 7,
+            "harmed": 5,
+            "unchanged": 20,
+            "mean_gain": -0.0008469840087487134
+          },
+          "real_positive": {
+            "n": 30,
+            "improved": 7,
+            "harmed": 6,
+            "unchanged": 17,
+            "mean_gain": -0.0018358505417328933
+          },
+          "both_positive": {
+            "n": 25,
+            "improved": 7,
+            "harmed": 5,
+            "unchanged": 13,
+            "mean_gain": -0.0010841395311983531
+          },
+          "D_positive_real_nonpositive": {
+            "n": 7,
+            "improved": 0,
+            "harmed": 0,
+            "unchanged": 7,
+            "mean_gain": 0.0
+          }
+        },
+        "auc_improved_vs_harmed": {
+          "differential_effect": 0.5277777777777778,
+          "real_effect": 0.5092592592592593
+        }
+      }
+    }
+  },
+  "huatuo": {
+    "proposals": {
+      "all": {
+        "n": 224,
+        "improved": 32,
+        "harmed": 32,
+        "unchanged": 160,
+        "mean_gain": 0.017613777027292093,
+        "baseline": 0.13561180259649,
+        "candidate": 0.1532255796237821,
+        "oracle": 0.2085536522833625
+      },
+      "pathvqa": {
+        "n": 192,
+        "improved": 32,
+        "harmed": 20,
+        "unchanged": 140,
+        "mean_gain": 0.07784107319850744,
+        "baseline": 0.064463769695905,
+        "candidate": 0.14230484289441248,
+        "oracle": 0.1495625943305896
+      },
+      "pathorob": {
+        "n": 32,
+        "improved": 0,
+        "harmed": 12,
+        "unchanged": 20,
+        "mean_gain": -0.34375,
+        "baseline": 0.5625,
+        "candidate": 0.21875,
+        "oracle": 0.5625
+      }
+    },
+    "verifiers": {
+      "biomedclip_claim_verifier": {
+        "n": 136,
+        "actions": {
+          "D_positive": {
+            "n": 40,
+            "improved": 5,
+            "harmed": 13,
+            "unchanged": 22,
+            "mean_gain": -0.13280976062791863
+          },
+          "real_positive": {
+            "n": 52,
+            "improved": 4,
+            "harmed": 10,
+            "unchanged": 38,
+            "mean_gain": -0.04696973257255439
+          },
+          "both_positive": {
+            "n": 28,
+            "improved": 2,
+            "harmed": 10,
+            "unchanged": 16,
+            "mean_gain": -0.15698936217977993
+          },
+          "D_positive_real_nonpositive": {
+            "n": 12,
+            "improved": 3,
+            "harmed": 3,
+            "unchanged": 6,
+            "mean_gain": -0.07639069034024228
+          }
+        },
+        "auc_improved_vs_harmed": {
+          "differential_effect": 0.2839506172839506,
+          "real_effect": 0.24320987654320989
+        }
+      },
+      "conch_claim_verifier": {
+        "n": 119,
+        "actions": {
+          "D_positive": {
+            "n": 45,
+            "improved": 11,
+            "harmed": 15,
+            "unchanged": 19,
+            "mean_gain": 0.02236898239553122
+          },
+          "real_positive": {
+            "n": 52,
+            "improved": 9,
+            "harmed": 16,
+            "unchanged": 27,
+            "mean_gain": -0.05972060300643827
+          },
+          "both_positive": {
+            "n": 35,
+            "improved": 8,
+            "harmed": 12,
+            "unchanged": 15,
+            "mean_gain": -0.015403544931320057
+          },
+          "D_positive_real_nonpositive": {
+            "n": 10,
+            "improved": 3,
+            "harmed": 3,
+            "unchanged": 4,
+            "mean_gain": 0.15457282803951075
+          }
+        },
+        "auc_improved_vs_harmed": {
+          "differential_effect": 0.4861111111111111,
+          "real_effect": 0.41512345679012347
+        }
+      },
+      "plip_claim_verifier": {
+        "n": 57,
+        "actions": {
+          "D_positive": {
+            "n": 17,
+            "improved": 3,
+            "harmed": 2,
+            "unchanged": 12,
+            "mean_gain": 0.041345342934527
+          },
+          "real_positive": {
+            "n": 28,
+            "improved": 2,
+            "harmed": 3,
+            "unchanged": 23,
+            "mean_gain": 0.01860902314531347
+          },
+          "both_positive": {
+            "n": 13,
+            "improved": 2,
+            "harmed": 2,
+            "unchanged": 9,
+            "mean_gain": 0.04599813269168108
+          },
+          "D_positive_real_nonpositive": {
+            "n": 4,
+            "improved": 1,
+            "harmed": 0,
+            "unchanged": 3,
+            "mean_gain": 0.026223776223776224
+          }
+        },
+        "auc_improved_vs_harmed": {
+          "differential_effect": 0.5333333333333333,
+          "real_effect": 0.4
+        }
+      }
+    }
+  }
+}

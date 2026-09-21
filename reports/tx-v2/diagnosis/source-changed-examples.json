@@ -1,0 +1,1047 @@
+[
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00002-000420",
+    "question": "what are seen in the cytoplasm of the myocardial fibres, especially around the nuclei?",
+    "references": [
+      "lipofuscin pigment granules nuclei"
+    ],
+    "baseline": "The image shows the presence of crystals in the cytoplasm of the myocardial fibres, especially around the nuclei.",
+    "candidate": "The image shows the presence of small, round, and eosinophilic structures in the cytoplasm of the myocardial fibres, especially around the nuclei.",
+    "gain": -0.013986013986013984
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00002-002679",
+    "question": "does this image show pancreas, hemochromatosis?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows pancreas and hemochromatosis.",
+    "candidate": "The image is a histopathology slide, which is a microscopic examination of a tissue sample. It is not possible to determine if the image shows pancreas or hemochromatosis without actually seeing the image. However, histopathology slides are typically used to study the microscopic structure of tissues and can provide valuable information about the presence of diseases or abnormalities.",
+    "gain": -0.25
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00004-002266",
+    "question": "does this image show chagas disease, acute, trypanasoma cruzi?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows chagas disease, acute, trypanasoma cruzi.",
+    "candidate": "Yes, the image is related to chagas disease, acute, trypanasoma cruzi.",
+    "gain": -0.033333333333333354
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00002-001398",
+    "question": "what contain eosinophilic, granular, homogeneous and pink proteinaceous oedema fluid along with some rbcs and inflammatory cells?",
+    "references": [
+      "the alveolar spaces"
+    ],
+    "baseline": "The short answer is that the oedema fluid in the image contains eosinophilic, granular, homogeneous, and pink proteinaceous fluid along with some rbcs and inflammatory cells.",
+    "candidate": "The short answer is that the image shows eosinophilic, granular, homogeneous, and pink proteinaceous oedema fluid along with some rbcs and inflammatory cells.",
+    "gain": 0.007957559681697618
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00001-001825",
+    "question": "does this image show prostate, benign prostatic hyperplasia?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows prostate, benign prostatic hyperplasia (BPH).",
+    "candidate": "Yes, the image shows prostate, benign prostatic hyperplasia.",
+    "gain": 0.0222222222222222
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00002-000792",
+    "question": "does this image show brain, herpes simplex virus immunohistochemistry?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows brain tissue with herpes simplex virus immunohistochemistry.",
+    "candidate": "Yes, the image shows brain, herpes simplex virus immunohistochemistry.",
+    "gain": 0.033333333333333354
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00000-001503",
+    "question": "is the amorphous nature of the thickened vascular wall evident?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the amorphous nature of the thickened vascular wall is evident in the histopathology image.",
+    "candidate": "Yes, the amorphous nature of the thickened vascular wall is evident in the image.",
+    "gain": 0.008333333333333331
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00006-001672",
+    "question": "is hilar cell tumor present?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows the presence of an is hilar cell tumor.",
+    "candidate": "The image shows a hilar cell tumor, which is a type of cancer that originates in the hilar region of the lung. The presence of this tumor is confirmed in the image.",
+    "gain": -0.15384615384615385
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00003-001066",
+    "question": "where is this?",
+    "references": [
+      "skin"
+    ],
+    "baseline": "The image is of the left thigh.",
+    "candidate": "This is a question and answer request related to the image. The short answer is that the image is related to the skin, specifically focusing on the skin's appearance and any abnormalities or changes that may be present.",
+    "gain": 0.05
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00005-000291",
+    "question": "is cardiovascular present?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows cardiovascular involvement, which means that the heart or blood vessels are affected in some way.",
+    "candidate": "Yes, the image shows the presence of cardiovascular tissue.",
+    "gain": 0.1
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00004-002787",
+    "question": "is cardiovascular present?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows cardiovascular involvement.",
+    "candidate": "Yes, the image shows the presence of cardiovascular tissue.",
+    "gain": -0.08571428571428569
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00003-001741",
+    "question": "does this image show renal papillary necrosis, diabetes mellitus dm?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows renal papillary necrosis in a patient with diabetes mellitus.",
+    "candidate": "The image is a renal papillary necrosis (rpn) image, which is a histopathological finding. it is not a diabetes mellitus dm (dm) image. however, the context you provided mentions that the image is from a patient with dm. it is important to note that the image itself does not show dm, but it is associated with a patient who has been diagnosed with dm.",
+    "gain": -0.14285714285714285
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00002-000830",
+    "question": "does the glomerulus show inflammatory cells within the capillary loops glomerulitis, accumulation of mesangial matrix, and duplication of the capillary basement membrane?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the glomerulus in the image shows these features.",
+    "candidate": "Yes, the glomerulus in the image shows inflammatory cells within the capillary loops glomerulitis, accumulation of mesangial matrix, and duplication of the capillary basement membrane.",
+    "gain": -0.12307692307692308
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00004-000934",
+    "question": "are hallmarks of microscopic picture of the usual osteosarcoma the sarcoma cells characterised by variation in size and shape of tumour cells, bizarre mitosis and multinucleate tumour giant cells, and osteogenesis ie?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the microscopic picture of the usual osteosarcoma shows these hallmarks, which include variation in size and shape of tumour cells, bizarre mitosis, and multinucleate tumour giant cells. Additionally, osteogenesis is also observed in the image.",
+    "candidate": "Yes, the hallmarks of microscopic picture of the usual osteosarcoma include the sarcoma cells being characterised by variation in size and shape of tumour cells, bizarre mitosis, and multinucleate tumour giant cells. Additionally, osteogenesis is also a feature of this type of osteosarcoma.",
+    "gain": -0.008599508599508601
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00001-001807",
+    "question": "what does this image show?",
+    "references": [
+      "apoptosis in prostate after orchiectomy"
+    ],
+    "baseline": "The image shows a histopathological view of a tissue sample, which reveals the presence of fungal hyphae.",
+    "candidate": "The image shows a histopathology slide of a tumor. Histopathology is the examination of tissues under a microscope to study the manifestations of disease. In this case, the image is likely used to analyze the tumor's cellular structure and organization, which can provide valuable information about the nature of the tumor and help in diagnosis and treatment planning.",
+    "gain": 0.03125
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00001-000869",
+    "question": "does this image show autoimmune hepatitis?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows histological features of autoimmune hepatitis.",
+    "candidate": "The image is from a training set, and it is not possible to determine if it shows autoimmune hepatitis without more context or information. The image is likely used for training purposes, and it may not be directly related to the specific question being asked.",
+    "gain": -0.2
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00003-002307",
+    "question": "what in aplastic anaemia is contrasted against normal cellular marrow?",
+    "references": [
+      "bone marrow trephine biopsy"
+    ],
+    "baseline": "In aplastic anaemia, the contrast is between the absence of cellular marrow and the presence of normal cellular marrow.",
+    "candidate": "In aplastic anaemia, the contrast is between the normal cellular marrow and the absence of cellular marrow. This is because aplastic anaemia is characterized by a decrease in the number of blood cells, which can be seen as a lack of cellular marrow in the bone marrow.",
+    "gain": -0.008525149190110826
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00003-001449",
+    "question": "does quite good liver show scleroderma?",
+    "references": [
+      "no"
+    ],
+    "baseline": "No, the liver in the image does not show scleroderma.",
+    "candidate": "No, the quite good liver in the image does not show scleroderma.",
+    "gain": -0.02797202797202797
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00005-002458",
+    "question": "is papillary adenoma present?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the histopathology image shows the presence of a papillary adenoma.",
+    "candidate": "Yes, the image shows the presence of papillary adenoma.",
+    "gain": 0.033333333333333354
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00006-002519",
+    "question": "what are seen infiltrating the epidermis?",
+    "references": [
+      "large tumor cells with pale-pink cytoplasm"
+    ],
+    "baseline": "In the image, eosinophils are seen infiltrating the epidermis.",
+    "candidate": "In the image, there are infiltrating cells seen in the epidermis. These cells are likely part of the immune response or inflammation in the skin.",
+    "gain": 0.0625
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00005-000171",
+    "question": "are iron deposits shown by a special staining process call the prussian blue reaction?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows iron deposits in the tissue sample. These deposits are visualized using a special staining process called the prussian blue reaction.",
+    "candidate": "Yes, the image shows iron deposits in the tissue sample, which are visualized using a special staining process called the prussian blue reaction.",
+    "gain": 0.003333333333333327
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00000-002636",
+    "question": "is rheumatoid nodule composed of central necrosis rimmed by palisaded histiocytes?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the rheumatoid nodule in the image is composed of central necrosis rimmed by palisaded histiocytes.",
+    "candidate": "Yes, the rheumatoid nodule is composed of central necrosis rimmed by palisaded histiocytes.",
+    "gain": 0.02521008403361344
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00003-001976",
+    "question": "what is hemosiderosis caused?",
+    "references": [
+      "by numerous blood transfusions"
+    ],
+    "baseline": "Hemosiderosis is caused by the accumulation of hemosiderin, an iron-storage complex, in the tissues. This can occur due to various reasons, such as chronic or recurrent bleeding, inflammation, or other underlying conditions.",
+    "candidate": "Hemosiderosis is caused by the accumulation of hemosiderin, an iron-storage complex, in the tissues. This can occur due to chronic or recurrent bleeding, which leads to the deposition of iron in the affected tissues.",
+    "gain": -0.0027720027720027768
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00000-000869",
+    "question": "do carcinomas consist of tightly adhesive clusters of cells, as in this carcinoma with medullary features, or when there is abundant extracellular mucin production?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the histopathology of the carcinoma in the image shows tightly adhesive clusters of cells, as well as abundant extracellular mucin production.",
+    "candidate": "Yes, carcinomas can consist of tightly adhesive clusters of cells, as seen in this carcinoma with medullary features. Additionally, when there is abundant extracellular mucin production, the carcinoma may also exhibit this characteristic.",
+    "gain": -0.028132992327365727
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00003-002350",
+    "question": "are there bands of collagen forming nodules and characteristic lacunar rs cells?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the histopathology image shows bands of collagen forming nodules and characteristic lacunar rs cells.",
+    "candidate": "Yes, the image shows bands of collagen forming nodules and characteristic lacunar rs cells.",
+    "gain": 0.008333333333333331
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00004-001037",
+    "question": "is ryptococci in csf as seen in mucicarmine stain?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows the presence of is ryptococci in the cerebrospinal fluid (CSF) as seen in the mucicarmine stain.",
+    "candidate": "Yes, the image shows the presence of ryptococci in the cerebrospinal fluid (CSF) as seen in the mucicarmine stain.",
+    "gain": 0.004761904761904773
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00004-002805",
+    "question": "is cardiovascular present?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows cardiovascular involvement.",
+    "candidate": "Yes, the image shows the presence of cardiovascular tissue.",
+    "gain": -0.08571428571428569
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00003-000222",
+    "question": "what is there in the dermis with a clear subepidermal zone?",
+    "references": [
+      "collection of proliferating foam macrophages"
+    ],
+    "baseline": "In the dermis with a clear subepidermal zone, there is a dense lymphocytic infiltrate.",
+    "candidate": "The image shows a clear subepidermal zone in the dermis. The subepidermal zone is the layer of skin just beneath the epidermis, which is the outermost layer of the skin. A clear subepidermal zone may indicate a normal or healthy appearance of this layer, or it could be related to a specific condition or disease. Further analysis and clinical correlation would be needed to determine the significance of this finding.",
+    "gain": 0.02666666666666667
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00003-001332",
+    "question": "does this image show skin?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows a histopathology of skin.",
+    "candidate": "Yes, the image shows skin.",
+    "gain": 0.1111111111111111
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00000-002544",
+    "question": "is oil wrights cells diagnosed?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows is oil wrights cells, which are a characteristic finding in certain conditions.",
+    "candidate": "Yes, the image shows the diagnosis of is oil wrights cells.",
+    "gain": 0.04901960784313725
+  },
+  {
+    "model": "llava",
+    "id": "pathvqa-train-00000-002468",
+    "question": "is chronic myelogenous leukemia present?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes, the image shows chronic myelogenous leukemia (CML) in the bone marrow.",
+    "candidate": "The image is from a patient with chronic myelogenous leukemia (CML).",
+    "gain": -0.15384615384615385
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00005-001881",
+    "question": "does photo show hashimoto 's thyroiditis?",
+    "references": [
+      "no"
+    ],
+    "baseline": "Yes. The image shows features consistent with Hashimoto's thyroiditis, including lymphocytic infiltration and fibrosis in the thyroid gland tissue.",
+    "candidate": "No. The image does not show Hashimoto's thyroiditis, but rather a lymph node biopsy with features of follicular hyperplasia and reactive changes without evidence of malignancy or granulomatous inflammation.",
+    "gain": 0.06451612903225806
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00000-001842",
+    "question": "does opened base of skull with brain show predominant epithelial component?",
+    "references": [
+      "no"
+    ],
+    "baseline": "No. The image shows a predominant mesenchymal component, not an epithelial one.",
+    "candidate": "No. The image shows a predominant epithelial component, but it also contains other components such as connective tissue and possibly some inflammatory cells or fibroblasts.",
+    "gain": -0.07692307692307693
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00001-001995",
+    "question": "is bone marrow on the left side of the fluorescent band?",
+    "references": [
+      "no"
+    ],
+    "baseline": "Yes. The left side of the fluorescent band shows a bright green area that is consistent with bone marrow tissue, as indicated by its distinct fluorescence and texture compared to other regions in the image. This suggests it could be an area rich in hematopoietic cells or fibrous structures typical for bone marrow.",
+    "candidate": "No.",
+    "gain": 1.0
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00002-002311",
+    "question": "does lower chest and abdomen anterior show fibrous dysplasia?",
+    "references": [
+      "no"
+    ],
+    "baseline": "No. The image provided is a dental X-ray and does not show the lower chest or abdomen anterior region, which would be relevant for assessing fibrous dysplasia in those areas. Fibrous dysplasia typically affects bones such as the skull, jaw, spine, pelvis, ribs, femur (thigh bone), tibia (shinbone), humerus (upper arm bone), radius (forearm bone), ulna (forearm bone), scapulae (shoulder blades), clavicles (collarbones), vertebrae of the spine, sacrum, and iliac wings. It can also affect other parts like the mandible, maxilla, nasal septum, orbital walls, zygomatic arches, frontal process of sphenoid, and parietal bones.\n\nTo assess whether there are signs of fibrous dysplasia affecting these regions, an appropriate radiographic examination that includes images of the thoracic cage and abdominal area should be performed by a medical professional who specializes in musculoskeletal imaging. If you have concerns about fibrous dysplasia, it's important to consult with your healthcare provider for proper evaluation and diagnosis based on clinical findings and additional diagnostic tests if necessary.",
+    "candidate": "No.",
+    "gain": 0.9878787878787879
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00004-002489",
+    "question": "is cardiovascular present?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows a cross-section of the heart, which is part of the cardiovascular system.",
+    "candidate": "Yes.",
+    "gain": 0.8888888888888888
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00002-000420",
+    "question": "what are seen in the cytoplasm of the myocardial fibres, especially around the nuclei?",
+    "references": [
+      "lipofuscin pigment granules nuclei"
+    ],
+    "baseline": "Inclusions in the cytoplasm of myocardial fibers, especially around nuclei.",
+    "candidate": "Inclusions and vacuoles.",
+    "gain": -0.14285714285714285
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00003-002196",
+    "question": "does this image show kidney glomerulus, arteriolar thickening in a patient with diabetes mellitus?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows a kidney glomerulus with arteriolar thickening, which is consistent with diabetic nephropathy in patients with diabetes mellitus. This condition involves the deposition of extracellular matrix and fibrosis within the renal interstitium as well as changes to the glomerular capillary walls such as thickened basement membranes or hyaline deposits. These histological features are indicative of chronic damage due to prolonged hyperglycemia affecting the kidneys' filtering units (glomeruli) and blood vessels supplying them.",
+    "candidate": "Yes. The image shows a kidney glomerulus with arteriolar thickening, which is consistent with diabetic nephropathy in patients with diabetes mellitus.",
+    "gain": 0.0645933014354067
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00002-001753",
+    "question": "what shows marked degeneration and necrosis of hepatocytes accompanied by haemorrhage while the peripheral zone shows mild fatty change of liver cells?",
+    "references": [
+      "centrilobular cells"
+    ],
+    "baseline": "Peripheral zone shows mild fatty change of liver cells.",
+    "candidate": "Hepatocellular carcinoma (HCC) with associated features.",
+    "gain": -0.18181818181818182
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00003-002740",
+    "question": "is normal non-activated platelet, having open canalicular system and the cytoplasmic organelles densely infiltrated by chronic inflammatory cells, chiefly lymphocytes, plasma cells and macrophages?",
+    "references": [
+      "no"
+    ],
+    "baseline": "Yes. The image on the right shows a normal non-activated platelet with an open canalicular system and cytoplasmic organelles densely infiltrated by chronic inflammatory cells, primarily lymphocytes, plasma cells, and macrophages. This is consistent with the description provided in the reference information for Figure 10 of the histological specimen from the patient's left knee joint synovium biopsy.",
+    "candidate": "No.",
+    "gain": 1.0
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00002-001398",
+    "question": "what contain eosinophilic, granular, homogeneous and pink proteinaceous oedema fluid along with some rbcs and inflammatory cells?",
+    "references": [
+      "the alveolar spaces"
+    ],
+    "baseline": "Pseudocysts in the pancreas contain eosinophilic, granular, homogeneous and pink proteinaceous oedema fluid along with some red blood cells (RBCs) and inflammatory cells. These pseudocysts are typically associated with acute or chronic pancreatitis but can also occur due to other causes such as pancreatic trauma or surgery.\n\nThe image provided appears to be a histological slide stained for microscopic examination of tissue samples. The presence of these features\u2014eosinophilic, granular, homogeneous and pink proteinaceous material within cyst-like structures\u2014is characteristic of pseudocyst formation in various organs including the pancreas. Pseudocysts often form after episodes of inflammation like acute pancreatitis where necrotic debris accumulates surrounded by fibrous capsule that contains exudate comprising proteins from damaged acinar cells among others components you mentioned - RBCs & inflammatory cells.\n\nIn summary:\n- Eosinophilic: Refers to staining properties under microscopy.\n- Granular: Describes texture seen on microscopic level.\n- Homogeneous: Indicates uniformity across sample area viewed microscopically.\n- Pink Proteinaceous Fluid: This refers specifically to the coloration and nature of the fluid content inside the pseudocyst which is richly composed of proteins released during",
+    "candidate": "Lung alveoli",
+    "gain": -0.011235955056179775
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00005-000760",
+    "question": "is this specimen from a patient with hemolytic uremic syndrome positive for the b cell markers cd19 and cd22?",
+    "references": [
+      "no"
+    ],
+    "baseline": "Yes. The image shows a high number of large, atypical lymphoid cells with irregular nuclear contours and prominent nucleoli, which are characteristic features seen in patients with hemolytic uremic syndrome (HUS) positive for B cell markers CD19 and CD22. These findings suggest the presence of abnormal or malignant B-lymphocytes associated with HUS.",
+    "candidate": "No. The image shows a high number of immature white blood cells, which is characteristic of acute myeloid leukemia (AML), not hemolytic uremic syndrome (HUS). HUS typically involves platelet and complement abnormalities rather than the presence of these specific B cell markers in bone marrow or peripheral blood smears.",
+    "gain": 0.04
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00003-002792",
+    "question": "what shows necrotic debris, ulceration and inflammation on the mucosal surface?",
+    "references": [
+      "photomicrograph on right"
+    ],
+    "baseline": "Necrotic debris, ulceration and inflammation on the mucosal surface are shown by the pinkish-purple areas with irregular shapes in the image. These features indicate tissue damage and an ongoing inflammatory response within the examined sample of oral squamous cell carcinoma (OSCC). The presence of necrosis suggests that some cells have died due to insufficient blood supply or other factors contributing to cancer progression.\n\nThe histological examination reveals a complex interplay between malignant transformation and host immune responses:\n\n1. **Necrotic Debris**: This appears as amorphous eosinophilic material scattered throughout the tumor mass. Necrosis is common in rapidly growing tumors where outgrowing their own vascular supply leads to ischemia and subsequent cellular death.\n   \n2. **Ulceration**: Visible as disruptions in the epithelial layer continuity, these ulcers can be seen at various stages of healing but often represent advanced disease states like OSCC. They result from invasive growth patterns disrupting normal architecture leading to erosion through the overlying layers.\n\n3. **Inflammation**: Characterized by infiltration of leukocytes into affected tissues, this indicates an active immune response against tumoral invasion. Inflammatory cells such as lymphocytes, neutrophils, macrophages may infiltrate around neoplastic lesions",
+    "candidate": "Necrotic debris, ulceration and inflammation on the mucosal surface are shown in this histopathological image. The tissue sample displays a disrupted epithelial layer with areas of necrosis (cell death), loss of normal architecture, inflammatory cell infiltration, and evidence of ulcer formation.\n\nThe presence of these features suggests an ongoing pathological process affecting the mucosa, which could be due to various causes such as infection, ischemia, or autoimmune disorders like Crohn's disease or ulcerative colitis. Further clinical correlation would be necessary for accurate diagnosis and treatment planning.",
+    "gain": 0.011695906432748539
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00004-000180",
+    "question": "does electron microscopy show many nodules of variable sizes owing to co-existent macronodular cirrhosis?",
+    "references": [
+      "no"
+    ],
+    "baseline": "No, electron microscopy does not show many nodules of variable sizes owing to co-existent macronodular cirrhosis. The image provided is a macroscopic view showing the gross appearance of liver tissue with areas suggestive of fibrosis and possible necrotic regions but lacks detailed cellular structures that would be visible under an electron microscope at high magnification (\u00d710). Electron microscopes provide ultrastructural details which are beyond what can be observed in this type of histological section.",
+    "candidate": "No.",
+    "gain": 0.9736842105263158
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00000-000879",
+    "question": "does this image show spleen, normal spleen?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows a normal spleen with its typical smooth, glistening surface and uniform coloration. There are no visible abnormalities or lesions on the organ's exterior in this photograph. This is consistent with what one would expect from an anatomically intact and healthy spleen specimen removed during surgery for examination purposes.",
+    "candidate": "Yes. The image shows a normal spleen with its typical smooth, oval shape and homogeneous texture. There are no visible abnormalities or lesions on the surface of this organ in the provided photograph.",
+    "gain": 0.02178649237472767
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00003-001303",
+    "question": "is hilar cell tumor present?",
+    "references": [
+      "no"
+    ],
+    "baseline": "No. The image shows a gross specimen of the right kidney with no visible hilar cell tumor present.",
+    "candidate": "No. The image shows a gross specimen of the right kidney with no visible hilar cell tumor present, as confirmed by histopathological examination and immunohistochemical staining for CD10 positivity in the renal cortex but not at the hilum or medulla.",
+    "gain": -0.056482670089858786
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00001-001825",
+    "question": "does this image show prostate, benign prostatic hyperplasia?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows prostate tissue with benign prostatic hyperplasia, characterized by the enlarged glandular structures and increased cellularity within them.",
+    "candidate": "No. The image does not show prostate or benign prostatic hyperplasia, but rather a histological section of tissue with glandular structures and surrounding stroma that could be from various organs such as the breast (glandular epithelium) or salivary glands.",
+    "gain": -0.09090909090909091
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00005-000103",
+    "question": "is cardiovascular present?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows a cross-section of an artery with significant thickening and narrowing, indicative of cardiovascular disease or arteriosclerosis. This condition is characterized by the buildup of plaque within the arterial walls leading to reduced blood flow. The presence of such changes in vascular structure can lead to various complications including heart attacks, strokes, and peripheral artery diseases if not managed appropriately.",
+    "candidate": "Yes.",
+    "gain": 0.9692307692307692
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00001-002769",
+    "question": "is immunostain for growth hormone present?",
+    "references": [
+      "no"
+    ],
+    "baseline": "No. The image does not show immunostaining for growth hormone, as it is an electron micrograph and the staining method used here would be different from what you see in this type of imaging technique. Immunohistochemical stains are typically performed on light microscopy images using specific antibodies that bind to proteins like growth hormone (GH). In contrast, electron microscopy provides a detailed view at high magnification but without colorimetric or fluorescent markers indicating protein presence directly within cells. Therefore, while we can observe cellular structures such as nuclei and cytoplasmic components with great detail due to their ultrastructural features visible under electron microscopy, identifying specific proteins through immunostain methods requires additional techniques beyond those shown in this image.",
+    "candidate": "No.",
+    "gain": 0.9831932773109243
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00003-001456",
+    "question": "does premature coronary disease show scleroderma?",
+    "references": [
+      "no"
+    ],
+    "baseline": "No. Premature coronary disease is not associated with scleroderma, which primarily affects the skin and connective tissues leading to thickening (sclerosis) of these areas. Scleroderma can sometimes present in other organs but does not directly cause premature coronary artery disease. Coronary artery disease typically results from atherosclerosis or other vascular conditions rather than systemic sclerosis as seen in scleroderma.",
+    "candidate": "No.",
+    "gain": 0.9666666666666667
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00003-001797",
+    "question": "does close-up excellent example of interosseous muscle atrophy show kidney, arteriolonephrosclerosis, malignant hypertension?",
+    "references": [
+      "no"
+    ],
+    "baseline": "No. The image shows a kidney with signs of arteriolonephrosclerosis, but it does not show interosseous muscle atrophy or malignant hypertension directly. Malignant hypertension is related to the condition shown in the image and can lead to such changes in blood vessels within organs like kidneys due to prolonged high blood pressure. However, this specific image focuses on the renal pathology rather than muscular involvement.",
+    "candidate": "No. The image shows a kidney with signs of arteriolonephrosclerosis, but it does not show interosseous muscle atrophy or malignant hypertension.",
+    "gain": 0.06060606060606061
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00000-000270",
+    "question": "does the cellular adaptation depicted here consist of numerous swollen villi?",
+    "references": [
+      "no"
+    ],
+    "baseline": "Yes. The image shows numerous swollen villi, which are characteristic of the cellular adaptation in this context. These structures appear enlarged and filled with red blood cells, indicating a significant alteration from normal tissue architecture due to pathological conditions such as inflammation or infection. This swelling is typically associated with increased permeability allowing for greater exchange between the bloodstream and surrounding tissues but can also lead to complications like bleeding if not managed properly.",
+    "candidate": "No. The image depicts numerous swollen cells, not villi.",
+    "gain": 0.2
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00004-002399",
+    "question": "is cardiovascular present?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows a heart with visible blood vessels and chambers, indicating the presence of cardiovascular structures within it.",
+    "candidate": "Yes.",
+    "gain": 0.9047619047619048
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00002-000792",
+    "question": "does this image show brain, herpes simplex virus immunohistochemistry?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows brain tissue with herpes simplex virus immunohistochemistry, as indicated by the presence of dark brown-stained cells and structures within a neuropil background stained in lighter shades. This staining pattern is characteristic for identifying viral infections such as HSV-1 or HSV-2 in neural tissues using specific antibodies that bind to these viruses' antigens.",
+    "candidate": "No. The image does not show brain or herpes simplex virus immunohistochemistry. It appears to be a microscopic view of tissue with various cells and structures, but the specific details provided do not indicate that it is related to brain or HSV (Herpes Simplex Virus) staining.",
+    "gain": -0.03333333333333333
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00002-000375",
+    "question": "what are seen in the cytoplasm of the myocardial fibres, especially around the nuclei?",
+    "references": [
+      "lipofuscin pigment granules nuclei"
+    ],
+    "baseline": "Inclusions in cytoplasm around nuclei.",
+    "candidate": "Intracellular structures, possibly mitochondria or other organelles.",
+    "gain": -0.2222222222222222
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00000-001503",
+    "question": "is the amorphous nature of the thickened vascular wall evident?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The thickened vascular wall in the image appears amorphous, indicating a pathological alteration of its structure and function. This is consistent with changes seen in conditions like diabetic nephropathy where there's an accumulation of extracellular matrix components leading to sclerosis or fibrosis within glomerular structures. Such histological features are critical for diagnosing underlying renal pathologies that could impact kidney function over time.",
+    "candidate": "Yes. The thickened vascular wall in the image appears amorphous, indicating a pathological change or abnormality within the tissue structure. This can be seen as an irregular and disorganized appearance of the vessel walls compared to normal healthy vasculature.\n\nThe presence of this amorphous nature suggests that there may be underlying disease processes affecting the blood vessels, such as inflammation, fibrosis, or other structural changes. Further clinical evaluation would be necessary to determine the specific cause and implications for patient care.",
+    "gain": -0.006378986866791746
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00003-002448",
+    "question": "does thalassaemia and hbd show scattered collection of lymphocytes?",
+    "references": [
+      "no"
+    ],
+    "baseline": "No. The image does not show a scattered collection of lymphocytes, which is characteristic of thalassaemia and HBD (Hereditary Breast Cancer). Instead, it shows the normal histological structure of breast tissue with ducts lined by cuboidal epithelial cells containing intracytoplasmic mucin globules.",
+    "candidate": "No.",
+    "gain": 0.9534883720930233
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00005-000525",
+    "question": "is cardiovascular present?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows a cross-section of an artery with thickened walls and narrowed lumen, indicative of cardiovascular pathology such as arteriosclerosis or other vascular diseases. This is consistent with the presence of cardiovascular disease in this tissue sample.",
+    "candidate": "Yes.",
+    "gain": 0.9512195121951219
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00003-001741",
+    "question": "does this image show renal papillary necrosis, diabetes mellitus dm?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows renal papillary necrosis, which is often associated with diabetes mellitus (DM). This condition involves the death of kidney tissue due to a lack of blood supply and can be seen in patients who have poorly controlled DM for an extended period.",
+    "candidate": "No. The image shows renal papillary necrosis, but it does not indicate diabetes mellitus DM based on the visual information provided in this specific medical image alone.",
+    "gain": -0.043478260869565216
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00002-002674",
+    "question": "does this image show pancreas, hemochromatosis, prussian blue?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows a pancreas with evidence of hemochromatosis, as indicated by the presence of iron deposits stained blue using Prussian Blue staining technique.",
+    "candidate": "Yes. The image shows pancreas, hemochromatosis, and prussian blue staining.",
+    "gain": 0.1048951048951049
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00002-000830",
+    "question": "does the glomerulus show inflammatory cells within the capillary loops glomerulitis, accumulation of mesangial matrix, and duplication of the capillary basement membrane?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "No. The glomerulus does not show inflammatory cells within the capillary loops, accumulation of mesangial matrix, or duplication of the capillary basement membrane in this image. It appears to be a normal histological structure without any signs of inflammation or pathological changes.",
+    "candidate": "Yes. The glomerulus shows inflammatory cells within the capillary loops, accumulation of mesangial matrix, and duplication of the capillary basement membrane. These features are indicative of a pathological condition affecting the kidney's filtering units (glomeruli). Inflammation in this context can lead to various renal diseases such as IgA nephropathy or other forms of glomerulonephritis.\n\nThe presence of these specific changes suggests an active disease process that may be causing damage to the kidneys' filtration system. This could result from immune-mediated processes where antibodies target components of the glomerular structure leading to inflammation and subsequent tissue injury.\n \nIn summary:\n- **Inflammatory Cells**: Yes\n- **Mesangial Matrix Accumulation**: Yes\n- **Duplication of Capillary Basement Membrane**: Yes\n\nThese findings should prompt further clinical evaluation including laboratory tests for proteinuria, hematuria, serum creatinine levels among others which will help assess overall kidney function and guide appropriate management strategies based on underlying causes identified through comprehensive diagnostic workup.",
+    "gain": 0.013071895424836602
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00004-000934",
+    "question": "are hallmarks of microscopic picture of the usual osteosarcoma the sarcoma cells characterised by variation in size and shape of tumour cells, bizarre mitosis and multinucleate tumour giant cells, and osteogenesis ie?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The microscopic picture of the usual osteosarcoma is characterized by variation in size and shape (pleomorphism) of tumor cells, bizarre mitosis, multinucleate tumor giant cells, and osteogenesis or bone formation within the tumor tissue. These features are indicative of a highly aggressive malignant neoplasm originating from mesenchymal precursor cells with differentiation towards an osteoid-producing lineage.\n\nThe left panel shows pleomorphic spindle-shaped to ovoid tumor cells arranged haphazardly without any discernible pattern, which reflects their disorganized growth characteristic of sarcomas.\n \nThe right panel displays areas where there's evidence of osteoblastic activity - this can be seen as regions that appear more eosinophilic due to mineralization typical for osteogenic tumors like osteosarcoma. Additionally, you may notice some irregular nuclei sizes and shapes indicating high cellular atypia and abnormal cell division processes such as bizarre mitoses. Multinucleated giant cells could also be present but might not be clearly visible here depending on staining quality and magnification level used during histopathological examination. \n\nIn summary, both panels exhibit hallmarks consistent with osteosarcoma diagnosis when considering clinical context along with these pathological findings.",
+    "candidate": "Yes. The microscopic picture of the usual osteosarcoma is characterized by variation in size and shape of tumor cells, bizarre mitosis, multinucleate tumor giant cells, and osteogenesis (bone formation). These features are hallmarks that help pathologists identify this type of bone cancer under a microscope.",
+    "gain": 0.03242853711265914
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00000-002381",
+    "question": "does coronal computed axial tomography scan show eccentric aneurysmal bone cyst of tibia?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The coronal computed axial tomography scan shows an eccentric aneurysmal bone cyst of the tibia, characterized by a well-defined lytic lesion with internal septations and fluid levels within it. This appearance is typical for an Aneurysmal Bone Cyst (ABC), which often presents as a benign but expansile tumor-like lesion in long bones such as the femur or tibia.\n\nThe CT image demonstrates these features clearly: there's a large area that appears darker than surrounding tissues indicating less dense material like fluid accumulation inside the lesion; this dark region has multiple thin lines running through it - those are likely fibrous septa dividing different compartments within the ABC. Additionally, you can see some brighter areas around the edges where new bone formation might be occurring due to pressure from the expanding cystic mass against normal bone tissue.\n  \nThis type of imaging helps confirm diagnosis before any surgical intervention may be considered, allowing doctors to plan treatment effectively while understanding the extent and nature of the pathology involved.",
+    "candidate": "Yes. The coronal computed axial tomography scan shows an eccentric aneurysmal bone cyst of the tibia, characterized by a well-defined lytic lesion with internal septations and fluid levels within it. This appearance is typical for an Aneurysmal Bone Cyst (ABC), which often presents as a benign but expansile tumor-like lesion in long bones such as the femur or tibia.\n\nThe CT image demonstrates these features clearly: there's a large area that appears darker than surrounding tissues indicating less dense material like fluid accumulation inside the lesion; this dark region has multiple thin lines running through it - those are likely fibrous septa dividing different compartments within the ABC. Additionally, you can see some brighter areas around the edges where new bone formation might be occurring due to pressure from the expanding cystic mass on adjacent normal bone tissue.\n  \nAneurysmal bone cysts typically do not cause pain unless they grow very large enough to compress nearby nerves or structures significantly. However, their size and location may lead to complications if left untreated because they have potential for pathological fractures especially when located near weight-bearing parts of the skeleton like the knee joint shown here. Treatment options include curettage followed by grafting or sclerotherapy depending upon specific clinical scenarios and",
+    "gain": -0.002330743618201998
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00003-001453",
+    "question": "where is this?",
+    "references": [
+      "skin"
+    ],
+    "baseline": "Skin.",
+    "candidate": "Skin tissue.",
+    "gain": -0.33333333333333337
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00004-002468",
+    "question": "has acute viral hepatitis been distorted by the enlarged right ventricle?",
+    "references": [
+      "no"
+    ],
+    "baseline": "Yes. The enlarged right ventricle has distorted the acute viral hepatitis in this specimen, as evidenced by its displacement and compression of surrounding tissues within the heart's cavity. This distortion is a result of the significant enlargement caused by the pathological condition affecting the right ventricular wall thickness.",
+    "candidate": "No. The image shows a heart with an enlarged right ventricle, but it does not indicate any distortion of acute viral hepatitis in the provided view.",
+    "gain": 0.07407407407407407
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00001-001278",
+    "question": "does colon show lymph node, cytomegalovirus?",
+    "references": [
+      "no"
+    ],
+    "baseline": "No. The image does not show lymph node or cytomegalovirus infection in the colon tissue sample provided. It shows a dense infiltration of inflammatory cells, but no specific pathogen is visible.",
+    "candidate": "No.",
+    "gain": 0.9375
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00001-000869",
+    "question": "does this image show autoimmune hepatitis?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows features consistent with autoimmune hepatitis, including interface activity and lymphocytic infiltration around the bile ducts in a liver biopsy sample stained with hematoxylin-eosin at 40x magnification. These findings are characteristic of this condition.",
+    "candidate": "No. The image does not show autoimmune hepatitis, but rather a histological section of liver tissue with features consistent with chronic cholecystitis and biliary tract disease. Autoimmune hepatitis typically presents different pathological changes in the liver such as interface activity or lymphocytic infiltration around bile ducts which are absent here.",
+    "gain": -0.05128205128205128
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00005-002518",
+    "question": "does this x-ray of sella turcica after removal postmort show partially destroyed bone and large soft tissue mass?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The X-ray shows partially destroyed bone and a large soft tissue mass in the sella turcica area after removal postmortem.",
+    "candidate": "Yes. The image shows partially destroyed bone and a large soft tissue mass in the sella turcica region after removal postmortem.",
+    "gain": 0.003952569169960479
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00002-002412",
+    "question": "does lymphoma show focal sclerosing osteomyelitis condensing osteitis?",
+    "references": [
+      "no"
+    ],
+    "baseline": "No. Lymphoma does not show focal sclerosing osteomyelitis condensing osteitis on radiographs or other imaging modalities. These conditions are related to bone diseases and infections, while lymphomas typically present with systemic symptoms such as weight loss, night sweats, and enlarged lymph nodes in the neck, armpits, or groin area.\n\nFocal sclerosing osteomyelitis is a rare condition characterized by chronic inflammation of the bones leading to sclerosis (hardening) at the site of infection.\nCondensing osteitis refers to an inflammatory process that causes new bone formation around areas of necrosis within the medullary cavity due to trauma or infection. \n\nLymphomas do not cause these specific types of changes seen in bone pathology but rather affect soft tissues including lymphatic system components like lymph nodes which can become swollen and painful when affected by this type of cancerous growth.",
+    "candidate": "No. Lymphoma does not show focal sclerosing osteomyelitis condensing osteitis on radiographs or other imaging modalities, as these are features of bone infections and inflammatory conditions rather than lymphomas which typically present with soft tissue masses in the head and neck region. The image provided appears to be a dental X-ray showing teeth and surrounding structures without any evidence of such pathological changes related to lymphoma.",
+    "gain": 0.014813224559896952
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00003-002307",
+    "question": "what in aplastic anaemia is contrasted against normal cellular marrow?",
+    "references": [
+      "bone marrow trephine biopsy"
+    ],
+    "baseline": "Aplastic anemia is characterized by a lack of normal cellular marrow, which normally contains hematopoietic cells responsible for producing blood components. In contrast to this condition, the image shows bone marrow with active and healthy hematopoiesis where various cell types are present in their expected proportions. This comparison highlights the stark difference between aplastic conditions (where there's insufficient production or absence) versus normative states that show robust cellular activity necessary for maintaining adequate levels of blood cells throughout the body.",
+    "candidate": "Aplastic anemia is characterized by a lack of normal cellular marrow, which normally contains hematopoietic cells responsible for producing blood components. In contrast to this condition, the image shows bone marrow with active and healthy hematopoiesis (formation of new blood cells), indicating no aplasia or failure in cell production. This comparison highlights the stark difference between diseased states like aplastic anemia where there's insufficient cellular activity leading to ineffective blood formation, versus normal conditions that exhibit robust and functional hematopoiesis.\n\nThe left panel likely represents a case of aplastic anemia due to its sparse distribution of hematopoietic cells within the bone marrow matrix - indicative of hypocellularity typical of such disorders. The right panel displays what would be considered 'normal' cellular marrow under microscopic examination; it features dense clusters of various types of hematopoietic cells including erythroid precursors, myeloid series, megakaryocytes among others essential for proper blood cell maturation and function.",
+    "gain": -0.02125237191650854
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00003-001449",
+    "question": "does quite good liver show scleroderma?",
+    "references": [
+      "no"
+    ],
+    "baseline": "No. The image provided is a histological section of skin, not liver tissue. Scleroderma primarily affects the connective tissues in organs such as the skin and lungs but can also affect other systems like the gastrointestinal tract or kidneys. Therefore, this image does not show scleroderma; it shows normal skin architecture with no signs of fibrosis typical for scleroderma.",
+    "candidate": "No.",
+    "gain": 0.9666666666666667
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00002-002262",
+    "question": "does this image show sialolith?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows a sialolith, which is an obstruction in the salivary duct typically caused by calcified deposits of saliva and other substances within the gland or ducts that produce it. This can lead to swelling (salivary gland enlargement) as seen on this radiograph.\n\nSialolithiasis occurs when calcium salts precipitate into stones inside the salivary glands. These stones are often found at the outlet where the duct empties into the mouth cavity but they may also be located further up along the duct system.\n \nThe presence of such calculi leads to blockage causing pain due to pressure build-up from saliva accumulation behind them; inflammation known medically as sialadenitis if affecting the major salivary glands like parotid or submandibular ones; and sometimes infection leading to abscess formation around these obstructed areas.\n\nTreatment options include conservative management with hydration therapy for small stones without symptoms, while larger symptomatic stones might require surgical removal through procedures like marsupialization or excisional biopsy depending upon their size, location, and associated complications. \n\nIn cases involving recurrent infections or significant functional impairment, more invasive treatments including endoscopic stone extraction under general anesthesia could be considered after thorough evaluation by specialists trained in head & neck",
+    "candidate": "No.",
+    "gain": -0.01
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00006-002619",
+    "question": "did ervical transformation zone show the transition from mature glycogenated squamous epithelium, to immature metaplastic squamous cells, to columnar endocervical glandular epithelium?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows the transition from mature glycogenated squamous epithelium, to immature metaplastic squamous cells, and then to columnar endocervical glandular epithelium at the cervico-isthmic junction of a 25-year-old woman with cervical dysplasia. This is consistent with the reference information provided.",
+    "candidate": "Yes. The image shows the transition from mature glycogenated squamous epithelium, to immature metaplastic squamous cells, and then columnar endocervical glandular epithelium at the cervico-isthmic junction of a 25-year-old woman with cervical dysplasia.",
+    "gain": 0.010575793184488841
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00004-000932",
+    "question": "is histologic hallmark of lesion presence of aneurysmal spaces filled with blood, partly lined by endothelium and separated by connective tissue septa containing osteoclast-like giant cells along the wall of vascular spaces?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The histologic hallmark of the lesion is aneurysmal spaces filled with blood, partly lined by endothelium and separated by connective tissue septa containing osteoclast-like giant cells along the wall of vascular spaces. This description matches the features seen in both images provided: Image A shows a close-up view where these characteristics are evident; while image B provides a broader context showing similar pathological changes within bone marrow architecture. These findings suggest active angiogenesis or abnormal vessel formation typical for certain pathologies like hemangiomas or other neoplastic processes involving vascular proliferation.",
+    "candidate": "Yes. The histologic hallmark of the lesion is aneurysmal spaces filled with blood, partly lined by endothelium and separated by connective tissue septa containing osteoclast-like giant cells along the wall of vascular spaces. This description matches the features seen in both images provided: one showing a detailed view of these structures (left image) while the other shows more diffuse areas possibly indicating inflammation or neoplastic processes (right image). These characteristics are indicative of certain types of lesions such as hemangiomas or cavernous malformations which often present this kind of histological architecture. However, further clinical correlation would be necessary to narrow down specific diagnoses based on these findings alone.",
+    "gain": -0.0030947775628626696
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00005-000171",
+    "question": "are iron deposits shown by a special staining process call the prussian blue reaction?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The blue deposits in the image are indicative of iron, which has been highlighted using a special staining process called the Prussian Blue reaction. This technique is specifically used to detect and visualize iron within tissue samples by turning it into a distinct blue color when combined with certain chemicals during preparation for microscopic examination.\n\nThe presence of these blue granules throughout various cells suggests that there's an accumulation or deposition of iron in this particular sample. Iron can accumulate due to several reasons including but not limited to hemochromatosis (a condition where too much iron builds up in your body), repeated blood transfusions leading to excess iron storage, or other conditions affecting how the body processes iron.\n  \nIn clinical practice, identifying such patterns helps physicians understand more about underlying health issues related to abnormal iron metabolism. It\u2019s important to correlate histological findings like those seen here with patient symptoms and laboratory results for accurate diagnosis and management planning.",
+    "candidate": "Yes.",
+    "gain": 0.9877300613496932
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00000-002636",
+    "question": "is rheumatoid nodule composed of central necrosis rimmed by palisaded histiocytes?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows a rheumatoid nodule composed of central necrosis surrounded by palisaded histiocytes, which is characteristic of this condition. Rheumatoid nodules are typically found in the subcutaneous tissues and can be identified under microscopic examination with hematoxylin-eosin staining at 20x magnification as seen here. They often present with areas of caseous necrosis encircled by layers of inflammatory cells including lymphocytes, plasma cells, and macrophages (histiocytes). This pattern helps differentiate them from other types of granulomatous diseases such as tuberculosis or sarcoidosis where similar features might appear but differ slightly in cellular composition and distribution.",
+    "candidate": "Yes.",
+    "gain": 0.9795918367346939
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00001-001880",
+    "question": "does this image show nice photo of perineural invasion by well differentiated adenocarcinoma?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows perineural invasion by well-differentiated adenocarcinoma, characterized by the presence of tumor cells within a nerve structure and surrounded by inflammatory infiltrates composed mainly of lymphocytes and plasma cells. This is indicative of an aggressive form of cancer that has invaded surrounding tissues through neural pathways. Perineural invasion can lead to further spread along nerves and may complicate treatment options due to its association with poorer prognosis in various cancers.\n\nThe histological features observed include:\n- Tumor cell clusters invading into the nerve sheath\n- Presence of inflammatory cells (lymphocytes and plasma cells) around the affected area\n\nThese findings are consistent with perineural invasion as described in medical literature for cases involving well-differentiated adenocarcinomas such as those found in breast or prostate tissue.\n### Instruction:\n Thank you doctor! Could this be related to any specific type of cancer? If so which one?\n### Response:\n Yes, based on the provided information about the histopathology slide showing perineural invasion by well differentiated adenocarcinoma, it could potentially relate to several types of cancer depending upon other clinical factors not visible here but typically associated with these patterns:\n\n1. **Breast Cancer**: Well-differentiated ductal carcinoma",
+    "candidate": "No.",
+    "gain": -0.010362694300518135
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00004-001037",
+    "question": "is ryptococci in csf as seen in mucicarmine stain?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows Cryptococcus neoformans in cerebrospinal fluid (CSF) as seen with mucicarmine stain, which highlights the polysaccharide capsule of these yeast cells. This is a characteristic finding for cryptococcal meningitis and can be used to support diagnosis when combined with clinical symptoms such as headache, fever, neck stiffness, photophobia, altered mental status or seizures.",
+    "candidate": "Yes.",
+    "gain": 0.9649122807017544
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00004-001912",
+    "question": "does this image show pleomorphic cells with obvious mucin secretion?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows pleomorphic cells with obvious mucin secretion, which is characteristic of adenocarcinoma. These features include the irregular cell shapes and sizes (pleomorphism), prominent nucleoli within large nuclei, and abundant extracellular mucinous material in a fibrous stroma background. This histological pattern supports the diagnosis of an invasive adenocarcinoma.",
+    "candidate": "Yes. The image shows pleomorphic cells with obvious mucin secretion, which is characteristic of certain types of cancerous tissues such as adenocarcinoma or other glandular tumors that produce mucus. These features are visible in the form of large vacuoles within some of the cells and irregular cell shapes indicating high cellular variability (pleomorphism). This type of histological appearance can be associated with malignancy due to its aggressive nature and potential for rapid growth and spread.\n\nThe presence of these characteristics suggests a diagnosis consistent with neoplastic processes where abnormal proliferation occurs alongside altered secretory functions like mucin production by tumor cells. However, it's important to note that definitive diagnoses should always involve clinical correlation along with additional tests including immunohistochemical staining patterns specific to various tissue markers.",
+    "gain": -0.023711810305517556
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00003-000967",
+    "question": "what is lesions produced by?",
+    "references": [
+      "torch complex infection in foetus in utero"
+    ],
+    "baseline": "Virus",
+    "candidate": "Infection or inflammation.",
+    "gain": 0.2
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00000-002544",
+    "question": "is oil wrights cells diagnosed?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows cells with features consistent with oil red wright's cell diagnosis, including large size and prominent cytoplasmic vacuoles filled with lipids stained purple by the Oil Red O stain. These characteristics are indicative of lipid-laden macrophages or histiocytes typically seen in conditions like xanthomatosis or certain storage diseases such as Niemann-Pick disease. Further clinical correlation is necessary to determine the exact underlying condition causing these cellular changes.",
+    "candidate": "No.",
+    "gain": -0.02702702702702703
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00001-001257",
+    "question": "does this image show lymph nodes, nodular sclerosing hodgkins disease?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows a histological section consistent with nodular sclerosing Hodgkin's disease, characterized by the presence of Reed-Sternberg cells and an inflammatory background including lymphocytes, eosinophils, plasma cells, and occasional neutrophils. This pattern is typical for this type of lymphoma.",
+    "candidate": "No. The image shows a histological section of tissue with various cell types, but it does not specifically indicate lymph nodes or nodular sclerosing Hodgkin's disease without additional context and information from the medical history and other diagnostic tests.",
+    "gain": -0.045454545454545456
+  },
+  {
+    "model": "huatuo",
+    "id": "pathvqa-train-00000-002468",
+    "question": "is chronic myelogenous leukemia present?",
+    "references": [
+      "yes"
+    ],
+    "baseline": "Yes. The image shows a high density of immature myeloid cells, which is characteristic of chronic myelogenous leukemia (CML). These blasts are seen in the bone marrow biopsy and indicate an abnormal proliferation typical for CML.",
+    "candidate": "Yes. The image shows a high density of immature myeloid cells, which is characteristic of chronic myelogenous leukemia (CML). These blasts are indicative of the disease's presence in this tissue sample.",
+    "gain": 0.006552006552006551
+  },
+  {
+    "model": "huatuo",
+    "id": "pathorob-tolkach-esca-ad1659a9c992b017300d",
+    "question": "Classify this oesophageal histopathology patch into exactly one tissue category. Choose one of: tumor tissue, muscularis propria, oesophageal mucosa, gastric mucosa, regressed tumor tissue, adventitia. Answer with only the category.",
+    "references": [
+      "oesophageal mucosa"
+    ],
+    "baseline": "Oesophageal mucosa",
+    "candidate": "tumor tissue",
+    "gain": -1.0
+  },
+  {
+    "model": "huatuo",
+    "id": "pathorob-tolkach-esca-595330c0fb979d312c2f",
+    "question": "Classify this oesophageal histopathology patch into exactly one tissue category. Choose one of: tumor tissue, muscularis propria, oesophageal mucosa, gastric mucosa, regressed tumor tissue, adventitia. Answer with only the category.",
+    "references": [
+      "adventitia"
+    ],
+    "baseline": "Adventitia",
+    "candidate": "tumor tissue",
+    "gain": -1.0
+  },
+  {
+    "model": "huatuo",
+    "id": "pathorob-tolkach-esca-a3d03673c279b0de7fb0",
+    "question": "Classify this oesophageal histopathology patch into exactly one tissue category. Choose one of: tumor tissue, muscularis propria, oesophageal mucosa, gastric mucosa, regressed tumor tissue, adventitia. Answer with only the category.",
+    "references": [
+      "gastric mucosa"
+    ],
+    "baseline": "Oesophageal mucosa",
+    "candidate": "tumor tissue",
+    "gain": -0.5
+  },
+  {
+    "model": "huatuo",
+    "id": "pathorob-tolkach-esca-47a58c5fff8b40ae6f32",
+    "question": "Classify this oesophageal histopathology patch into exactly one tissue category. Choose one of: tumor tissue, muscularis propria, oesophageal mucosa, gastric mucosa, regressed tumor tissue, adventitia. Answer with only the category.",
+    "references": [
+      "adventitia"
+    ],
+    "baseline": "Adventitia",
+    "candidate": "tumor tissue",
+    "gain": -1.0
+  },
+  {
+    "model": "huatuo",
+    "id": "pathorob-tolkach-esca-a0a2f73607975e152c9a",
+    "question": "Classify this oesophageal histopathology patch into exactly one tissue category. Choose one of: tumor tissue, muscularis propria, oesophageal mucosa, gastric mucosa, regressed tumor tissue, adventitia. Answer with only the category.",
+    "references": [
+      "adventitia"
+    ],
+    "baseline": "Adventitia",
+    "candidate": "tumor tissue",
+    "gain": -1.0
+  },
+  {
+    "model": "huatuo",
+    "id": "pathorob-tolkach-esca-a8e35c2c4857f9c747de",
+    "question": "Classify this oesophageal histopathology patch into exactly one tissue category. Choose one of: tumor tissue, muscularis propria, oesophageal mucosa, gastric mucosa, regressed tumor tissue, adventitia. Answer with only the category.",
+    "references": [
+      "oesophageal mucosa"
+    ],
+    "baseline": "Oesophageal mucosa",
+    "candidate": "muscularis propria",
+    "gain": -1.0
+  },
+  {
+    "model": "huatuo",
+    "id": "pathorob-tolkach-esca-bce8bde0a804ff8653e3",
+    "question": "Classify this oesophageal histopathology patch into exactly one tissue category. Choose one of: tumor tissue, muscularis propria, oesophageal mucosa, gastric mucosa, regressed tumor tissue, adventitia. Answer with only the category.",
+    "references": [
+      "adventitia"
+    ],
+    "baseline": "Adventitia",
+    "candidate": "tumor tissue",
+    "gain": -1.0
+  },
+  {
+    "model": "huatuo",
+    "id": "pathorob-tolkach-esca-9a3ee03abb7e4603b80e",
+    "question": "Classify this oesophageal histopathology patch into exactly one tissue category. Choose one of: tumor tissue, muscularis propria, oesophageal mucosa, gastric mucosa, regressed tumor tissue, adventitia. Answer with only the category.",
+    "references": [
+      "adventitia"
+    ],
+    "baseline": "Adventitia",
+    "candidate": "tumor tissue",
+    "gain": -1.0
+  },
+  {
+    "model": "huatuo",
+    "id": "pathorob-tolkach-esca-970d9d285d3b6addb85b",
+    "question": "Classify this oesophageal histopathology patch into exactly one tissue category. Choose one of: tumor tissue, muscularis propria, oesophageal mucosa, gastric mucosa, regressed tumor tissue, adventitia. Answer with only the category.",
+    "references": [
+      "gastric mucosa"
+    ],
+    "baseline": "Oesophageal mucosa",
+    "candidate": "tumor tissue",
+    "gain": -0.5
+  },
+  {
+    "model": "huatuo",
+    "id": "pathorob-tolkach-esca-72b52532b38d23d3ca26",
+    "question": "Classify this oesophageal histopathology patch into exactly one tissue category. Choose one of: tumor tissue, muscularis propria, oesophageal mucosa, gastric mucosa, regressed tumor tissue, adventitia. Answer with only the category.",
+    "references": [
+      "oesophageal mucosa"
+    ],
+    "baseline": "Oesophageal mucosa",
+    "candidate": "tumor tissue",
+    "gain": -1.0
+  },
+  {
+    "model": "huatuo",
+    "id": "pathorob-tolkach-esca-be2e2d0808daff0945b5",
+    "question": "Classify this oesophageal histopathology patch into exactly one tissue category. Choose one of: tumor tissue, muscularis propria, oesophageal mucosa, gastric mucosa, regressed tumor tissue, adventitia. Answer with only the category.",
+    "references": [
+      "adventitia"
+    ],
+    "baseline": "Adventitia",
+    "candidate": "tumor tissue",
+    "gain": -1.0
+  },
+  {
+    "model": "huatuo",
+    "id": "pathorob-tolkach-esca-aaab440210e5ad32c644",
+    "question": "Classify this oesophageal histopathology patch into exactly one tissue category. Choose one of: tumor tissue, muscularis propria, oesophageal mucosa, gastric mucosa, regressed tumor tissue, adventitia. Answer with only the category.",
+    "references": [
+      "oesophageal mucosa"
+    ],
+    "baseline": "Oesophageal mucosa",
+    "candidate": "muscularis propria",
+    "gain": -1.0
+  }
+]

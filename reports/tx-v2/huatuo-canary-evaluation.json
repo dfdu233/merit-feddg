@@ -1,0 +1,13 @@
+{
+  "schema": "merit-tx-source-canary-evaluation-v1",
+  "n": 80,
+  "metric": "token_f1",
+  "means": {
+    "baseline": 0.21292934499435107,
+    "candidate": 0.21166328921974084,
+    "merit_tx": 0.21292934499435107
+  },
+  "references_loaded_after_outputs_frozen": true,
+  "references_used_for_transaction_decisions": false,
+  "target_test_selection": false
+}

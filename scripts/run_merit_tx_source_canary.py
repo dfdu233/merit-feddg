@@ -129,6 +129,7 @@ def main():
     parser.add_argument("--config", default="configs/merit_tx.yaml")
     parser.add_argument("--artifacts", default="artifacts")
     parser.add_argument("--proposer-expert-id")
+    parser.add_argument("--proposer-map", help="Frozen sample-id to proposer-expert-ids mapping")
     parser.add_argument(
         "--proposer-expert-ids",
         nargs="*",
@@ -167,6 +168,9 @@ def main():
         args.proposer_expert_id,
         args.proposer_expert_ids,
     )
+    proposer_map = json.loads(Path(args.proposer_map).read_text()) if args.proposer_map else {}
+    if args.proposer_map and set(proposer_map) != set(sample_ids):
+        raise ValueError("proposer map IDs must match the source manifest")
     unknown_proposers = [expert_id for expert_id in proposer_ids if expert_id not in specs]
     if unknown_proposers:
         raise ValueError(
@@ -208,6 +212,7 @@ def main():
         "candidate_name": args.candidate_name,
         "proposer_expert_id": args.proposer_expert_id,
         "proposer_expert_ids": list(proposer_ids),
+        "proposer_map_sha256": sha256(args.proposer_map) if args.proposer_map else None,
         "config": str(Path(args.config).resolve()),
         "config_sha256": sha256(args.config),
         "qualification_cards": str(Path(card_path).resolve()),
@@ -229,6 +234,10 @@ def main():
     try:
         for row in rows:
             sample_id = str(row["id"])
+            if args.proposer_map:
+                proposer_ids = normalize_proposer_expert_ids(None, proposer_map[sample_id])
+                if any(name not in specs for name in proposer_ids):
+                    raise ValueError("unavailable proposer in frozen per-case provenance")
             if row["task"] == "report_generation" and radgraph is None:
                 radgraph = RadGraphClaimizer(
                     model_type=str(tx_policy.get("radiology_grounding", "modern-radgraph-xl"))

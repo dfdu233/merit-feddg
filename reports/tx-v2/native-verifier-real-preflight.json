@@ -1,0 +1,47 @@
+{
+  "id": "pathvqa-train-00005-001881",
+  "baseline": "Yes. The image shows features consistent with Hashimoto's thyroiditis, including lymphocytic infiltration and fibrosis in the thyroid gland tissue.",
+  "candidate": "No. The image does not show Hashimoto's thyroiditis, but rather a lymph node biopsy with features of follicular hyperplasia and reactive changes without evidence of malignancy or granulomatous inflammation.",
+  "references_read": false,
+  "verifiers": {
+    "conch_claim_verifier": {
+      "real_margin": 2.729820966720581,
+      "knockoff_margin": 0.8443871736526489,
+      "knockoff_margins": [
+        1.56125807762146,
+        0.1275162696838379,
+        3.1505939960479736,
+        -0.6515950262546539
+      ],
+      "controls": 4,
+      "differential_effect": 1.8854337930679321,
+      "support_direction": 1
+    },
+    "plip_claim_verifier": {
+      "real_margin": 0.2718287706375122,
+      "knockoff_margin": -0.21144013106822968,
+      "knockoff_margins": [
+        -0.2927360534667969,
+        -0.3328016698360443,
+        -0.02120828628540039,
+        -0.13014420866966248
+      ],
+      "controls": 4,
+      "differential_effect": 0.4832689017057419,
+      "support_direction": 1
+    },
+    "biomedclip_claim_verifier": {
+      "real_margin": -1.4384024143218994,
+      "knockoff_margin": -1.7528211027383804,
+      "knockoff_margins": [
+        -1.5833044052124023,
+        -3.0596498250961304,
+        -1.6196126639842987,
+        -1.8860295414924622
+      ],
+      "controls": 4,
+      "differential_effect": 0.314418688416481,
+      "support_direction": 1
+    }
+  }
+}

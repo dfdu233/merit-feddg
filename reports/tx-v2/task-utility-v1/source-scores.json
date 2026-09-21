@@ -1,0 +1,54 @@
+{
+  "llava": {
+    "pathvqa_closed": {
+      "n": 81,
+      "baseline": 0.654320987654321,
+      "candidate": 0.6172839506172839,
+      "oracle": 0.6666666666666666,
+      "improved": 1,
+      "harmed": 4
+    },
+    "pathvqa_open": {
+      "n": 111,
+      "baseline": 0.02732732732732733,
+      "candidate": 0.04347919347919349,
+      "oracle": 0.04347919347919349,
+      "improved": 5,
+      "harmed": 0
+    },
+    "pathorob": {
+      "n": 32,
+      "baseline": 0.28125,
+      "candidate": 0.28125,
+      "oracle": 0.28125,
+      "improved": 0,
+      "harmed": 0
+    }
+  },
+  "huatuo": {
+    "pathvqa_closed": {
+      "n": 81,
+      "baseline": 0.6296296296296297,
+      "candidate": 0.6172839506172839,
+      "oracle": 0.7160493827160493,
+      "improved": 7,
+      "harmed": 8
+    },
+    "pathvqa_open": {
+      "n": 111,
+      "baseline": 0.04039039039039039,
+      "candidate": 0.03266838266838267,
+      "oracle": 0.04167739167739168,
+      "improved": 1,
+      "harmed": 3
+    },
+    "pathorob": {
+      "n": 32,
+      "baseline": 0.53125,
+      "candidate": 0.21875,
+      "oracle": 0.53125,
+      "improved": 0,
+      "harmed": 10
+    }
+  }
+}

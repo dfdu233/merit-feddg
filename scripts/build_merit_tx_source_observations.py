@@ -175,6 +175,7 @@ def main():
     parser.add_argument("--config", default="configs/merit_tx.yaml")
     parser.add_argument("--artifacts", default="artifacts")
     parser.add_argument("--proposer-expert-id")
+    parser.add_argument("--proposer-map", help="Frozen sample-id to proposer-expert-ids mapping")
     parser.add_argument(
         "--proposer-expert-ids",
         nargs="*",
@@ -184,7 +185,7 @@ def main():
             "Accepts repeated values or comma-separated groups."
         ),
     )
-    parser.add_argument("--metric", choices=("token_f1", "exact_match"), default="token_f1")
+    parser.add_argument("--metric", choices=("token_f1", "exact_match", "source_task_v1"), default="token_f1")
     parser.add_argument("--claim-type", default="*")
     parser.add_argument("--knockoff-controls", type=int)
     parser.add_argument("--output", required=True)
@@ -214,6 +215,9 @@ def main():
         args.proposer_expert_id,
         args.proposer_expert_ids,
     )
+    proposer_map = json.loads(Path(args.proposer_map).read_text()) if args.proposer_map else {}
+    if args.proposer_map and set(proposer_map) != set(ids):
+        raise ValueError("proposer map IDs must match the source manifest")
     unknown_proposers = [expert_id for expert_id in proposer_ids if expert_id not in specs]
     if unknown_proposers:
         raise ValueError(
@@ -235,6 +239,10 @@ def main():
     try:
         for row in rows:
             sample_id = str(row["id"])
+            if args.proposer_map:
+                proposer_ids = normalize_proposer_expert_ids(None, proposer_map[sample_id])
+                if any(name not in specs for name in proposer_ids):
+                    raise ValueError("unavailable proposer in frozen per-case provenance")
             task = str(row["task"])
             if task == "report_generation":
                 if radgraph is None:
@@ -310,12 +318,17 @@ def main():
                         transaction, baseline_claims, reference_claims
                     )
                 else:
-                    before = answer_metrics(
-                        baseline[sample_id], references[sample_id]
-                    )[args.metric]
-                    after = answer_metrics(
-                        candidate[sample_id], references[sample_id]
-                    )[args.metric]
+                    if args.metric == "source_task_v1":
+                        from tx_source_metric import source_score
+                        before = source_score(row, baseline[sample_id], references[sample_id])
+                        after = source_score(row, candidate[sample_id], references[sample_id])
+                    else:
+                        before = answer_metrics(
+                            baseline[sample_id], references[sample_id]
+                        )[args.metric]
+                        after = answer_metrics(
+                            candidate[sample_id], references[sample_id]
+                        )[args.metric]
                     outcome_delta = float(after - before)
 
                 for descriptor in verifiers:
@@ -336,13 +349,17 @@ def main():
                         )
                         continue
 
-                    controls = select_matched_knockoffs(
-                        rows,
-                        row,
-                        expert_id=expert_id,
-                        count=knockoff_count,
-                        match_fields=match_fields,
-                    )
+                    try:
+                        controls = select_matched_knockoffs(
+                            rows, row, expert_id=expert_id,
+                            count=knockoff_count, match_fields=match_fields,
+                        )
+                    except ValueError as exc:
+                        if not str(exc).startswith("insufficient matched source controls"):
+                            raise
+                        skipped.append({"id": sample_id, "expert_id": expert_id,
+                                        "reason": "insufficient-matched-controls", "detail": str(exc)})
+                        continue
                     knockoff_pairs = []
                     for control in controls:
                         incumbent_control, candidate_control = native_scores(
@@ -407,6 +424,7 @@ def main():
     summary = {
         "schema": "merit-tx-source-observations-v1",
         "candidate_method": candidate_name,
+        "utility_metric": args.metric,
         "candidate_path": str(candidate_path.resolve()),
         "proposer_expert_ids": list(proposer_ids),
         "n_manifest": len(rows),
