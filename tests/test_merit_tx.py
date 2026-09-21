@@ -9,6 +9,7 @@ from merit_feddg.expert_policy import (
 )
 from merit_feddg.io import load_experiment_yaml
 from merit_feddg.knockoff import select_matched_knockoffs
+from merit_feddg.med_defer import NativeEvidence
 from merit_feddg.merit_tx import (
     MeritTxConfig,
     TransactionEvidence,
@@ -25,6 +26,7 @@ from merit_feddg.transactional_claims import (
     claim_truth_key,
     claimize_vqa,
 )
+from merit_feddg.transactional_runtime import verify_transaction
 from scripts.build_merit_tx_source_observations import collapse_group_observations
 from scripts.fit_expert_qualification import fit, read_rows
 
@@ -765,3 +767,109 @@ def test_partial_approval_of_shared_report_patch_preserves_incumbent_sentence():
     assert result["fallback_exact"]
     assert result["committed_transactions"] == []
     assert result["suppressed_partial_patch_transactions"] == ["t0"]
+
+
+def test_runtime_commits_only_with_source_qualified_real_vs_knockoff_support():
+    specs = {
+        "visual": _spec(
+            "direct_visual_verifier",
+            "classification",
+            group="visual",
+            scope="classification",
+        ),
+    }
+    qcard = _card("visual", "classification", "classification")
+
+    class FakePool:
+        def evidence_function(self, expert_id, image):
+            assert expert_id == "visual"
+
+            def infer(claim, _prefix):
+                propositions = [item.proposition for item in claim.propositions]
+                candidate = 2.0 if image == "target.png" else 0.2
+                return NativeEvidence(
+                    expert_id="visual",
+                    capability="classification",
+                    concept_scores={
+                        propositions[0]: 0.0,
+                        propositions[1]: candidate,
+                    },
+                    confidence=1.0,
+                )
+
+            return infer
+
+    row = {
+        "id": "target",
+        "image": "target.png",
+        "question": "What diagnosis is shown?",
+        "modality": "pathology",
+        "task": "open_vqa",
+        "domain": "site-target",
+        "group_id": "patient-target",
+        "question_type": "diagnosis",
+    }
+    controls = [
+        {
+            "id": f"control-{index}",
+            "image": f"control-{index}.png",
+            "question": "What diagnosis is shown?",
+            "modality": "pathology",
+            "task": "open_vqa",
+            "domain": f"site-{index % 2}",
+            "group_id": f"patient-{index}",
+            "question_type": "diagnosis",
+        }
+        for index in range(4)
+    ]
+    baseline_claim = AtomicClinicalClaim(
+        "base",
+        "The image shows adenocarcinoma.",
+        (0, len("adenocarcinoma")),
+    )
+    transaction = ClaimTransaction(
+        "tx",
+        "REPLACE",
+        AtomicClinicalClaim(
+            "candidate",
+            "The image shows squamous cell carcinoma.",
+            None,
+        ),
+        "squamous cell carcinoma",
+        baseline_claim_id="base",
+    )
+    decision, evidence, audit = verify_transaction(
+        row=row,
+        transaction=transaction,
+        baseline_claims=(baseline_claim,),
+        source_controls=controls,
+        specs=specs,
+        qualification_cards={qcard.key: qcard},
+        pool=FakePool(),
+        tx_policy={
+            "qualification_min_domains": 2,
+            "qualification_max_harm_ucb": 0.25,
+            "qualification_min_specificity_lcb": 0.5,
+            "min_support_groups": 1,
+            "require_independent_validator": True,
+            "require_patient_specific_support": True,
+            "reject_on_qualified_contradiction": True,
+        },
+        claim_type="diagnosis",
+        max_calls=2,
+        knockoff_count=4,
+    )
+    assert decision.commit
+    assert decision.reason == "proof-carrying-transaction"
+    assert evidence[0]["differential_effect"] == pytest.approx(1.8)
+    assert audit["controls"]["visual"]["count"] == 4
+    assert audit["controls"]["visual"]["ids"] == [
+        row["id"]
+        for row in select_matched_knockoffs(
+            controls,
+            row,
+            expert_id="visual",
+            count=4,
+            match_fields=("question_type",),
+        )
+    ]
