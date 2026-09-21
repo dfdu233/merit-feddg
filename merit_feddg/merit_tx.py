@@ -53,6 +53,64 @@ class MeritTxConfig:
             raise ValueError("min_support_groups must be a positive integer")
 
 
+def differential_margin(
+    *,
+    incumbent_real,
+    candidate_real,
+    incumbent_knockoff,
+    candidate_knockoff,
+):
+    """Current-patient candidate margin minus matched-control candidate margin."""
+    values = (
+        incumbent_real,
+        candidate_real,
+        incumbent_knockoff,
+        candidate_knockoff,
+    )
+    if any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in values):
+        raise TypeError("differential margins require numeric expert-native scores")
+    values = tuple(float(value) for value in values)
+    if not all(math.isfinite(value) for value in values):
+        raise ValueError("differential margins require finite scores")
+    real_margin = values[1] - values[0]
+    knockoff_margin = values[3] - values[2]
+    return {
+        "real_margin": real_margin,
+        "knockoff_margin": knockoff_margin,
+        "differential_effect": real_margin - knockoff_margin,
+        "support_direction": 1 if real_margin > 0 else -1 if real_margin < 0 else 0,
+    }
+
+
+def native_transaction_evidence(
+    *,
+    expert_id,
+    capability,
+    scope,
+    incumbent_real,
+    candidate_real,
+    incumbent_knockoff,
+    candidate_knockoff,
+    specs,
+):
+    """Prefer expert-native claim margins over a shared receiver residual."""
+    value = differential_margin(
+        incumbent_real=incumbent_real,
+        candidate_real=candidate_real,
+        incumbent_knockoff=incumbent_knockoff,
+        candidate_knockoff=candidate_knockoff,
+    )
+    return evidence_from_expert(
+        expert_id=expert_id,
+        capability=capability,
+        scope=scope,
+        real_effect=value["real_margin"],
+        knockoff_effect=value["knockoff_margin"],
+        support_direction=value["support_direction"],
+        specs=specs,
+    )
+
+
 def evidence_from_expert(
     *,
     expert_id,
