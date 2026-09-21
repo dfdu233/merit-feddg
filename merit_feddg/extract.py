@@ -325,6 +325,15 @@ def _expert_from_spec(spec: dict, artifact_root: str | Path | None):
             device=str(spec.get("device", "auto")),
             dtype=str(spec.get("dtype", "auto")),
         )
+    if adapter == "contrastive_musk":
+        from .experts.musk import MuskConceptExpert
+
+        return MuskConceptExpert(
+            model_id,
+            source_path=str(spec["source_path"]),
+            device=str(spec.get("device", "auto")),
+            dtype=str(spec.get("dtype", "auto")),
+        )
     raise ValueError(f"unsupported expert adapter: {adapter}")
 
 
