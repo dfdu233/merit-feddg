@@ -71,6 +71,7 @@ def _card(expert, capability, scope, *, utility=0.2, harm=0.1, specificity=0.7):
         utility_lcb=utility,
         harm_ucb=harm,
         specificity_lcb=specificity,
+        expert_provenance_fingerprint="prov-v1",
     )
 
 
@@ -319,6 +320,7 @@ def test_source_qualification_fitter_rejects_test_rows(tmp_path):
                 "task": "open_vqa",
                 "claim_type": "diagnosis",
                 "candidate_method": "proposal-v1",
+                "expert_provenance_fingerprint": "prov-v1",
                 "domain": "d",
                 "group_id": "g",
                 "outcome_delta": 1,
@@ -347,6 +349,7 @@ def test_source_qualification_fitter_emits_conservative_cards():
                     "task": "open_vqa",
                     "claim_type": "diagnosis",
                     "candidate_method": "proposal-v1",
+                    "expert_provenance_fingerprint": "prov-v1",
                     "domain": domain,
                     "group_id": f"{domain}-{index}",
                     "outcome_delta": 0.5,
@@ -948,6 +951,7 @@ def test_qualification_cards_are_bound_to_one_frozen_proposal_policy(tmp_path):
                     "task": "open_vqa",
                     "claim_type": "diagnosis",
                     "candidate_method": "proposal-v1",
+                    "expert_provenance_fingerprint": "prov-v1",
                     "domain": domain,
                     "group_id": f"{domain}-{index}",
                     "outcome_delta": 0.5,
@@ -974,6 +978,7 @@ def test_qualification_fitter_rejects_mixed_proposal_policies():
         "modality": "pathology",
         "task": "open_vqa",
         "claim_type": "diagnosis",
+        "expert_provenance_fingerprint": "prov-v1",
         "domain": "a",
         "outcome_delta": 0.5,
         "real_effect": 0.8,
