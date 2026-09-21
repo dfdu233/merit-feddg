@@ -54,7 +54,8 @@
     "ophthalmology_eyeclip_candidate_recorded": true,
     "echocardiography_echoclip_candidate_recorded": true,
     "volumetric_ct_merlin_candidate_recorded": true,
-    "volumetric_segmentation_vista_ctmr_candidate_recorded": true
+    "volumetric_segmentation_vista_ctmr_candidate_recorded": true,
+    "musk_runtime_adapter_implemented": true
   },
   "expert_selection_methodology": [
     "candidate-library admission uses peer-reviewed capability evidence, modality/input-dimensionality scope, released native interface, and weight/audit availability",
@@ -81,6 +82,7 @@
     "The previous Tx-v2 source diagnosis found that fixing the specificity statistic alone cannot establish expert benefit because several source utility lower bounds remained non-positive.",
     "The v3 portfolio is a source-only policy for deciding which qualified verifiers may run together; it is not a target-trained gate.",
     "Research-roadmap models do not count as active coverage until their exact input/runtime contracts and source qualification are validated.",
-    "The final branch contains this validation-report-only commit after the validated code commit."
+    "The final branch contains this validation-report-only commit after the validated code commit.",
+    "The MUSK adapter follows the official zero-shot head/normalization interface but has not loaded the gated checkpoint in this branch validation."
   ]
 }
