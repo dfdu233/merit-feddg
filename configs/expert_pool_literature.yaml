@@ -74,6 +74,18 @@ models:
     weights: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
     rationale: Reuses an already integrated frozen biomedical image-text model as a dynamic candidate-vs-incumbent claim scorer, primarily filling CT/MRI verification gaps. It is not trusted by default and fails closed without a source card.
 
+  medimageinsight:
+    status: candidate_transaction_only
+    role: direct_visual_verifier
+    modalities: [cxr, xray, ct, mri, dermatology, oct, fundus, ultrasound, pathology, mammography]
+    capabilities: [classification, retrieval]
+    evidence:
+      - "MedImageInsight, ML4H 2024 / Microsoft Research"
+    weights: official_Microsoft_MedImageInsight_release
+    interface: native_image_text_similarity
+    training_required_for_commit_interface: false
+    rationale: Broad medical image-text embeddings across nine imaging domains make this a high-value coverage candidate. It may verify candidate-vs-incumbent propositions without a new task head, but source-only qualification and an official-runtime parity canary are mandatory before authority.
+
   medsiglip:
     status: candidate_gated_transaction_only
     role: direct_visual_verifier
