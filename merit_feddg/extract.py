@@ -334,6 +334,14 @@ def _expert_from_spec(spec: dict, artifact_root: str | Path | None):
             device=str(spec.get("device", "auto")),
             dtype=str(spec.get("dtype", "auto")),
         )
+    if adapter == "contrastive_monet":
+        from .experts.monet import MonetConceptExpert
+
+        return MonetConceptExpert(
+            model_id,
+            device=str(spec.get("device", "auto")),
+            dtype=str(spec.get("dtype", "auto")),
+        )
     raise ValueError(f"unsupported expert adapter: {adapter}")
 
 
