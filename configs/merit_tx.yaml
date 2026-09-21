@@ -57,6 +57,10 @@ merit_tx:
   target_test_selection: forbidden
 
 expert_overrides:
+  conch_tissue:
+    enabled: false
+    expert_pool_enabled: false
+    deprecation_reason: fixed ten-class tissue catalog is not a claim-aligned pathology verifier
   cxr_findings:
     tasks: [open_vqa, report_generation]
     spatial_support: true
