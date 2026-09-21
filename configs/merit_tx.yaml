@@ -50,6 +50,7 @@ merit_tx:
   qualification_min_domains: 2
   qualification_max_harm_ucb: 0.25
   qualification_min_specificity_lcb: 0.5
+  qualification_min_veto_precision_lcb: 0.5
   commit_unit: atomic_claim_transaction
   report_rendering: minimal_patch
   knowledge_can_commit_alone: false
