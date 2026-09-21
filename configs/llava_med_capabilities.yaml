@@ -123,6 +123,25 @@ experts:
     question_types: [anatomy]
     description: Compare this image against a non-exhaustive major-organ catalog. Only for organ identification, not disease diagnosis, location, counts or segmentation.
     catalog: [brain, lung, heart, liver, kidney, spleen, pancreas, stomach, intestine, thyroid, skin, bone, breast, uterus, testis]
+  biomedclip_claim_verifier:
+    id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+    adapter: contrastive_biomedclip
+    transaction_only: true
+    optional: true
+    evidence_role: direct_visual_verifier
+    commit_authority: source_qualified
+    fault_group: biomedclip
+    modalities: [cxr, xray, ct, mri, pathology, gross_pathology]
+    tasks: [open_vqa, report_generation]
+    capabilities: [classification]
+    scope: biomedical_claim_support
+    prefix_invariant: true
+    literature:
+      - "BiomedCLIP: PMC-15M biomedical image-text pretraining; used here only as a frozen claim-similarity verifier"
+      - "MERIT-Tx authority still requires exact source-only modality/task/capability qualification"
+    description: Dynamic medical image-text claim verifier used to fill CT/MRI and broad biomedical verification gaps. Similarity is not a diagnosis probability; unsupported source cells fail closed.
+
   medcpt_pubmed:
     id: ncbi/MedCPT-Query-Encoder
     evidence_role: knowledge_retriever
