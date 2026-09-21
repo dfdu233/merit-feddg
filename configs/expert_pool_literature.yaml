@@ -127,6 +127,18 @@ models:
       - "VILA-M3, CVPR 2025"
     rationale: VILA-M3 model cards use VISTA3D for CT anatomy/tumor segmentation; requires 3D-volume support absent from current 2D manifests.
 
+  flair_retina:
+    status: candidate_open_transaction_only
+    role: direct_visual_verifier
+    modalities: [fundus]
+    capabilities: [classification, retrieval]
+    evidence:
+      - "FLAIR, Medical Image Analysis 2025"
+    weights: jusiro2/FLAIR
+    native_interface: fundus_image_text_similarity
+    training_required_for_commit_interface: false
+    rationale: Public fundus language-image model with strong zero-shot generalization. Prefer it over a generic broad encoder for retinal claims when the input is a supported fundus image; adapter migration and source qualification are still required.
+
   retfound:
     status: candidate_source_image_retrieval
     role: ophthalmology_image_retriever
