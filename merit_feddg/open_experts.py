@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 
 import numpy as np
@@ -16,6 +17,16 @@ class OpenExpertPool:
         self.specs, self.artifacts = specs, artifacts
         self.models, self.features = {}, {}
 
+    @staticmethod
+    def _image_key(image):
+        if isinstance(image, (str, Path)):
+            path = Path(image).expanduser().resolve()
+            stat = path.stat()
+            return ("path", str(path), stat.st_size, stat.st_mtime_ns)
+        rgb = load_rgb(image)
+        digest = hashlib.sha256(str(rgb.size).encode() + rgb.tobytes()).hexdigest()
+        return ("pixels", digest)
+
     def reset_case(self):
         self.features.clear()
 
@@ -24,7 +35,18 @@ class OpenExpertPool:
 
         def infer(claim, prefix):
             if name not in self.models:
-                if spec.get("checkpoint_path"):
+                adapter = str(spec.get("adapter", ""))
+                if adapter == "xrv_classification":
+                    from .experts.native_xrv import XrvCapabilityAdapter
+
+                    self.models[name] = XrvCapabilityAdapter(
+                        spec.get("checkpoint_path", ""),
+                        capability="classification",
+                        device=str(spec.get("device", "auto")),
+                        weights=str(spec.get("weights", "densenet121-res224-all")),
+                        sha256=spec.get("sha256"),
+                    )
+                elif spec.get("checkpoint_path"):
                     local_spec = {**spec, "id": str(Path(spec["checkpoint_path"]).resolve())}
                     self.models[name] = _expert_from_spec(local_spec, None)
                 else:
@@ -41,10 +63,12 @@ class OpenExpertPool:
             if spec.get("adapter") in {
                 "contrastive_conch", "contrastive_biomedclip", "contrastive_plip"
             }:
-                if name not in self.features:
+                feature_key = (name, self._image_key(image))
+                if feature_key not in self.features:
                     rgb = load_rgb(image)
-                    self.features[name] = model._image_embedding(rgb) - model._image_embedding(
-                        null_image_like(rgb)
+                    self.features[feature_key] = (
+                        model._image_embedding(rgb)
+                        - model._image_embedding(null_image_like(rgb))
                     )
                 with model.torch.inference_mode():
                     if spec["adapter"] == "contrastive_conch":
@@ -53,7 +77,9 @@ class OpenExpertPool:
                     else:
                         text = model._text_embeddings(queries)
                     # Fixed temperature, recorded in config; never target fitted.
-                    scores = (self.features[name] @ text.T).squeeze(0).float().cpu().numpy()
+                    scores = (
+                        self.features[feature_key] @ text.T
+                    ).squeeze(0).float().cpu().numpy()
                     scores = scores / float(spec.get("temperature", 0.07))
             else:
                 scores = model.score_claims(image, claim.question, prefix, queries)
