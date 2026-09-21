@@ -179,6 +179,11 @@ def test_portfolio_selection_detects_negative_expert_interaction():
     assert candidates[("expert_a",)]["utility_mean"] > candidates[
         ("expert_a", "expert_b")
     ]["utility_mean"]
+    add_b = next(
+        row for row in bucket["add_one"] if row["expert_id"] == "expert_b"
+    )
+    assert add_b["adding_expert_reduces_mean_utility"]
+    assert add_b["utility_mean_delta_when_added"] < 0
 
 
 def test_portfolio_can_choose_empty_instead_of_forcing_coverage():
@@ -239,3 +244,14 @@ def test_portfolio_fit_rejects_target_rows():
             qualification_cards={card.key: card},
             policy=_policy(),
         )
+
+
+def test_musk_claim_phrasing_is_candidate_specific_without_loading_weights():
+    from merit_feddg.experts.musk import MuskConceptExpert
+
+    assert MuskConceptExpert._phrase("adenocarcinoma") == (
+        "Histopathology image showing adenocarcinoma."
+    )
+    assert MuskConceptExpert._phrase(
+        "The histopathology image shows adenocarcinoma."
+    ) == "The histopathology image shows adenocarcinoma."
