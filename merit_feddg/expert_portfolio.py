@@ -609,6 +609,7 @@ def fit_expert_portfolios(
                 "eligible_experts": eligible,
                 "leave_one_out": leave_one_out,
                 "add_one": add_one,
+                "excluded_add_one": excluded_add_one,
                 "pair_interactions": pair_interactions,
                 "candidate_portfolios": [
                     _card_dict(card)
