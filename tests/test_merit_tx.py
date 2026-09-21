@@ -25,6 +25,7 @@ from merit_feddg.transactional_claims import (
     claim_truth_key,
     claimize_vqa,
 )
+from scripts.build_merit_tx_source_observations import collapse_group_observations
 from scripts.fit_expert_qualification import fit, read_rows
 
 
@@ -613,3 +614,37 @@ def test_open_expert_pool_image_cache_key_changes_with_pixels():
     left = Image.new("RGB", (2, 2), (0, 0, 0))
     right = Image.new("RGB", (2, 2), (255, 255, 255))
     assert OpenExpertPool._image_key(left) != OpenExpertPool._image_key(right)
+
+
+def test_report_qualification_collapses_multiple_claims_per_patient_conservatively():
+    base = {
+        "expert_id": "xrv",
+        "capability": "classification",
+        "scope": "cxr_findings",
+        "modality": "cxr",
+        "task": "report_generation",
+        "claim_type": "*",
+        "domain": "site-a",
+        "group_id": "patient-1",
+        "real_effect": 1.0,
+        "knockoff_effect": 0.0,
+    }
+    rows = [
+        {
+            **base,
+            "transaction_id": "good",
+            "outcome_delta": 1.0,
+            "differential_effect": 1.0,
+        },
+        {
+            **base,
+            "transaction_id": "harm",
+            "outcome_delta": -1.0,
+            "differential_effect": 0.2,
+        },
+    ]
+    collapsed = collapse_group_observations(rows)
+    assert len(collapsed) == 1
+    assert collapsed[0]["transaction_id"] == "harm"
+    assert collapsed[0]["within_group_transactions"] == 2
+    assert collapsed[0]["within_group_aggregation"] == "worst-outcome-then-specificity"
