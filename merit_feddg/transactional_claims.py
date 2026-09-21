@@ -365,6 +365,7 @@ def candidate_transactions(
                     replacement_text=replacement,
                     baseline_claim_id=baseline.claim_id,
                     proposer_expert_id=proposer_expert_id,
+                    proposer_expert_ids=proposer_expert_ids,
                 )
             )
     return tuple(transactions)
