@@ -27,6 +27,7 @@ def merit_tx_config(mapping):
         "qualification_min_domains",
         "qualification_max_harm_ucb",
         "qualification_min_specificity_lcb",
+        "qualification_min_veto_precision_lcb",
     }
     return MeritTxConfig(**{key: mapping[key] for key in keys if key in mapping})
 
@@ -173,7 +174,7 @@ def selected_native_verifiers(
         claim_type=claim_type,
         qualification_cards=qualification_cards,
         max_calls=max_calls,
-        require_commit_authority=True,
+        require_transaction_authority=True,
         region_available=False,
         qualification_min_domains=int(tx_policy.get("qualification_min_domains", 2)),
         qualification_max_harm_ucb=float(
@@ -181,6 +182,9 @@ def selected_native_verifiers(
         ),
         qualification_min_specificity_lcb=float(
             tx_policy.get("qualification_min_specificity_lcb", 0.5)
+        ),
+        qualification_min_veto_precision_lcb=float(
+            tx_policy.get("qualification_min_veto_precision_lcb", 0.5)
         ),
         allowed_evidence_roles=("direct_visual_verifier",),
         allowed_capabilities=("classification",),
