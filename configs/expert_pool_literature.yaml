@@ -61,6 +61,28 @@ models:
     weights: vinid/plip
     rationale: Independently trained pathology image-text model from OpenPath, providing a separate failure group from CONCH.
 
+  biomedclip_claim_verifier:
+    status: transaction_only
+    role: direct_visual_verifier
+    modalities: [cxr, xray, ct, mri, pathology, gross_pathology]
+    capabilities: [classification]
+    evidence:
+      - "BiomedCLIP / PMC-15M biomedical image-text pretraining"
+      - "MERIT-Tx requires source-only role qualification before commit"
+    weights: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    rationale: Reuses an already integrated frozen biomedical image-text model as a dynamic candidate-vs-incumbent claim scorer, primarily filling CT/MRI verification gaps. It is not trusted by default and fails closed without a source card.
+
+  medsiglip:
+    status: candidate_gated_transaction_only
+    role: direct_visual_verifier
+    modalities: [cxr, xray, ct, mri, pathology, dermatology, fundus, clinical_photo]
+    capabilities: [classification, retrieval]
+    evidence:
+      - "MedSigLIP official medical image-text encoder/model card"
+      - "SigLIP, ICCV 2023"
+    weights: google/medsiglip-448
+    rationale: Frozen broad medical image-text similarity across CXR, dermatology, ophthalmology, pathology and CT/MRI slices. Gated weights and Health AI terms require explicit access; source qualification is mandatory before any commit authority.
+
   medcpt:
     status: integrated_context_only
     role: knowledge_retriever
