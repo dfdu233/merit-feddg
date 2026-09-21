@@ -83,6 +83,42 @@ Examples:
 
 A positive differential effect is patient-specific support for the candidate and is usable only with support/commit authority. A negative differential effect is patient-specific support for retaining the incumbent and is usable only with separately qualified veto authority. Positive support reliability is deliberately **not** reused as proof that negative vetoes are safe. Zero differential effect carries no proof in either direction.
 
+## Adaptive BARD is a proposal mechanism, not commit proof
+
+Adaptive BARD remains useful because it can move the frozen Generalist toward
+specialist-informed candidate answers without training. In MERIT-Tx v2 that
+movement is deliberately treated as **proposal generation**:
+
+    b = frozen Generalist(I, q)
+    c = Adaptive-BARD(I, q, expert evidence)
+    T = atomic transactions compiled from c versus b
+    decision(T) = independent native verification + source qualification
+
+BARD residual/logit movement is not reused as transaction proof. All experts
+that may have influenced the frozen BARD candidate must be declared through
+`--proposer-expert-ids`; their fault groups are excluded from the independent
+support set for the resulting transactions. This prevents an expert from
+changing the candidate and then validating the same change through a second
+interface.
+
+For example, a source canary whose Adaptive BARD candidate may use CheXagent,
+XRV and BiomedCLIP should declare the full frozen provenance set:
+
+    python scripts/run_merit_tx_source_canary.py \
+      --manifest /path/to/source-manifest.jsonl \
+      --baseline /path/to/source-generalist.json \
+      --candidate /path/to/source-adaptive-bard.json \
+      --candidate-name adaptive-bard-v1 \
+      --proposer-expert-ids chexagent_description cxr_findings biomedclip_claim_verifier \
+      --qualification-cards artifacts/qualification/merit-expert-qualification.json \
+      --config configs/merit_tx.yaml \
+      --output runs/merit-tx-source-canary
+
+The provenance declaration is conservative: if routing differs per sample, the
+union of all experts that could influence the frozen candidate may be supplied.
+A future per-sample provenance manifest can tighten this without changing the
+transaction rule.
+
 ## Proposer is not the sole validator
 
 If an expert proposes the transaction, its own fault group cannot be the only validator when require_independent_validator is true.
