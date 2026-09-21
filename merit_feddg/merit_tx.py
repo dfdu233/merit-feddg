@@ -51,6 +51,7 @@ class MeritTxConfig:
     qualification_min_domains: int = 2
     qualification_max_harm_ucb: float = 0.25
     qualification_min_specificity_lcb: float = 0.5
+    qualification_min_veto_precision_lcb: float = 0.5
 
     def __post_init__(self):
         if type(self.min_support_groups) is not int or self.min_support_groups < 1:
@@ -61,6 +62,10 @@ class MeritTxConfig:
             raise ValueError("qualification_max_harm_ucb must be in [0,1]")
         if not 0 <= self.qualification_min_specificity_lcb <= 1:
             raise ValueError("qualification_min_specificity_lcb must be in [0,1]")
+        if not 0 <= self.qualification_min_veto_precision_lcb <= 1:
+            raise ValueError(
+                "qualification_min_veto_precision_lcb must be in [0,1]"
+            )
 
 
 def differential_margin(
@@ -257,7 +262,7 @@ def decide_transaction(
             task=task,
             claim_type=claim_type,
         )
-        source_qualified = (
+        support_authorized = (
             qcard is not None
             and qcard.authorizes_commit(
                 min_domains=config.qualification_min_domains,
@@ -265,18 +270,24 @@ def decide_transaction(
                 min_specificity_lcb=config.qualification_min_specificity_lcb,
             )
         )
+        veto_authorized = (
+            qcard is not None
+            and qcard.authorizes_veto(
+                min_domains=config.qualification_min_domains,
+                min_specificity_lcb=config.qualification_min_specificity_lcb,
+                min_veto_precision_lcb=config.qualification_min_veto_precision_lcb,
+            )
+        )
         # Knowledge/proposal experts remain useful in the audit, but they do not
         # become patient-specific proof merely because they agree with a candidate.
         if not evidence.patient_specific:
             continue
-        if not source_qualified:
-            continue
-        if evidence.differential_effect > 0:
+        if evidence.differential_effect > 0 and support_authorized:
             qualified_support.setdefault(evidence.fault_group, []).append(evidence)
-        elif evidence.differential_effect < 0:
-            # Negative D_e is genuine patient-specific evidence for retaining
-            # the incumbent.  Treat it as a veto-capable contradiction instead
-            # of silently discarding it.
+        elif evidence.differential_effect < 0 and veto_authorized:
+            # Negative D_e can veto only when negative decisions themselves
+            # have a conservative source-only precision bound.  Safe positive
+            # support does not imply safe contradiction.
             qualified_contradiction.setdefault(evidence.fault_group, []).append(evidence)
 
     support_groups = set(qualified_support)
