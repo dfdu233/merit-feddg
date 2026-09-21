@@ -648,3 +648,81 @@ def test_report_qualification_collapses_multiple_claims_per_patient_conservative
     assert collapsed[0]["transaction_id"] == "harm"
     assert collapsed[0]["within_group_transactions"] == 2
     assert collapsed[0]["within_group_aggregation"] == "worst-outcome-then-specificity"
+
+
+def test_identical_overlapping_report_patches_are_coalesced():
+    baseline = "No pleural effusion."
+    claims = (
+        AtomicClinicalClaim("c0", "The image does not show pleural effusion.", (0, len(baseline))),
+        AtomicClinicalClaim("c1", "Pleural space is clear.", (0, len(baseline))),
+    )
+    transactions = (
+        ClaimTransaction(
+            "t0",
+            "REPLACE",
+            AtomicClinicalClaim("p0", "The image shows pleural effusion.", None),
+            "Small left pleural effusion.",
+            baseline_claim_id="c0",
+            proposer_expert_id="proposal",
+        ),
+        ClaimTransaction(
+            "t1",
+            "REPLACE",
+            AtomicClinicalClaim("p1", "Pleural effusion is present.", None),
+            "Small left pleural effusion.",
+            baseline_claim_id="c1",
+            proposer_expert_id="proposal",
+        ),
+    )
+    decisions = tuple(
+        TransactionDecision(
+            tx.transaction_id,
+            True,
+            "proof-carrying-transaction",
+            verifier_fault_groups=("visual",),
+            patient_specific_support=True,
+            source_qualified_support=True,
+            differential_effect=0.4,
+        )
+        for tx in transactions
+    )
+    result = apply_transactions(baseline, claims, transactions, decisions)
+    assert result["text"] == "Small left pleural effusion."
+
+
+def test_conflicting_overlapping_report_patches_fail_closed():
+    baseline = "No pleural effusion."
+    claims = (
+        AtomicClinicalClaim("c0", "The image does not show pleural effusion.", (0, len(baseline))),
+        AtomicClinicalClaim("c1", "Pleural space is clear.", (0, len(baseline))),
+    )
+    transactions = (
+        ClaimTransaction(
+            "t0",
+            "REPLACE",
+            AtomicClinicalClaim("p0", "The image shows pleural effusion.", None),
+            "Small left pleural effusion.",
+            baseline_claim_id="c0",
+        ),
+        ClaimTransaction(
+            "t1",
+            "REPLACE",
+            AtomicClinicalClaim("p1", "The image shows large pleural effusion.", None),
+            "Large right pleural effusion.",
+            baseline_claim_id="c1",
+        ),
+    )
+    decisions = tuple(
+        TransactionDecision(
+            tx.transaction_id,
+            True,
+            "proof-carrying-transaction",
+            verifier_fault_groups=("visual",),
+            patient_specific_support=True,
+            source_qualified_support=True,
+            differential_effect=0.4,
+        )
+        for tx in transactions
+    )
+    with pytest.raises(ValueError, match="overlap"):
+        apply_transactions(baseline, claims, transactions, decisions)
