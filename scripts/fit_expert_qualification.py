@@ -103,11 +103,13 @@ def fit(rows, *, z=1.96):
             float(row["real_effect"]) - float(row["knockoff_effect"])
             for row in values
         ]
-        supported = [
-            delta
-            for delta, effect in zip(deltas, effects, strict=True)
+        supported_rows = [
+            row
+            for row, effect in zip(values, effects, strict=True)
             if effect > 0
         ]
+        supported = [float(row["outcome_delta"]) for row in supported_rows]
+        support_domains = sorted({row["domain"] for row in supported_rows})
         if supported:
             utility_lcb = mean_lcb(supported, z)
             harm_ucb = wilson(
@@ -122,11 +124,13 @@ def fit(rows, *, z=1.96):
             utility_lcb = -1.0
             harm_ucb = 1.0
 
-        veto_deltas = [
-            delta
-            for delta, effect in zip(deltas, effects, strict=True)
+        veto_rows = [
+            row
+            for row, effect in zip(values, effects, strict=True)
             if effect < 0
         ]
+        veto_deltas = [float(row["outcome_delta"]) for row in veto_rows]
+        veto_domains = sorted({row["domain"] for row in veto_rows})
         veto_precision_lcb = (
             wilson(
                 sum(delta < 0 for delta in veto_deltas),
@@ -153,8 +157,11 @@ def fit(rows, *, z=1.96):
                 z,
                 upper=False,
             ),
+            support_n=len(supported),
+            support_domains=support_domains,
             veto_precision_lcb=veto_precision_lcb,
             veto_n=len(veto_deltas),
+            veto_domains=veto_domains,
             source_only=True,
         )
         cards.append(card)
