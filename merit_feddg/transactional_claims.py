@@ -337,15 +337,25 @@ def apply_transactions(baseline_text, baseline_claims, transactions, decisions):
             edits.append((start, end, replacement, transaction.transaction_id))
         committed.append(transaction.transaction_id)
 
-    edits.sort(key=lambda value: (value[0], value[1]))
-    for left, right in pairwise(edits):
+    edits.sort(key=lambda value: (value[0], value[1], value[2]))
+    merged_edits = []
+    for edit in edits:
+        if (
+            merged_edits
+            and edit[0] == merged_edits[-1][0]
+            and edit[1] == merged_edits[-1][1]
+            and edit[2] == merged_edits[-1][2]
+        ):
+            continue
+        merged_edits.append(edit)
+    for left, right in pairwise(merged_edits):
         if right[0] < left[1]:
             raise ValueError(
-                "committed claim edits overlap; merge same-sentence report claims first"
+                "committed claim edits overlap with different replacements"
             )
 
     result = baseline_text
-    for start, end, replacement, _transaction_id in reversed(edits):
+    for start, end, replacement, _transaction_id in reversed(merged_edits):
         result = result[:start] + replacement + result[end:]
     return {
         "text": result,
@@ -354,6 +364,6 @@ def apply_transactions(baseline_text, baseline_claims, transactions, decisions):
         "fallback_exact": not committed and result == baseline_text,
         "untouched_baseline_preserved": all(
             result[:start] == baseline_text[:start]
-            for start, _end, _replacement, _id in edits[:1]
-        ) if edits else True,
+            for start, _end, _replacement, _id in merged_edits[:1]
+        ) if merged_edits else True,
     }
