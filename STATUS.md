@@ -6,7 +6,7 @@ Latest user requirements: test new Adaptive BARD across datasets where old metho
 
 Huatuo official TEST COMPLETE2545: SLAKE2094 (en1061/zh1033), VQA451. Full candidate ID set checked, compact predictions downloaded runs/huatuo-test-v1/paired-predictions.json. Primary requested report reports/huatuo-test-v1/RESULTS.md and full-test-historical-comparison.json. BARD VQA63.0648 vs historicalGreedy62.8193; SLAKE57.1551 vs54.6917; English55.5540 vs55.9789; Chinese58.7996 vs53.3696. VQA CLOSED77.6892%, OPEN44.7112%. Current table leads complete locally verified historical methods, not externalSOTA proof. Metric VQA mixed CEaccuracy+OErecall; SLAKE existing all-short-answer tokenrecall. Earlier freshbaseline audit exists separately, but user does not want it in primary comparison. No further Huatuo jobs.
 
-Source32 previous results remain reports/huatuo-spatial-v1/RESULTS.md. Frozen algorithm upstream5b15b16; experimentbranch experiments/huatuo-adaptive-bard-validation-v1. Latestpushed721593b. Current uncommitted reportcompletion +MedCPTpathCLI +STATUS. Needcommit/push.
+Source32 previous results remain reports/huatuo-spatial-v1/RESULTS.md. Frozen algorithm upstream5b15b16; experimentbranch experiments/huatuo-adaptive-bard-validation-v1. Latest pushed edb776f. Historical-only Huatuo completion report committed.
 
 ## Current jobs (all paths under /home/dbw/merit-feddg-huatuo-spatial)
 
@@ -43,3 +43,7 @@ SSHhost merit-runner@172.17.0.1 key/root/.ssh/merit_host_gpu0_ed25519. Hostworki
 SSHcloud root@connect.weste.seetacloud.com port51493 key/root/.ssh/merit_5090_ed25519. Python /root/autodl-tmp/merit-env/bin/python. Cloud/home/dbw is symlink; ALWAYS rsync --keep-dirlinks. Cloud350GBdisk. Pullresults --no-perms --no-owner --no-group. Nativearrays retainedbothsides; compresssortedtar fortransfer. No externalmessages.
 
 Next: finishPathdeltaextract74658; verifyactivebatcheshealthy; exportcompactPath256+SLAKEpartial forhistoricalmatchedscoring; keeppipeline advancing (Path1536:6719 askeycomplete, SLAKEcompletion thenMMMU). Completeallrequiredformalsets, notjuststartup. Keepuserupdated<=60s. No labels forinference/tuning. Commit/pushcheckpoint andfinalreports.
+
+## Latest live check 2026-09-21
+Cloud SLAKE1394/1394 and host SLAKE700/700 COMPLETE; score full2094 against historical only. Cloud GPU1 immediately assigned MMMU0:1024 PID57723, confirmed real COMPLETE outputs (46+), ~16.4GB. CloudGPU0 Path PID56910 continues, snapshot756 candidates including initial256. HostGPU1 SLAKE complete, assigned Path1536:3072 PID986946, confirmed real outputs. Reserve cloud next Path3072+ to avoid overlap. Both cloud5090 now active; previousGPU1idle was completion transition, not crash. HostGPU0 belongs to unrelated job, do not touch.
+MMMU native complete; MedCPT host907379 continues; first1024 all inputs prefetched cloud. Path all native9801 transferred/extracted SHAverified; MedCPT first4096 downloadedhost, supports currenthostbatch. PMC coverage-only complete33430, cache3d798e8e253a45479101eea46aaec4ffce11efb9e53fecbf472a9f5ff572227e; noGPUjobyet.
