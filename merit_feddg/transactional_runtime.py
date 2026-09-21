@@ -7,13 +7,14 @@ transactions, preventing qualification outcomes from steering the proposal itsel
 from dataclasses import asdict
 
 from .claims import CandidateProposition, ClaimSpec
+from .expert_policy import select_expert_descriptors, transaction_descriptors
 from .knockoff import select_matched_knockoffs
 from .merit_tx import (
     MeritTxConfig,
     decide_transaction,
     native_transaction_evidence_controls,
 )
-from .transactional_protocol import claimize_incumbent, plan_transaction_experts
+from .transactional_protocol import claimize_incumbent
 
 
 def merit_tx_config(mapping):
@@ -30,16 +31,67 @@ def merit_tx_config(mapping):
     return MeritTxConfig(**{key: mapping[key] for key in keys if key in mapping})
 
 
+def counterfactual_addition_proposition(claim):
+    """Build an explicit, answer-blind null for a report ADD transaction.
+
+    ADD has no incumbent claim to score.  We therefore compare the proposed
+    observation against the same observation with flipped presence polarity,
+    rather than against an empty string or an unrelated baseline sentence.
+    Uncertain propositions fail closed because they do not define a clean
+    binary counterfactual.
+    """
+    grounding = claim.grounding or {}
+    if grounding.get("schema") == "radgraph-xl":
+        observation = str(grounding.get("observation", "")).strip()
+        if not observation:
+            raise ValueError("RadGraph ADD requires an observation")
+        tags = [str(value).casefold() for value in grounding.get("tags", ())]
+        if any("uncertain" in value for value in tags):
+            raise ValueError("uncertain report ADD has no deterministic counterfactual")
+        candidate_absent = any("absent" in value for value in tags)
+        prefix = "The image shows " if candidate_absent else "The image does not show "
+        proposition = prefix + observation
+        located = [
+            str(value).strip()
+            for value in grounding.get("located_at", ())
+            if str(value).strip()
+        ]
+        if located:
+            proposition += " at " + ", ".join(located)
+        return proposition.rstrip(".") + "."
+
+    proposition = " ".join(str(claim.proposition).split())
+    positive = "The image shows "
+    negative = "The image does not show "
+    if proposition.startswith(negative):
+        return positive + proposition[len(negative):]
+    if proposition.startswith(positive):
+        return negative + proposition[len(positive):]
+    raise ValueError(
+        "ADD verification requires an explicit presence/absence proposition"
+    )
+
+
 def transaction_claim_spec(row, transaction, baseline_claims):
-    """Pair one immutable incumbent claim with one explicit replacement claim."""
-    if transaction.operation != "REPLACE":
-        raise ValueError("native differential verification currently requires REPLACE")
-    baseline = {
-        claim.claim_id: claim
-        for claim in baseline_claims
-    }.get(transaction.baseline_claim_id)
-    if baseline is None:
-        raise ValueError("transaction baseline claim is missing")
+    """Compile one transaction into a two-proposition native verifier query."""
+    if transaction.operation == "DELETE":
+        raise ValueError("MERIT-Tx does not authorize DELETE from report omission")
+
+    if transaction.operation == "REPLACE":
+        baseline = {
+            claim.claim_id: claim
+            for claim in baseline_claims
+        }.get(transaction.baseline_claim_id)
+        if baseline is None:
+            raise ValueError("transaction baseline claim is missing")
+        incumbent_proposition = baseline.proposition
+    elif transaction.operation == "ADD":
+        incumbent_proposition = counterfactual_addition_proposition(
+            transaction.proposed_claim
+        )
+    else:
+        raise ValueError(f"unsupported transaction operation: {transaction.operation}")
+
     return ClaimSpec(
         claim_id=transaction.transaction_id,
         question=str(row["question"]),
@@ -48,8 +100,8 @@ def transaction_claim_spec(row, transaction, baseline_claims):
         propositions=(
             CandidateProposition(
                 candidate_id="incumbent",
-                answer=baseline.proposition,
-                proposition=baseline.proposition,
+                answer=incumbent_proposition,
+                proposition=incumbent_proposition,
                 polarity="open",
             ),
             CandidateProposition(
@@ -60,7 +112,12 @@ def transaction_claim_spec(row, transaction, baseline_claims):
             ),
         ),
         closed_set=True,
-        metadata={"merit_tx": True, "task": row["task"]},
+        metadata={
+            "merit_tx": True,
+            "task": row["task"],
+            "operation": transaction.operation,
+            "explicit_add_counterfactual": transaction.operation == "ADD",
+        },
     )
 
 
@@ -100,12 +157,23 @@ def selected_native_verifiers(
     tx_policy,
     max_calls,
 ):
-    plan = plan_transaction_experts(
-        row,
+    """Reserve the verification budget for commit-capable native verifiers.
+
+    Generic expert planning remains coverage-first, but commit verification is a
+    different stage.  Spatial/proposal/knowledge tools are filtered *before*
+    max_calls so they cannot evict an independent visual verifier and then be
+    discarded after budgeting.
+    """
+    descriptors = transaction_descriptors(specs, row)
+    selected, audit = select_expert_descriptors(
+        descriptors,
         specs,
-        qualification_cards=qualification_cards,
+        modality=row["modality"],
+        task=row["task"],
         claim_type=claim_type,
+        qualification_cards=qualification_cards,
         max_calls=max_calls,
+        require_commit_authority=True,
         region_available=False,
         qualification_min_domains=int(tx_policy.get("qualification_min_domains", 2)),
         qualification_max_harm_ucb=float(
@@ -114,17 +182,10 @@ def selected_native_verifiers(
         qualification_min_specificity_lcb=float(
             tx_policy.get("qualification_min_specificity_lcb", 0.5)
         ),
+        allowed_evidence_roles=("direct_visual_verifier",),
+        allowed_capabilities=("classification",),
     )
-    selected = []
-    for descriptor, audit in zip(plan["descriptors"], plan["audit"], strict=True):
-        if (
-            audit["evidence_role"] == "direct_visual_verifier"
-            and audit["patient_specific"]
-            and audit["commit_authorized"]
-            and descriptor["capability"] == "classification"
-        ):
-            selected.append(descriptor)
-    return selected, plan["audit"]
+    return selected, audit
 
 
 def verify_transaction(
@@ -142,20 +203,43 @@ def verify_transaction(
     knockoff_count,
 ):
     """Verify one transaction without reading a reference answer."""
-    if transaction.operation != "REPLACE":
+    if transaction.operation == "DELETE":
         from .transactional_claims import TransactionDecision
 
         return (
             TransactionDecision(
                 transaction.transaction_id,
                 False,
-                "native-verification-requires-explicit-replacement",
+                "delete-not-authorized-by-omission",
             ),
             [],
             {"selected": [], "skipped": [], "controls": {}},
         )
 
-    claim = transaction_claim_spec(row, transaction, baseline_claims)
+    try:
+        claim = transaction_claim_spec(row, transaction, baseline_claims)
+    except ValueError as exc:
+        from .transactional_claims import TransactionDecision
+
+        return (
+            TransactionDecision(
+                transaction.transaction_id,
+                False,
+                "transaction-has-no-verifiable-counterfactual",
+            ),
+            [],
+            {
+                "selected": [],
+                "skipped": [
+                    {
+                        "expert_id": None,
+                        "reason": "counterfactual-unavailable",
+                        "detail": str(exc),
+                    }
+                ],
+                "controls": {},
+            },
+        )
     verifiers, plan_audit = selected_native_verifiers(
         row,
         specs,
