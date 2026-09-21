@@ -726,3 +726,42 @@ def test_conflicting_overlapping_report_patches_fail_closed():
     )
     with pytest.raises(ValueError, match="overlap"):
         apply_transactions(baseline, claims, transactions, decisions)
+
+
+def test_partial_approval_of_shared_report_patch_preserves_incumbent_sentence():
+    baseline = "No pleural effusion."
+    claims = (
+        AtomicClinicalClaim("c0", "The image does not show pleural effusion.", (0, len(baseline))),
+        AtomicClinicalClaim("c1", "Pleural space is clear.", (0, len(baseline))),
+    )
+    transactions = (
+        ClaimTransaction(
+            "t0",
+            "REPLACE",
+            AtomicClinicalClaim("p0", "The image shows pleural effusion.", None),
+            "Small left pleural effusion.",
+            baseline_claim_id="c0",
+        ),
+        ClaimTransaction(
+            "t1",
+            "REPLACE",
+            AtomicClinicalClaim("p1", "Pleural effusion is present.", None),
+            "Small left pleural effusion.",
+            baseline_claim_id="c1",
+        ),
+    )
+    accepted = TransactionDecision(
+        "t0",
+        True,
+        "proof-carrying-transaction",
+        verifier_fault_groups=("visual",),
+        patient_specific_support=True,
+        source_qualified_support=True,
+        differential_effect=0.4,
+    )
+    rejected = TransactionDecision("t1", False, "insufficient-proof")
+    result = apply_transactions(baseline, claims, transactions, (accepted, rejected))
+    assert result["text"] == baseline
+    assert result["fallback_exact"]
+    assert result["committed_transactions"] == []
+    assert result["suppressed_partial_patch_transactions"] == ["t0"]
