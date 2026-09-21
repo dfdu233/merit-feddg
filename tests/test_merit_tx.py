@@ -985,3 +985,45 @@ def test_qualification_fitter_rejects_mixed_proposal_policies():
     ]
     with pytest.raises(ValueError, match="one frozen candidate_method"):
         fit(rows)
+
+
+def test_source_qualified_proof_channel_beats_unqualified_context_under_budget():
+    specs = {
+        "visual_a": _spec(
+            "direct_visual_verifier",
+            "classification",
+            group="visual-a",
+        ),
+        "visual_b": _spec(
+            "direct_visual_verifier",
+            "classification",
+            group="visual-b",
+        ),
+        "proposal": _spec(
+            "proposal_generator",
+            "generation",
+            group="proposal",
+            authority="never",
+        ),
+    }
+    card_a = _card("visual_a", "classification", "classification")
+    card_b = _card("visual_b", "classification", "classification")
+    descriptors = [
+        _descriptor("proposal", "generation"),
+        _descriptor("visual_a", "classification"),
+        _descriptor("visual_b", "classification"),
+    ]
+    selected, audit = select_expert_descriptors(
+        descriptors,
+        specs,
+        modality="pathology",
+        task="open_vqa",
+        claim_type="diagnosis",
+        qualification_cards={
+            card_a.key: card_a,
+            card_b.key: card_b,
+        },
+        max_calls=2,
+    )
+    assert {row["expert"] for row in selected} == {"visual_a", "visual_b"}
+    assert all(row["commit_authorized"] for row in audit)
