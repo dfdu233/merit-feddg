@@ -5,10 +5,13 @@ records. Required fields:
   expert_id, capability, scope, modality, task, claim_type, domain, group_id,
   outcome_delta, real_effect, knockoff_effect
 
-outcome_delta is the bounded score change (expert transaction minus immutable
-Generalist) in [-1, 1]. real_effect/knockoff_effect are label-free receiver
-effects measured with current-patient evidence and a matched wrong-patient
-control. The script stores conservative lower/upper bounds; it trains no gate.
+outcome_delta is the bounded score change (candidate transaction minus immutable
+Generalist) in [-1, 1]. real_effect/knockoff_effect are label-free expert-native
+margins measured with current-patient evidence and matched wrong-patient
+controls. Qualification is action-conditional: utility/harm are estimated only
+on transactions the expert would support (D_e > 0), while specificity measures
+whether the sign of D_e agrees with the sign of source-only transaction utility.
+The script stores conservative lower/upper bounds; it trains no gate.
 """
 
 from __future__ import annotations
@@ -96,18 +99,45 @@ def fit(rows, *, z=1.96):
         if len(groups) != len(set(groups)):
             raise ValueError(f"duplicate group_id within qualification cell: {key}")
         deltas = [float(row["outcome_delta"]) for row in values]
-        harms = sum(value < 0 for value in deltas)
-        specificity = sum(
-            float(row["real_effect"]) > float(row["knockoff_effect"])
+        effects = [
+            float(row["real_effect"]) - float(row["knockoff_effect"])
             for row in values
+        ]
+        supported = [
+            delta
+            for delta, effect in zip(deltas, effects, strict=True)
+            if effect > 0
+        ]
+        if supported:
+            utility_lcb = mean_lcb(supported, z)
+            harm_ucb = wilson(
+                sum(delta < 0 for delta in supported),
+                len(supported),
+                z,
+                upper=True,
+            )
+        else:
+            # No observed support action means no evidence that this expert can
+            # safely authorize a commit under the frozen candidate distribution.
+            utility_lcb = -1.0
+            harm_ucb = 1.0
+
+        directional_successes = sum(
+            (effect > 0 and delta > 0) or (effect < 0 and delta < 0)
+            for delta, effect in zip(deltas, effects, strict=True)
         )
         card = dict(zip(KEYS, key, strict=True))
         card.update(
             n=len(values),
             domains=sorted({row["domain"] for row in values}),
-            utility_lcb=mean_lcb(deltas, z),
-            harm_ucb=wilson(harms, len(values), z, upper=True),
-            specificity_lcb=wilson(specificity, len(values), z, upper=False),
+            utility_lcb=utility_lcb,
+            harm_ucb=harm_ucb,
+            specificity_lcb=wilson(
+                directional_successes,
+                len(values),
+                z,
+                upper=False,
+            ),
             source_only=True,
         )
         cards.append(card)
@@ -115,9 +145,18 @@ def fit(rows, *, z=1.96):
         "schema": "merit-expert-qualification-v1",
         "source_only": True,
         "statistical_rule": {
-            "utility": "normal lower confidence bound on bounded outcome_delta",
-            "harm": "Wilson upper confidence bound for outcome_delta < 0",
-            "specificity": "Wilson lower confidence bound for real_effect > knockoff_effect",
+            "utility": (
+                "normal lower confidence bound on outcome_delta conditional on "
+                "signed differential effect D_e > 0"
+            ),
+            "harm": (
+                "Wilson upper confidence bound for outcome_delta < 0 conditional "
+                "on D_e > 0"
+            ),
+            "specificity": (
+                "Wilson lower confidence bound for sign(D_e) agreeing with "
+                "sign(outcome_delta); zero utility is conservatively not success"
+            ),
             "z": z,
         },
         "cards": cards,
