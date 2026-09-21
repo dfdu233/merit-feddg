@@ -181,12 +181,31 @@ def main():
         raise FileNotFoundError(
             "frozen source qualification cards are required before the MERIT-Tx canary"
         )
+    qualification_payload = json.loads(Path(card_path).read_text(encoding="utf-8"))
+    qualification_groups = {
+        str(value) for value in qualification_payload.get("source_group_ids", ())
+    }
+    if not qualification_groups:
+        raise ValueError("v3 qualification cards must record source_group_ids")
     cards = load_qualification_cards(card_path)
     portfolio_path = args.portfolio_policy or tx_policy.get("portfolio_cards")
     if not portfolio_path or not Path(portfolio_path).is_file():
         raise FileNotFoundError(
             "frozen source expert portfolio is required before the MERIT-Tx v3 canary"
         )
+    portfolio_payload = json.loads(Path(portfolio_path).read_text(encoding="utf-8"))
+    portfolio_groups = {
+        str(value) for value in portfolio_payload.get("source_group_ids", ())
+    }
+    if not portfolio_groups:
+        raise ValueError("v3 expert portfolio must record source_group_ids")
+    canary_groups = {str(row["group_id"]) for row in rows}
+    if qualification_groups & portfolio_groups:
+        raise ValueError("qualification and portfolio source groups overlap")
+    if canary_groups & qualification_groups:
+        raise ValueError("canary source groups overlap qualification source groups")
+    if canary_groups & portfolio_groups:
+        raise ValueError("canary source groups overlap portfolio-selection source groups")
     portfolio_policy = load_expert_portfolio(portfolio_path)
     max_calls = (
         args.max_calls
@@ -223,6 +242,9 @@ def main():
         "portfolio_policy": str(Path(portfolio_path).resolve()),
         "portfolio_policy_sha256": sha256(portfolio_path),
         "portfolio_selection_source_only": True,
+        "qualification_portfolio_canary_group_disjoint": True,
+        "qualification_source_groups_sha256": qualification_payload.get("source_groups_sha256"),
+        "portfolio_source_groups_sha256": portfolio_payload.get("source_groups_sha256"),
         "max_calls": max_calls,
         "knockoff_controls": knockoff_count,
         "immutable_incumbent": True,
