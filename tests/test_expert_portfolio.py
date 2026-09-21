@@ -181,6 +181,13 @@ def test_portfolio_selection_detects_negative_expert_interaction():
     assert candidates[("expert_a",)]["utility_mean"] > candidates[
         ("expert_a", "expert_b")
     ]["utility_mean"]
+    add_back = next(
+        row
+        for row in bucket["excluded_add_one"]
+        if row["expert_id"] == "expert_b"
+    )
+    assert add_back["adding_expert_reduces_mean_utility"]
+    assert add_back["utility_mean_delta_if_added"] < 0
     add_b = next(
         row for row in bucket["add_one"] if row["expert_id"] == "expert_b"
     )
