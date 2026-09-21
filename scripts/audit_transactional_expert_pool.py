@@ -7,7 +7,10 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from merit_feddg.capability_study import _filter_optional_experts
-from merit_feddg.expert_policy import load_qualification_cards
+from merit_feddg.expert_policy import (
+    load_qualification_cards,
+    validate_qualification_provenance,
+)
 from merit_feddg.io import load_experiment_yaml
 from merit_feddg.matched_evaluation import load_manifest
 from merit_feddg.transactional_protocol import plan_transaction_experts
@@ -41,9 +44,13 @@ def main():
             raise ValueError(
                 "qualification proposal_policy does not match --proposal-policy"
             )
+        qualification_expert_provenance = validate_qualification_provenance(
+            cards, specs, args.artifacts
+        )
         card_status = "loaded"
     else:
         cards = {}
+        qualification_expert_provenance = {}
         card_status = "missing"
     rows = load_manifest(args.manifest, include_answer_type=False)
     tx_policy = config.get("merit_tx", {})
@@ -129,6 +136,7 @@ def main():
         "qualification_proposal_policy": (
             cards.proposal_policy if hasattr(cards, "proposal_policy") else None
         ),
+        "qualification_expert_provenance": qualification_expert_provenance,
         "fault_group_histogram": dict(sorted(group_hist.items())),
         "patient_specific_fault_group_histogram": dict(sorted(patient_hist.items())),
         "selected_role_counts": dict(sorted(role_counts.items())),
