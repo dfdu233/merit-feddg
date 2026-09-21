@@ -313,11 +313,11 @@ def select_expert_descriptors(
             new_cell = cell not in seen_cells
             new_fault = card.fault_group not in seen_fault_groups
             return (
+                not row["commit_authorized"],
                 card.evidence_role in seen_roles,
                 role_priority[card.evidence_role],
-                not new_cell,
                 not new_fault,
-                not row["commit_authorized"],
+                not new_cell,
                 row["original_index"],
             )
 
