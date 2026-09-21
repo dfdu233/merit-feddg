@@ -229,11 +229,28 @@ def select_expert_descriptors(
     qualification_min_domains=2,
     qualification_max_harm_ucb=0.25,
     qualification_min_specificity_lcb=0.5,
+    allowed_evidence_roles=None,
+    allowed_capabilities=None,
 ):
-    """Coverage-first, diversity-aware expert selection with source-only authority."""
+    """Coverage-first, diversity-aware expert selection with source-only authority.
+
+    Optional role/capability filters are applied before the call budget.  This
+    matters for commit verification: non-verifying tools must not consume slots
+    that were reserved for independent native verifiers.
+    """
     if type(max_calls) is not int or max_calls < 1:
         raise ValueError("max_calls must be a positive integer")
     qualification_cards = qualification_cards or {}
+    allowed_evidence_roles = (
+        None
+        if allowed_evidence_roles is None
+        else frozenset(str(value) for value in allowed_evidence_roles)
+    )
+    allowed_capabilities = (
+        None
+        if allowed_capabilities is None
+        else frozenset(str(value) for value in allowed_capabilities)
+    )
     role_priority = {
         "direct_visual_verifier": 0,
         "spatial_localizer": 1,
@@ -251,6 +268,16 @@ def select_expert_descriptors(
         if specs[expert].get("expert_pool_enabled", True) is False:
             continue
         capability_name = descriptor["capability"]
+        if (
+            allowed_evidence_roles is not None
+            and card.evidence_role not in allowed_evidence_roles
+        ):
+            continue
+        if (
+            allowed_capabilities is not None
+            and capability_name not in allowed_capabilities
+        ):
+            continue
         qcard = qualification_for(
             qualification_cards,
             expert_id=expert,
