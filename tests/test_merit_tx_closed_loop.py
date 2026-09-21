@@ -34,7 +34,15 @@ def _spec(role, capability, *, group, modality="cxr", task="report_generation"):
     }
 
 
-def _card(expert, *, modality="cxr", task="report_generation", claim_type="*"):
+def _card(
+    expert,
+    *,
+    modality="cxr",
+    task="report_generation",
+    claim_type="*",
+    veto_precision=0.7,
+    veto_n=20,
+):
     return SourceQualificationCard(
         expert_id=expert,
         capability="classification",
@@ -47,6 +55,8 @@ def _card(expert, *, modality="cxr", task="report_generation", claim_type="*"):
         utility_lcb=0.2,
         harm_ucb=0.1,
         specificity_lcb=0.7,
+        veto_precision_lcb=veto_precision,
+        veto_n=veto_n,
     )
 
 
@@ -375,6 +385,8 @@ def test_qualification_is_expert_action_conditional_not_candidate_average():
     assert card["utility_lcb"] == -1.0
     assert card["harm_ucb"] == 1.0
     assert card["specificity_lcb"] == 0.0
+    assert card["veto_precision_lcb"] == 0.0
+    assert card["veto_n"] == 40
 
 
 def test_qualification_rewards_bidirectional_differential_alignment():
@@ -401,6 +413,8 @@ def test_qualification_rewards_bidirectional_differential_alignment():
     assert card["utility_lcb"] > 0
     assert card["harm_ucb"] < 0.25
     assert card["specificity_lcb"] > 0.8
+    assert card["veto_precision_lcb"] > 0.8
+    assert card["veto_n"] == 20
 
 
 def _rad_claim(claim_id, observation, *, present=True, span=None, location=()):
@@ -593,3 +607,41 @@ def test_report_compiler_does_not_merge_multiple_incumbent_sentences_into_one_pa
         candidate_claims=candidate,
     )
     assert transactions == ()
+
+
+def test_support_authority_does_not_implicitly_authorize_veto():
+    specs = {
+        "visual": _spec("direct_visual_verifier", "classification", group="visual"),
+    }
+    support_only = _card("visual", veto_precision=0.0, veto_n=0)
+    transaction = ClaimTransaction(
+        "tx-no-veto",
+        "REPLACE",
+        AtomicClinicalClaim("candidate", "The image shows pleural effusion.", None),
+        "Small pleural effusion.",
+        baseline_claim_id="baseline",
+    )
+    decision = decide_transaction(
+        transaction,
+        (
+            TransactionEvidence(
+                expert_id="visual",
+                capability="classification",
+                scope="classification",
+                fault_group="visual",
+                evidence_role="direct_visual_verifier",
+                differential_effect=-0.9,
+                support_direction=-1,
+                patient_specific=True,
+            ),
+        ),
+        specs=specs,
+        qualification_cards={support_only.key: support_only},
+        modality="cxr",
+        task="report_generation",
+        claim_type="*",
+        config=MeritTxConfig(),
+    )
+    assert not decision.commit
+    assert decision.reason == "insufficient-qualified-patient-specific-support"
+    assert decision.verifier_fault_groups == ()
