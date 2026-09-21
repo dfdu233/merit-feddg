@@ -120,7 +120,8 @@ Integrated or transaction-ready:
 | CONCH | pathology claim verifier | pathology image-text | source-qualified |
 | PLIP | independent pathology claim verifier | pathology image-text | source-qualified |
 | MedCPT | knowledge retriever | PubMed | never |
-| BiomedCLIP | broad embedding fallback | anatomy / broad retrieval | source-qualified only if the exact role qualifies |
+| BiomedCLIP dynamic claim verifier | direct visual verifier | CXR/X-ray/CT/MRI/pathology | source-qualified |
+| MedSigLIP (gated optional) | direct visual verifier | CXR/CT/MRI/pathology/dermatology/fundus | source-qualified |
 
 Candidate models intentionally not faked as active coverage:
 
@@ -142,7 +143,7 @@ Download open checkpoints currently supported by the new adapters:
 
     python scripts/prepare_expert_pool_assets.py --download-open
 
-This downloads vinid/plip and wanglab/medsam-vit-base. CONCH and MAIRA-2 are gated. The helper only prints commands for them; it never bypasses upstream access terms.
+This downloads vinid/plip and wanglab/medsam-vit-base. CONCH, MAIRA-2, and MedSigLIP are gated. The helper only prints commands for gated assets; it never bypasses upstream access terms. MedSigLIP is included because its official frozen image-text interface directly supports zero-shot classification and semantic retrieval across several modalities that were previously uncovered, but it still has zero commit authority until its exact source cell qualifies.
 
 ## Coverage audit before GPU inference
 
