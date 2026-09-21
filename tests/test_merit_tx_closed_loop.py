@@ -10,6 +10,7 @@ from merit_feddg.transactional_runtime import (
     verify_transaction,
 )
 from scripts.build_merit_tx_source_observations import report_outcome
+from scripts.fit_expert_qualification import fit
 
 
 def _spec(role, capability, *, group, modality="cxr", task="report_generation"):
@@ -336,3 +337,63 @@ def test_source_report_add_counts_unsupported_addition_as_harm():
         grounding=dict(candidate.grounding),
     )
     assert report_outcome(transaction, (), (reference,)) == 1.0
+
+
+def _qualification_row(index, *, outcome_delta, effect, domain):
+    return {
+        "expert_id": "visual",
+        "capability": "classification",
+        "scope": "classification",
+        "modality": "cxr",
+        "task": "report_generation",
+        "claim_type": "*",
+        "domain": domain,
+        "group_id": f"patient-{index}",
+        "outcome_delta": outcome_delta,
+        "real_effect": effect,
+        "knockoff_effect": 0.0,
+    }
+
+
+def test_qualification_is_expert_action_conditional_not_candidate_average():
+    rows = [
+        _qualification_row(
+            index,
+            outcome_delta=0.5,
+            effect=-0.2,
+            domain="site-a" if index < 20 else "site-b",
+        )
+        for index in range(40)
+    ]
+    card = fit(rows)["cards"][0]
+    # The candidate generator is uniformly beneficial, but this expert never
+    # supports a transaction.  It must not inherit the generator's utility.
+    assert card["utility_lcb"] == -1.0
+    assert card["harm_ucb"] == 1.0
+    assert card["specificity_lcb"] == 0.0
+
+
+def test_qualification_rewards_bidirectional_differential_alignment():
+    rows = []
+    for index in range(20):
+        rows.append(
+            _qualification_row(
+                index,
+                outcome_delta=0.5,
+                effect=0.8,
+                domain="site-a",
+            )
+        )
+    for index in range(20, 40):
+        rows.append(
+            _qualification_row(
+                index,
+                outcome_delta=-0.5,
+                effect=-0.8,
+                domain="site-b",
+            )
+        )
+    card = fit(rows)["cards"][0]
+    assert card["utility_lcb"] > 0
+    assert card["harm_ucb"] < 0.25
+    assert card["specificity_lcb"] > 0.8
