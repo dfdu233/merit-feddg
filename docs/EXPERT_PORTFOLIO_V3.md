@@ -126,9 +126,19 @@ If no non-empty subset qualifies, the selected portfolio is empty and MERIT retu
 
 For a selected portfolio S, the policy stores leave-one-out marginal utility:
 
-    Delta_e = U(S) - U(S without e)
+    Delta_remove(e) = U(S) - U(S without e)
 
-and pair interaction:
+For every individually-qualified expert excluded from S it also stores the
+direct add-back effect:
+
+    Delta_add(e) = U(S union {e}) - U(S)
+
+Thus a negative Delta_add is an explicit source-only statement that restoring
+that expert would reduce frozen portfolio utility. This directly operationalizes
+the observed "masking an expert improves performance" phenomenon without using
+target ablations.
+
+It also records pair interaction:
 
     I(e_i,e_j) = U({e_i,e_j}) - U({e_i}) - U({e_j})
 
