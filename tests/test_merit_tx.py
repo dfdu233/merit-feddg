@@ -8,6 +8,7 @@ from merit_feddg.expert_policy import (
     transaction_descriptors,
 )
 from merit_feddg.io import load_experiment_yaml
+from merit_feddg.knockoff import select_matched_knockoffs
 from merit_feddg.merit_tx import (
     MeritTxConfig,
     TransactionEvidence,
@@ -428,3 +429,35 @@ def test_fixed_conch_catalog_is_disabled_only_in_merit_tx():
     assert legacy["experts"]["conch_tissue"].get("enabled", True) is True
     assert tx["experts"]["conch_tissue"]["enabled"] is False
     assert tx["experts"]["conch_claim_verifier"]["transaction_only"] is True
+
+
+def test_knockoff_selection_is_answer_blind_stable_and_cross_group():
+    current = {
+        "id": "target",
+        "image": "target.png",
+        "modality": "pathology",
+        "task": "open_vqa",
+        "group_id": "patient-target",
+    }
+    source = [
+        {
+            "id": f"s{i}",
+            "image": f"s{i}.png",
+            "modality": "pathology",
+            "task": "open_vqa",
+            "group_id": f"patient-{i}",
+            "answer": "SECRET-" + str(i),
+        }
+        for i in range(8)
+    ]
+    first = select_matched_knockoffs(source, current, expert_id="conch", count=4)
+    second = select_matched_knockoffs(
+        [{**row, "answer": "CHANGED"} for row in source],
+        current,
+        expert_id="conch",
+        count=4,
+    )
+    assert [row["id"] for row in first] == [row["id"] for row in second]
+    assert all(row["group_id"] != current["group_id"] for row in first)
+    assert all("answer" not in row for row in first)
+    assert all(row["labels_consulted"] is False for row in first)
