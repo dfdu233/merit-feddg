@@ -26,7 +26,6 @@ from merit_feddg.transactional_claims import (
 )
 from merit_feddg.transactional_runtime import claimize_pair, verify_transaction
 
-
 _LABEL_KEYS = frozenset(
     {"answer", "answers", "label", "labels", "reference", "references", "ground_truth"}
 )
