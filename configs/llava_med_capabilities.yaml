@@ -142,6 +142,26 @@ experts:
       - "MERIT-Tx authority still requires exact source-only modality/task/capability qualification"
     description: Dynamic medical image-text claim verifier used to fill CT/MRI and broad biomedical verification gaps. Similarity is not a diagnosis probability; unsupported source cells fail closed.
 
+  medsiglip_claim_verifier:
+    id: google/medsiglip-448
+    checkpoint_path: artifacts/models/google--medsiglip-448
+    adapter: contrastive_medsiglip
+    transaction_only: true
+    optional: true
+    preparation_hint: hf download google/medsiglip-448 --local-dir artifacts/models/google--medsiglip-448
+    evidence_role: direct_visual_verifier
+    commit_authority: source_qualified
+    fault_group: medsiglip
+    modalities: [cxr, xray, ct, mri, pathology, dermatology, fundus, clinical_photo]
+    tasks: [open_vqa, report_generation]
+    capabilities: [classification]
+    scope: medical_claim_support
+    prefix_invariant: true
+    literature:
+      - "MedSigLIP official model: frozen medical image-text similarity for zero-shot classification and semantic retrieval"
+      - "SigLIP, ICCV 2023: two-tower sigmoid image-text pretraining"
+    description: Gated broad medical image-text claim verifier covering CXR, dermatology, ophthalmology, pathology and CT/MRI slices. Similarity is not a diagnosis probability and gains no commit authority without source-only qualification.
+
   medcpt_pubmed:
     id: ncbi/MedCPT-Query-Encoder
     evidence_role: knowledge_retriever
