@@ -20,6 +20,7 @@ from merit_feddg.io import load_experiment_yaml
 from merit_feddg.knockoff import select_matched_knockoffs
 from merit_feddg.merit_tx import differential_margin_controls
 from merit_feddg.open_experts import OpenExpertPool
+from merit_feddg.open_study import fingerprint, model_provenance
 from merit_feddg.transactional_claims import (
     RadGraphClaimizer,
     candidate_transactions,
@@ -235,6 +236,7 @@ def main():
     output_rows = []
     skipped = []
     expert_counts = {}
+    expert_fingerprints = {}
 
     try:
         for row in rows:
@@ -312,6 +314,10 @@ def main():
 
                 for descriptor in verifiers:
                     expert_id = descriptor["expert"]
+                    if expert_id not in expert_fingerprints:
+                        expert_fingerprints[expert_id] = fingerprint(
+                            model_provenance(specs[expert_id], args.artifacts)
+                        )
                     try:
                         incumbent_real, candidate_real = native_scores(
                             pool, expert_id, row["image"], claim
@@ -351,6 +357,7 @@ def main():
                     output_rows.append(
                         {
                             "expert_id": expert_id,
+                            "expert_provenance_fingerprint": expert_fingerprints[expert_id],
                             "capability": descriptor["capability"],
                             "scope": descriptor["scope"],
                             "modality": row["modality"],
@@ -403,6 +410,7 @@ def main():
         "observations": len(output_rows),
         "qualification_unit": "unique source group; worst transaction retained within group",
         "expert_counts": dict(sorted(expert_counts.items())),
+        "expert_provenance_fingerprints": dict(sorted(expert_fingerprints.items())),
         "knockoff_controls": knockoff_count,
         "excluded_optional_experts": excluded,
         "skipped": skipped,
