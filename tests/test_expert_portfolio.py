@@ -255,6 +255,17 @@ def test_portfolio_fit_rejects_target_rows():
         )
 
 
+def test_monet_claim_phrasing_is_candidate_specific_without_loading_weights():
+    from merit_feddg.experts.monet import MonetConceptExpert
+
+    assert MonetConceptExpert._claim_phrase("melanoma") == (
+        "Dermatology image showing melanoma."
+    )
+    assert MonetConceptExpert._claim_phrase(
+        "The skin image shows an ulcerated lesion."
+    ) == "The skin image shows an ulcerated lesion."
+
+
 def test_musk_claim_phrasing_is_candidate_specific_without_loading_weights():
     from merit_feddg.experts.musk import MuskConceptExpert
 
