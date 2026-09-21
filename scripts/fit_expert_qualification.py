@@ -19,7 +19,6 @@ import math
 from collections import defaultdict
 from pathlib import Path
 
-
 KEYS = (
     "expert_id",
     "capability",
