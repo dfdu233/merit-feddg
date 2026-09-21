@@ -40,28 +40,70 @@ commit_authority = never is used for experts whose output is useful context or p
 
 commit_authority = source_qualified means that an expert is structurally eligible to verify a patient-specific claim, but it still cannot commit until a source-only qualification card is present.
 
-### SourceQualificationCard
+### SourceQualificationCard v3
 
-Qualification is indexed by expert, capability, scope, modality, task, and claim_type. A card contains conservative source/development statistics:
+Qualification is indexed by expert, capability, scope, modality, task, and
+claim_type.  The previous v2 statistic conflated two different questions:
+"does this expert act often?" and "when it acts on a consequential proposal,
+does it point in the correct direction?"  This was especially damaging when
+most frozen candidate transactions had zero task-utility change.
 
-- utility_lcb
-- harm_ucb
-- specificity_lcb
-- support_n / support_domains
-- veto_precision_lcb
-- veto_n / veto_domains
-- domains
-- n
+The v3 schema (`merit-expert-qualification-v3`) separates:
 
-The v2 qualification schema (`merit-expert-qualification-v2`) is **action-conditional** rather than candidate-method conditional. Utility and harm are estimated only over source transactions for which the expert would actually support commit (`D_e > 0`). The specificity lower bound measures whether `sign(D_e)` agrees with the sign of source-only transaction utility, so the card evaluates the expert's decision signal rather than inheriting the average quality of the frozen candidate generator. Negative decisions are qualified separately: `veto_precision_lcb` is the conservative precision of `D_e < 0` for truly harmful source transactions, and an expert with no qualified negative observations has **zero veto authority** even if its positive support is safe. Domain coverage is action-specific: `support_domains` gates positive commit authority and `veto_domains` gates negative veto authority, so inactive samples from another site cannot manufacture cross-domain evidence for an action. The card is a fixed statistical permission, not a trained router or gate.
+- `action_rate_lcb`: how often the expert produces a nonzero differential;
+- `utility_lcb`: conservative task utility over positive-support actions;
+- `harm_ucb`: upper bound on harmful positive-support actions;
+- `support_precision_lcb`: beneficial fraction **conditional on consequential**
+  positive-support actions;
+- `veto_precision_lcb`: harmful fraction **conditional on consequential**
+  negative/veto actions;
+- support/veto action counts and their domain coverage;
+- neutral-action counts, retained for coverage/cost but not mislabeled as
+  directional failures.
 
-Build cards from source/development observations:
+This keeps useful-action prevalence, conditional discrimination, and harm risk
+as separate quantities.  A stable but mostly irrelevant expert therefore
+cannot look reliable merely by rarely changing anything, while a sparse expert
+is not automatically failed because most frozen proposals were score-neutral.
+
+Build cards only from source/development observations:
 
     python scripts/fit_expert_qualification.py \
       --input runs/source-tx-observations.jsonl \
-      --output artifacts/qualification/merit-expert-qualification.json
+      --output artifacts/qualification/merit-expert-qualification-v3.json
 
-The fitter rejects rows marked target or test.
+The fitter rejects target/test rows.
+
+### Interaction-aware Source Expert Portfolio
+
+Per-expert qualification is necessary but not sufficient. Two experts can each
+look acceptable alone while their joint use is redundant or harmful, exactly
+matching the observed "disabling one expert improves the system" failure mode.
+
+MERIT-Tx v3 therefore replays every feasible, independent verifier subset over
+the **same frozen source transactions**.  For each modality/task/claim cell it
+records:
+
+- conservative population utility and action-conditional utility;
+- harmful-commit upper bound and beneficial-action precision lower bound;
+- intervention coverage;
+- expert cost units;
+- leave-one-out marginal utility/harm;
+- pairwise interaction utility.
+
+The empty portfolio is a first-class option. If no non-empty source portfolio
+has positive conservative utility with bounded harm, the frozen policy selects
+no verifier and preserves the immutable Generalist.
+
+    python scripts/fit_expert_portfolio.py \
+      --input runs/source-tx-observations.jsonl \
+      --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json \
+      --config configs/merit_tx.yaml \
+      --output artifacts/qualification/merit-expert-portfolio-v1.json
+
+This is a source-only subset-selection policy, not a target-trained router. It
+makes expert removal auditable rather than treating ablations as a post-hoc
+paper result.
 
 ## Differential evidence effect
 
@@ -161,6 +203,7 @@ Integrated or transaction-ready:
 | MedCPT | knowledge retriever | PubMed | never |
 | BiomedCLIP dynamic claim verifier | direct visual verifier | CXR/X-ray/CT/MRI/pathology | source-qualified |
 | MedSigLIP (gated optional) | direct visual verifier | CXR/CT/MRI/pathology/dermatology/fundus | source-qualified |
+| MedImageInsight (candidate) | direct visual verifier | X-ray/CT/MRI/dermatology/OCT/fundus/ultrasound/pathology | source-qualified after adapter + source qualification |
 
 Candidate models intentionally not faked as active coverage:
 
@@ -259,33 +302,48 @@ Do not use target/test results to decide which experts survive. The source workf
 
    References are joined only after the candidate outputs have been frozen. For reports, one patient/study contributes at most one conservative observation per expert qualification cell.
 
-3. Freeze qualification cards:
+3. Freeze v3 qualification cards:
 
        python scripts/fit_expert_qualification.py \
          --input runs/source-tx-observations.jsonl \
-         --output artifacts/qualification/merit-expert-qualification.json
+         --output artifacts/qualification/merit-expert-qualification-v3.json
 
-4. Audit effective commit-authorized role/fault-group coverage with the frozen cards:
+4. Freeze the interaction-aware expert portfolio from the same source
+   observations.  This is where harmful redundancy and "remove expert B"
+   effects are measured before target evaluation:
+
+       python scripts/fit_expert_portfolio.py \
+         --input runs/source-tx-observations.jsonl \
+         --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json \
+         --config configs/merit_tx.yaml \
+         --output artifacts/qualification/merit-expert-portfolio-v1.json
+
+5. Audit effective commit-authorized coverage with both frozen policies:
 
        python scripts/audit_transactional_expert_pool.py \
          --manifest /path/to/source-manifest.jsonl \
          --config configs/merit_tx.yaml \
-         --qualification-cards artifacts/qualification/merit-expert-qualification.json \
+         --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json \
+         --portfolio-policy artifacts/qualification/merit-expert-portfolio-v1.json \
          --output runs/merit-tx-expert-pool-audit.json
 
-5. Run the source canary. The transaction decisions do not open references; optional source scoring occurs only after outputs are frozen:
+6. Run the source canary. The transaction decisions do not open references;
+   optional source scoring occurs only after outputs are frozen:
 
        python scripts/run_merit_tx_source_canary.py \
          --manifest /path/to/source-manifest.jsonl \
          --baseline /path/to/source-generalist.json \
          --candidate /path/to/frozen-source-candidate.json \
          --candidate-name proposal-v1 \
-         --qualification-cards artifacts/qualification/merit-expert-qualification.json \
+         --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json \
+         --portfolio-policy artifacts/qualification/merit-expert-portfolio-v1.json \
          --config configs/merit_tx.yaml \
          --references /path/to/source-references.json \
          --output runs/merit-tx-source-canary
 
-6. Only if the source canary shows useful nonzero commit coverage with bounded harm should the exact frozen policy be evaluated on untouched target/test data.
+7. Only if the source canary shows useful nonzero commit coverage with bounded
+   harm should the exact frozen policy be evaluated once on untouched
+   target/test data.
 
 Candidate-oracle and first-divergence analysis of already-completed target experiments remains diagnostic only; it cannot choose experts, qualification thresholds, or transaction rules.
 
@@ -303,3 +361,10 @@ Candidate-oracle and first-divergence analysis of already-completed target exper
 - Gao et al., RARR, ACL 2023.
 - Ostmeier et al., GREEN, EMNLP Findings 2024.
 - CLEAR, EMNLP Findings 2025.
+- Xiang et al., MUSK, Nature 2025.
+- EyeCLIP, npj Digital Medicine 2025.
+- EchoCLIP, Nature Medicine 2024.
+- Jiao et al., USFM, Medical Image Analysis 2024.
+- Blankemeier et al., Merlin, Nature 2026.
+- He et al., VISTA3D, CVPR 2025.
+- Codella et al., MedImageInsight, ML4H 2024 / Microsoft Research.
