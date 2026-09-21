@@ -333,7 +333,8 @@ def test_report_add_is_verified_end_to_end_with_real_vs_knockoff_evidence():
         tx_policy={
             "qualification_min_domains": 2,
             "qualification_max_harm_ucb": 0.25,
-            "qualification_min_specificity_lcb": 0.5,
+            "qualification_min_support_precision_lcb": 0.5,
+            "qualification_min_consequential": 4,
             "min_support_groups": 1,
             "require_independent_validator": True,
             "require_patient_specific_support": True,
