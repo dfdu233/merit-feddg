@@ -293,8 +293,11 @@ It deliberately does not claim a new benchmark improvement yet.
 
 Do not use target/test results to decide which experts survive. The source workflow is:
 
-1. **Freeze one proposal distribution** on source/development data. The proposal output set must exist before qualification statistics are read.
-2. Build native source observations:
+1. **Freeze one proposal mechanism** before reading source references.
+2. Partition source/development patients/studies into three disjoint sets:
+   source-Q for per-expert qualification, source-P for portfolio selection, and
+   source-C for the fresh canary. The code rejects group overlap.
+3. Build native source-Q observations:
 
        python scripts/build_merit_tx_source_observations.py \
          --manifest /path/to/source-manifest.jsonl \
@@ -306,15 +309,17 @@ Do not use target/test results to decide which experts survive. The source workf
 
    References are joined only after the candidate outputs have been frozen. For reports, one patient/study contributes at most one conservative observation per expert qualification cell.
 
-3. Freeze v3 qualification cards:
+4. Freeze v3 qualification cards from source-Q:
 
        python scripts/fit_expert_qualification.py \
-         --input runs/source-tx-observations.jsonl \
+         --input runs/source-p-tx-observations.jsonl.transactions.jsonl \
          --output artifacts/qualification/merit-expert-qualification-v3.json
 
-4. Freeze the interaction-aware expert portfolio from the same source
-   observations.  This is where harmful redundancy and "remove expert B"
-   effects are measured before target evaluation:
+5. Build a separate transaction-level observation file on source-P with the
+   same frozen proposal mechanism, then freeze the interaction-aware expert
+   portfolio. This is where harmful redundancy and "remove expert B" effects
+   are measured before target evaluation. The fitter rejects any source-P
+   patient/study also seen in source-Q:
 
        python scripts/fit_expert_portfolio.py \
          --input runs/source-tx-observations.jsonl.transactions.jsonl \
@@ -322,7 +327,7 @@ Do not use target/test results to decide which experts survive. The source workf
          --config configs/merit_tx.yaml \
          --output artifacts/qualification/merit-expert-portfolio-v1.json
 
-5. Audit effective commit-authorized coverage with both frozen policies:
+6. Audit effective commit-authorized coverage with both frozen policies:
 
        python scripts/audit_transactional_expert_pool.py \
          --manifest /path/to/source-manifest.jsonl \
@@ -331,7 +336,9 @@ Do not use target/test results to decide which experts survive. The source workf
          --portfolio-policy artifacts/qualification/merit-expert-portfolio-v1.json \
          --output runs/merit-tx-expert-pool-audit.json
 
-6. Run the source canary. The transaction decisions do not open references;
+7. Run the fresh source-C canary. The executable verifies source-C has no
+   patient/study overlap with source-Q or source-P. The transaction decisions
+   do not open references;
    optional source scoring occurs only after outputs are frozen:
 
        python scripts/run_merit_tx_source_canary.py \
@@ -345,7 +352,7 @@ Do not use target/test results to decide which experts survive. The source workf
          --references /path/to/source-references.json \
          --output runs/merit-tx-source-canary
 
-7. Only if the source canary shows useful nonzero commit coverage with bounded
+8. Only if the fresh canary shows useful nonzero commit coverage with bounded
    harm should the exact frozen policy be evaluated once on untouched
    target/test data.
 
