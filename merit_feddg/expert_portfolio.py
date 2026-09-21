@@ -80,6 +80,29 @@ class ExpertPortfolioCard:
         return self.modality, self.task, self.claim_type
 
 
+def require_disjoint_source_groups(**named_groups):
+    """Fail closed if any source-policy stages reuse a patient/study group."""
+    normalized = {}
+    for name, values in named_groups.items():
+        group_set = {str(value) for value in values if str(value).strip()}
+        if not group_set:
+            raise ValueError(f"{name} source groups are missing")
+        normalized[name] = group_set
+    names = list(normalized)
+    for index, left_name in enumerate(names):
+        for right_name in names[index + 1:]:
+            overlap = sorted(normalized[left_name] & normalized[right_name])
+            if overlap:
+                raise ValueError(
+                    f"{left_name} and {right_name} source groups overlap: "
+                    f"{len(overlap)} group(s)"
+                )
+    return {
+        name: tuple(sorted(values))
+        for name, values in normalized.items()
+    }
+
+
 def _wilson(successes, n, z, *, upper):
     if n < 1:
         return 1.0 if upper else 0.0
