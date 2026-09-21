@@ -42,12 +42,10 @@ def commands():
     for name, (repo, target) in GATED_MODELS.items():
         rows.append(f"# {name}: gated; accept upstream terms first")
         rows.append(f"hf download {repo} --local-dir {target}")
-    rows.append("# MUSK also requires the official source package for its timm registration/tokenizer")
-    rows.append("git clone https://github.com/lilab-stanford/MUSK upstream/MUSK")
-    rows.append("# Literature-selected research candidates; no runtime authority yet")
     rows.append("# MUSK also requires its official source at the pinned revision")
     rows.append("git clone https://github.com/lilab-stanford/MUSK upstream/MUSK")
     rows.append(f"git -C upstream/MUSK checkout {MUSK_SOURCE_REVISION}")
+    rows.append("# Literature-selected research candidates; no runtime authority yet")
     for name, (repo, target, access) in RESEARCH_MODELS.items():
         label = "gated; accept upstream terms first" if access == "gated" else "open"
         rows.append(f"# {name}: {label}; adapter/source qualification still required")
