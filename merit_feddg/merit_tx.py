@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from statistics import median
 
 from .expert_policy import (
     qualification_for,
@@ -89,6 +90,70 @@ def differential_margin(
         "differential_effect": real_margin - knockoff_margin,
         "support_direction": 1 if real_margin > 0 else -1 if real_margin < 0 else 0,
     }
+
+
+def differential_margin_controls(
+    *,
+    incumbent_real,
+    candidate_real,
+    knockoff_pairs,
+):
+    """Real candidate margin minus the median matched-control candidate margin."""
+    pairs = tuple(knockoff_pairs)
+    if not pairs:
+        raise ValueError("at least one matched knockoff control is required")
+    real = differential_margin(
+        incumbent_real=incumbent_real,
+        candidate_real=candidate_real,
+        incumbent_knockoff=pairs[0][0],
+        candidate_knockoff=pairs[0][1],
+    )
+    margins = []
+    for incumbent_knockoff, candidate_knockoff in pairs:
+        value = differential_margin(
+            incumbent_real=incumbent_real,
+            candidate_real=candidate_real,
+            incumbent_knockoff=incumbent_knockoff,
+            candidate_knockoff=candidate_knockoff,
+        )
+        margins.append(value["knockoff_margin"])
+    knockoff_margin = float(median(margins))
+    real_margin = float(real["real_margin"])
+    return {
+        "real_margin": real_margin,
+        "knockoff_margin": knockoff_margin,
+        "knockoff_margins": tuple(float(value) for value in margins),
+        "controls": len(margins),
+        "differential_effect": real_margin - knockoff_margin,
+        "support_direction": 1 if real_margin > 0 else -1 if real_margin < 0 else 0,
+    }
+
+
+def native_transaction_evidence_controls(
+    *,
+    expert_id,
+    capability,
+    scope,
+    incumbent_real,
+    candidate_real,
+    knockoff_pairs,
+    specs,
+):
+    """Construct native transaction evidence using a robust matched-control median."""
+    value = differential_margin_controls(
+        incumbent_real=incumbent_real,
+        candidate_real=candidate_real,
+        knockoff_pairs=knockoff_pairs,
+    )
+    return evidence_from_expert(
+        expert_id=expert_id,
+        capability=capability,
+        scope=scope,
+        real_effect=value["real_margin"],
+        knockoff_effect=value["knockoff_margin"],
+        support_direction=value["support_direction"],
+        specs=specs,
+    )
 
 
 def native_transaction_evidence(
