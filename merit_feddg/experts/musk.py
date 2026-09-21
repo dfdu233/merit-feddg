@@ -12,6 +12,7 @@ qualification and portfolio selection.
 from __future__ import annotations
 
 import importlib
+import subprocess
 import sys
 from pathlib import Path
 
@@ -27,6 +28,7 @@ class MuskConceptExpert(ConceptExpert):
         model_id: str,
         *,
         source_path: str,
+        source_revision: str | None = None,
         device: str = "auto",
         dtype: str = "auto",
     ) -> None:
@@ -49,6 +51,21 @@ class MuskConceptExpert(ConceptExpert):
             raise FileNotFoundError(
                 f"MUSK source_path does not contain musk/modeling.py: {source}"
             )
+        if source_revision:
+            try:
+                observed_revision = subprocess.check_output(
+                    ["git", "-C", str(source), "rev-parse", "HEAD"],
+                    text=True,
+                ).strip()
+            except (OSError, subprocess.CalledProcessError) as exc:
+                raise RuntimeError(
+                    "MUSK source revision cannot be verified"
+                ) from exc
+            if observed_revision != source_revision:
+                raise ValueError(
+                    "MUSK source revision mismatch: "
+                    f"{observed_revision} != {source_revision}"
+                )
         tokenizer_path = source / "musk/models/tokenizer.spm"
         if not tokenizer_path.is_file():
             raise FileNotFoundError(f"MUSK tokenizer is missing: {tokenizer_path}")
