@@ -6,6 +6,7 @@ from merit_feddg.expert_policy import (
     select_expert_descriptors,
     transaction_descriptors,
 )
+from merit_feddg.io import load_experiment_yaml
 from merit_feddg.merit_tx import (
     MeritTxConfig,
     TransactionEvidence,
@@ -418,3 +419,11 @@ def test_role_diversity_precedes_second_same_role_verifier():
         max_calls=2,
     )
     assert [row["expert"] for row in selected] == ["visual_a", "spatial"]
+
+
+def test_fixed_conch_catalog_is_disabled_only_in_merit_tx():
+    legacy = load_experiment_yaml("configs/llava_med_capabilities.yaml")
+    tx = load_experiment_yaml("configs/merit_tx.yaml")
+    assert legacy["experts"]["conch_tissue"].get("enabled", True) is True
+    assert tx["experts"]["conch_tissue"]["enabled"] is False
+    assert tx["experts"]["conch_claim_verifier"]["transaction_only"] is True
