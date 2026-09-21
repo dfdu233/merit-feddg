@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from merit_feddg.expert_policy import (
@@ -712,12 +714,12 @@ def test_v2_qualification_schema_rejects_legacy_cards(tmp_path):
     payload = fit(rows)
     assert payload["schema"] == "merit-expert-qualification-v2"
     path = tmp_path / "cards.json"
-    path.write_text(__import__("json").dumps(payload), encoding="utf-8")
+    path.write_text(json.dumps(payload), encoding="utf-8")
     loaded = load_qualification_cards(path)
     assert len(loaded) == 1
 
     payload["schema"] = "merit-expert-qualification-v1"
-    path.write_text(__import__("json").dumps(payload), encoding="utf-8")
+    path.write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(ValueError, match="unsupported expert qualification"):
         load_qualification_cards(path)
 
@@ -827,7 +829,7 @@ def test_every_proposer_fault_group_is_excluded_from_commit_validation():
 
 
 def test_candidate_transactions_preserve_multi_proposer_provenance():
-    baseline = claimize = AtomicClinicalClaim(
+    baseline = AtomicClinicalClaim(
         "base",
         "The image does not show pleural effusion.",
         (0, 2),
