@@ -61,10 +61,24 @@ A model's publication venue never bypasses these rules. CheXagent may propose CX
 - MUSK, Nature 2025: high-priority gated candidate. The official code uses musk_large_patch16_384 and documents with_head=True for zero-shot image-text retrieval and zero-shot image classification. Official code: https://github.com/lilab-stanford/MUSK
 - UNI/Virchow remain source-image retrieval candidates until a real retrieval index is provided.
 
+### Dermatology
+
+- MONET, Nature Medicine 2024: integrated optional candidate-specific
+  dermatology image-text verifier. The official release exposes Hugging Face
+  zero-shot image classification/concept annotation, so no new diagnosis head
+  is trained by MERIT.
+- PanDerm remains a foundation-encoder candidate when its downstream use
+  requires a new trained task head; that head is not silently invented.
+
 ### Ophthalmology
 
-- EyeCLIP, npj Digital Medicine 2025: preferred specialized candidate when fundus/OCT/ophthalmic data are present. Its official repository contains zero_shot.py and retrieval.py: https://github.com/Michi-3000/EyeCLIP
-- RETFound remains an image-encoder/retrieval candidate rather than an invented text verifier.
+- FLAIR, Medical Image Analysis 2025: open-weight fundus language-image model
+  with zero-shot generalization; next preferred open retinal verifier adapter.
+- EyeCLIP, npj Digital Medicine 2025: specialized candidate when fundus/OCT/
+  ophthalmic data are present. Its official repository contains zero_shot.py
+  and retrieval.py: https://github.com/Michi-3000/EyeCLIP
+- RETFound remains an image-encoder/retrieval candidate rather than an invented
+  text verifier.
 
 ### Echocardiography / ultrasound
 
@@ -81,7 +95,13 @@ A model's publication venue never bypasses these rules. CheXagent may propose CX
 ### Broad 2D medical image verification
 
 - BiomedCLIP is already integrated but treated as a broad fallback.
-- MedSigLIP is the preferred broad frozen image-text candidate across CXR, CT/MRI slices, pathology, dermatology and ophthalmology, but its gated checkpoint gains no authority until the exact source cell qualifies.
+- MedSigLIP is a gated broad frozen image-text candidate across CXR, CT/MRI
+  slices, pathology, dermatology and ophthalmology; it gains no authority until
+  the exact source cell qualifies.
+- MedImageInsight is a broad Microsoft image-text embedding candidate spanning
+  X-ray, CT, MRI, dermatology, OCT/fundus, ultrasound, histopathology and
+  mammography. It is not counted as active coverage until an official local
+  runtime is pinned and source-qualified.
 
 ## 4. Source qualification v3: prevalence is not precision
 
