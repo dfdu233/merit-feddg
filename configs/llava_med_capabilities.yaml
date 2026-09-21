@@ -30,8 +30,6 @@ evaluation:
 experts:
   conch_tissue:
     id: MahmoodLab/CONCH
-    enabled: false
-    deprecation_reason: fixed ten-class tissue catalog is not a claim-aligned pathology verifier
     revision: f9ca9f877171a28ade80228fb195ac5d79003357
     adapter: conch
     modalities: [pathology]
