@@ -2,7 +2,12 @@ import pytest
 
 from merit_feddg.expert_policy import SourceQualificationCard, select_expert_descriptors
 from merit_feddg.med_defer import NativeEvidence
-from merit_feddg.merit_tx import MeritTxConfig, TransactionEvidence, decide_transaction, differential_margin_controls
+from merit_feddg.merit_tx import (
+    MeritTxConfig,
+    TransactionEvidence,
+    decide_transaction,
+    differential_margin_controls,
+)
 from merit_feddg.transactional_claims import (
     AtomicClinicalClaim,
     ClaimTransaction,
