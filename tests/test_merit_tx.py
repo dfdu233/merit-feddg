@@ -902,3 +902,31 @@ def test_dynamic_claim_phrase_adapters_do_not_double_wrap_full_propositions():
     assert BiomedClipAdapter._claim_phrase("cardiomegaly") == (
         "A medical image showing cardiomegaly."
     )
+
+
+def test_legacy_unreviewed_role_cannot_gain_merit_tx_commit_authority():
+    specs = {
+        "legacy": {
+            "id": "legacy",
+            "fault_group": "legacy",
+            "evidence_role": "direct_visual_verifier",
+            "commit_authority": "source_qualified",
+            "modalities": ["pathology"],
+            "tasks": ["open_vqa"],
+            "capabilities": ["classification"],
+            "scope": "classification",
+        },
+    }
+    qcard = _card("legacy", "classification", "classification")
+    selected, audit = select_expert_descriptors(
+        [_descriptor("legacy", "classification")],
+        specs,
+        modality="pathology",
+        task="open_vqa",
+        claim_type="diagnosis",
+        qualification_cards={qcard.key: qcard},
+        max_calls=1,
+    )
+    assert [row["expert"] for row in selected] == ["legacy"]
+    assert audit[0]["literature_grounded"] is False
+    assert audit[0]["commit_authorized"] is False
