@@ -135,7 +135,11 @@ def main():
     spatial_scores = spatial.next_scores([])
     if plain_scores.shape != spatial_scores.shape:
         raise RuntimeError("plain/spatial Huatuo vocabularies differ")
-    delta = np.abs(spatial_scores - plain_scores)
+    plain_support = np.isfinite(plain_scores)
+    spatial_support = np.isfinite(spatial_scores)
+    if not np.array_equal(plain_support, spatial_support) or not plain_support.any():
+        raise RuntimeError("plain/spatial Huatuo vocabulary support differs")
+    delta = np.abs(spatial_scores[plain_support] - plain_scores[plain_support])
     audit = dict(getattr(probe.tensor_bridge, "last_audit", {}))
     if audit.get("records") != 1:
         raise RuntimeError("Huatuo mm_projector spatial hook was not exercised")
@@ -157,6 +161,7 @@ def main():
         "plain_argmax": int(np.argmax(plain_scores)),
         "spatial_argmax": int(np.argmax(spatial_scores)),
         "argmax_changed": bool(np.argmax(plain_scores) != np.argmax(spatial_scores)),
+        "masked_vocabulary_entries": int((~plain_support).sum()),
         "max_abs_score_delta": float(delta.max()),
         "mean_abs_score_delta": float(delta.mean()),
         "model_weights_updated": False,

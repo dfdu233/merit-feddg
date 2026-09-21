@@ -231,3 +231,19 @@ def test_huatuo_bard_config_keeps_spatial_enabled(monkeypatch):
     assert spec["source_path"] == "/tmp/huatuo-source"
     assert config["capability_value"]["generation"]["spatial_weighting"] == "equal"
     assert config["capability_value"]["generation"]["max_new_tokens"] == 1024
+
+    # Construct the actual runtime config: disabled gate fields are still validated.
+    from merit_feddg.capability_runtime import ValueGenerationConfig
+
+    decoder = ValueGenerationConfig(**config["capability_value"]["generation"])
+    assert decoder.block_tokens == 1024
+
+
+def test_historical_minimum_allows_single_token_score_probe():
+    from merit_feddg.huatuo_generalist import HuatuoVisionGeneralist
+
+    probe = HuatuoVisionGeneralist.__new__(HuatuoVisionGeneralist)
+    probe.min_new_tokens = 1
+    probe.repetition_penalty = 1.2
+    probe.tokenizer = SimpleNamespace(eos_token_id=2, pad_token_id=2)
+    assert probe._generation_kwargs(max_new_tokens=1)["min_new_tokens"] == 1

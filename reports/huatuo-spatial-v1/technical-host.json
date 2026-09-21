@@ -1,0 +1,42 @@
+{
+  "schema": "huatuo-spatial-technical-canary-v1",
+  "backend": "huatuo_vision",
+  "checkpoint": "/home/dbw/models/HuatuoGPT-Vision-7B",
+  "source_path": "/home/dbw/HuatuoGPT-Vision",
+  "image": "/home/dbw/ANCHOR/data/medheval/images/Slake/xmlab354/source.jpg",
+  "image_size": [
+    1024,
+    1024
+  ],
+  "prompt": "Describe the image briefly using only visible information.",
+  "historical_baseline_parity": {
+    "expected_tokens": 4,
+    "observed_tokens": 4,
+    "exact_token_parity": true
+  },
+  "spatial_records": 1,
+  "spatial_rejected": [],
+  "bridge_audit": {
+    "training_free": true,
+    "records": 1,
+    "importance": [
+      1.0
+    ],
+    "labels": [
+      "technical full-image region"
+    ],
+    "weighting": "equal",
+    "max_abs_token_delta": 3.546875,
+    "weights_are_correctness_probabilities": false,
+    "class_scores_injected": false
+  },
+  "plain_argmax": 785,
+  "spatial_argmax": 785,
+  "argmax_changed": false,
+  "masked_vocabulary_entries": 1,
+  "max_abs_score_delta": 1.875,
+  "mean_abs_score_delta": 0.17703300714492798,
+  "model_weights_updated": false,
+  "references_read": false,
+  "medical_correctness_evaluated": false
+}

@@ -15,8 +15,8 @@ generalist:
   training_free_spatial: true
   spatial_max_records: 64
   generation:
-    repetition_penalty: 1.0
-    min_new_tokens: 0
+    repetition_penalty: 1.2
+    min_new_tokens: 1
 
 capability_value:
   generation:
@@ -41,7 +41,7 @@ capability_value:
     native_entry_transport: false
     claim_attribute_filter: false
     claim_gate_max_checks: 2
-    vector_gate_probe_tokens: 1024
+    vector_gate_probe_tokens: 64
     spatial_weighting: equal
     vector_gate_min_gain: 0.000001
 
