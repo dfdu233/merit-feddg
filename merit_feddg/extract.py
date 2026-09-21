@@ -331,6 +331,7 @@ def _expert_from_spec(spec: dict, artifact_root: str | Path | None):
         return MuskConceptExpert(
             model_id,
             source_path=str(spec["source_path"]),
+            source_revision=spec.get("source_revision"),
             device=str(spec.get("device", "auto")),
             dtype=str(spec.get("dtype", "auto")),
         )
