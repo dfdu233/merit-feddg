@@ -103,7 +103,6 @@ def decide_transaction(
 
     qualified_support = {}
     qualified_contradiction = {}
-    contextual_support = []
     for evidence in evidences:
         qcard = qualification_for(
             qualification_cards,
@@ -126,8 +125,6 @@ def decide_transaction(
         # Knowledge/proposal experts remain useful in the audit, but they do not
         # become patient-specific proof merely because they agree with a candidate.
         if not evidence.patient_specific:
-            if evidence.support_direction > 0:
-                contextual_support.append(evidence.expert_id)
             continue
         if not source_qualified:
             continue
