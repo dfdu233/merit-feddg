@@ -151,6 +151,44 @@ def report_outcome(transaction, baseline_claims, reference_claims):
     return float(after - before)
 
 
+def collapse_group_observations(rows):
+    """Use one conservative qualification observation per source patient/study group."""
+    rows = tuple(rows)
+    group_fields = (
+        "expert_id",
+        "capability",
+        "scope",
+        "modality",
+        "task",
+        "claim_type",
+        "domain",
+        "group_id",
+    )
+    grouped = {}
+    for observation in rows:
+        key = tuple(observation[field] for field in group_fields)
+        grouped.setdefault(key, []).append(observation)
+    collapsed = []
+    for key in sorted(grouped):
+        values = grouped[key]
+        chosen = min(
+            values,
+            key=lambda row: (
+                float(row["outcome_delta"]),
+                float(row["differential_effect"]),
+                str(row["transaction_id"]),
+            ),
+        )
+        collapsed.append(
+            {
+                **chosen,
+                "within_group_transactions": len(values),
+                "within_group_aggregation": "worst-outcome-then-specificity",
+            }
+        )
+    return collapsed
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", required=True)
@@ -349,41 +387,8 @@ def main():
 
     # Qualification samples are patient/study groups, not claim count.  A long
     # report may yield several transactions for one expert; counting them
-    # independently would create pseudo-replication.  Keep the worst source
-    # outcome per qualification cell/group, breaking ties by lower specificity.
-    grouped = {}
-    group_fields = (
-        "expert_id",
-        "capability",
-        "scope",
-        "modality",
-        "task",
-        "claim_type",
-        "domain",
-        "group_id",
-    )
-    for observation in output_rows:
-        key = tuple(observation[field] for field in group_fields)
-        grouped.setdefault(key, []).append(observation)
-    collapsed = []
-    for key in sorted(grouped):
-        values = grouped[key]
-        chosen = min(
-            values,
-            key=lambda row: (
-                float(row["outcome_delta"]),
-                float(row["differential_effect"]),
-                str(row["transaction_id"]),
-            ),
-        )
-        collapsed.append(
-            {
-                **chosen,
-                "within_group_transactions": len(values),
-                "within_group_aggregation": "worst-outcome-then-specificity",
-            }
-        )
-    output_rows = collapsed
+    # independently would create pseudo-replication.
+    output_rows = collapse_group_observations(output_rows)
 
     target = Path(args.output)
     target.parent.mkdir(parents=True, exist_ok=True)
