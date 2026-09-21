@@ -19,6 +19,7 @@ trains no gate.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 from collections import defaultdict
@@ -214,9 +215,15 @@ def fit(rows, *, z=1.96):
             source_only=True,
         )
         cards.append(card)
+    source_group_ids = sorted({str(row["group_id"]) for row in rows})
+    source_groups_sha256 = hashlib.sha256(
+        json.dumps(source_group_ids, separators=(",", ":"), ensure_ascii=False).encode()
+    ).hexdigest()
     return {
         "schema": "merit-expert-qualification-v3",
         "source_only": True,
+        "source_group_ids": source_group_ids,
+        "source_groups_sha256": source_groups_sha256,
         "statistical_rule": {
             "utility": (
                 "normal lower confidence bound on outcome_delta conditional on "
