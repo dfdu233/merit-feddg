@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
+import re
 
 import numpy as np
 
@@ -116,6 +117,69 @@ class XrvCapabilityAdapter:
         if scores.size != len(self.targets) or not np.isfinite(scores).all():
             raise ValueError("XRV classification produced invalid scores")
         return self.targets, scores, transform
+
+    @staticmethod
+    def _normalized_claim_text(value):
+        return " ".join(re.sub(r"[^a-z0-9]+", " ", str(value).casefold()).split())
+
+    def _claim_target(self, claim):
+        if self.capability != "classification":
+            raise ValueError("claim scoring requires the XRV finding classifier")
+        text = self._normalized_claim_text(claim)
+        aliases = {
+            "effusion": ("effusion", "pleural effusion"),
+            "lung opacity": ("lung opacity", "pulmonary opacity"),
+            "lung lesion": ("lung lesion", "pulmonary lesion"),
+            "pleural thickening": ("pleural thickening",),
+        }
+        matches = []
+        for index, target in enumerate(self.targets):
+            name = self._normalized_claim_text(target)
+            if name == "no finding":
+                continue
+            terms = aliases.get(name, (name,))
+            present = [term for term in terms if f" {term} " in f" {text} "]
+            if present:
+                matches.append((max(len(term) for term in present), index, target))
+        if not matches:
+            raise ValueError("claim does not uniquely name an XRV native finding")
+        matches.sort(reverse=True)
+        best_length = matches[0][0]
+        best = [row for row in matches if row[0] == best_length]
+        if len(best) != 1:
+            raise ValueError("claim ambiguously matches multiple XRV native findings")
+        _, index, target = best[0]
+        negative_markers = (
+            "does not show",
+            "without",
+            "absent",
+            "negative for",
+            "no evidence of",
+            "no ",
+            "not present",
+        )
+        negated = any(marker in text for marker in negative_markers)
+        return index, target, negated
+
+    def score_claims(self, image, _question, _generated_prefix, claims):
+        """Score only claims that uniquely map to an XRV native finding label.
+
+        The DenseNet sigmoid is converted to symmetric log-odds support. This is
+        an uncalibrated native comparison score, not a disease probability.
+        """
+        if self.capability != "classification":
+            raise ValueError("XRV anatomical segmentation cannot score diagnosis claims")
+        _targets, probabilities, _transform = self.classify(image)
+        values = []
+        for claim in claims:
+            index, _target, negated = self._claim_target(claim)
+            probability = float(np.clip(probabilities[index], 1e-6, 1 - 1e-6))
+            support = float(np.log(probability / (1 - probability)))
+            values.append(-support if negated else support)
+        result = np.asarray(values, dtype=np.float32)
+        if result.shape != (len(claims),) or not np.isfinite(result).all():
+            raise ValueError("XRV claim scoring produced invalid support values")
+        return result
 
     def domain_embedding(self, image):
         """Frozen DenseNet pre-classifier features, not sigmoid finding scores."""
