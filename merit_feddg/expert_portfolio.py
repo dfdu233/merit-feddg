@@ -528,6 +528,55 @@ def fit_expert_portfolios(
                 }
             )
 
+        excluded_add_one = []
+        selected_set = set(selected.expert_ids)
+        for expert_id in eligible:
+            if expert_id in selected_set:
+                continue
+            augmented_ids = tuple(sorted((*selected.expert_ids, expert_id)))
+            augmented_groups = [
+                role_card(value, specs[value]).fault_group
+                for value in augmented_ids
+            ]
+            if (
+                len(augmented_ids) > int(policy["portfolio_max_experts"])
+                or len(augmented_groups) != len(set(augmented_groups))
+            ):
+                continue
+            augmented = by_ids.get(augmented_ids)
+            if augmented is None:
+                augmented = _simulate_subset(
+                    values,
+                    augmented_ids,
+                    specs=specs,
+                    qualification_cards=qualification_cards,
+                    policy=policy,
+                    z=z,
+                )
+            excluded_add_one.append(
+                {
+                    "expert_id": expert_id,
+                    "augmented_expert_ids": list(augmented_ids),
+                    "utility_mean_delta_if_added": (
+                        augmented.utility_mean - selected.utility_mean
+                    ),
+                    "utility_lcb_delta_if_added": (
+                        augmented.utility_lcb - selected.utility_lcb
+                    ),
+                    "harm_ucb_delta_if_added": (
+                        augmented.harm_ucb - selected.harm_ucb
+                    ),
+                    "coverage_lcb_delta_if_added": (
+                        augmented.coverage_lcb - selected.coverage_lcb
+                    ),
+                    "adding_expert_reduces_mean_utility": (
+                        augmented.utility_mean < selected.utility_mean
+                    ),
+                    "augmented_feasible": augmented.feasible,
+                    "augmented_reason": augmented.reason,
+                }
+            )
+
         pair_interactions = []
         # Audit *all* individually eligible experts, including experts excluded
         # from the selected portfolio.  Otherwise "removing expert B helped"
