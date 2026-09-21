@@ -166,7 +166,7 @@ def fit(rows, *, z=1.96):
         )
         cards.append(card)
     return {
-        "schema": "merit-expert-qualification-v1",
+        "schema": "merit-expert-qualification-v2",
         "source_only": True,
         "statistical_rule": {
             "utility": (
