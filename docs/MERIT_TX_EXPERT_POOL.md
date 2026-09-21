@@ -210,7 +210,7 @@ Do not use target/test results to decide which experts survive. The source workf
        python scripts/build_merit_tx_source_observations.py \
          --manifest /path/to/source-manifest.jsonl \
          --baseline /path/to/source-generalist.json \
-         --candidate proposal=/path/to/frozen-source-candidate.json \
+         --candidate proposal-v1=/path/to/frozen-source-candidate.json \
          --references /path/to/source-references.json \
          --config configs/merit_tx.yaml \
          --output runs/source-tx-observations.jsonl
