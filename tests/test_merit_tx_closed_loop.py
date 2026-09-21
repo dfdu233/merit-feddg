@@ -60,8 +60,11 @@ def _card(
         utility_lcb=0.2,
         harm_ucb=0.1,
         specificity_lcb=0.7,
+        support_n=40,
+        support_domains=("site-a", "site-b"),
         veto_precision_lcb=veto_precision,
         veto_n=veto_n,
+        veto_domains=("site-a", "site-b") if veto_n else (),
     )
 
 
@@ -389,6 +392,8 @@ def test_qualification_is_expert_action_conditional_not_candidate_average():
     # supports a transaction.  It must not inherit the generator's utility.
     assert card["utility_lcb"] == -1.0
     assert card["harm_ucb"] == 1.0
+    assert card["support_n"] == 0
+    assert card["support_domains"] == []
     assert card["specificity_lcb"] == 0.0
     assert card["veto_precision_lcb"] == 0.0
     assert card["veto_n"] == 40
@@ -417,9 +422,12 @@ def test_qualification_rewards_bidirectional_differential_alignment():
     card = fit(rows)["cards"][0]
     assert card["utility_lcb"] > 0
     assert card["harm_ucb"] < 0.25
+    assert card["support_n"] == 20
+    assert card["support_domains"] == ["site-a"]
     assert card["specificity_lcb"] > 0.8
     assert card["veto_precision_lcb"] > 0.8
     assert card["veto_n"] == 20
+    assert card["veto_domains"] == ["site-b"]
 
 
 def _rad_claim(claim_id, observation, *, present=True, span=None, location=()):
@@ -650,3 +658,37 @@ def test_support_authority_does_not_implicitly_authorize_veto():
     assert not decision.commit
     assert decision.reason == "insufficient-qualified-patient-specific-support"
     assert decision.verifier_fault_groups == ()
+
+
+def test_action_domain_coverage_cannot_be_borrowed_from_inactive_domains():
+    rows = []
+    for index in range(20):
+        rows.append(
+            _qualification_row(
+                index,
+                outcome_delta=0.5,
+                effect=0.8,
+                domain="site-a",
+            )
+        )
+    for index in range(20, 40):
+        rows.append(
+            _qualification_row(
+                index,
+                outcome_delta=0.0,
+                effect=0.0,
+                domain="site-b",
+            )
+        )
+    card_payload = fit(rows)["cards"][0]
+    card = SourceQualificationCard(
+        **{
+            **card_payload,
+            "domains": tuple(card_payload["domains"]),
+            "support_domains": tuple(card_payload["support_domains"]),
+            "veto_domains": tuple(card_payload["veto_domains"]),
+        }
+    )
+    assert card.domains == ("site-a", "site-b")
+    assert card.support_domains == ("site-a",)
+    assert not card.authorizes_commit(min_domains=2)
