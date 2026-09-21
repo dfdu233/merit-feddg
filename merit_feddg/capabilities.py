@@ -98,6 +98,8 @@ def tool_descriptors(specs, row, allowed_pairs=None):
     descriptors = []
     intent = question_type(row["question"])
     for name, spec in specs.items():
+        if spec.get("enabled", True) is False or spec.get("transaction_only", False):
+            continue
         if spec.get("modalities") and row["modality"] not in spec["modalities"]:
             continue
         if spec.get("tasks") and row["task"] not in spec["tasks"]:
