@@ -197,6 +197,103 @@ class RadGraphClaimizer:
         return tuple(claims)
 
 
+def _normalized_semantic_text(value):
+    return " ".join(re.sub(r"[^a-z0-9]+", " ", str(value).casefold()).split())
+
+
+def claim_match_key(claim):
+    """Stable candidate/baseline matching key, not a correctness judgment."""
+    grounding = claim.grounding or {}
+    if grounding.get("schema") == "radgraph-xl":
+        observation = _normalized_semantic_text(grounding.get("observation", ""))
+        if not observation:
+            raise ValueError("RadGraph claim needs an observation match key")
+        return ("radgraph-observation", observation)
+    return ("proposition", _normalized_semantic_text(claim.proposition))
+
+
+def claim_truth_key(claim):
+    """Structured proposition identity for source-only outcome auditing."""
+    grounding = claim.grounding or {}
+    if grounding.get("schema") == "radgraph-xl":
+        return (
+            "radgraph-xl",
+            _normalized_semantic_text(grounding.get("observation", "")),
+            tuple(sorted(_normalized_semantic_text(v) for v in grounding.get("tags", ()))),
+            tuple(sorted(_normalized_semantic_text(v) for v in grounding.get("located_at", ()))),
+            tuple(sorted(_normalized_semantic_text(v) for v in grounding.get("suggestive_of", ()))),
+        )
+    return ("proposition", _normalized_semantic_text(claim.proposition))
+
+
+def candidate_transactions(
+    *,
+    task,
+    question,
+    baseline_text,
+    candidate_text,
+    baseline_claims,
+    candidate_claims,
+    proposer_expert_id=None,
+    transaction_prefix="tx",
+):
+    """Compile candidate output into conservative atomic transactions.
+
+    VQA is one REPLACE transaction. Reports propose ADD/REPLACE operations only;
+    an omitted candidate sentence never implies DELETE because omission can be a
+    stylistic compression rather than patient-specific negative evidence.
+    """
+    baseline_claims = tuple(baseline_claims)
+    candidate_claims = tuple(candidate_claims)
+    if str(candidate_text).strip() == str(baseline_text).strip():
+        return ()
+    if task != "report_generation":
+        if len(baseline_claims) != 1 or len(candidate_claims) != 1:
+            raise ValueError("VQA transaction compilation requires one atomic claim per answer")
+        proposed = candidate_claims[0]
+        return (
+            ClaimTransaction(
+                transaction_id=f"{transaction_prefix}-0",
+                operation="REPLACE",
+                proposed_claim=proposed,
+                replacement_text=str(candidate_text),
+                baseline_claim_id=baseline_claims[0].claim_id,
+                proposer_expert_id=proposer_expert_id,
+            ),
+        )
+
+    baseline_by_key = {}
+    for claim in baseline_claims:
+        key = claim_match_key(claim)
+        if key in baseline_by_key:
+            raise ValueError("ambiguous duplicate baseline report observation")
+        baseline_by_key[key] = claim
+
+    transactions = []
+    for candidate in candidate_claims:
+        key = claim_match_key(candidate)
+        baseline = baseline_by_key.get(key)
+        if baseline is not None and claim_truth_key(baseline) == claim_truth_key(candidate):
+            continue
+        if candidate.source_span is not None:
+            start, end = candidate.source_span
+            replacement = str(candidate_text)[start:end]
+        else:
+            replacement = candidate.proposition
+        operation = "REPLACE" if baseline is not None else "ADD"
+        transactions.append(
+            ClaimTransaction(
+                transaction_id=f"{transaction_prefix}-{len(transactions)}",
+                operation=operation,
+                proposed_claim=candidate,
+                replacement_text=replacement,
+                baseline_claim_id=baseline.claim_id if baseline is not None else None,
+                proposer_expert_id=proposer_expert_id,
+            )
+        )
+    return tuple(transactions)
+
+
 def apply_transactions(baseline_text, baseline_claims, transactions, decisions):
     """Apply only committed non-overlapping edits to an immutable baseline."""
     baseline_text = str(baseline_text)
