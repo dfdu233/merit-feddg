@@ -7,10 +7,12 @@ engine itself is domain agnostic.
 Crucially, the incumbent text is immutable: rejected transactions cannot alter
 its decoding trajectory or untouched spans.
 """
+
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from itertools import pairwise
 from typing import Any
 
 
@@ -241,7 +243,7 @@ def apply_transactions(baseline_text, baseline_claims, transactions, decisions):
         committed.append(transaction.transaction_id)
 
     edits.sort(key=lambda value: (value[0], value[1]))
-    for left, right in zip(edits, edits[1:]):
+    for left, right in pairwise(edits):
         if right[0] < left[1]:
             raise ValueError(
                 "committed claim edits overlap; merge same-sentence report claims first"
