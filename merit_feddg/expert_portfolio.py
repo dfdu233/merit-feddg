@@ -461,8 +461,10 @@ def fit_expert_portfolios(
                 )
 
         pair_interactions = []
-        selected_or_eligible = selected.expert_ids or tuple(eligible)
-        for left, right in itertools.combinations(selected_or_eligible, 2):
+        # Audit *all* individually eligible experts, including experts excluded
+        # from the selected portfolio.  Otherwise "removing expert B helped"
+        # would be impossible to explain after B had already been pruned.
+        for left, right in itertools.combinations(tuple(eligible), 2):
             pair = by_ids.get(tuple(sorted((left, right))))
             left_card = by_ids.get((left,))
             right_card = by_ids.get((right,))
