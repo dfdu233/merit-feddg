@@ -226,6 +226,9 @@ def select_expert_descriptors(
     max_calls=6,
     require_commit_authority=False,
     region_available=False,
+    qualification_min_domains=2,
+    qualification_max_harm_ucb=0.25,
+    qualification_min_specificity_lcb=0.5,
 ):
     """Coverage-first, diversity-aware expert selection with source-only authority."""
     if type(max_calls) is not int or max_calls < 1:
@@ -260,7 +263,11 @@ def select_expert_descriptors(
         commit_authorized = (
             card.commit_authority == "source_qualified"
             and qcard is not None
-            and qcard.authorizes_commit()
+            and qcard.authorizes_commit(
+                min_domains=qualification_min_domains,
+                max_harm_ucb=qualification_max_harm_ucb,
+                min_specificity_lcb=qualification_min_specificity_lcb,
+            )
         )
         if require_commit_authority and not commit_authorized:
             continue
