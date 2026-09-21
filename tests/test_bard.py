@@ -169,6 +169,12 @@ def test_decode_uses_exact_same_prefix_for_all_branches():
     assert base.prefixes == [(), (1,)]
     assert all(session.prefixes == [(), (1,)] for session in experts.values())
     assert result["trace"][0]["fault_probe"]["extra_model_forwards"] == 0
+    without_diagnostics = decode_bard(base, experts, max_tokens=2, config=config, fault_probe=False)
+    assert without_diagnostics["token_ids"] == result["token_ids"]
+    assert without_diagnostics["trace"] == [
+        {key: value for key, value in step.items() if key != "fault_probe"}
+        for step in result["trace"]
+    ]
 
 
 def test_single_expert_structural_fallback_does_not_evaluate_expert_branch():

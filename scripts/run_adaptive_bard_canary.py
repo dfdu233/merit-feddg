@@ -162,7 +162,7 @@ def main():
             acquisition = acquire_expert_groups(engine) if isolated else {'groups': {}, 'events': [], 'fault_group_members': {}}
             if args.cached_receiver or not isolated:
                 for method in isolated:
-                    outputs[method] = run_bard_method(session, acquisition, config.get('bard', {}), method)
+                    outputs[method] = run_bard_method(session, acquisition, config.get('bard', {}), method, fault_probe=not args.skip_stress)
                     atomic_json(out / row['id'] / f'{method}.json', outputs[method])
             else:
                 outputs.update(run_bard_bundle(session, acquisition, config.get('bard', {})))
@@ -175,7 +175,7 @@ def main():
                 'cache_identity': protocol['identity'], 'row': row,
                 'receiver_config': config, 'prompt': prompt, 'methods': args.methods,
                 'receiver_execution': 'parity_validated_kv' if args.cached_receiver else 'production_replay',
-                'routing_source': 'frozen LLaVA image-only routes shared across receivers',
+                'routing_source': protocol['routing'],
                 'protocol_sha256': hashlib.sha256((cache / 'protocol.json').read_bytes()).hexdigest(),
                 'native_cache_sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                                         for p in (cache / 'expert-cache' / fingerprint(row['id'])).glob('*.json')},
