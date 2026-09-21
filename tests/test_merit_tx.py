@@ -347,3 +347,37 @@ def test_source_qualification_fitter_emits_conservative_cards():
     assert card["utility_lcb"] > 0
     assert card["harm_ucb"] < 0.2
     assert card["specificity_lcb"] > 0.8
+
+
+def test_region_prompted_expert_is_not_counted_without_real_region():
+    specs = {
+        "automatic": _spec(
+            "spatial_localizer", "segmentation", group="automatic"
+        ),
+        "prompted": {
+            **_spec("spatial_localizer", "segmentation", group="prompted"),
+            "requires_region": True,
+        },
+    }
+    descriptors = [
+        _descriptor("automatic", "segmentation"),
+        {**_descriptor("prompted", "segmentation"), "requires_region": True},
+    ]
+    selected, _audit = select_expert_descriptors(
+        descriptors,
+        specs,
+        modality="pathology",
+        task="open_vqa",
+        max_calls=2,
+        region_available=False,
+    )
+    assert [row["expert"] for row in selected] == ["automatic"]
+    selected, _audit = select_expert_descriptors(
+        descriptors,
+        specs,
+        modality="pathology",
+        task="open_vqa",
+        max_calls=2,
+        region_available=True,
+    )
+    assert {row["expert"] for row in selected} == {"automatic", "prompted"}
