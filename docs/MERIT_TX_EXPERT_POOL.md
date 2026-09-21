@@ -1,5 +1,8 @@
 # MERIT-Tx: Literature-Grounded Expert Pool and Proof-Carrying Transactions
 
+The detailed v3 subset-selection rationale and literature matrix are in
+[EXPERT_PORTFOLIO_V3.md](EXPERT_PORTFOLIO_V3.md).
+
 ## Why this revision exists
 
 Full PathVQA runs showed that adding more specialists does not monotonically improve a strong medical VLM. Some specialists changed the receiver frequently without adding question-specific medical information, and disabling an expert could improve the aggregate result.
@@ -96,7 +99,7 @@ has positive conservative utility with bounded harm, the frozen policy selects
 no verifier and preserves the immutable Generalist.
 
     python scripts/fit_expert_portfolio.py \
-      --input runs/source-tx-observations.jsonl \
+      --input runs/source-tx-observations.jsonl.transactions.jsonl \
       --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json \
       --config configs/merit_tx.yaml \
       --output artifacts/qualification/merit-expert-portfolio-v1.json
@@ -313,7 +316,7 @@ Do not use target/test results to decide which experts survive. The source workf
    effects are measured before target evaluation:
 
        python scripts/fit_expert_portfolio.py \
-         --input runs/source-tx-observations.jsonl \
+         --input runs/source-tx-observations.jsonl.transactions.jsonl \
          --qualification-cards artifacts/qualification/merit-expert-qualification-v3.json \
          --config configs/merit_tx.yaml \
          --output artifacts/qualification/merit-expert-portfolio-v1.json
