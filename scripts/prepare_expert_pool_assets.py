@@ -12,7 +12,7 @@ from pathlib import Path
 OPEN_MODELS = {
     "plip": ("vinid/plip", "artifacts/models/vinid--plip"),
     "medsam": ("wanglab/medsam-vit-base", "artifacts/models/wanglab--medsam-vit-base"),
-    "monet": ("suinleelab/monet", "artifacts/models/suinleelab--monet"),
+    "monet": ("chanwkim/monet", "artifacts/models/chanwkim--monet"),
 }
 GATED_MODELS = {
     "conch": ("MahmoodLab/CONCH", "artifacts/models/MahmoodLab--CONCH"),
