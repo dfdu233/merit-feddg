@@ -12,6 +12,7 @@ positive conservative utility under the frozen harm constraints.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -53,6 +54,10 @@ def main():
     config=load_experiment_yaml(args.config)
     specs=dict(config["experts"])
     specs.pop("source_cases",None)
+    qualification_payload=json.loads(Path(args.qualification_cards).read_text(encoding="utf-8"))
+    qualification_groups=set(str(value) for value in qualification_payload.get("source_group_ids", ()))
+    if not qualification_groups:
+        raise ValueError("v3 qualification cards must record source_group_ids")
     cards=load_qualification_cards(args.qualification_cards)
     policy=dict(config.get("merit_tx",{}))
     required={
@@ -74,8 +79,16 @@ def main():
     if missing:
         raise ValueError(f"MERIT-Tx portfolio policy missing fields: {missing}")
 
+    input_rows=read_rows(args.input)
+    portfolio_groups={str(row["group_id"]) for row in input_rows}
+    overlap=sorted(qualification_groups & portfolio_groups)
+    if overlap:
+        raise ValueError(
+            "qualification and portfolio-selection source groups must be disjoint; "
+            f"overlap={len(overlap)}"
+        )
     payload=fit_expert_portfolios(
-        read_rows(args.input),
+        input_rows,
         specs=specs,
         qualification_cards=cards,
         policy=policy,
@@ -83,6 +96,13 @@ def main():
     )
     payload["qualification_cards"]=str(Path(args.qualification_cards).resolve())
     payload["qualification_schema"]="merit-expert-qualification-v3"
+    payload["qualification_source_groups_sha256"]=qualification_payload.get("source_groups_sha256")
+    source_group_ids=sorted(portfolio_groups)
+    payload["source_group_ids"]=source_group_ids
+    payload["source_groups_sha256"]=hashlib.sha256(
+        json.dumps(source_group_ids,separators=(",",":"),ensure_ascii=False).encode()
+    ).hexdigest()
+    payload["source_groups_disjoint_from_qualification"]=True
     payload["input"]=str(Path(args.input).resolve())
     payload["target_test_selection"]=False
 
