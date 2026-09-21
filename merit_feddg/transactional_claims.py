@@ -79,9 +79,9 @@ def decontextualize_vqa(question, answer):
         raise ValueError("question and answer cannot be empty")
     key = a.casefold()
     finding_patterns = (
-        re.compile(r"^is there\s+(?:any\s+)?(.+)$", re.I),
-        re.compile(r"^are there\s+(?:any\s+)?(.+)$", re.I),
-        re.compile(r"^does (?:the|this) (?:image|scan|study|radiograph) show\s+(.+)$", re.I),
+        re.compile(r"^is there\s+(?:any\s+)?(.+)$", re.IGNORECASE),
+        re.compile(r"^are there\s+(?:any\s+)?(.+)$", re.IGNORECASE),
+        re.compile(r"^does (?:the|this) (?:image|scan|study|radiograph) show\s+(.+)$", re.IGNORECASE),
     )
     for pattern in finding_patterns:
         match = pattern.match(q)
