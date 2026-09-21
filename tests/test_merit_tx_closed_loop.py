@@ -19,6 +19,7 @@ from merit_feddg.transactional_claims import (
 )
 from merit_feddg.transactional_runtime import (
     counterfactual_addition_proposition,
+    normalize_proposer_expert_ids,
     transaction_claim_spec,
     verify_transaction,
 )
@@ -719,3 +720,130 @@ def test_v2_qualification_schema_rejects_legacy_cards(tmp_path):
     path.write_text(__import__("json").dumps(payload), encoding="utf-8")
     with pytest.raises(ValueError, match="unsupported expert qualification"):
         load_qualification_cards(path)
+
+
+def test_multi_proposer_normalization_is_stable_and_deduplicated():
+    assert normalize_proposer_expert_ids(
+        "chexagent",
+        ("xrv,biomedclip_claim_verifier", "chexagent"),
+    ) == (
+        "chexagent",
+        "xrv",
+        "biomedclip_claim_verifier",
+    )
+
+
+def test_every_proposer_fault_group_is_excluded_from_commit_validation():
+    specs = {
+        "proposal_a": _spec(
+            "direct_visual_verifier",
+            "classification",
+            group="proposal-a",
+        ),
+        "proposal_b": _spec(
+            "direct_visual_verifier",
+            "classification",
+            group="proposal-b",
+        ),
+        "independent": _spec(
+            "direct_visual_verifier",
+            "classification",
+            group="independent",
+        ),
+    }
+    cards = {
+        card.key: card
+        for card in (
+            _card("proposal_a"),
+            _card("proposal_b"),
+            _card("independent"),
+        )
+    }
+    transaction = ClaimTransaction(
+        "tx-multi-proposer",
+        "REPLACE",
+        AtomicClinicalClaim("candidate", "The image shows pleural effusion.", None),
+        "Small pleural effusion.",
+        baseline_claim_id="baseline",
+        proposer_expert_ids=("proposal_a", "proposal_b"),
+    )
+    proposer_evidence = (
+        TransactionEvidence(
+            expert_id="proposal_a",
+            capability="classification",
+            scope="classification",
+            fault_group="proposal-a",
+            evidence_role="direct_visual_verifier",
+            differential_effect=0.8,
+            support_direction=1,
+            patient_specific=True,
+        ),
+        TransactionEvidence(
+            expert_id="proposal_b",
+            capability="classification",
+            scope="classification",
+            fault_group="proposal-b",
+            evidence_role="direct_visual_verifier",
+            differential_effect=0.7,
+            support_direction=1,
+            patient_specific=True,
+        ),
+    )
+    rejected = decide_transaction(
+        transaction,
+        proposer_evidence,
+        specs=specs,
+        qualification_cards=cards,
+        modality="cxr",
+        task="report_generation",
+        claim_type="*",
+        config=MeritTxConfig(),
+    )
+    assert not rejected.commit
+    assert rejected.reason == "proposer-has-no-independent-qualified-validator"
+
+    independent = TransactionEvidence(
+        expert_id="independent",
+        capability="classification",
+        scope="classification",
+        fault_group="independent",
+        evidence_role="direct_visual_verifier",
+        differential_effect=0.6,
+        support_direction=1,
+        patient_specific=True,
+    )
+    accepted = decide_transaction(
+        transaction,
+        proposer_evidence + (independent,),
+        specs=specs,
+        qualification_cards=cards,
+        modality="cxr",
+        task="report_generation",
+        claim_type="*",
+        config=MeritTxConfig(),
+    )
+    assert accepted.commit
+    assert accepted.verifier_fault_groups == ("independent",)
+
+
+def test_candidate_transactions_preserve_multi_proposer_provenance():
+    baseline = claimize = AtomicClinicalClaim(
+        "base",
+        "The image does not show pleural effusion.",
+        (0, 2),
+    )
+    candidate = AtomicClinicalClaim(
+        "candidate",
+        "The image shows pleural effusion.",
+        (0, 3),
+    )
+    transactions = candidate_transactions(
+        task="open_vqa",
+        question="Is there pleural effusion?",
+        baseline_text="No",
+        candidate_text="Yes",
+        baseline_claims=(baseline,),
+        candidate_claims=(candidate,),
+        proposer_expert_ids=("proposal_a", "proposal_b"),
+    )
+    assert transactions[0].proposer_expert_ids == ("proposal_a", "proposal_b")
