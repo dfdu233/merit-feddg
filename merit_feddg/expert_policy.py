@@ -77,8 +77,11 @@ class SourceQualificationCard:
     utility_lcb: float
     harm_ucb: float
     specificity_lcb: float
+    support_n: int = 0
+    support_domains: tuple[str, ...] = ()
     veto_precision_lcb: float = 0.0
     veto_n: int = 0
+    veto_domains: tuple[str, ...] = ()
     source_only: bool = True
 
     def __post_init__(self):
@@ -96,8 +99,14 @@ class SourceQualificationCard:
                 raise ValueError("qualification statistics must be finite")
         if not 0 <= self.veto_precision_lcb <= 1:
             raise ValueError("veto_precision_lcb must be in [0,1]")
+        if type(self.support_n) is not int or self.support_n < 0:
+            raise ValueError("support_n must be a nonnegative integer")
         if type(self.veto_n) is not int or self.veto_n < 0:
             raise ValueError("veto_n must be a nonnegative integer")
+        if self.support_n and not self.support_domains:
+            raise ValueError("support actions require support_domains")
+        if self.veto_n and not self.veto_domains:
+            raise ValueError("veto actions require veto_domains")
 
     @property
     def key(self):
@@ -118,7 +127,8 @@ class SourceQualificationCard:
         min_specificity_lcb=0.5,
     ) -> bool:
         return (
-            len(set(self.domains)) >= min_domains
+            self.support_n > 0
+            and len(set(self.support_domains)) >= min_domains
             and self.utility_lcb > 0
             and self.harm_ucb <= max_harm_ucb
             and self.specificity_lcb >= min_specificity_lcb
@@ -138,8 +148,8 @@ class SourceQualificationCard:
         safe when opposing them.
         """
         return (
-            len(set(self.domains)) >= min_domains
-            and self.veto_n > 0
+            self.veto_n > 0
+            and len(set(self.veto_domains)) >= min_domains
             and self.veto_precision_lcb >= min_veto_precision_lcb
             and self.specificity_lcb >= min_specificity_lcb
         )
@@ -191,7 +201,14 @@ def load_qualification_cards(path):
         raise ValueError("expert qualification must be source-only")
     result = {}
     for row in payload.get("cards", []):
-        card = SourceQualificationCard(**{**row, "domains": tuple(row["domains"])})
+        card = SourceQualificationCard(
+            **{
+                **row,
+                "domains": tuple(row["domains"]),
+                "support_domains": tuple(row.get("support_domains", ())),
+                "veto_domains": tuple(row.get("veto_domains", ())),
+            }
+        )
         if card.key in result:
             raise ValueError(f"duplicate expert qualification card: {card.key}")
         result[card.key] = card
@@ -410,8 +427,11 @@ def select_expert_descriptors(
                         "utility_lcb": qcard.utility_lcb,
                         "harm_ucb": qcard.harm_ucb,
                         "specificity_lcb": qcard.specificity_lcb,
+                        "support_n": qcard.support_n,
+                        "support_domains": list(qcard.support_domains),
                         "veto_precision_lcb": qcard.veto_precision_lcb,
                         "veto_n": qcard.veto_n,
+                        "veto_domains": list(qcard.veto_domains),
                     }
                     if qcard is not None
                     else None
