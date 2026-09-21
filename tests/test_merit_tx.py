@@ -4,6 +4,7 @@ import pytest
 
 from merit_feddg.expert_policy import (
     SourceQualificationCard,
+    load_qualification_cards,
     select_expert_descriptors,
     transaction_descriptors,
 )
@@ -317,6 +318,7 @@ def test_source_qualification_fitter_rejects_test_rows(tmp_path):
                 "modality": "pathology",
                 "task": "open_vqa",
                 "claim_type": "diagnosis",
+                "candidate_method": "proposal-v1",
                 "domain": "d",
                 "group_id": "g",
                 "outcome_delta": 1,
@@ -344,6 +346,7 @@ def test_source_qualification_fitter_emits_conservative_cards():
                     "modality": "pathology",
                     "task": "open_vqa",
                     "claim_type": "diagnosis",
+                    "candidate_method": "proposal-v1",
                     "domain": domain,
                     "group_id": f"{domain}-{index}",
                     "outcome_delta": 0.5,
@@ -930,3 +933,55 @@ def test_legacy_unreviewed_role_cannot_gain_merit_tx_commit_authority():
     assert [row["expert"] for row in selected] == ["legacy"]
     assert audit[0]["literature_grounded"] is False
     assert audit[0]["commit_authorized"] is False
+
+
+def test_qualification_cards_are_bound_to_one_frozen_proposal_policy(tmp_path):
+    rows = []
+    for domain in ("a", "b"):
+        for index in range(20):
+            rows.append(
+                {
+                    "expert_id": "e",
+                    "capability": "classification",
+                    "scope": "s",
+                    "modality": "pathology",
+                    "task": "open_vqa",
+                    "claim_type": "diagnosis",
+                    "candidate_method": "proposal-v1",
+                    "domain": domain,
+                    "group_id": f"{domain}-{index}",
+                    "outcome_delta": 0.5,
+                    "real_effect": 0.8,
+                    "knockoff_effect": 0.1,
+                }
+            )
+    payload = fit(rows)
+    assert payload["schema"] == "merit-expert-qualification-v2"
+    assert payload["proposal_policy"] == "proposal-v1"
+
+    path = tmp_path / "cards.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    cards = load_qualification_cards(path)
+    assert cards.proposal_policy == "proposal-v1"
+    assert len(cards) == 1
+
+
+def test_qualification_fitter_rejects_mixed_proposal_policies():
+    base = {
+        "expert_id": "e",
+        "capability": "classification",
+        "scope": "s",
+        "modality": "pathology",
+        "task": "open_vqa",
+        "claim_type": "diagnosis",
+        "domain": "a",
+        "outcome_delta": 0.5,
+        "real_effect": 0.8,
+        "knockoff_effect": 0.1,
+    }
+    rows = [
+        {**base, "group_id": "g1", "candidate_method": "proposal-v1"},
+        {**base, "group_id": "g2", "candidate_method": "proposal-v2"},
+    ]
+    with pytest.raises(ValueError, match="one frozen candidate_method"):
+        fit(rows)
