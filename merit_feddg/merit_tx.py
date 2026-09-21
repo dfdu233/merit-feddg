@@ -40,6 +40,17 @@ class TransactionEvidence:
             raise ValueError("support_direction must be -1, 0, or 1")
         if not math.isfinite(self.differential_effect):
             raise ValueError("differential effect must be finite")
+        expected_direction = (
+            1
+            if self.differential_effect > 0
+            else -1
+            if self.differential_effect < 0
+            else 0
+        )
+        if self.support_direction != expected_direction:
+            raise ValueError(
+                "support_direction must equal sign(differential_effect)"
+            )
 
 
 @dataclass(frozen=True)
