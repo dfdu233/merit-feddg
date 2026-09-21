@@ -67,11 +67,21 @@ def _card(
         utility_lcb=0.2,
         harm_ucb=0.1,
         specificity_lcb=0.7,
+        action_rate_lcb=0.6,
         support_n=40,
         support_domains=("site-a", "site-b"),
+        support_consequential_n=30,
+        support_help_n=24,
+        support_harm_n=6,
+        support_neutral_n=10,
+        support_precision_lcb=0.6,
         veto_precision_lcb=veto_precision,
         veto_n=veto_n,
         veto_domains=("site-a", "site-b") if veto_n else (),
+        veto_consequential_n=veto_n,
+        veto_harm_n=veto_n,
+        veto_help_n=0,
+        veto_neutral_n=0,
     )
 
 
@@ -701,7 +711,7 @@ def test_action_domain_coverage_cannot_be_borrowed_from_inactive_domains():
     assert not card.authorizes_commit(min_domains=2)
 
 
-def test_v2_qualification_schema_rejects_legacy_cards(tmp_path):
+def test_v3_qualification_schema_rejects_legacy_cards(tmp_path):
     rows = [
         _qualification_row(
             index,
@@ -712,7 +722,7 @@ def test_v2_qualification_schema_rejects_legacy_cards(tmp_path):
         for index in range(40)
     ]
     payload = fit(rows)
-    assert payload["schema"] == "merit-expert-qualification-v2"
+    assert payload["schema"] == "merit-expert-qualification-v3"
     path = tmp_path / "cards.json"
     path.write_text(json.dumps(payload), encoding="utf-8")
     loaded = load_qualification_cards(path)
