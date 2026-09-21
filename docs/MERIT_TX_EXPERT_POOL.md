@@ -42,7 +42,7 @@ commit_authority = source_qualified means that an expert is structurally eligibl
 
 ### SourceQualificationCard
 
-Qualification is indexed by expert, capability, scope, modality, task, and claim_type. A card contains conservative source/development statistics:
+Qualification is indexed by expert, capability, scope, modality, task, and claim_type, while the entire qualification registry is bound to one frozen proposal policy. A card contains conservative source/development statistics:
 
 - utility_lcb
 - harm_ucb
@@ -50,7 +50,7 @@ Qualification is indexed by expert, capability, scope, modality, task, and claim
 - domains
 - n
 
-The deployed permission rule requires positive lower-bound utility, bounded upper-confidence harm, sufficient current-patient-vs-knockoff specificity, and source-domain coverage. The card is a fixed statistical permission, not a trained router or gate.
+The deployed permission rule requires positive lower-bound utility, bounded upper-confidence harm, sufficient current-patient-vs-knockoff specificity, source-domain coverage, an explicit literature/model-card basis, and exact agreement between the runtime proposal policy and the proposal distribution used to fit the cards. The card is a fixed statistical permission, not a trained router or gate.
 
 Build cards from source/development observations:
 
@@ -246,6 +246,8 @@ Do not use target/test results to decide which experts survive. The source workf
 6. Only if the source canary shows useful nonzero commit coverage with bounded harm should the exact frozen policy be evaluated on untouched target/test data.
 
 Candidate-oracle and first-divergence analysis of already-completed target experiments remains diagnostic only; it cannot choose experts, qualification thresholds, or transaction rules.
+
+A qualification registry fitted on `proposal-v1` is invalid for `proposal-v2`, even when the same experts and source images are used. This prevents candidate-distribution shift from being hidden inside an apparently reusable expert reliability card.
 
 ## References
 
