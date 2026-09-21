@@ -873,3 +873,32 @@ def test_runtime_commits_only_with_source_qualified_real_vs_knockoff_support():
             match_fields=("question_type",),
         )
     ]
+
+
+def test_broad_image_text_verifiers_are_transaction_only_and_source_qualified(monkeypatch):
+    config = load_experiment_yaml("configs/merit_tx.yaml")
+    biomed = config["experts"]["biomedclip_claim_verifier"]
+    medsiglip = config["experts"]["medsiglip_claim_verifier"]
+    assert biomed["transaction_only"] is True
+    assert biomed["commit_authority"] == "source_qualified"
+    assert biomed["fault_group"] == "biomedclip"
+    assert {"ct", "mri"} <= set(biomed["modalities"])
+    assert medsiglip["transaction_only"] is True
+    assert medsiglip["optional"] is True
+    assert medsiglip["commit_authority"] == "source_qualified"
+    assert medsiglip["fault_group"] == "medsiglip"
+    assert {"dermatology", "fundus", "pathology", "ct", "mri"} <= set(
+        medsiglip["modalities"]
+    )
+
+
+def test_dynamic_claim_phrase_adapters_do_not_double_wrap_full_propositions():
+    from merit_feddg.experts.biomedclip import BiomedClipAdapter
+    from merit_feddg.experts.medsiglip import MedSiglipConceptExpert
+
+    claim = "The image shows pleural effusion."
+    assert BiomedClipAdapter._claim_phrase(claim) == claim
+    assert MedSiglipConceptExpert._claim_phrase(claim) == claim
+    assert BiomedClipAdapter._claim_phrase("cardiomegaly") == (
+        "A medical image showing cardiomegaly."
+    )
