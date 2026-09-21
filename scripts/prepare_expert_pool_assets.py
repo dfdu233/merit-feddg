@@ -19,6 +19,8 @@ GATED_MODELS = {
     "medsiglip": ("google/medsiglip-448", "artifacts/models/google--medsiglip-448"),
     "musk": ("xiangjx/musk", "artifacts/models/xiangjx--musk"),
 }
+MUSK_SOURCE_REVISION = "714b666969c1911e5efe70d991140a21030f4ef3"
+
 RESEARCH_MODELS = {
     # Literature-selected coverage candidates without an active runtime adapter.
     # Downloading them does not grant commit authority.
@@ -42,6 +44,9 @@ def commands():
     rows.append("# MUSK also requires the official source package for its timm registration/tokenizer")
     rows.append("git clone https://github.com/lilab-stanford/MUSK upstream/MUSK")
     rows.append("# Literature-selected research candidates; no runtime authority yet")
+    rows.append("# MUSK also requires its official source at the pinned revision")
+    rows.append("git clone https://github.com/lilab-stanford/MUSK upstream/MUSK")
+    rows.append(f"git -C upstream/MUSK checkout {MUSK_SOURCE_REVISION}")
     for name, (repo, target, access) in RESEARCH_MODELS.items():
         label = "gated; accept upstream terms first" if access == "gated" else "open"
         rows.append(f"# {name}: {label}; adapter/source qualification still required")
