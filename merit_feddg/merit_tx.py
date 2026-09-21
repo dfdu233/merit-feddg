@@ -243,12 +243,13 @@ def decide_transaction(
     """Decide one atomic transaction without changing the incumbent trajectory."""
     config = config or MeritTxConfig()
     evidences = tuple(evidences)
-    proposer_group = None
+    proposer_ids = list(transaction.proposer_expert_ids)
     if transaction.proposer_expert_id:
-        proposer_group = role_card(
-            transaction.proposer_expert_id,
-            specs[transaction.proposer_expert_id],
-        ).fault_group
+        proposer_ids.append(transaction.proposer_expert_id)
+    proposer_groups = {
+        role_card(expert_id, specs[expert_id]).fault_group
+        for expert_id in proposer_ids
+    }
 
     qualified_support = {}
     qualified_contradiction = {}
@@ -293,8 +294,8 @@ def decide_transaction(
     support_groups = set(qualified_support)
     contradiction_groups = set(qualified_contradiction)
     independent_support = set(support_groups)
-    if config.require_independent_validator and proposer_group is not None:
-        independent_support.discard(proposer_group)
+    if config.require_independent_validator:
+        independent_support.difference_update(proposer_groups)
 
     if config.reject_on_qualified_contradiction and contradiction_groups:
         return TransactionDecision(
@@ -316,7 +317,7 @@ def decide_transaction(
     if config.require_patient_specific_support and len(usable_groups) < required_groups:
         reason = (
             "proposer-has-no-independent-qualified-validator"
-            if support_groups and proposer_group is not None and not independent_support
+            if support_groups and proposer_groups and not independent_support
             else "insufficient-qualified-patient-specific-support"
         )
         return TransactionDecision(
