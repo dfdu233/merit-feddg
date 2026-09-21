@@ -1,0 +1,86 @@
+{
+  "schema": "merit-tx-portfolio-v3-validation-v1",
+  "base_branch": "implementation/merit-tx-closed-loop-v2",
+  "validated_code_commit": "8760a146fae80512172a243614164ba3fdb11b9b",
+  "github_actions": {
+    "run_id": 35638235079,
+    "torch_enabled_job": "open-generation-cpu",
+    "pytest": {
+      "passed": 268,
+      "failed": 0,
+      "seconds": 7.53,
+      "includes": [
+        "tests/test_merit_tx.py",
+        "tests/test_merit_tx_closed_loop.py",
+        "tests/test_expert_portfolio.py",
+        "existing BARD/MedCPT/Huatuo/LLaVA capability integration tests"
+      ]
+    },
+    "cli_smoke": {
+      "fit_expert_qualification_help": "passed",
+      "fit_expert_portfolio_help": "passed",
+      "prepare_expert_pool_assets_help": "passed",
+      "audit_transactional_expert_pool_help": "passed",
+      "build_source_observations_help": "passed",
+      "source_canary_help": "passed"
+    },
+    "new_v3_ruff_findings": 0,
+    "workflow_green": false,
+    "workflow_blockers": [
+      "generic repository test job installs no torch while collecting existing spatial tests that import torch",
+      "repository-wide Ruff has pre-existing findings in unrelated legacy files"
+    ]
+  },
+  "implemented": {
+    "immutable_incumbent_transactions": true,
+    "same_algorithm_vqa_and_report": true,
+    "qualification_schema": "merit-expert-qualification-v3",
+    "separates_action_prevalence_from_directional_precision": true,
+    "consequential_support_precision": true,
+    "consequential_veto_precision": true,
+    "neutral_actions_not_directional_failures": true,
+    "source_only_interaction_aware_portfolio": true,
+    "empty_portfolio_allowed": true,
+    "leave_one_out_marginal_utility_audit": true,
+    "pairwise_interaction_utility_audit": true,
+    "excluded_experts_remain_interaction_auditable": true,
+    "independent_fault_groups": true,
+    "proposer_validator_separation": true,
+    "runtime_restricted_to_frozen_portfolio": true,
+    "unseen_portfolio_cells_fail_closed": true,
+    "literature_grounded_capability_roadmap": true,
+    "broad_medimageinsight_candidate_recorded": true,
+    "pathology_musk_candidate_recorded": true,
+    "ophthalmology_eyeclip_candidate_recorded": true,
+    "echocardiography_echoclip_candidate_recorded": true,
+    "volumetric_ct_merlin_candidate_recorded": true,
+    "volumetric_segmentation_vista_ctmr_candidate_recorded": true
+  },
+  "expert_selection_methodology": [
+    "candidate-library admission uses peer-reviewed capability evidence, modality/input-dimensionality scope, released native interface, and weight/audit availability",
+    "availability never grants commit authority",
+    "per-expert source qualification estimates action prevalence, conditional precision, utility, and harm separately",
+    "portfolio selection replays feasible verifier subsets on frozen source transactions to measure non-additive interactions",
+    "runtime can select the empty portfolio and exactly preserve the Generalist",
+    "target/test labels are forbidden for qualification, portfolio selection, or threshold changes"
+  ],
+  "not_validated": {
+    "real_v3_source_qualification_refit": false,
+    "real_v3_source_portfolio_fit": false,
+    "fresh_group_disjoint_v3_canary": false,
+    "target_test_v3_benchmark": false,
+    "new_expert_weights_downloaded_in_this_branch": false,
+    "medimageinsight_runtime_adapter": false,
+    "musk_runtime_adapter": false,
+    "eyeclip_runtime_adapter": false,
+    "echoclip_runtime_adapter": false,
+    "merlin_runtime_adapter": false,
+    "benchmark_accuracy_improvement": false
+  },
+  "notes": [
+    "The previous Tx-v2 source diagnosis found that fixing the specificity statistic alone cannot establish expert benefit because several source utility lower bounds remained non-positive.",
+    "The v3 portfolio is a source-only policy for deciding which qualified verifiers may run together; it is not a target-trained gate.",
+    "Research-roadmap models do not count as active coverage until their exact input/runtime contracts and source qualification are validated.",
+    "The final branch contains this validation-report-only commit after the validated code commit."
+  ]
+}
