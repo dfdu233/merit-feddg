@@ -313,6 +313,10 @@ def _expert_from_spec(spec: dict, artifact_root: str | Path | None):
         return ConchConceptExpert(model_id)
     if adapter == "contrastive_biomedclip":
         return BiomedClipAdapter(model_id)
+    if adapter == "contrastive_plip":
+        from .experts.plip import PlipConceptExpert
+
+        return PlipConceptExpert(model_id, device=str(spec.get("device", "auto")))
     raise ValueError(f"unsupported expert adapter: {adapter}")
 
 
