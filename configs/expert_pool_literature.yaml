@@ -155,7 +155,7 @@ models:
     capabilities: [classification, retrieval]
     evidence:
       - "MONET, Nature Medicine 2024"
-    weights: suinleelab/monet
+    weights: chanwkim/monet
     native_interface: zero_shot_image_text_similarity
     training_required_for_commit_interface: false
     rationale: Public dermatology image-text model with board-certified dermatologist validation and a released zero-shot concept-annotation interface. Use candidate-specific propositions rather than a fixed disease catalog; source qualification and portfolio selection remain mandatory.
