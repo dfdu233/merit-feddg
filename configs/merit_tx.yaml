@@ -40,7 +40,7 @@ merit_tx:
   claim_unit: atomic_verifiable_proposition
   radiology_grounding: modern-radgraph-xl
   expert_selection: literature_role_coverage
-  qualification_schema: merit-expert-qualification-v1
+  qualification_schema: merit-expert-qualification-v2
   qualification_cards: artifacts/qualification/merit-expert-qualification.json
   matched_knockoff_controls: 4
   require_independent_validator: true
