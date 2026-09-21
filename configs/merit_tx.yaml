@@ -47,6 +47,9 @@ merit_tx:
   require_patient_specific_support: true
   reject_on_qualified_contradiction: true
   min_support_groups: 1
+  qualification_min_domains: 2
+  qualification_max_harm_ucb: 0.25
+  qualification_min_specificity_lcb: 0.5
   commit_unit: atomic_claim_transaction
   report_rendering: minimal_patch
   knowledge_can_commit_alone: false
