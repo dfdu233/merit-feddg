@@ -10,6 +10,7 @@ Generalist) in [-1, 1]. real_effect/knockoff_effect are label-free receiver
 effects measured with current-patient evidence and a matched wrong-patient
 control. The script stores conservative lower/upper bounds; it trains no gate.
 """
+
 from __future__ import annotations
 
 import argparse
