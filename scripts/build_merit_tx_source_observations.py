@@ -13,7 +13,6 @@ import json
 from pathlib import Path
 
 from merit_feddg.capability_study import _filter_optional_experts
-from merit_feddg.claims import CandidateProposition, ClaimSpec
 from merit_feddg.contribution import answer_metrics
 from merit_feddg.expert_policy import role_card, transaction_descriptors
 from merit_feddg.io import load_experiment_yaml
@@ -26,6 +25,7 @@ from merit_feddg.transactional_claims import (
     claim_truth_key,
     claimize_vqa,
 )
+from merit_feddg.transactional_runtime import transaction_claim_spec
 
 
 def parse_named(value):
@@ -93,39 +93,6 @@ def load_references(path):
     return result
 
 
-def claim_spec_for_transaction(row, transaction, baseline_claims):
-    if transaction.operation != "REPLACE":
-        raise ValueError("qualification currently requires an explicit incumbent claim")
-    baseline = {
-        claim.claim_id: claim
-        for claim in baseline_claims
-    }.get(transaction.baseline_claim_id)
-    if baseline is None:
-        raise ValueError("transaction baseline claim is missing")
-    return ClaimSpec(
-        claim_id=transaction.transaction_id,
-        question=str(row["question"]),
-        modality=str(row["modality"]),
-        required_capabilities=("classification",),
-        propositions=(
-            CandidateProposition(
-                candidate_id="incumbent",
-                answer=baseline.proposition,
-                proposition=baseline.proposition,
-                polarity="open",
-            ),
-            CandidateProposition(
-                candidate_id="candidate",
-                answer=transaction.proposed_claim.proposition,
-                proposition=transaction.proposed_claim.proposition,
-                polarity="open",
-            ),
-        ),
-        closed_set=True,
-        metadata={"merit_tx": True, "task": row["task"]},
-    )
-
-
 def native_scores(pool, expert_id, image, claim):
     evidence = pool.evidence_function(expert_id, image)(claim, "")
     queries = [item.proposition for item in claim.propositions]
@@ -139,15 +106,22 @@ def native_scores(pool, expert_id, image, claim):
 
 
 def report_outcome(transaction, baseline_claims, reference_claims):
+    """Source-only claim utility for the exact transaction operation."""
+    reference_keys = {claim_truth_key(claim) for claim in reference_claims}
+    after = int(claim_truth_key(transaction.proposed_claim) in reference_keys)
+    if transaction.operation == "ADD":
+        # A correct addition recovers an omitted clinical claim; an unsupported
+        # addition is an explicit false-positive and therefore harmful.
+        return 1.0 if after else -1.0
+    if transaction.operation != "REPLACE":
+        raise ValueError("source qualification supports ADD/REPLACE only")
     baseline = {
         claim.claim_id: claim
         for claim in baseline_claims
     }.get(transaction.baseline_claim_id)
     if baseline is None:
         raise ValueError("report transaction baseline claim is missing")
-    reference_keys = {claim_truth_key(claim) for claim in reference_claims}
     before = int(claim_truth_key(baseline) in reference_keys)
-    after = int(claim_truth_key(transaction.proposed_claim) in reference_keys)
     return float(after - before)
 
 
@@ -287,16 +261,27 @@ def main():
 
             match_fields = ("question_type",) if row.get("question_type") else ()
             for transaction in transactions:
-                if transaction.operation != "REPLACE":
+                if transaction.operation == "DELETE":
                     skipped.append(
                         {
                             "id": sample_id,
                             "transaction_id": transaction.transaction_id,
-                            "reason": "implicit-add-delete-not-qualified",
+                            "reason": "delete-not-qualified-by-omission",
                         }
                     )
                     continue
-                claim = claim_spec_for_transaction(row, transaction, baseline_claims)
+                try:
+                    claim = transaction_claim_spec(row, transaction, baseline_claims)
+                except ValueError as exc:
+                    skipped.append(
+                        {
+                            "id": sample_id,
+                            "transaction_id": transaction.transaction_id,
+                            "reason": "transaction-has-no-verifiable-counterfactual",
+                            "detail": str(exc),
+                        }
+                    )
+                    continue
                 if task == "report_generation":
                     outcome_delta = report_outcome(
                         transaction, baseline_claims, reference_claims
