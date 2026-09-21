@@ -38,6 +38,7 @@ research = [
   "torchvision>=0.17,<1",
   "transformers>=4.49,<5",
 ]
+report-tools = ["radgraph>=0.1.18,<0.2"]
 dev = ["pytest>=8,<9", "ruff>=0.6,<1"]
 
 [project.scripts]
