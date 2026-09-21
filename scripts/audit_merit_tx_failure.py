@@ -23,7 +23,7 @@ def load_outputs(path):
     result = {}
     for sample_id, row in payload.items():
         if not isinstance(row, dict) or not isinstance(row.get("text"), str):
-            raise ValueError(f"invalid output row for {sample_id}")
+            raise TypeError(f"invalid output row for {sample_id}")
         tokens = row.get("token_ids", [])
         if not isinstance(tokens, list) or any(type(token) is not int for token in tokens):
             raise ValueError(f"invalid token_ids for {sample_id}")
@@ -66,7 +66,7 @@ def main():
     outputs = {name: load_outputs(path) for name, path in methods.items()}
     references = json.loads(Path(args.references).read_text(encoding="utf-8"))
     if not isinstance(references, dict):
-        raise ValueError("references must be a sample-id mapping")
+        raise TypeError("references must be a sample-id mapping")
     sample_ids = list(baseline)
     if set(references) != set(sample_ids):
         raise ValueError("reference IDs must exactly match baseline IDs")
