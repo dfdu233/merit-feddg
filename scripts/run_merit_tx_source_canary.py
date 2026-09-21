@@ -15,7 +15,7 @@ from pathlib import Path
 from merit_feddg.capability_study import _filter_optional_experts
 from merit_feddg.contribution import answer_metrics
 from merit_feddg.expert_policy import load_qualification_cards
-from merit_feddg.expert_portfolio import load_expert_portfolio
+from merit_feddg.expert_portfolio import load_expert_portfolio, require_disjoint_source_groups
 from merit_feddg.io import load_experiment_yaml
 from merit_feddg.open_experts import OpenExpertPool
 from merit_feddg.open_study import atomic_json
@@ -200,12 +200,11 @@ def main():
     if not portfolio_groups:
         raise ValueError("v3 expert portfolio must record source_group_ids")
     canary_groups = {str(row["group_id"]) for row in rows}
-    if qualification_groups & portfolio_groups:
-        raise ValueError("qualification and portfolio source groups overlap")
-    if canary_groups & qualification_groups:
-        raise ValueError("canary source groups overlap qualification source groups")
-    if canary_groups & portfolio_groups:
-        raise ValueError("canary source groups overlap portfolio-selection source groups")
+    require_disjoint_source_groups(
+        qualification=qualification_groups,
+        portfolio_selection=portfolio_groups,
+        fresh_canary=canary_groups,
+    )
     portfolio_policy = load_expert_portfolio(portfolio_path)
     max_calls = (
         args.max_calls
