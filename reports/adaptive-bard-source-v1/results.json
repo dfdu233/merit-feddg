@@ -1,0 +1,1278 @@
+{
+  "n": 32,
+  "split": "official TRAIN source canary",
+  "receiver": "LLaVA-Med",
+  "runtime": "all final scores from cloud RTX5090 torch2.8.0+cu128",
+  "datasets": {
+    "vqarad": {
+      "generalist": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.4583333333333333,
+          "n": 16,
+          "ce_n": 7,
+          "oe_n": 9,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.5714285714285714,
+          "n": 7,
+          "open_rows_excluded": 9,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.3703703703703704,
+          "n": 9
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.4583333333333333,
+          "ce_oe_macro_score": 0.47089947089947093,
+          "n": 16,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "joint_all": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.3541666666666667,
+          "n": 16,
+          "ce_n": 7,
+          "oe_n": 9,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.14285714285714285,
+          "n": 7,
+          "open_rows_excluded": 9,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.5185185185185186,
+          "n": 9
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.3541666666666667,
+          "ce_oe_macro_score": 0.3306878306878307,
+          "n": 16,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "isolated_mean": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.4583333333333333,
+          "n": 16,
+          "ce_n": 7,
+          "oe_n": 9,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.5714285714285714,
+          "n": 7,
+          "open_rows_excluded": 9,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.3703703703703704,
+          "n": 9
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.4583333333333333,
+          "ce_oe_macro_score": 0.47089947089947093,
+          "n": 16,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "isolated_geomedian": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.5208333333333333,
+          "n": 16,
+          "ce_n": 7,
+          "oe_n": 9,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.7142857142857143,
+          "n": 7,
+          "open_rows_excluded": 9,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.3703703703703704,
+          "n": 9
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.5208333333333333,
+          "ce_oe_macro_score": 0.5423280423280423,
+          "n": 16,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "bard": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.5208333333333333,
+          "n": 16,
+          "ce_n": 7,
+          "oe_n": 9,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.7142857142857143,
+          "n": 7,
+          "open_rows_excluded": 9,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.3703703703703704,
+          "n": 9
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.5208333333333333,
+          "ce_oe_macro_score": 0.5423280423280423,
+          "n": 16,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      }
+    },
+    "slake": {
+      "generalist": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.65625,
+          "n": 16,
+          "ce_n": 3,
+          "oe_n": 13,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.6666666666666666,
+          "n": 3,
+          "open_rows_excluded": 13,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.6538461538461539,
+          "n": 13
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.65625,
+          "ce_oe_macro_score": 0.6602564102564102,
+          "n": 16,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "joint_all": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.53125,
+          "n": 16,
+          "ce_n": 3,
+          "oe_n": 13,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.3333333333333333,
+          "n": 3,
+          "open_rows_excluded": 13,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.5769230769230769,
+          "n": 13
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.53125,
+          "ce_oe_macro_score": 0.45512820512820507,
+          "n": 16,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "isolated_mean": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.53125,
+          "n": 16,
+          "ce_n": 3,
+          "oe_n": 13,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.3333333333333333,
+          "n": 3,
+          "open_rows_excluded": 13,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.5769230769230769,
+          "n": 13
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.53125,
+          "ce_oe_macro_score": 0.45512820512820507,
+          "n": 16,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "isolated_geomedian": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.53125,
+          "n": 16,
+          "ce_n": 3,
+          "oe_n": 13,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.3333333333333333,
+          "n": 3,
+          "open_rows_excluded": 13,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.5769230769230769,
+          "n": 13
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.53125,
+          "ce_oe_macro_score": 0.45512820512820507,
+          "n": 16,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "bard": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.65625,
+          "n": 16,
+          "ce_n": 3,
+          "oe_n": 13,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.6666666666666666,
+          "n": 3,
+          "open_rows_excluded": 13,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.6538461538461539,
+          "n": 13
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.65625,
+          "ce_oe_macro_score": 0.6602564102564102,
+          "n": 16,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      }
+    },
+    "all": {
+      "generalist": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.5572916666666667,
+          "n": 32,
+          "ce_n": 10,
+          "oe_n": 22,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.6,
+          "n": 10,
+          "open_rows_excluded": 22,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.537878787878788,
+          "n": 22
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.5572916666666667,
+          "ce_oe_macro_score": 0.568939393939394,
+          "n": 32,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "joint_all": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.44270833333333337,
+          "n": 32,
+          "ce_n": 10,
+          "oe_n": 22,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.2,
+          "n": 10,
+          "open_rows_excluded": 22,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.5530303030303031,
+          "n": 22
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.44270833333333337,
+          "ce_oe_macro_score": 0.3765151515151516,
+          "n": 32,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "isolated_mean": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.49479166666666663,
+          "n": 32,
+          "ce_n": 10,
+          "oe_n": 22,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.5,
+          "n": 10,
+          "open_rows_excluded": 22,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.49242424242424243,
+          "n": 22
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.49479166666666663,
+          "ce_oe_macro_score": 0.4962121212121212,
+          "n": 32,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "isolated_geomedian": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.5260416666666667,
+          "n": 32,
+          "ce_n": 10,
+          "oe_n": 22,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.6,
+          "n": 10,
+          "open_rows_excluded": 22,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.49242424242424243,
+          "n": 22
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.5260416666666667,
+          "ce_oe_macro_score": 0.5462121212121211,
+          "n": 32,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "bard": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.5885416666666667,
+          "n": 32,
+          "ce_n": 10,
+          "oe_n": 22,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.7,
+          "n": 10,
+          "open_rows_excluded": 22,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.537878787878788,
+          "n": 22
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.5885416666666667,
+          "ce_oe_macro_score": 0.6189393939393939,
+          "n": 32,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      }
+    }
+  },
+  "paired": {
+    "joint_all": {
+      "gain": -0.11458333333333333,
+      "improved": 3,
+      "harmed": 7,
+      "unchanged": 22,
+      "rescues_retained_by_bard": 0,
+      "rescue_cases": [
+        "vqarad-train-1784",
+        "vqarad-train-414",
+        "slake-train-2860"
+      ]
+    },
+    "isolated_mean": {
+      "gain": -0.0625,
+      "improved": 1,
+      "harmed": 4,
+      "unchanged": 27,
+      "rescues_retained_by_bard": 0,
+      "rescue_cases": [
+        "slake-train-2860"
+      ]
+    },
+    "isolated_geomedian": {
+      "gain": -0.03125,
+      "improved": 2,
+      "harmed": 4,
+      "unchanged": 26,
+      "rescues_retained_by_bard": 1,
+      "rescue_cases": [
+        "vqarad-train-1088",
+        "slake-train-2860"
+      ]
+    },
+    "bard": {
+      "gain": 0.03125,
+      "improved": 1,
+      "harmed": 0,
+      "unchanged": 31,
+      "rescues_retained_by_bard": 1,
+      "rescue_cases": [
+        "vqarad-train-1088"
+      ]
+    }
+  },
+  "stress": {
+    "all": {
+      "isolated_mean": {
+        "n": 456,
+        "same_as_clean": 246,
+        "fallback_to_base": 257
+      },
+      "isolated_geomedian": {
+        "n": 456,
+        "same_as_clean": 309,
+        "fallback_to_base": 309
+      },
+      "bard": {
+        "n": 456,
+        "same_as_clean": 443,
+        "fallback_to_base": 445
+      }
+    },
+    "n>=2": {
+      "isolated_mean": {
+        "n": 304,
+        "same_as_clean": 216,
+        "fallback_to_base": 225
+      },
+      "isolated_geomedian": {
+        "n": 304,
+        "same_as_clean": 279,
+        "fallback_to_base": 277
+      },
+      "bard": {
+        "n": 304,
+        "same_as_clean": 291,
+        "fallback_to_base": 293
+      }
+    },
+    "n>=3": {
+      "isolated_mean": {
+        "n": 256,
+        "same_as_clean": 184,
+        "fallback_to_base": 193
+      },
+      "isolated_geomedian": {
+        "n": 256,
+        "same_as_clean": 247,
+        "fallback_to_base": 245
+      },
+      "bard": {
+        "n": 256,
+        "same_as_clean": 246,
+        "fallback_to_base": 246
+      }
+    }
+  },
+  "per_case": {
+    "vqarad-train-554": {
+      "question": "is this a kub film?",
+      "reference": "no",
+      "answer_type": "closed",
+      "predictions": {
+        "generalist": "Yes, the image is a kub film, which is a type of chest X-ray.",
+        "joint_all": "Yes, the image is a KUB film, which stands for Kidney, Ureter, and Bladder. It is a type of medical imaging that provides a detailed view of these organs and surrounding structures.",
+        "isolated_mean": "Yes, the image is a kub film.",
+        "isolated_geomedian": "Yes, the image is a kub film.",
+        "bard": "Yes, the image is a kub film."
+      },
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "expert_branches": [
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-880": {
+      "question": "is this film taken in a pa modality?",
+      "reference": "yes",
+      "answer_type": "closed",
+      "predictions": {
+        "generalist": "Yes, the chest X-ray film was taken in a pa modality.",
+        "joint_all": "The film is not taken in a pa modality.",
+        "isolated_mean": "Yes, the film is taken in a pa modality.",
+        "isolated_geomedian": "Yes, the film is taken in a pa modality, which stands for posteroanterior. This is a common view used in chest X-rays, where the X-ray beam passes from the back (posterior) to the front (anterior) of the patient's chest.",
+        "bard": "Yes, the film is taken in a pa modality, which stands for posteroanterior. This is a common view used in chest X-rays, where the X-ray beam passes from the back (posterior) to the front (anterior) of the patient's chest."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 0.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-1346": {
+      "question": "can the kidneys be visualized in this ct scan?",
+      "reference": "yes",
+      "answer_type": "closed",
+      "predictions": {
+        "generalist": "Yes, the kidneys can be visualized in this CT scan.",
+        "joint_all": "Yes, the kidneys can be visualized in this CT scan.",
+        "isolated_mean": "Yes, the kidneys can be visualized in this CT scan.",
+        "isolated_geomedian": "Yes, the kidneys can be visualized in this CT scan.",
+        "bard": "Yes, the kidneys can be visualized in this CT scan."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-1493": {
+      "question": "what is seen in the occipital lobe?",
+      "reference": "ring enhancing lesion",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "In the occipital lobe, there is a hyperintense signal on the T2-weighted MRI image.",
+        "joint_all": "In the occipital lobe, the image shows enhanced univariate response to sounds in part of the occipital cortex of both blind groups that is concomitant to reduced auditory responses in temporal regions.",
+        "isolated_mean": "In the occipital lobe, the image shows enhanced univariate response to sounds in part of the occipital cortex of both blind groups that is concomitant to reduced auditory responses in temporal regions.",
+        "isolated_geomedian": "In the occipital lobe, the image shows enhanced univariate response to sounds in part of the occipital cortex of both blind groups that is concomitant to reduced auditory responses in temporal regions.",
+        "bard": "In the occipital lobe, there is a hyperintense signal on the T2-weighted MRI image."
+      },
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-164": {
+      "question": "are there any fractures in this image?",
+      "reference": "no",
+      "answer_type": "closed",
+      "predictions": {
+        "generalist": "No, there are no fractures visible in the chest X-ray image.",
+        "joint_all": "The image is a chest X-ray, and the question is asking if there are any fractures visible in the image. The answer is No, there are no fractures visible in the chest X-ray.",
+        "isolated_mean": "The image is a chest X-ray, and it is not possible to determine if there are any fractures in the image without actually seeing the image. However, since the image is a chest X-ray, it is more likely to be focused on the chest area rather than the bones of the arms or legs.",
+        "isolated_geomedian": "No, there are no fractures in this image.",
+        "bard": "No, there are no fractures in this image."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 0.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-649": {
+      "question": "what other organs are present?",
+      "reference": "the lungs",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "In addition to the liver, the image also shows the presence of the spleen and the gallbladder.",
+        "joint_all": "The image shows the presence of other organs, but I cannot provide specific details without more context. The image is likely related to the effects of SARS-CoV-2 infection on multiple organs and systems, as mentioned in the study.",
+        "isolated_mean": "The image shows the presence of other organs, but I cannot provide specific details without more context. The image is likely related to the effects of SARS-CoV-2 infection on multiple organs and systems, as mentioned in the study.",
+        "isolated_geomedian": "The image shows the presence of other organs, but I cannot provide specific details without more context. The image is likely related to the effects of SARS-CoV-2 infection on multiple organs and systems, as mentioned in the study.",
+        "bard": "In addition to the liver, the image also shows the presence of the spleen and the gallbladder."
+      },
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-1088": {
+      "question": "are these small opacities in the right lung calcifications?",
+      "reference": "no",
+      "answer_type": "closed",
+      "predictions": {
+        "generalist": "Yes, the small opacities in the right lung are calcifications.",
+        "joint_all": "The small opacities in the right lung are calcifications. Calcifications are deposits of calcium salts that can form in various tissues and organs, including the lungs. In this case, the calcifications are found in the right lung.",
+        "isolated_mean": "Yes, the small opacities in the right lung are calcifications.",
+        "isolated_geomedian": "No, these small opacities in the right lung are not calcifications.",
+        "bard": "No, these small opacities in the right lung are not calcifications."
+      },
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-1082": {
+      "question": "is this film properly exposed?",
+      "reference": "yes",
+      "answer_type": "closed",
+      "predictions": {
+        "generalist": "Yes, the chest X-ray film appears to be properly exposed.",
+        "joint_all": "The expert observation provided is unverified, so I cannot provide a definitive answer. However, it is important to note that the exposure of a film can be a critical aspect of the production process, ensuring that the images are clear and well-defined. Proper exposure can help improve the overall quality of the film",
+        "isolated_mean": "Yes, the film appears to be properly exposed.",
+        "isolated_geomedian": "Yes, the film appears to be properly exposed.",
+        "bard": "Yes, the film appears to be properly exposed."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 0.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-899": {
+      "question": "is the liver normal?",
+      "reference": "no",
+      "answer_type": "closed",
+      "predictions": {
+        "generalist": "Yes, the liver appears to be normal in the image.",
+        "joint_all": "The liver appears to be normal in the image.",
+        "isolated_mean": "Yes, the liver appears to be normal in the image.",
+        "isolated_geomedian": "Yes, the liver appears to be normal in the image.",
+        "bard": "Yes, the liver appears to be normal in the image."
+      },
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "expert_branches": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-724": {
+      "question": "which organ has the abnormality?",
+      "reference": "pancreas",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The abnormality is located in the pancreas.",
+        "joint_all": "The organ with the abnormality is the pancreas.",
+        "isolated_mean": "The organ with the abnormality is the pancreas.",
+        "isolated_geomedian": "The organ with the abnormality is the pancreas.",
+        "bard": "The organ with the abnormality is the pancreas."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "biomed_anatomy",
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-760": {
+      "question": "what differentiates the common bile duct and cystic duct?",
+      "reference": "cystic duct is more tortuous",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The short answer is that the common bile duct and cystic duct can be differentiated by their diameters. The common bile duct typically has a larger diameter compared to the cystic duct.",
+        "joint_all": "The common bile duct and cystic duct are two different structures in the biliary system. The common bile duct is a tube-like structure that carries bile from the liver and gallbladder to the small intestine, specifically the duodenum. The cystic du",
+        "isolated_mean": "The common bile duct and cystic duct are two different structures in the biliary system. The common bile duct is a tube-like structure that carries bile from the liver and gallbladder to the small intestine, specifically the duodenum. The cystic du",
+        "isolated_geomedian": "The common bile duct and cystic duct are two different structures in the biliary system. The common bile duct is a tube-like structure that carries bile from the liver and gallbladder to the small intestine, specifically the duodenum. The cystic du",
+        "bard": "The short answer is that the common bile duct and cystic duct can be differentiated by their diameters. The common bile duct typically has a larger diameter compared to the cystic duct."
+      },
+      "scores": {
+        "generalist": 0.6,
+        "joint_all": 0.6,
+        "isolated_mean": 0.6,
+        "isolated_geomedian": 0.6,
+        "bard": 0.6
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-1178": {
+      "question": "would you suspect abcess or cancer for this finding?",
+      "reference": "abscess",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "Based on the provided information, it is difficult to determine whether the finding is suggestive of an abscess or cancer. Further diagnostic tests and clinical correlation would be necessary to make a more accurate diagnosis.",
+        "joint_all": "The short answer is: No, I would not suspect abscess or cancer for this finding.",
+        "isolated_mean": "The short answer is: No, I would not suspect abscess or cancer for this finding.",
+        "isolated_geomedian": "The short answer is: No, I would not suspect abscess or cancer for this finding.",
+        "bard": "Based on the provided information, it is difficult to determine whether the finding is suggestive of an abscess or cancer. Further diagnostic tests and clinical correlation would be necessary to make a more accurate diagnosis."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-1784": {
+      "question": "where is the lesion located?",
+      "reference": "retrocardiac",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The lesion is located in the right breast.",
+        "joint_all": "The lesion is located in the retrocardiac region.",
+        "isolated_mean": "The lesion is located in the right lower lobe of the lung.",
+        "isolated_geomedian": "The lesion is located in the right lung.",
+        "bard": "The lesion is located in the right lung."
+      },
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 1.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "expert_branches": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-414": {
+      "question": "where is the gastric bubble placed?",
+      "reference": "underneath the right hemidiaphragm",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The gastric bubble is placed in the right hemithorax.",
+        "joint_all": "The gastric bubble is placed under the right hemidiaphragm.",
+        "isolated_mean": "The gastric bubble is placed in the right upper quadrant of the abdomen.",
+        "isolated_geomedian": "The gastric bubble is placed in the right upper quadrant of the abdomen.",
+        "bard": "The gastric bubble is placed in the right upper quadrant of the abdomen."
+      },
+      "scores": {
+        "generalist": 0.3333333333333333,
+        "joint_all": 0.6666666666666666,
+        "isolated_mean": 0.3333333333333333,
+        "isolated_geomedian": 0.3333333333333333,
+        "bard": 0.3333333333333333
+      },
+      "expert_branches": [
+        "torchxrayvision",
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-768": {
+      "question": "what density is the abnormality?",
+      "reference": "hypodense",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The abnormality appears to be of low density.",
+        "joint_all": "The abnormality is related to REM density.",
+        "isolated_mean": "The abnormality is related to REM density.",
+        "isolated_geomedian": "The abnormality is related to REM density.",
+        "bard": "The abnormality appears to be of low density."
+      },
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "vqarad-train-1118": {
+      "question": "what is happening with the path of the trachea?",
+      "reference": "it is shifted to the right",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The path of the trachea appears to be deviating to the right side.",
+        "joint_all": "The path of the trachea appears to be deviating to the right.",
+        "isolated_mean": "The path of the trachea appears to be deviating to the right.",
+        "isolated_geomedian": "The path of the trachea appears to be deviating to the right.",
+        "bard": "The path of the trachea appears to be deviating to the right."
+      },
+      "scores": {
+        "generalist": 0.4,
+        "joint_all": 0.4,
+        "isolated_mean": 0.4,
+        "isolated_geomedian": 0.4,
+        "bard": 0.4
+      },
+      "expert_branches": [
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-3489": {
+      "question": "Is the tumor enhancing?",
+      "reference": "No",
+      "answer_type": "closed",
+      "predictions": {
+        "generalist": "No, the tumor in the image is not enhancing.",
+        "joint_all": "The tumor is enhancing.",
+        "isolated_mean": "The tumor is enhancing.",
+        "isolated_geomedian": "The tumor is enhancing.",
+        "bard": "No, the tumor in the image is not enhancing."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-3420": {
+      "question": "What is the scanning plane of this image?",
+      "reference": "Transverse Plane",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The scanning plane of this image is the coronal plane.",
+        "joint_all": "The scanning plane of this image is the x-ray microscopy scanning plane.",
+        "isolated_mean": "The scanning plane of this image is the x-ray microscopy scanning plane.",
+        "isolated_geomedian": "The scanning plane of this image is the x-ray microscopy scanning plane.",
+        "bard": "The scanning plane of this image is the coronal plane."
+      },
+      "scores": {
+        "generalist": 0.5,
+        "joint_all": 0.5,
+        "isolated_mean": 0.5,
+        "isolated_geomedian": 0.5,
+        "bard": 0.5
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-3430": {
+      "question": "Is this a transverse plane?",
+      "reference": "Yes",
+      "answer_type": "closed",
+      "predictions": {
+        "generalist": "Yes, the image is a transverse plane, which means it is a cross-sectional view of the brain, taken horizontally.",
+        "joint_all": "Yes, the image is a transverse plane, which is a horizontal plane that divides the body into upper and lower parts.",
+        "isolated_mean": "Yes, the image is a transverse plane, which is a horizontal plane that divides the body into upper and lower parts.",
+        "isolated_geomedian": "Yes, the image is a transverse plane, which is a horizontal plane that divides the body into upper and lower parts.",
+        "bard": "Yes, the image is a transverse plane, which means it is a cross-sectional view of the brain, taken horizontally."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-4151": {
+      "question": "How many lungs are shown in this image?",
+      "reference": "0",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The image shows two lungs.",
+        "joint_all": "The image shows two lungs.",
+        "isolated_mean": "The image shows two lungs.",
+        "isolated_geomedian": "The image shows two lungs.",
+        "bard": "The image shows two lungs."
+      },
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-559": {
+      "question": "What modality is used to take this image?",
+      "reference": "X-Ray",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The image is taken using a chest X-ray modality.",
+        "joint_all": "The image is a chest X-ray.",
+        "isolated_mean": "The image is taken using a chest X-ray modality.",
+        "isolated_geomedian": "The image is a chest X-ray.",
+        "bard": "The image is a chest X-ray."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-3538": {
+      "question": "Where is the brain tumor?",
+      "reference": "Right Lobe",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The brain tumor is located in the right frontal lobe.",
+        "joint_all": "The brain tumor is located in the left frontal lobe.",
+        "isolated_mean": "The brain tumor is located in the left frontal lobe.",
+        "isolated_geomedian": "The brain tumor is located in the left frontal lobe.",
+        "bard": "The brain tumor is located in the right frontal lobe."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 0.5,
+        "isolated_mean": 0.5,
+        "isolated_geomedian": 0.5,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-2860": {
+      "question": "What color does the brain stem show in the picture?",
+      "reference": "Gray",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The brain stem appears to be hyperintense in the image.",
+        "joint_all": "The brain stem in the picture shows a striking contrast between gray and white matter.",
+        "isolated_mean": "The brain stem in the picture shows a striking contrast between gray and white matter.",
+        "isolated_geomedian": "The brain stem in the picture shows a striking contrast between gray and white matter.",
+        "bard": "The brain stem appears to be hyperintense in the image."
+      },
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 0.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-1602": {
+      "question": "What modality is used to take this image?",
+      "reference": "CT",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The image is taken using computed tomography (CT) as the imaging modality.",
+        "joint_all": "The image was taken using magnetic resonance imaging (MRI).",
+        "isolated_mean": "The image was taken using magnetic resonance imaging (MRI).",
+        "isolated_geomedian": "The image was taken using magnetic resonance imaging (MRI).",
+        "bard": "The image is taken using computed tomography (CT) as the imaging modality."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-1139": {
+      "question": "What is the scanning plane of this image?",
+      "reference": "Transverse  Plane",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The scanning plane of this image is the transverse plane, which is a horizontal plane that divides the body into upper and lower sections.",
+        "joint_all": "The scanning plane of this image is the x-ray microscopy plane.",
+        "isolated_mean": "The scanning plane of this image is the x-ray microscopy plane.",
+        "isolated_geomedian": "The scanning plane of this image is the x-ray microscopy plane.",
+        "bard": "The scanning plane of this image is the transverse plane, which is a horizontal plane that divides the body into upper and lower sections."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 0.5,
+        "isolated_mean": 0.5,
+        "isolated_geomedian": 0.5,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-1538": {
+      "question": "How many kidneys in this image?",
+      "reference": "2",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "There are two kidneys in this image.",
+        "joint_all": "There are two kidneys in this image.",
+        "isolated_mean": "There are two kidneys in this image.",
+        "isolated_geomedian": "There are two kidneys in this image.",
+        "bard": "There are two kidneys in this image."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-4735": {
+      "question": "Which part of the body does this image belong to?",
+      "reference": "Brain",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The image belongs to the brain.",
+        "joint_all": "The image belongs to the brain.",
+        "isolated_mean": "The image belongs to the brain.",
+        "isolated_geomedian": "The image belongs to the brain.",
+        "bard": "The image belongs to the brain."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-4466": {
+      "question": "Which is smaller in this image, bladder or small bowel?",
+      "reference": "Small Bowel",
+      "answer_type": "closed",
+      "predictions": {
+        "generalist": "In this image, the bladder appears to be smaller compared to the small bowel.",
+        "joint_all": "Yes, the small bowel is smaller in this image compared to the bladder.",
+        "isolated_mean": "In this image, the bladder appears to be smaller than the small bowel.",
+        "isolated_geomedian": "In this image, the bladder appears to be smaller than the small bowel.",
+        "bard": "In this image, the bladder appears to be smaller than the small bowel."
+      },
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "expert_branches": [
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-1523": {
+      "question": "How many kidneys in this image?",
+      "reference": "2",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "There are two kidneys in this image.",
+        "joint_all": "There are two kidneys in this image.",
+        "isolated_mean": "There are two kidneys in this image.",
+        "isolated_geomedian": "There are two kidneys in this image.",
+        "bard": "There are two kidneys in this image."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-2240": {
+      "question": "How many existing heart in this image?",
+      "reference": "1",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "There are two existing heart in this image.",
+        "joint_all": "There are two existing hearts in this image.",
+        "isolated_mean": "There are two existing heart in this image.",
+        "isolated_geomedian": "There are two existing heart in this image.",
+        "bard": "There are two existing heart in this image."
+      },
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "expert_branches": [
+        "chexagent_description",
+        "biomedparse_objects",
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-3828": {
+      "question": "What is the organ system visualized?",
+      "reference": "Head",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The organ system visualized in the image is the brain.",
+        "joint_all": "The organ system visualized in the image is the lymphatic system.",
+        "isolated_mean": "The organ system visualized in the image is the lymphatic system.",
+        "isolated_geomedian": "The organ system visualized in the image is the lymphatic system.",
+        "bard": "The organ system visualized in the image is the brain."
+      },
+      "scores": {
+        "generalist": 0.0,
+        "joint_all": 0.0,
+        "isolated_mean": 0.0,
+        "isolated_geomedian": 0.0,
+        "bard": 0.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    },
+    "slake-train-1512": {
+      "question": "Which part of the body does this image belong to?",
+      "reference": "Abdomen",
+      "answer_type": "open",
+      "predictions": {
+        "generalist": "The image belongs to the abdomen.",
+        "joint_all": "The image belongs to the abdomen.",
+        "isolated_mean": "The image belongs to the abdomen.",
+        "isolated_geomedian": "The image belongs to the abdomen.",
+        "bard": "The image belongs to the abdomen."
+      },
+      "scores": {
+        "generalist": 1.0,
+        "joint_all": 1.0,
+        "isolated_mean": 1.0,
+        "isolated_geomedian": 1.0,
+        "bard": 1.0
+      },
+      "expert_branches": [
+        "medcpt_pubmed"
+      ]
+    }
+  },
+  "delivered_fault_groups": {
+    "2": 3,
+    "1": 19,
+    "3": 8,
+    "4": 2
+  },
+  "token_reasons": {
+    "aggregate_agrees_with_base": 358,
+    "single_expert_unidentifiable": 249,
+    "centralized_bounded_fault_consensus": 14,
+    "unanimous_nonforcing_consensus": 2
+  },
+  "spatial_cases": 12,
+  "model_forwards": 47078,
+  "retrieval_changes_bard_token": 2
+}
