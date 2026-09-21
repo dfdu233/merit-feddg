@@ -1,0 +1,75 @@
+# MERIT-Tx: one algorithm for VQA and report generation.
+# The only task-dependent difference is the number/grounding of atomic claims.
+base_config: configs/llava_med_capabilities.yaml
+prompt_contract: anchor-task-v1
+
+generalist:
+  deterministic_image_padding: true
+  training_free_spatial: true
+  spatial_max_records: 64
+
+capability_value:
+  generation:
+    max_new_tokens: 256
+    block_tokens: 256
+    max_expert_calls: 6
+    max_decisions: 6
+    max_evidence_chars: 30000
+    visual_views: 0
+    evidence_style: semantic
+    evidence_order: acquisition
+    token_budgeted_evidence: true
+    request_style: need
+    request_scope_check: false
+    retrieval_answer_context: false
+    behavior_probe: "off"
+    uncertainty_from_probe: false
+    semantic_spatial: false
+    compact_native: true
+    compact_columns: true
+    vector_gate: "off"
+    native_entry_transport: false
+    claim_attribute_filter: false
+    claim_gate_max_checks: 2
+    vector_gate_probe_tokens: 256
+    spatial_weighting: equal
+    vector_gate_min_gain: 0.000001
+
+merit_tx:
+  incumbent: immutable
+  claim_unit: atomic_verifiable_proposition
+  radiology_grounding: modern-radgraph-xl
+  expert_selection: literature_role_coverage
+  qualification_schema: merit-expert-qualification-v2
+  qualification_cards: artifacts/qualification/merit-expert-qualification.json
+  matched_knockoff_controls: 4
+  require_independent_validator: true
+  require_patient_specific_support: true
+  reject_on_qualified_contradiction: true
+  min_support_groups: 1
+  qualification_min_domains: 2
+  qualification_max_harm_ucb: 0.25
+  qualification_min_specificity_lcb: 0.5
+  commit_unit: atomic_claim_transaction
+  report_rendering: minimal_patch
+  knowledge_can_commit_alone: false
+  proposal_can_self_validate: false
+  target_test_selection: forbidden
+
+expert_overrides:
+  conch_tissue:
+    enabled: false
+    expert_pool_enabled: false
+    deprecation_reason: fixed ten-class tissue catalog is not a claim-aligned pathology verifier
+  cxr_findings:
+    tasks: [open_vqa, report_generation]
+    spatial_support: true
+  cxr_anatomy:
+    tasks: [open_vqa, report_generation]
+    question_types: [anatomy, location, measurement, appearance, explanation]
+  chexagent_description:
+    tasks: [open_vqa, report_generation]
+  biomedparse_objects:
+    tasks: [open_vqa, report_generation]
+  medcpt_pubmed:
+    tasks: [open_vqa, report_generation]

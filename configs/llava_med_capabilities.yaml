@@ -50,8 +50,69 @@ experts:
       - {name: neural tissue, prompt: "A histopathology image of neural tissue."}
       - {name: blood vessels, prompt: "A histopathology image of blood vessels."}
       - {name: necrotic tissue, prompt: "A histopathology image of necrotic tissue."}
+  conch_claim_verifier:
+    id: MahmoodLab/CONCH
+    revision: f9ca9f877171a28ade80228fb195ac5d79003357
+    adapter: contrastive_conch
+    transaction_only: true
+    optional: true
+    evidence_role: direct_visual_verifier
+    commit_authority: source_qualified
+    fault_group: conch_pathology
+    modalities: [pathology]
+    tasks: [open_vqa]
+    capabilities: [classification]
+    scope: pathology_claim_support
+    prefix_invariant: true
+    literature:
+      - "CONCH, Nature Medicine 2024: zero-shot pathology classification and image-text retrieval"
+    description: Claim-conditioned pathology image-text verification. Candidate propositions come from the immutable baseline/proposal stage; CONCH similarity is not a diagnosis probability.
+
+  plip_claim_verifier:
+    id: vinid/plip
+    checkpoint_path: artifacts/models/vinid--plip
+    adapter: contrastive_plip
+    transaction_only: true
+    optional: true
+    preparation_hint: python scripts/prepare_expert_pool_assets.py --download-open
+    evidence_role: direct_visual_verifier
+    commit_authority: source_qualified
+    fault_group: plip_pathology
+    modalities: [pathology]
+    tasks: [open_vqa]
+    capabilities: [classification]
+    scope: pathology_claim_support
+    prefix_invariant: true
+    literature:
+      - "PLIP, Nature Medicine 2023: pathology zero-shot classification and image-text retrieval"
+    description: Independent pathology image-text verifier trained from OpenPath. Used only for candidate-specific claim scoring and never as an unqualified vote.
+
+  medsam_prompted:
+    id: wanglab/medsam-vit-base
+    checkpoint_path: artifacts/models/wanglab--medsam-vit-base
+    adapter: medsam
+    transaction_only: true
+    optional: true
+    preparation_hint: python scripts/prepare_expert_pool_assets.py --download-open
+    evidence_role: spatial_localizer
+    commit_authority: source_qualified
+    fault_group: medsam
+    modalities: [cxr, xray, ct, mri, pathology, ultrasound, oct, fundus, dermatology, endoscopy]
+    tasks: [open_vqa, report_generation]
+    capabilities: [segmentation]
+    scope: promptable_medical_region
+    requires_region: true
+    prefix_invariant: true
+    literature:
+      - "MedSAM, Nature Communications 2024: universal promptable medical-image segmentation across 10 modalities"
+    description: Promptable medical segmentation verifier. Requires an independently proposed ROI; it never invents a whole-image lesion box.
+
   biomed_anatomy:
     id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    evidence_role: broad_embedding_fallback
+    commit_authority: source_qualified
+    literature:
+      - "BiomedCLIP: multimodal biomedical foundation model, PMC-15M"
     revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
     adapter: contrastive_biomedclip
     modalities: [cxr, xray, ct, mri, gross_pathology]
@@ -62,8 +123,51 @@ experts:
     question_types: [anatomy]
     description: Compare this image against a non-exhaustive major-organ catalog. Only for organ identification, not disease diagnosis, location, counts or segmentation.
     catalog: [brain, lung, heart, liver, kidney, spleen, pancreas, stomach, intestine, thyroid, skin, bone, breast, uterus, testis]
+  biomedclip_claim_verifier:
+    id: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+    adapter: contrastive_biomedclip
+    transaction_only: true
+    optional: true
+    evidence_role: direct_visual_verifier
+    commit_authority: source_qualified
+    fault_group: biomedclip
+    modalities: [cxr, xray, ct, mri, pathology, gross_pathology]
+    tasks: [open_vqa, report_generation]
+    capabilities: [classification]
+    scope: biomedical_claim_support
+    prefix_invariant: true
+    literature:
+      - "BiomedCLIP: PMC-15M biomedical image-text pretraining; used here only as a frozen claim-similarity verifier"
+      - "MERIT-Tx authority still requires exact source-only modality/task/capability qualification"
+    description: Dynamic medical image-text claim verifier used to fill CT/MRI and broad biomedical verification gaps. Similarity is not a diagnosis probability; unsupported source cells fail closed.
+
+  medsiglip_claim_verifier:
+    id: google/medsiglip-448
+    checkpoint_path: artifacts/models/google--medsiglip-448
+    adapter: contrastive_medsiglip
+    transaction_only: true
+    optional: true
+    preparation_hint: hf download google/medsiglip-448 --local-dir artifacts/models/google--medsiglip-448
+    evidence_role: direct_visual_verifier
+    commit_authority: source_qualified
+    fault_group: medsiglip
+    modalities: [cxr, xray, ct, mri, pathology, dermatology, fundus, clinical_photo]
+    tasks: [open_vqa, report_generation]
+    capabilities: [classification]
+    scope: medical_claim_support
+    prefix_invariant: true
+    literature:
+      - "MedSigLIP official model: frozen medical image-text similarity for zero-shot classification and semantic retrieval"
+      - "SigLIP, ICCV 2023: two-tower sigmoid image-text pretraining"
+    description: Gated broad medical image-text claim verifier covering CXR, dermatology, ophthalmology, pathology and CT/MRI slices. Similarity is not a diagnosis probability and gains no commit authority without source-only qualification.
+
   medcpt_pubmed:
     id: ncbi/MedCPT-Query-Encoder
+    evidence_role: knowledge_retriever
+    commit_authority: never
+    literature:
+      - "MedCPT: biomedical retrieval with bi-encoder + cross-encoder"
     fault_group: medcpt_pubmed
     checkpoint_path: artifacts/models/ncbi--MedCPT-Query-Encoder
     optional: true
@@ -107,6 +211,11 @@ experts:
     description: Retrieve one source case matched by image AND question, from another source domain and same image type. Its answer belongs only to that different image; this is an analogy, not proof about the current image.
   cxr_findings:
     id: xrv/densenet121-res224-all
+    evidence_role: direct_visual_verifier
+    commit_authority: source_qualified
+    literature:
+      - "MedRAX, ICML 2025: TorchXRayVision disease-classification tool"
+      - "VILA-M3, CVPR 2025: CXR expert integration"
     fault_group: torchxrayvision
     adapter: xrv_classification
     checkpoint_path: artifacts/models/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
@@ -120,6 +229,10 @@ experts:
     description: Whole-chest-radiograph disease finding scores from a small chest X-ray classifier. Not calibrated probabilities, not CT/MRI and not lesion location.
   cxr_anatomy:
     id: xrv/pspnet-chestxray
+    evidence_role: spatial_localizer
+    commit_authority: source_qualified
+    literature:
+      - "MedRAX, ICML 2025: CXR segmentation as a distinct expert capability"
     fault_group: torchxrayvision
     adapter: xrv_anatomy
     checkpoint_path: artifacts/models/xrv/pspnet_chestxray_best_model_4.pth
@@ -133,6 +246,10 @@ experts:
     description: Segment lung and heart anatomy in a chest radiograph, return crop-aware masks and spatial measurements. No tumor detection, no physical size without image calibration.
   chexagent_description:
     id: StanfordAIMI/CheXagent-2-3b
+    evidence_role: proposal_generator
+    commit_authority: never
+    literature:
+      - "MedRAX, ICML 2025: CheXagent used as CXR visual-QA specialist"
     checkpoint_path: artifacts/models/StanfordAIMI--CheXagent-2-3b
     optional: true
     factory: merit_feddg.experts.native_chexagent:CheXagentCapabilityExpert
@@ -151,6 +268,11 @@ experts:
 
   biomedparse_objects:
     id: microsoft/BiomedParse
+    evidence_role: spatial_localizer
+    commit_authority: source_qualified
+    literature:
+      - "BiomedParse: universal biomedical image parsing foundation model"
+      - "DnR, CVPR 2026: visual experts should provide question-conditioned spatial evidence"
     checkpoint_path: artifacts/models/BiomedParse/biomed_parse.pt
     optional: true
     adapter: biomedparse_v1

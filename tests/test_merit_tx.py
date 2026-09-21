@@ -1,0 +1,1076 @@
+import json
+
+import pytest
+
+from merit_feddg.expert_policy import (
+    SourceQualificationCard,
+    load_qualification_cards,
+    select_expert_descriptors,
+    transaction_descriptors,
+    validate_qualification_provenance,
+)
+from merit_feddg.io import load_experiment_yaml
+from merit_feddg.knockoff import select_matched_knockoffs
+from merit_feddg.med_defer import NativeEvidence
+from merit_feddg.merit_tx import (
+    MeritTxConfig,
+    TransactionEvidence,
+    decide_transaction,
+    differential_margin,
+    differential_margin_controls,
+)
+from merit_feddg.transactional_claims import (
+    AtomicClinicalClaim,
+    ClaimTransaction,
+    TransactionDecision,
+    apply_transactions,
+    candidate_transactions,
+    claim_truth_key,
+    claimize_vqa,
+)
+from merit_feddg.transactional_runtime import verify_transaction
+from scripts.build_merit_tx_source_observations import collapse_group_observations
+from scripts.fit_expert_qualification import fit, read_rows
+
+
+def _spec(role, capability, *, group, authority="source_qualified", **kwargs):
+    return {
+        "id": group,
+        "fault_group": group,
+        "evidence_role": role,
+        "commit_authority": authority,
+        "modalities": ["pathology"],
+        "tasks": ["open_vqa"],
+        "capabilities": [capability],
+        "scope": kwargs.pop("scope", capability),
+        "literature": ["peer-reviewed"],
+        **kwargs,
+    }
+
+
+def _descriptor(name, capability, scope=None):
+    return {
+        "expert": name,
+        "capability": capability,
+        "scope": scope or capability,
+        "description": name,
+        "requires_region": False,
+        "question_type": "diagnosis",
+    }
+
+
+def _card(expert, capability, scope, *, utility=0.2, harm=0.1, specificity=0.7):
+    return SourceQualificationCard(
+        expert_id=expert,
+        capability=capability,
+        scope=scope,
+        modality="pathology",
+        task="open_vqa",
+        claim_type="diagnosis",
+        n=80,
+        domains=("site-a", "site-b"),
+        utility_lcb=utility,
+        harm_ucb=harm,
+        specificity_lcb=specificity,
+        expert_provenance_fingerprint="prov-v1",
+    )
+
+
+def test_expert_pool_prefers_complementary_patient_specific_roles_before_knowledge():
+    specs = {
+        "visual": _spec("direct_visual_verifier", "classification", group="visual"),
+        "spatial": _spec("spatial_localizer", "segmentation", group="spatial"),
+        "proposal": _spec(
+            "proposal_generator", "generation", group="proposal", authority="never"
+        ),
+        "knowledge": _spec(
+            "knowledge_retriever", "retrieval", group="knowledge", authority="never"
+        ),
+    }
+    descriptors = [
+        _descriptor("knowledge", "retrieval"),
+        _descriptor("proposal", "generation"),
+        _descriptor("spatial", "segmentation"),
+        _descriptor("visual", "classification"),
+    ]
+    selected, audit = select_expert_descriptors(
+        descriptors,
+        specs,
+        modality="pathology",
+        task="open_vqa",
+        claim_type="diagnosis",
+        max_calls=4,
+    )
+    assert [row["expert"] for row in selected] == [
+        "visual",
+        "spatial",
+        "proposal",
+        "knowledge",
+    ]
+    assert audit[0]["patient_specific"] is True
+    assert audit[-1]["commit_authority"] == "never"
+
+
+def test_source_qualification_blocks_harmful_expert_commit_authority():
+    specs = {
+        "good": _spec("direct_visual_verifier", "classification", group="good"),
+        "harmful": _spec("direct_visual_verifier", "classification", group="harmful"),
+    }
+    cards = {
+        _card("good", "classification", "classification").key:
+            _card("good", "classification", "classification"),
+        _card(
+            "harmful", "classification", "classification", utility=-0.01, harm=0.6
+        ).key:
+            _card(
+                "harmful", "classification", "classification", utility=-0.01, harm=0.6
+            ),
+    }
+    descriptors = [
+        _descriptor("good", "classification"),
+        _descriptor("harmful", "classification"),
+    ]
+    _, audit = select_expert_descriptors(
+        descriptors,
+        specs,
+        modality="pathology",
+        task="open_vqa",
+        claim_type="diagnosis",
+        qualification_cards=cards,
+        max_calls=2,
+    )
+    authority = {row["expert"]: row["commit_authorized"] for row in audit}
+    assert authority == {"good": True, "harmful": False}
+
+
+def test_transaction_only_experts_do_not_enter_legacy_routing_but_enter_tx_pool():
+    specs = {
+        "legacy_off": {
+            **_spec("direct_visual_verifier", "classification", group="legacy"),
+            "enabled": False,
+        },
+        "tx": {
+            **_spec("direct_visual_verifier", "classification", group="tx"),
+            "transaction_only": True,
+        },
+    }
+    row = {
+        "question": "What diagnosis is shown?",
+        "modality": "pathology",
+        "task": "open_vqa",
+    }
+    descriptors = transaction_descriptors(specs, row)
+    assert [value["expert"] for value in descriptors] == ["tx"]
+
+
+def test_rejected_transaction_returns_exact_incumbent():
+    baseline = "No pleural effusion."
+    claims = (
+        AtomicClinicalClaim(
+            "c0",
+            "The image does not show pleural effusion.",
+            (0, len(baseline)),
+        ),
+    )
+    transaction = ClaimTransaction(
+        "t0",
+        "REPLACE",
+        AtomicClinicalClaim("candidate", "The image shows pleural effusion.", None),
+        "Small left pleural effusion.",
+        baseline_claim_id="c0",
+        proposer_expert_id="proposal",
+    )
+    result = apply_transactions(
+        baseline,
+        claims,
+        (transaction,),
+        (TransactionDecision("t0", False, "insufficient-proof"),),
+    )
+    assert result["text"] == baseline
+    assert result["fallback_exact"] is True
+
+
+def test_report_transaction_only_changes_committed_span():
+    baseline = "Heart size is normal. No pleural effusion."
+    start = baseline.index("No pleural")
+    claims = (
+        AtomicClinicalClaim("heart", "Heart size is normal.", (0, start - 1)),
+        AtomicClinicalClaim(
+            "effusion",
+            "The image does not show pleural effusion.",
+            (start, len(baseline)),
+        ),
+    )
+    transaction = ClaimTransaction(
+        "t1",
+        "REPLACE",
+        AtomicClinicalClaim("new-effusion", "The image shows pleural effusion.", None),
+        "Small left pleural effusion.",
+        baseline_claim_id="effusion",
+        proposer_expert_id="proposal",
+    )
+    decision = TransactionDecision(
+        "t1",
+        True,
+        "proof-carrying-transaction",
+        verifier_fault_groups=("visual",),
+        patient_specific_support=True,
+        source_qualified_support=True,
+        differential_effect=0.4,
+    )
+    result = apply_transactions(baseline, claims, (transaction,), (decision,))
+    assert result["text"] == "Heart size is normal. Small left pleural effusion."
+    assert result["text"].startswith("Heart size is normal.")
+
+
+def test_proposer_cannot_self_validate_transaction():
+    specs = {
+        "proposal": _spec(
+            "direct_visual_verifier", "classification", group="same-group"
+        ),
+    }
+    qcard = _card("proposal", "classification", "classification")
+    transaction = ClaimTransaction(
+        "t",
+        "REPLACE",
+        AtomicClinicalClaim("candidate", "The image shows adenocarcinoma.", None),
+        "adenocarcinoma",
+        baseline_claim_id="base",
+        proposer_expert_id="proposal",
+    )
+    evidence = TransactionEvidence(
+        expert_id="proposal",
+        capability="classification",
+        scope="classification",
+        fault_group="same-group",
+        evidence_role="direct_visual_verifier",
+        differential_effect=0.5,
+        support_direction=1,
+        patient_specific=True,
+    )
+    decision = decide_transaction(
+        transaction,
+        (evidence,),
+        specs=specs,
+        qualification_cards={qcard.key: qcard},
+        modality="pathology",
+        task="open_vqa",
+        claim_type="diagnosis",
+    )
+    assert not decision.commit
+    assert decision.reason == "proposer-has-no-independent-qualified-validator"
+
+
+def test_independent_source_qualified_visual_verifier_can_commit():
+    specs = {
+        "proposal": _spec(
+            "proposal_generator", "generation", group="proposal", authority="never"
+        ),
+        "visual": _spec(
+            "direct_visual_verifier", "classification", group="visual"
+        ),
+    }
+    qcard = _card("visual", "classification", "classification")
+    transaction = ClaimTransaction(
+        "t",
+        "REPLACE",
+        AtomicClinicalClaim("candidate", "The image shows adenocarcinoma.", None),
+        "adenocarcinoma",
+        baseline_claim_id="base",
+        proposer_expert_id="proposal",
+    )
+    evidence = TransactionEvidence(
+        expert_id="visual",
+        capability="classification",
+        scope="classification",
+        fault_group="visual",
+        evidence_role="direct_visual_verifier",
+        differential_effect=0.3,
+        support_direction=1,
+        patient_specific=True,
+    )
+    decision = decide_transaction(
+        transaction,
+        (evidence,),
+        specs=specs,
+        qualification_cards={qcard.key: qcard},
+        modality="pathology",
+        task="open_vqa",
+        claim_type="diagnosis",
+        config=MeritTxConfig(),
+    )
+    assert decision.commit
+    assert decision.verifier_fault_groups == ("visual",)
+
+
+def test_vqa_claimization_is_self_contained():
+    claim = claimize_vqa("Is there cardiomegaly?", "No")[0]
+    assert claim.proposition == "The image does not show cardiomegaly."
+    assert claim.source_span == (0, 2)
+
+
+def test_source_qualification_fitter_rejects_test_rows(tmp_path):
+    path = tmp_path / "rows.jsonl"
+    path.write_text(
+        json.dumps(
+            {
+                "expert_id": "e",
+                "capability": "classification",
+                "scope": "s",
+                "modality": "pathology",
+                "task": "open_vqa",
+                "claim_type": "diagnosis",
+                "candidate_method": "proposal-v1",
+                "expert_provenance_fingerprint": "prov-v1",
+                "domain": "d",
+                "group_id": "g",
+                "outcome_delta": 1,
+                "real_effect": 1,
+                "knockoff_effect": 0,
+                "split": "test",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="target/test"):
+        read_rows(path)
+
+
+def test_source_qualification_fitter_emits_conservative_cards():
+    rows = []
+    for domain in ("a", "b"):
+        for index in range(20):
+            rows.append(
+                {
+                    "expert_id": "e",
+                    "capability": "classification",
+                    "scope": "s",
+                    "modality": "pathology",
+                    "task": "open_vqa",
+                    "claim_type": "diagnosis",
+                    "candidate_method": "proposal-v1",
+                    "expert_provenance_fingerprint": "prov-v1",
+                    "domain": domain,
+                    "group_id": f"{domain}-{index}",
+                    "outcome_delta": 0.5,
+                    "real_effect": 0.8,
+                    "knockoff_effect": 0.1,
+                }
+            )
+    payload = fit(rows)
+    card = payload["cards"][0]
+    assert payload["source_only"] is True
+    assert card["utility_lcb"] > 0
+    assert card["harm_ucb"] < 0.2
+    assert card["specificity_lcb"] > 0.8
+
+
+def test_region_prompted_expert_is_not_counted_without_real_region():
+    specs = {
+        "automatic": _spec(
+            "spatial_localizer", "segmentation", group="automatic"
+        ),
+        "prompted": {
+            **_spec("spatial_localizer", "segmentation", group="prompted"),
+            "requires_region": True,
+        },
+    }
+    descriptors = [
+        _descriptor("automatic", "segmentation"),
+        {**_descriptor("prompted", "segmentation"), "requires_region": True},
+    ]
+    selected, _audit = select_expert_descriptors(
+        descriptors,
+        specs,
+        modality="pathology",
+        task="open_vqa",
+        max_calls=2,
+        region_available=False,
+    )
+    assert [row["expert"] for row in selected] == ["automatic"]
+    selected, _audit = select_expert_descriptors(
+        descriptors,
+        specs,
+        modality="pathology",
+        task="open_vqa",
+        max_calls=2,
+        region_available=True,
+    )
+    assert {row["expert"] for row in selected} == {"automatic", "prompted"}
+
+
+def test_differential_margin_removes_shared_context_shift():
+    # Both real and wrong-patient evidence add a +2 common shift to candidate
+    # and incumbent. Only the patient-specific relative margin remains.
+    value = differential_margin(
+        incumbent_real=7.0,
+        candidate_real=9.0,
+        incumbent_knockoff=7.5,
+        candidate_knockoff=8.0,
+    )
+    assert value["real_margin"] == 2.0
+    assert value["knockoff_margin"] == 0.5
+    assert value["differential_effect"] == 1.5
+    assert value["support_direction"] == 1
+
+
+def test_role_diversity_precedes_second_same_role_verifier():
+    specs = {
+        "visual_a": _spec("direct_visual_verifier", "classification", group="visual-a"),
+        "visual_b": _spec("direct_visual_verifier", "classification", group="visual-b"),
+        "spatial": _spec("spatial_localizer", "segmentation", group="spatial"),
+    }
+    descriptors = [
+        _descriptor("visual_a", "classification"),
+        _descriptor("visual_b", "classification"),
+        _descriptor("spatial", "segmentation"),
+    ]
+    selected, _audit = select_expert_descriptors(
+        descriptors,
+        specs,
+        modality="pathology",
+        task="open_vqa",
+        max_calls=2,
+    )
+    assert [row["expert"] for row in selected] == ["visual_a", "spatial"]
+
+
+def test_fixed_conch_catalog_is_disabled_only_in_merit_tx():
+    legacy = load_experiment_yaml("configs/llava_med_capabilities.yaml")
+    tx = load_experiment_yaml("configs/merit_tx.yaml")
+    assert legacy["experts"]["conch_tissue"].get("enabled", True) is True
+    assert tx["experts"]["conch_tissue"]["enabled"] is False
+    assert tx["experts"]["conch_claim_verifier"]["transaction_only"] is True
+
+
+def test_knockoff_selection_is_answer_blind_stable_and_cross_group():
+    current = {
+        "id": "target",
+        "image": "target.png",
+        "modality": "pathology",
+        "task": "open_vqa",
+        "group_id": "patient-target",
+    }
+    source = [
+        {
+            "id": f"s{i}",
+            "image": f"s{i}.png",
+            "modality": "pathology",
+            "task": "open_vqa",
+            "group_id": f"patient-{i}",
+            "answer": "SECRET-" + str(i),
+        }
+        for i in range(8)
+    ]
+    first = select_matched_knockoffs(source, current, expert_id="conch", count=4)
+    second = select_matched_knockoffs(
+        [{**row, "answer": "CHANGED"} for row in source],
+        current,
+        expert_id="conch",
+        count=4,
+    )
+    assert [row["id"] for row in first] == [row["id"] for row in second]
+    assert all(row["group_id"] != current["group_id"] for row in first)
+    assert all("answer" not in row for row in first)
+    assert all(row["labels_consulted"] is False for row in first)
+
+
+def test_multiple_knockoffs_use_median_control_margin():
+    value = differential_margin_controls(
+        incumbent_real=1.0,
+        candidate_real=2.0,
+        knockoff_pairs=((1.0, 1.2), (2.0, 2.3), (0.0, 9.0), (3.0, 3.4)),
+    )
+    assert value["real_margin"] == pytest.approx(1.0)
+    assert value["knockoff_margin"] == pytest.approx(0.35)
+    assert value["differential_effect"] == pytest.approx(0.65)
+    assert value["controls"] == 4
+
+
+def test_knockoff_can_match_answer_blind_question_type():
+    current = {
+        "id": "target",
+        "image": "target.png",
+        "modality": "pathology",
+        "task": "open_vqa",
+        "group_id": "patient-target",
+        "question_type": "diagnosis",
+    }
+    source = [
+        {
+            "id": f"d{i}",
+            "image": f"d{i}.png",
+            "modality": "pathology",
+            "task": "open_vqa",
+            "group_id": f"d-{i}",
+            "question_type": "diagnosis",
+            "answer": "SECRET",
+        }
+        for i in range(5)
+    ] + [
+        {
+            "id": "location",
+            "image": "location.png",
+            "modality": "pathology",
+            "task": "open_vqa",
+            "group_id": "location",
+            "question_type": "location",
+            "answer": "SECRET",
+        }
+    ]
+    selected = select_matched_knockoffs(
+        source,
+        current,
+        expert_id="conch",
+        count=4,
+        match_fields=("question_type",),
+    )
+    assert all(row["question_type"] == "diagnosis" for row in selected)
+    assert all("answer" not in row for row in selected)
+
+
+def test_report_candidate_compiler_never_deletes_for_omission():
+    baseline = (
+        AtomicClinicalClaim(
+            "base-effusion",
+            "The image does not show pleural effusion.",
+            (0, 20),
+            grounding={
+                "schema": "radgraph-xl",
+                "observation": "pleural effusion",
+                "tags": ["definitely absent"],
+                "located_at": [],
+                "suggestive_of": [],
+            },
+        ),
+        AtomicClinicalClaim(
+            "base-heart",
+            "The image shows cardiomegaly.",
+            (21, 40),
+            grounding={
+                "schema": "radgraph-xl",
+                "observation": "cardiomegaly",
+                "tags": ["definitely present"],
+                "located_at": [],
+                "suggestive_of": [],
+            },
+        ),
+    )
+    candidate = (
+        AtomicClinicalClaim(
+            "candidate-effusion",
+            "The image shows pleural effusion.",
+            (0, 24),
+            grounding={
+                "schema": "radgraph-xl",
+                "observation": "pleural effusion",
+                "tags": ["definitely present"],
+                "located_at": [],
+                "suggestive_of": [],
+            },
+        ),
+    )
+    tx = candidate_transactions(
+        task="report_generation",
+        question="Generate report",
+        baseline_text="No effusion. Cardiomegaly.",
+        candidate_text="Small pleural effusion.",
+        baseline_claims=baseline,
+        candidate_claims=candidate,
+        proposer_expert_id="proposal",
+    )
+    assert len(tx) == 1
+    assert tx[0].operation == "REPLACE"
+    assert tx[0].baseline_claim_id == "base-effusion"
+    assert all(value.operation != "DELETE" for value in tx)
+    assert claim_truth_key(tx[0].proposed_claim) != claim_truth_key(baseline[0])
+
+
+def test_xrv_claim_scoring_requires_unique_native_finding():
+    import numpy as np
+
+    from merit_feddg.experts.native_xrv import XrvCapabilityAdapter
+
+    expert = object.__new__(XrvCapabilityAdapter)
+    expert.capability = "classification"
+    expert.targets = ("Cardiomegaly", "Effusion")
+    expert.classify = lambda _image: (
+        expert.targets,
+        np.asarray([0.8, 0.2], dtype=np.float32),
+        {},
+    )
+    scores = expert.score_claims(
+        "unused",
+        "",
+        "",
+        [
+            "The image shows cardiomegaly.",
+            "The image does not show pleural effusion.",
+        ],
+    )
+    assert scores[0] > 0
+    assert scores[1] > 0
+    with pytest.raises(ValueError, match="does not uniquely name"):
+        expert.score_claims("unused", "", "", ["The image shows adenocarcinoma."])
+
+
+def test_open_expert_pool_image_cache_key_changes_with_pixels():
+    from PIL import Image
+
+    from merit_feddg.open_experts import OpenExpertPool
+
+    left = Image.new("RGB", (2, 2), (0, 0, 0))
+    right = Image.new("RGB", (2, 2), (255, 255, 255))
+    assert OpenExpertPool._image_key(left) != OpenExpertPool._image_key(right)
+
+
+def test_report_qualification_collapses_multiple_claims_per_patient_conservatively():
+    base = {
+        "expert_id": "xrv",
+        "capability": "classification",
+        "scope": "cxr_findings",
+        "modality": "cxr",
+        "task": "report_generation",
+        "claim_type": "*",
+        "domain": "site-a",
+        "group_id": "patient-1",
+        "real_effect": 1.0,
+        "knockoff_effect": 0.0,
+    }
+    rows = [
+        {
+            **base,
+            "transaction_id": "good",
+            "outcome_delta": 1.0,
+            "differential_effect": 1.0,
+        },
+        {
+            **base,
+            "transaction_id": "harm",
+            "outcome_delta": -1.0,
+            "differential_effect": 0.2,
+        },
+    ]
+    collapsed = collapse_group_observations(rows)
+    assert len(collapsed) == 1
+    assert collapsed[0]["transaction_id"] == "harm"
+    assert collapsed[0]["within_group_transactions"] == 2
+    assert collapsed[0]["within_group_aggregation"] == "worst-outcome-then-specificity"
+
+
+def test_identical_overlapping_report_patches_are_coalesced():
+    baseline = "No pleural effusion."
+    claims = (
+        AtomicClinicalClaim("c0", "The image does not show pleural effusion.", (0, len(baseline))),
+        AtomicClinicalClaim("c1", "Pleural space is clear.", (0, len(baseline))),
+    )
+    transactions = (
+        ClaimTransaction(
+            "t0",
+            "REPLACE",
+            AtomicClinicalClaim("p0", "The image shows pleural effusion.", None),
+            "Small left pleural effusion.",
+            baseline_claim_id="c0",
+            proposer_expert_id="proposal",
+        ),
+        ClaimTransaction(
+            "t1",
+            "REPLACE",
+            AtomicClinicalClaim("p1", "Pleural effusion is present.", None),
+            "Small left pleural effusion.",
+            baseline_claim_id="c1",
+            proposer_expert_id="proposal",
+        ),
+    )
+    decisions = tuple(
+        TransactionDecision(
+            tx.transaction_id,
+            True,
+            "proof-carrying-transaction",
+            verifier_fault_groups=("visual",),
+            patient_specific_support=True,
+            source_qualified_support=True,
+            differential_effect=0.4,
+        )
+        for tx in transactions
+    )
+    result = apply_transactions(baseline, claims, transactions, decisions)
+    assert result["text"] == "Small left pleural effusion."
+
+
+def test_conflicting_overlapping_report_patches_fail_closed():
+    baseline = "No pleural effusion."
+    claims = (
+        AtomicClinicalClaim("c0", "The image does not show pleural effusion.", (0, len(baseline))),
+        AtomicClinicalClaim("c1", "Pleural space is clear.", (0, len(baseline))),
+    )
+    transactions = (
+        ClaimTransaction(
+            "t0",
+            "REPLACE",
+            AtomicClinicalClaim("p0", "The image shows pleural effusion.", None),
+            "Small left pleural effusion.",
+            baseline_claim_id="c0",
+        ),
+        ClaimTransaction(
+            "t1",
+            "REPLACE",
+            AtomicClinicalClaim("p1", "The image shows large pleural effusion.", None),
+            "Large right pleural effusion.",
+            baseline_claim_id="c1",
+        ),
+    )
+    decisions = tuple(
+        TransactionDecision(
+            tx.transaction_id,
+            True,
+            "proof-carrying-transaction",
+            verifier_fault_groups=("visual",),
+            patient_specific_support=True,
+            source_qualified_support=True,
+            differential_effect=0.4,
+        )
+        for tx in transactions
+    )
+    with pytest.raises(ValueError, match="overlap"):
+        apply_transactions(baseline, claims, transactions, decisions)
+
+
+def test_partial_approval_of_shared_report_patch_preserves_incumbent_sentence():
+    baseline = "No pleural effusion."
+    claims = (
+        AtomicClinicalClaim("c0", "The image does not show pleural effusion.", (0, len(baseline))),
+        AtomicClinicalClaim("c1", "Pleural space is clear.", (0, len(baseline))),
+    )
+    transactions = (
+        ClaimTransaction(
+            "t0",
+            "REPLACE",
+            AtomicClinicalClaim("p0", "The image shows pleural effusion.", None),
+            "Small left pleural effusion.",
+            baseline_claim_id="c0",
+        ),
+        ClaimTransaction(
+            "t1",
+            "REPLACE",
+            AtomicClinicalClaim("p1", "Pleural effusion is present.", None),
+            "Small left pleural effusion.",
+            baseline_claim_id="c1",
+        ),
+    )
+    accepted = TransactionDecision(
+        "t0",
+        True,
+        "proof-carrying-transaction",
+        verifier_fault_groups=("visual",),
+        patient_specific_support=True,
+        source_qualified_support=True,
+        differential_effect=0.4,
+    )
+    rejected = TransactionDecision("t1", False, "insufficient-proof")
+    result = apply_transactions(baseline, claims, transactions, (accepted, rejected))
+    assert result["text"] == baseline
+    assert result["fallback_exact"]
+    assert result["committed_transactions"] == []
+    assert result["suppressed_partial_patch_transactions"] == ["t0"]
+
+
+def test_runtime_commits_only_with_source_qualified_real_vs_knockoff_support():
+    specs = {
+        "visual": _spec(
+            "direct_visual_verifier",
+            "classification",
+            group="visual",
+            scope="classification",
+        ),
+    }
+    qcard = _card("visual", "classification", "classification")
+
+    class FakePool:
+        def evidence_function(self, expert_id, image):
+            assert expert_id == "visual"
+
+            def infer(claim, _prefix):
+                propositions = [item.proposition for item in claim.propositions]
+                candidate = 2.0 if image == "target.png" else 0.2
+                return NativeEvidence(
+                    expert_id="visual",
+                    capability="classification",
+                    concept_scores={
+                        propositions[0]: 0.0,
+                        propositions[1]: candidate,
+                    },
+                    confidence=1.0,
+                )
+
+            return infer
+
+    row = {
+        "id": "target",
+        "image": "target.png",
+        "question": "What diagnosis is shown?",
+        "modality": "pathology",
+        "task": "open_vqa",
+        "domain": "site-target",
+        "group_id": "patient-target",
+        "question_type": "diagnosis",
+    }
+    controls = [
+        {
+            "id": f"control-{index}",
+            "image": f"control-{index}.png",
+            "question": "What diagnosis is shown?",
+            "modality": "pathology",
+            "task": "open_vqa",
+            "domain": f"site-{index % 2}",
+            "group_id": f"patient-{index}",
+            "question_type": "diagnosis",
+        }
+        for index in range(4)
+    ]
+    baseline_claim = AtomicClinicalClaim(
+        "base",
+        "The image shows adenocarcinoma.",
+        (0, len("adenocarcinoma")),
+    )
+    transaction = ClaimTransaction(
+        "tx",
+        "REPLACE",
+        AtomicClinicalClaim(
+            "candidate",
+            "The image shows squamous cell carcinoma.",
+            None,
+        ),
+        "squamous cell carcinoma",
+        baseline_claim_id="base",
+    )
+    decision, evidence, audit = verify_transaction(
+        row=row,
+        transaction=transaction,
+        baseline_claims=(baseline_claim,),
+        source_controls=controls,
+        specs=specs,
+        qualification_cards={qcard.key: qcard},
+        pool=FakePool(),
+        tx_policy={
+            "qualification_min_domains": 2,
+            "qualification_max_harm_ucb": 0.25,
+            "qualification_min_specificity_lcb": 0.5,
+            "min_support_groups": 1,
+            "require_independent_validator": True,
+            "require_patient_specific_support": True,
+            "reject_on_qualified_contradiction": True,
+        },
+        claim_type="diagnosis",
+        max_calls=2,
+        knockoff_count=4,
+    )
+    assert decision.commit
+    assert decision.reason == "proof-carrying-transaction"
+    assert evidence[0]["differential_effect"] == pytest.approx(1.8)
+    assert audit["controls"]["visual"]["count"] == 4
+    assert audit["controls"]["visual"]["ids"] == [
+        row["id"]
+        for row in select_matched_knockoffs(
+            controls,
+            row,
+            expert_id="visual",
+            count=4,
+            match_fields=("question_type",),
+        )
+    ]
+
+
+def test_broad_image_text_verifiers_are_transaction_only_and_source_qualified(monkeypatch):
+    config = load_experiment_yaml("configs/merit_tx.yaml")
+    biomed = config["experts"]["biomedclip_claim_verifier"]
+    medsiglip = config["experts"]["medsiglip_claim_verifier"]
+    assert biomed["transaction_only"] is True
+    assert biomed["commit_authority"] == "source_qualified"
+    assert biomed["fault_group"] == "biomedclip"
+    assert {"ct", "mri"} <= set(biomed["modalities"])
+    assert medsiglip["transaction_only"] is True
+    assert medsiglip["optional"] is True
+    assert medsiglip["commit_authority"] == "source_qualified"
+    assert medsiglip["fault_group"] == "medsiglip"
+    assert {"dermatology", "fundus", "pathology", "ct", "mri"} <= set(
+        medsiglip["modalities"]
+    )
+
+
+def test_dynamic_claim_phrase_adapters_do_not_double_wrap_full_propositions():
+    from merit_feddg.experts.biomedclip import BiomedClipAdapter
+    from merit_feddg.experts.medsiglip import MedSiglipConceptExpert
+
+    claim = "The image shows pleural effusion."
+    assert BiomedClipAdapter._claim_phrase(claim) == claim
+    assert MedSiglipConceptExpert._claim_phrase(claim) == claim
+    assert BiomedClipAdapter._claim_phrase("cardiomegaly") == (
+        "A medical image showing cardiomegaly."
+    )
+
+
+def test_legacy_unreviewed_role_cannot_gain_merit_tx_commit_authority():
+    specs = {
+        "legacy": {
+            "id": "legacy",
+            "fault_group": "legacy",
+            "evidence_role": "direct_visual_verifier",
+            "commit_authority": "source_qualified",
+            "modalities": ["pathology"],
+            "tasks": ["open_vqa"],
+            "capabilities": ["classification"],
+            "scope": "classification",
+        },
+    }
+    qcard = _card("legacy", "classification", "classification")
+    selected, audit = select_expert_descriptors(
+        [_descriptor("legacy", "classification")],
+        specs,
+        modality="pathology",
+        task="open_vqa",
+        claim_type="diagnosis",
+        qualification_cards={qcard.key: qcard},
+        max_calls=1,
+    )
+    assert [row["expert"] for row in selected] == ["legacy"]
+    assert audit[0]["literature_grounded"] is False
+    assert audit[0]["commit_authorized"] is False
+
+
+def test_qualification_cards_are_bound_to_one_frozen_proposal_policy(tmp_path):
+    rows = []
+    for domain in ("a", "b"):
+        for index in range(20):
+            rows.append(
+                {
+                    "expert_id": "e",
+                    "capability": "classification",
+                    "scope": "s",
+                    "modality": "pathology",
+                    "task": "open_vqa",
+                    "claim_type": "diagnosis",
+                    "candidate_method": "proposal-v1",
+                    "expert_provenance_fingerprint": "prov-v1",
+                    "domain": domain,
+                    "group_id": f"{domain}-{index}",
+                    "outcome_delta": 0.5,
+                    "real_effect": 0.8,
+                    "knockoff_effect": 0.1,
+                }
+            )
+    payload = fit(rows)
+    assert payload["schema"] == "merit-expert-qualification-v2"
+    assert payload["proposal_policy"] == "proposal-v1"
+
+    path = tmp_path / "cards.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    cards = load_qualification_cards(path)
+    assert cards.proposal_policy == "proposal-v1"
+    assert len(cards) == 1
+
+
+def test_qualification_fitter_rejects_mixed_proposal_policies():
+    base = {
+        "expert_id": "e",
+        "capability": "classification",
+        "scope": "s",
+        "modality": "pathology",
+        "task": "open_vqa",
+        "claim_type": "diagnosis",
+        "expert_provenance_fingerprint": "prov-v1",
+        "domain": "a",
+        "outcome_delta": 0.5,
+        "real_effect": 0.8,
+        "knockoff_effect": 0.1,
+    }
+    rows = [
+        {**base, "group_id": "g1", "candidate_method": "proposal-v1"},
+        {**base, "group_id": "g2", "candidate_method": "proposal-v2"},
+    ]
+    with pytest.raises(ValueError, match="one frozen candidate_method"):
+        fit(rows)
+
+
+def test_source_qualified_proof_channel_beats_unqualified_context_under_budget():
+    specs = {
+        "visual_a": _spec(
+            "direct_visual_verifier",
+            "classification",
+            group="visual-a",
+        ),
+        "visual_b": _spec(
+            "direct_visual_verifier",
+            "classification",
+            group="visual-b",
+        ),
+        "proposal": _spec(
+            "proposal_generator",
+            "generation",
+            group="proposal",
+            authority="never",
+        ),
+    }
+    card_a = _card("visual_a", "classification", "classification")
+    card_b = _card("visual_b", "classification", "classification")
+    descriptors = [
+        _descriptor("proposal", "generation"),
+        _descriptor("visual_a", "classification"),
+        _descriptor("visual_b", "classification"),
+    ]
+    selected, audit = select_expert_descriptors(
+        descriptors,
+        specs,
+        modality="pathology",
+        task="open_vqa",
+        claim_type="diagnosis",
+        qualification_cards={
+            card_a.key: card_a,
+            card_b.key: card_b,
+        },
+        max_calls=2,
+    )
+    assert {row["expert"] for row in selected} == {"visual_a", "visual_b"}
+    assert all(row["commit_authorized"] for row in audit)
+
+
+def test_qualification_provenance_rejects_replaced_expert_weights(tmp_path):
+    from merit_feddg.open_study import fingerprint, model_provenance
+
+    checkpoint = tmp_path / "expert.bin"
+    checkpoint.write_bytes(b"version-one")
+    spec = {
+        "id": "local/expert",
+        "checkpoint_path": str(checkpoint),
+        "adapter": "contrastive_plip",
+        "modalities": ["pathology"],
+        "tasks": ["open_vqa"],
+        "capabilities": ["classification"],
+        "scope": "classification",
+        "literature": ["peer-reviewed"],
+        "evidence_role": "direct_visual_verifier",
+        "commit_authority": "source_qualified",
+    }
+    qualified = fingerprint(model_provenance(spec, tmp_path))
+    card = SourceQualificationCard(
+        expert_id="expert",
+        capability="classification",
+        scope="classification",
+        modality="pathology",
+        task="open_vqa",
+        claim_type="diagnosis",
+        n=40,
+        domains=("a", "b"),
+        utility_lcb=0.2,
+        harm_ucb=0.1,
+        specificity_lcb=0.7,
+        expert_provenance_fingerprint=qualified,
+    )
+    cards = {card.key: card}
+    observed = validate_qualification_provenance(cards, {"expert": spec}, tmp_path)
+    assert observed["expert"] == qualified
+
+    checkpoint.write_bytes(b"version-two-longer")
+    with pytest.raises(ValueError, match="provenance mismatch"):
+        validate_qualification_provenance(cards, {"expert": spec}, tmp_path)

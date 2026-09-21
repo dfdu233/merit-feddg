@@ -140,7 +140,7 @@ class BiomedClipAdapter(ConceptExpert):
 
         native = load_rgb(image)
         null = null_image_like(native)
-        phrases = [f"a medical image showing {concept}" for concept in concepts]
+        phrases = [self._claim_phrase(concept) for concept in concepts]
         text_features = self._text_embeddings(phrases)
         scale = self.model.logit_scale.exp().detach().clamp(max=100.0)
         native_feature = self._image_embedding(native)
@@ -149,6 +149,23 @@ class BiomedClipAdapter(ConceptExpert):
         scores = (native_scores - null_scores).squeeze(0).float().cpu().numpy()
         feature = native_feature.squeeze(0).float().cpu().numpy()
         return scores, feature
+
+    @staticmethod
+    def _claim_phrase(concept: str) -> str:
+        clean = " ".join(str(concept).strip().split())
+        lowered = clean.casefold()
+        if lowered.startswith(
+            (
+                "the image ",
+                "this image ",
+                "the radiograph ",
+                "the scan ",
+                "histopathology ",
+                "a medical image ",
+            )
+        ):
+            return clean if clean.endswith(".") else f"{clean}."
+        return f"A medical image showing {clean.rstrip('.')}."
 
     def domain_embedding(self, image: str | Path | Image.Image) -> np.ndarray:
         """Frozen low-cost feature for pre-call source-domain OOD assessment."""
