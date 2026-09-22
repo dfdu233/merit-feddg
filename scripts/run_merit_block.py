@@ -56,6 +56,14 @@ def _branch_packets(experts, arm, *, explicit_experts=None):
     limit = arm.get("expert_limit", "all")
 
     selected_ids = sorted(experts)
+    if (
+        arm.get("changed_axis") == "expert_count"
+        and limit != "all"
+        and explicit_experts is None
+    ):
+        raise ValueError(
+            "one/two-expert ablations require an explicit --experts subset"
+        )
     if explicit_experts is not None:
         requested = tuple(dict.fromkeys(str(value) for value in explicit_experts))
         missing = [value for value in requested if value not in experts]
