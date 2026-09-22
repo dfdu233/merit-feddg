@@ -1,0 +1,162 @@
+{
+  "schema": "merit-block-v1-validation",
+  "base_branch": "implementation/merit-tx-evidence-certificate-v4",
+  "validated_code_commit": "bcb735d0396c9b62c1010e30475b21fd86d05596",
+  "github_actions": {
+    "run_id": 35787993535,
+    "targeted_job": "open-generation-cpu",
+    "pytest": {
+      "passed": 295,
+      "failed": 0,
+      "seconds": 7.17
+    },
+    "cli_smoke": {
+      "ablation_plan_help": "passed",
+      "control_builder_help": "passed",
+      "expert_cache_export_help": "passed",
+      "real_model_runner_help": "passed",
+      "mechanism_summarizer_help": "passed"
+    },
+    "new_v5_ruff_findings": 0,
+    "workflow_green": false,
+    "preexisting_blockers": [
+      "generic test job installs no torch while collecting existing torch-dependent spatial tests",
+      "repository-wide Ruff retains unrelated legacy findings"
+    ]
+  },
+  "method": {
+    "name": "MERIT-Block v1",
+    "claim": "selective patient-specific expert intervention; not expert truth verification",
+    "same_prefix_competing_blocks": true,
+    "primary_decision_rule": "m_real > 0 AND gamma > 0",
+    "gamma": "real paired block preference minus median matched-control preference",
+    "primary_context_policy": "ephemeral",
+    "atomic_block_commit": true,
+    "expert_context_removed_after_commit": true,
+    "primary_block_tokens": 8,
+    "sentence_block_supported": true,
+    "score": "length-normalized paired sequence preference",
+    "primary_controls": 3,
+    "primary_control_kind": "matched_wrong_patient",
+    "multiple_experts": "argmax gamma among individually admissible expert blocks",
+    "medical_correctness_guaranteed": false,
+    "learned_router": false,
+    "trained_gate": false
+  },
+  "protocol_guards": {
+    "evidence_packet_labels_forbidden": true,
+    "control_labels_forbidden": true,
+    "controls_different_group": true,
+    "controls_different_image_sha256": true,
+    "controls_same_expert_interface_signature": true,
+    "deterministic_control_selection": true,
+    "random_control_ablation": true,
+    "shuffled_evidence_fixture": true,
+    "explicit_expert_subsets_required_for_1_2_expert_ablations": true,
+    "target_ablation_selection_forbidden": true,
+    "reusable_existing_expert_cache_without_inference": true
+  },
+  "ablations": {
+    "granularity": [
+      "1-token",
+      "4-token",
+      "8-token",
+      "16-token",
+      "sentence"
+    ],
+    "locality": [
+      "ephemeral",
+      "persistent"
+    ],
+    "control": [
+      "none",
+      "random-wrong-patient",
+      "matched-wrong-patient"
+    ],
+    "decision": [
+      "gamma-only",
+      "real-only",
+      "conjunction"
+    ],
+    "control_count": [
+      1,
+      3,
+      5
+    ],
+    "oe_sequence_score": [
+      "mean-logp",
+      "sum-logp"
+    ],
+    "expert_count": [
+      "explicit one-expert",
+      "explicit two-expert",
+      "all-experts"
+    ],
+    "evidence_condition": [
+      "native-real",
+      "plausible-wrong",
+      "irrelevant",
+      "shuffled"
+    ],
+    "tasks": [
+      "CE VQA",
+      "OE VQA",
+      "report generation"
+    ]
+  },
+  "mechanism_diagnostics": {
+    "same_prefix_context_drift": true,
+    "metrics": [
+      "mean JS divergence",
+      "max JS divergence",
+      "greedy-token disagreement"
+    ],
+    "label_free_run_summarizer": true,
+    "summary_metrics": [
+      "block/case acceptance",
+      "decision reasons",
+      "expert selection counts",
+      "mean real margin",
+      "mean gamma",
+      "control count",
+      "trajectory drift",
+      "forward/query counts",
+      "wall time"
+    ]
+  },
+  "tests_cover": [
+    "gamma-only bug: positive gamma with negative real margin is rejected by full conjunction",
+    "absolute support plus counterfactual specificity",
+    "real-only/no-control ablation",
+    "multiple-expert argmax selection",
+    "ephemeral versus persistent context semantics",
+    "sentence token-prefix commit without retokenization",
+    "same-prefix trajectory-drift measurement",
+    "mean versus sum OE sequence-score behavior",
+    "label-free deterministic matched/random/shuffled controls",
+    "reference-field rejection",
+    "one-factor ablation-plan freeze",
+    "receiver configs exclude legacy BARD/Tx admission policies",
+    "interface-matched and image-disjoint controls",
+    "explicit expert-subset requirement",
+    "zero-inference BARD-cache to block-packet round trip"
+  ],
+  "not_validated": {
+    "real_gpu_end_to_end_v5": false,
+    "real_llava_block_canary": false,
+    "real_huatuo_block_canary": false,
+    "real_mimic_report_generation": false,
+    "real_plausible_wrong_expert_experiment": false,
+    "real_irrelevant_expert_experiment": false,
+    "trajectory_drift_empirical_claim": false,
+    "harmful_intervention_reduction": false,
+    "benchmark_accuracy_improvement": false,
+    "clinical_truth_verification": false
+  },
+  "notes": [
+    "The primary paper claim must remain specificity/locality of expert intervention, not medical correctness.",
+    "Persistent context exists only as a causal/mechanism ablation.",
+    "Ablations are frozen one-factor-at-a-time and cannot replace the primary arm after target scores are seen.",
+    "The next scientific gate is a small real-model mechanism study before any full benchmark expansion."
+  ]
+}
