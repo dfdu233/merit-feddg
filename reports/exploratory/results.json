@@ -1,0 +1,132 @@
+{
+  "llava": {
+    "baseline": {
+      "n": 50,
+      "score": 0.204,
+      "accepted": 0,
+      "improved": 0,
+      "harmed": 0
+    },
+    "candidate": {
+      "n": 50,
+      "score": 0.204,
+      "accepted": 31,
+      "improved": 1,
+      "harmed": 1
+    },
+    "biomedclip_claim_verifier": {
+      "n": 50,
+      "score": 0.204,
+      "accepted": 11,
+      "improved": 1,
+      "harmed": 1
+    },
+    "conch_claim_verifier": {
+      "n": 50,
+      "score": 0.204,
+      "accepted": 13,
+      "improved": 1,
+      "harmed": 1
+    },
+    "plip_claim_verifier": {
+      "n": 50,
+      "score": 0.204,
+      "accepted": 15,
+      "improved": 1,
+      "harmed": 1
+    },
+    "biomedclip_claim_verifier+conch_claim_verifier": {
+      "n": 50,
+      "score": 0.204,
+      "accepted": 8,
+      "improved": 1,
+      "harmed": 1
+    },
+    "biomedclip_claim_verifier+plip_claim_verifier": {
+      "n": 50,
+      "score": 0.204,
+      "accepted": 7,
+      "improved": 1,
+      "harmed": 1
+    },
+    "conch_claim_verifier+plip_claim_verifier": {
+      "n": 50,
+      "score": 0.204,
+      "accepted": 9,
+      "improved": 1,
+      "harmed": 1
+    },
+    "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": {
+      "n": 50,
+      "score": 0.204,
+      "accepted": 7,
+      "improved": 1,
+      "harmed": 1
+    }
+  },
+  "huatuo": {
+    "baseline": {
+      "n": 50,
+      "score": 0.42,
+      "accepted": 0,
+      "improved": 0,
+      "harmed": 0
+    },
+    "candidate": {
+      "n": 50,
+      "score": 0.32,
+      "accepted": 39,
+      "improved": 0,
+      "harmed": 5
+    },
+    "biomedclip_claim_verifier": {
+      "n": 50,
+      "score": 0.38,
+      "accepted": 10,
+      "improved": 0,
+      "harmed": 2
+    },
+    "conch_claim_verifier": {
+      "n": 50,
+      "score": 0.38,
+      "accepted": 11,
+      "improved": 0,
+      "harmed": 2
+    },
+    "plip_claim_verifier": {
+      "n": 50,
+      "score": 0.42,
+      "accepted": 9,
+      "improved": 0,
+      "harmed": 0
+    },
+    "biomedclip_claim_verifier+conch_claim_verifier": {
+      "n": 50,
+      "score": 0.38,
+      "accepted": 5,
+      "improved": 0,
+      "harmed": 2
+    },
+    "biomedclip_claim_verifier+plip_claim_verifier": {
+      "n": 50,
+      "score": 0.38,
+      "accepted": 8,
+      "improved": 0,
+      "harmed": 2
+    },
+    "conch_claim_verifier+plip_claim_verifier": {
+      "n": 50,
+      "score": 0.38,
+      "accepted": 9,
+      "improved": 0,
+      "harmed": 2
+    },
+    "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": {
+      "n": 50,
+      "score": 0.38,
+      "accepted": 6,
+      "improved": 0,
+      "harmed": 2
+    }
+  }
+}

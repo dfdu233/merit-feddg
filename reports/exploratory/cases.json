@@ -1,0 +1,1771 @@
+{
+  "llava": [
+    {
+      "id": "pathvqa-train-00000-002317",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -1.3959219828248024,
+        "plip_claim_verifier": 0.08543794974684715,
+        "biomedclip_claim_verifier": -0.334644551796373
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-001796",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.41442400217056274,
+        "plip_claim_verifier": -0.1494581230217591,
+        "biomedclip_claim_verifier": -0.29633261263370514
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000794",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-002703",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 1.4564014673233032,
+        "plip_claim_verifier": -0.3093406371772289,
+        "biomedclip_claim_verifier": -0.8596521019935608
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000950",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.7862348854541779,
+        "plip_claim_verifier": -0.026248767971992493,
+        "biomedclip_claim_verifier": 0.3837286438792944
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000020",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.09911811351776123,
+        "plip_claim_verifier": 0.03843624144792557,
+        "biomedclip_claim_verifier": -0.030766725540161133
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-002747",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.28662967681884766,
+        "plip_claim_verifier": 0.21391627192497253,
+        "biomedclip_claim_verifier": -1.3295600935816765
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000605",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -3.358906245790422,
+        "plip_claim_verifier": 0.05311954207718372,
+        "biomedclip_claim_verifier": -0.9636295363306999
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000848",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.21213854104280472,
+        "plip_claim_verifier": -0.07896447367966175,
+        "biomedclip_claim_verifier": 0.37537628412246704
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002276",
+      "baseline_score": 0.0,
+      "candidate_score": 1.0,
+      "effects": {
+        "conch_claim_verifier": 1.4197485446929932,
+        "plip_claim_verifier": 0.17259518802165985,
+        "biomedclip_claim_verifier": 0.4527392089366913
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-001732",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -3.4764944203197956,
+        "plip_claim_verifier": -0.5282757305540144,
+        "biomedclip_claim_verifier": -0.7246896615251899
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-000311",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -1.7729964703321457,
+        "plip_claim_verifier": -0.2038148120045662,
+        "biomedclip_claim_verifier": -0.02944609522819519
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001281",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002283",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -7.178843896836042,
+        "plip_claim_verifier": -0.39618724025785923,
+        "biomedclip_claim_verifier": -2.119791269302368
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-001897",
+      "baseline_score": 1.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 1.4218879342079163,
+        "plip_claim_verifier": 0.09833641350269318,
+        "biomedclip_claim_verifier": 0.08053147792816162
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000277",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {
+        "conch_claim_verifier": -0.8069214224815369,
+        "plip_claim_verifier": -0.09331496991217136,
+        "biomedclip_claim_verifier": -0.5385039979591966
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-001865",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -3.8954676389694214,
+        "plip_claim_verifier": 0.20639046654105186,
+        "biomedclip_claim_verifier": -0.9955489188432693
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-001732",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -2.661582436412573,
+        "plip_claim_verifier": -0.2037442196160555,
+        "biomedclip_claim_verifier": -0.8362458050251007
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-001102",
+      "baseline_score": 0.2,
+      "candidate_score": 0.2,
+      "effects": {
+        "conch_claim_verifier": -2.6749521493911743,
+        "plip_claim_verifier": -0.03523631766438484,
+        "biomedclip_claim_verifier": -0.72587950527668
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001012",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.7728935480117798,
+        "plip_claim_verifier": -1.05782566126436,
+        "biomedclip_claim_verifier": -3.1906327605247498
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001886",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 1.7955417782068253,
+        "plip_claim_verifier": 0.02733752876520157,
+        "biomedclip_claim_verifier": 0.7295772787183523
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-001569",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.3461635112762451,
+        "plip_claim_verifier": -0.35023300256580114,
+        "biomedclip_claim_verifier": -1.0233975052833557
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-001533",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.6110255867242813,
+        "plip_claim_verifier": 0.08540490723680705,
+        "biomedclip_claim_verifier": 0.7755468226969242
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-002448",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.6735164523124695,
+        "plip_claim_verifier": -0.26734253391623497,
+        "biomedclip_claim_verifier": -1.294926404953003
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-002173",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.0055741965770721436,
+        "plip_claim_verifier": 0.12005734443664551,
+        "biomedclip_claim_verifier": -0.15823489427566528
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000485",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {
+        "conch_claim_verifier": 2.755800873041153,
+        "plip_claim_verifier": 0.035843998193740845,
+        "biomedclip_claim_verifier": 0.3862411603331566
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002498",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {
+        "conch_claim_verifier": 0.9732937663793564,
+        "plip_claim_verifier": 0.09315904974937439,
+        "biomedclip_claim_verifier": 0.09122395515441895
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-001320",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.8365915715694427,
+        "plip_claim_verifier": -0.362261428963393,
+        "biomedclip_claim_verifier": -2.518916070461273
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002039",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000763",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.9287085384130478,
+        "plip_claim_verifier": 0.05357048226869665,
+        "biomedclip_claim_verifier": 0.35762009769678116
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-000106",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -1.4872216880321503,
+        "plip_claim_verifier": -0.20921410247683525,
+        "biomedclip_claim_verifier": 1.1222316399216652
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-001634",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -2.080053985118866,
+        "plip_claim_verifier": 0.017770815349649638,
+        "biomedclip_claim_verifier": -0.7666394710540771
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000462",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.28173840045928955,
+        "plip_claim_verifier": 0.043410769663751125,
+        "biomedclip_claim_verifier": -0.042255282402038574
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001498",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -3.4972308576107025,
+        "plip_claim_verifier": -0.07174389064311981,
+        "biomedclip_claim_verifier": 0.4569559097290039
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-ea3b5afd35f2d808b78e",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-716292ad636a2c640610",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-c76df98a2b043529a639",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-5d6f0543fe1bf923fad6",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-fe1c168e8f2e65e64b75",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-156b05190fd8cb3e607a",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-d4f1eadab323227b8e13",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-8deab099580031094315",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-d3ec06af1f2a1f1859a4",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-5789cb35842a3a02a446",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-876e526af69d2aab1e88",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-5e8bc9ce58a2e7dd9033",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-ae56c1009fc74fae178a",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-8291eeba5cf2d796f3b8",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-ab079b3908d1ba9d278e",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-f78cf0de40f19c7adaf1",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    }
+  ],
+  "huatuo": [
+    {
+      "id": "pathvqa-train-00000-002317",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 3.2334868758916855,
+        "plip_claim_verifier": 0.11468029022216797,
+        "biomedclip_claim_verifier": 2.4305827915668488
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-001796",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {
+        "conch_claim_verifier": -2.7324018478393555,
+        "plip_claim_verifier": 0.12577820965088904,
+        "biomedclip_claim_verifier": -1.6670854985713959
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000794",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-002703",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 3.606238399108406,
+        "plip_claim_verifier": 0.8470208197832108,
+        "biomedclip_claim_verifier": -0.8429843112826347
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000950",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -2.651986747980118,
+        "plip_claim_verifier": -0.12602592259645462,
+        "biomedclip_claim_verifier": -1.7669592499732971
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000020",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.44277453422546387,
+        "biomedclip_claim_verifier": -0.3706763982772827
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-002747",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {
+        "conch_claim_verifier": -2.625570185482502,
+        "biomedclip_claim_verifier": -0.9310594946146011
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000605",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.6927623264491558,
+        "plip_claim_verifier": -0.18472049664705992,
+        "biomedclip_claim_verifier": -1.1945638060569763
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000848",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002276",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {
+        "conch_claim_verifier": 2.541014462709427,
+        "biomedclip_claim_verifier": -2.234406352043152
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-001732",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -2.4691109657287598,
+        "plip_claim_verifier": -0.3124832659959793,
+        "biomedclip_claim_verifier": -1.1464675068855286
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-000311",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.8183121755719185,
+        "plip_claim_verifier": -0.1913028514245525,
+        "biomedclip_claim_verifier": 0.36562955379486084
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001281",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {
+        "conch_claim_verifier": -0.5485355854034424,
+        "biomedclip_claim_verifier": -0.5702002868056297
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002283",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.9542496129870415,
+        "plip_claim_verifier": -0.15511322766542435,
+        "biomedclip_claim_verifier": -0.1754940040409565
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-001897",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.1005372554063797,
+        "plip_claim_verifier": -0.12019629776477814,
+        "biomedclip_claim_verifier": -0.5515328422188759
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000277",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {
+        "conch_claim_verifier": -5.336034633219242,
+        "plip_claim_verifier": -0.43684063106775284,
+        "biomedclip_claim_verifier": -0.46300187706947327
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-001865",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.3805293142795563,
+        "plip_claim_verifier": -0.8043530434370041,
+        "biomedclip_claim_verifier": -0.007075875997543335
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-001732",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-001102",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.0,
+        "plip_claim_verifier": 0.31857719272375107,
+        "biomedclip_claim_verifier": 0.0
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001012",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 2.0185278058052063,
+        "plip_claim_verifier": -0.37415893375873566,
+        "biomedclip_claim_verifier": -0.3414676785469055
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001886",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -6.302941047586501,
+        "plip_claim_verifier": -0.5970149263739586,
+        "biomedclip_claim_verifier": -1.4560736417770386
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-001569",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -3.530342221260071,
+        "plip_claim_verifier": 0.13254414685070515,
+        "biomedclip_claim_verifier": 1.2789974510669708
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-001533",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 2.549317941069603,
+        "plip_claim_verifier": -0.14938895031809807,
+        "biomedclip_claim_verifier": -0.43354761600494385
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-002448",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -5.361636620014906,
+        "plip_claim_verifier": -0.08578251115977764,
+        "biomedclip_claim_verifier": 0.2643374502658844
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-002173",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -2.7696826606988907,
+        "plip_claim_verifier": -0.2716828063130379,
+        "biomedclip_claim_verifier": 0.16723687574267387
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000485",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002498",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -5.277329221367836,
+        "biomedclip_claim_verifier": -2.2424589470028877
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-001320",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 2.3804832696914673,
+        "plip_claim_verifier": 0.04446469189133495,
+        "biomedclip_claim_verifier": 1.4105350971221924
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002039",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {
+        "conch_claim_verifier": 1.818838894367218,
+        "biomedclip_claim_verifier": 0.19279912114143372
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000763",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -2.055053323507309,
+        "plip_claim_verifier": -0.29376809298992157,
+        "biomedclip_claim_verifier": -0.1759278103709221
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-000106",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -1.9538021236658096,
+        "plip_claim_verifier": 0.057824984192848206,
+        "biomedclip_claim_verifier": -0.21260404586791992
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-001634",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.16978859901428223,
+        "plip_claim_verifier": 0.05478994268923998,
+        "biomedclip_claim_verifier": -0.053044259548187256
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000462",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.0,
+        "plip_claim_verifier": 0.0,
+        "biomedclip_claim_verifier": 0.0
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001498",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 1.4000437408685684,
+        "plip_claim_verifier": 0.020016707479953766,
+        "biomedclip_claim_verifier": -0.7019357085227966
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-ea3b5afd35f2d808b78e",
+      "baseline_score": 1.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.6557605862617493,
+        "biomedclip_claim_verifier": -0.045825302600860596
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-716292ad636a2c640610",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.5925082862377167,
+        "biomedclip_claim_verifier": 0.08230149745941162
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-c76df98a2b043529a639",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-5d6f0543fe1bf923fad6",
+      "baseline_score": 1.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.7190023064613342,
+        "biomedclip_claim_verifier": -0.06283080577850342
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-fe1c168e8f2e65e64b75",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-156b05190fd8cb3e607a",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.0,
+        "biomedclip_claim_verifier": 0.0
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-d4f1eadab323227b8e13",
+      "baseline_score": 1.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": -1.357038676738739,
+        "biomedclip_claim_verifier": -0.2762821912765503
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-8deab099580031094315",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-d3ec06af1f2a1f1859a4",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-5789cb35842a3a02a446",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-876e526af69d2aab1e88",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {
+        "conch_claim_verifier": 0.0,
+        "biomedclip_claim_verifier": 0.0
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-5e8bc9ce58a2e7dd9033",
+      "baseline_score": 1.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.3485286831855774,
+        "biomedclip_claim_verifier": 0.1595788598060608
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-ae56c1009fc74fae178a",
+      "baseline_score": 0.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.0,
+        "biomedclip_claim_verifier": 0.0
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-8291eeba5cf2d796f3b8",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-ab079b3908d1ba9d278e",
+      "baseline_score": 1.0,
+      "candidate_score": 1.0,
+      "effects": {},
+      "decisions": {
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": false,
+        "biomedclip_claim_verifier+plip_claim_verifier": false,
+        "conch_claim_verifier+plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": false
+      }
+    },
+    {
+      "id": "pathorob-tolkach-esca-f78cf0de40f19c7adaf1",
+      "baseline_score": 1.0,
+      "candidate_score": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.44846323877573013,
+        "biomedclip_claim_verifier": 0.12793183326721191
+      },
+      "decisions": {
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "biomedclip_claim_verifier+conch_claim_verifier": true,
+        "biomedclip_claim_verifier+plip_claim_verifier": true,
+        "conch_claim_verifier+plip_claim_verifier": true,
+        "biomedclip_claim_verifier+conch_claim_verifier+plip_claim_verifier": true
+      }
+    }
+  ]
+}
