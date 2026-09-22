@@ -1,6 +1,9 @@
 merit_block:
   schema: merit-block-intervention-v1
   max_new_tokens: 64
+  task_max_new_tokens:
+    open_vqa: 64
+    report_generation: 256
   block_mode: fixed
   block_tokens: 8
   sentence_max_tokens: 32
