@@ -40,8 +40,8 @@ merit_tx:
   claim_unit: atomic_verifiable_proposition
   radiology_grounding: modern-radgraph-xl
   expert_selection: source_qualified_interaction_aware_portfolio
-  qualification_schema: merit-expert-qualification-v3
-  qualification_cards: artifacts/qualification/merit-expert-qualification-v3.json
+  qualification_schema: merit-expert-qualification-v4
+  qualification_cards: artifacts/qualification/merit-expert-qualification-v4.json
   portfolio_schema: merit-expert-portfolio-v1
   portfolio_cards: artifacts/qualification/merit-expert-portfolio-v1.json
   matched_knockoff_controls: 4
