@@ -5,7 +5,6 @@ import hashlib
 import json
 from pathlib import Path
 
-
 FORBIDDEN = {"answer", "answers", "reference", "references", "label", "labels"}
 
 
