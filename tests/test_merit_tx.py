@@ -330,6 +330,7 @@ def test_source_qualification_fitter_rejects_test_rows(tmp_path):
                 "outcome_delta": 1,
                 "real_effect": 1,
                 "knockoff_effect": 0,
+                "support_direction": 1,
                 "split": "test",
             }
         )
@@ -357,6 +358,7 @@ def test_source_qualification_fitter_emits_conservative_cards():
                     "outcome_delta": 0.5,
                     "real_effect": 0.8,
                     "knockoff_effect": 0.1,
+                    "support_direction": 1,
                 }
             )
     payload = fit(rows)
