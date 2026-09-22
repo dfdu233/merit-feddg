@@ -65,6 +65,7 @@ class BlockInterventionConfig:
     score_reduction: str = "mean"
     min_controls: int = 3
     numerical_epsilon: float = 1e-8
+    drift_probe_horizon: int = 0
 
     def __post_init__(self):
         for name, value in (
@@ -75,6 +76,8 @@ class BlockInterventionConfig:
         ):
             if type(value) is not int or value < 1:
                 raise ValueError(f"{name} must be a positive integer")
+        if type(self.drift_probe_horizon) is not int or self.drift_probe_horizon < 0:
+            raise ValueError("drift_probe_horizon must be a nonnegative integer")
         if self.block_mode not in {"fixed", "sentence"}:
             raise ValueError("block_mode must be fixed or sentence")
         if self.decision_rule not in {"conjunction", "gamma_only", "real_only"}:
@@ -381,6 +384,13 @@ def decode_counterfactual_blocks(
         )
 
         prefix = (*prefix, *selected_block.tokens)
+        if accepted and config.drift_probe_horizon:
+            trace[-1]["same_prefix_context_drift"] = measure_same_prefix_context_drift(
+                base_session,
+                expert_branches[selected_expert].real_session,
+                prefix=prefix,
+                horizon=config.drift_probe_horizon,
+            )
         if selected_block.finished:
             break
 
@@ -406,6 +416,7 @@ def decode_counterfactual_blocks(
             "sentence_max_tokens": config.sentence_max_tokens,
             "score_reduction": config.score_reduction,
             "min_controls": config.min_controls,
+            "drift_probe_horizon": config.drift_probe_horizon,
             "trained_gate": False,
             "medical_correctness_guaranteed": False,
         },
