@@ -525,3 +525,88 @@ def test_control_builder_excludes_duplicate_image_sha_even_across_groups():
     result = build_controls(rows, count=2, seed=3)
     matched = result[0]["experts"]["e"]["control_provenance"]["matched_ids"]
     assert matched == ["c"]
+
+
+def test_export_existing_expert_cache_to_block_packets_without_inference(tmp_path):
+    from dataclasses import asdict
+
+    from merit_feddg.capability_runtime import ValueGenerationConfig
+    from merit_feddg.open_study import fingerprint
+    from scripts.export_merit_block_packets import _request, export_packets
+
+    manifest = tmp_path / "manifest.jsonl"
+    image = tmp_path / "image.png"
+    image.write_bytes(b"not-read-by-exporter")
+    row = {
+        "id": "case-1",
+        "image": str(image),
+        "question": "Is there cardiomegaly?",
+        "image_sha256": "image-sha",
+        "answer_type": "closed",
+        "task": "open_vqa",
+    }
+    manifest.write_text(json.dumps(row) + "\n", encoding="utf-8")
+
+    cache = tmp_path / "cache"
+    cache.mkdir()
+    identity = "cache-identity"
+    protocol = {
+        "schema": "bard-expert-cache-v1",
+        "identity": identity,
+        "shards_complete": True,
+        "references_loaded": False,
+        "config": {"capability_value": {"generation": {}}},
+    }
+    (cache / "protocol.json").write_text(json.dumps(protocol), encoding="utf-8")
+    descriptor = {
+        "expert": "xrv",
+        "capability": "classification",
+        "scope": "cxr_findings",
+        "description": "",
+        "requires_region": False,
+        "question_type": "finding",
+    }
+    (cache / "schedule.json").write_text(
+        json.dumps({"case-1": [descriptor]}),
+        encoding="utf-8",
+    )
+    (cache / "routing.json").write_text(
+        json.dumps({"case-1": {"modality": "cxr"}}),
+        encoding="utf-8",
+    )
+
+    routed = {**row, "modality": "cxr"}
+    request = _request(routed, descriptor, ValueGenerationConfig())
+    key = fingerprint(["infer", "xrv", asdict(request)])
+    directory = cache / "expert-cache" / fingerprint("case-1")
+    directory.mkdir(parents=True)
+    item = {
+        "evidence_id": "xrv-1",
+        "expert_id": "xrv",
+        "capability": "classification",
+        "scope": "cxr_findings",
+        "payload": {"findings": [{"finding": "Cardiomegaly", "score": 0.8}]},
+        "summary": "Cardiomegaly",
+        "confidence": 0.8,
+        "provenance": {"source": "synthetic-test"},
+    }
+    (directory / f"{key}.json").write_text(
+        json.dumps(
+            {
+                "identity": identity,
+                "output": {
+                    "expert_id": "xrv",
+                    "capability": "classification",
+                    "items": [item],
+                    "reason": "ok",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    exported = export_packets(cache, manifest)
+    assert len(exported) == 1
+    assert exported[0]["experts"] == {"xrv": [item]}
+    assert exported[0]["expert_inference_executed"] is False
+    assert exported[0]["references_read"] is False
