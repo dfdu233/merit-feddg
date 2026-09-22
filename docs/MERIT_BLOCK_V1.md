@@ -292,6 +292,13 @@ Freeze the ablation plan before benchmark scoring:
       --config configs/merit_block.yaml \
       --output runs/merit-block-ablation-plan.json
 
+Existing BARD native expert caches can be converted without rerunning experts:
+
+    python scripts/export_merit_block_packets.py \
+      --expert-cache /path/to/completed/cache/IDENTITY \
+      --manifest /path/to/label-free-manifest.jsonl \
+      --output runs/real-evidence.jsonl
+
 Build controls from frozen real EvidenceItem packets:
 
     python scripts/build_merit_block_controls.py \
