@@ -147,9 +147,9 @@ def _radgraph_proposition(annotation):
     located = [str(value).strip() for value in annotation.get("located_at", []) if str(value).strip()]
     if located:
         sentence += " at " + ", ".join(located)
-    suggested = [str(value).strip() for value in annotation.get("suggestive_of", []) if str(value).strip()]
+    suggested = [str(value).strip() for value in (annotation.get("suggestive_of") or []) if str(value).strip()]
     if suggested:
-        sentence += "; this observation is suggestive of " + ", ".join(suggested)
+        sentence += "; " + "; ".join(suggested)
     return sentence.rstrip(".") + "."
 
 
@@ -190,7 +190,7 @@ class RadGraphClaimizer:
                             "model_type": self.model_type,
                             "observation": observation,
                             "located_at": list(annotation.get("located_at", [])),
-                            "suggestive_of": list(annotation.get("suggestive_of", [])),
+                            "suggestive_of": list(annotation.get("suggestive_of") or []),
                             "tags": list(annotation.get("tags", [])),
                         },
                         metadata={
