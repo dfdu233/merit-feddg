@@ -1,0 +1,52 @@
+merit_block:
+  schema: merit-block-intervention-v1
+  max_new_tokens: 64
+  block_mode: fixed
+  block_tokens: 8
+  sentence_max_tokens: 32
+  decision_rule: conjunction
+  context_policy: ephemeral
+  score_reduction: mean
+  control_kind: matched_wrong_patient
+  controls: 3
+  expert_limit: all
+  numerical_epsilon: 1.0e-8
+  claims:
+    medical_correctness_guaranteed: false
+    target_claim: selective_patient_specific_expert_intervention
+    persistent_context_is_ablation_only: true
+
+ablation_axes:
+  granularity:
+    - {name: token1, block_mode: fixed, block_tokens: 1}
+    - {name: block4, block_mode: fixed, block_tokens: 4}
+    - {name: block8, block_mode: fixed, block_tokens: 8}
+    - {name: block16, block_mode: fixed, block_tokens: 16}
+    - {name: sentence, block_mode: sentence, sentence_max_tokens: 32}
+  locality:
+    - {name: ephemeral, context_policy: ephemeral}
+    - {name: persistent, context_policy: persistent}
+  control:
+    - {name: no_control, control_kind: none, decision_rule: real_only, controls: 0}
+    - {name: random_control, control_kind: random_wrong_patient, decision_rule: conjunction, controls: 3}
+    - {name: matched_control, control_kind: matched_wrong_patient, decision_rule: conjunction, controls: 3}
+  decision:
+    - {name: gamma_only, decision_rule: gamma_only}
+    - {name: real_only, decision_rule: real_only}
+    - {name: conjunction, decision_rule: conjunction}
+  control_count:
+    - {name: k1, controls: 1}
+    - {name: k3, controls: 3}
+    - {name: k5, controls: 5}
+  sequence_score:
+    - {name: mean_logp, score_reduction: mean}
+    - {name: sum_logp, score_reduction: sum}
+  expert_count:
+    - {name: one_expert, expert_limit: 1}
+    - {name: two_experts, expert_limit: 2}
+    - {name: all_experts, expert_limit: all}
+  evidence_condition:
+    - {name: native_real, evidence_fixture: native_real}
+    - {name: plausible_wrong, evidence_fixture: plausible_wrong}
+    - {name: irrelevant, evidence_fixture: irrelevant}
+    - {name: shuffled, evidence_fixture: shuffled}
