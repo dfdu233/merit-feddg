@@ -81,7 +81,7 @@ def export_packets(cache_root, manifest):
                 continue
             items = value.get("items")
             if not isinstance(items, list):
-                raise ValueError(f"{sample_id}/{expert_id}: cached items are invalid")
+                raise TypeError(f"{sample_id}/{expert_id}: cached items are invalid")
             if items:
                 experts.setdefault(expert_id, []).extend(items)
 
