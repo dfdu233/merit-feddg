@@ -1,0 +1,165 @@
+{
+  "n": 256,
+  "protocol": "medheval-decoded-eval-v14-explicit-binary-conclusion",
+  "partial_test": true,
+  "unqualified_exploratory": true,
+  "arms": {
+    "baseline": {
+      "n": 256,
+      "correct": 184,
+      "parseable": 256,
+      "parse_rate": 1.0,
+      "accuracy_invalid_as_error": 0.71875,
+      "accuracy_parseable_only": 0.71875,
+      "accepted": 0,
+      "corrected": 0,
+      "broken": 0
+    },
+    "candidate": {
+      "n": 256,
+      "correct": 184,
+      "parseable": 256,
+      "parse_rate": 1.0,
+      "accuracy_invalid_as_error": 0.71875,
+      "accuracy_parseable_only": 0.71875,
+      "accepted": 6,
+      "corrected": 1,
+      "broken": 1
+    },
+    "biomedclip_claim_verifier": {
+      "n": 256,
+      "correct": 183,
+      "parseable": 256,
+      "parse_rate": 1.0,
+      "accuracy_invalid_as_error": 0.71484375,
+      "accuracy_parseable_only": 0.71484375,
+      "accepted": 1,
+      "corrected": 0,
+      "broken": 1
+    },
+    "conch_claim_verifier": {
+      "n": 256,
+      "correct": 184,
+      "parseable": 256,
+      "parse_rate": 1.0,
+      "accuracy_invalid_as_error": 0.71875,
+      "accuracy_parseable_only": 0.71875,
+      "accepted": 0,
+      "corrected": 0,
+      "broken": 0
+    },
+    "plip_claim_verifier": {
+      "n": 256,
+      "correct": 184,
+      "parseable": 256,
+      "parse_rate": 1.0,
+      "accuracy_invalid_as_error": 0.71875,
+      "accuracy_parseable_only": 0.71875,
+      "accepted": 0,
+      "corrected": 0,
+      "broken": 0
+    },
+    "all_three": {
+      "n": 256,
+      "correct": 183,
+      "parseable": 256,
+      "parse_rate": 1.0,
+      "accuracy_invalid_as_error": 0.71484375,
+      "accuracy_parseable_only": 0.71484375,
+      "accepted": 1,
+      "corrected": 0,
+      "broken": 1
+    }
+  },
+  "changed_cases": [
+    {
+      "id": "omnimedvqa::ISBI2016_0300",
+      "baseline": "B",
+      "candidate": "B. No",
+      "effects": {},
+      "errors": {
+        "input": "answer-not-an-unambiguous-option-label"
+      },
+      "references_read": false,
+      "unqualified_exploratory": true,
+      "proposer_independence_verified": false
+    },
+    {
+      "id": "omnimedvqa::RadImageNet_10470",
+      "baseline": "B",
+      "candidate": "A",
+      "effects": {
+        "biomedclip_claim_verifier": {
+          "real_margin": -0.8893303871154785,
+          "knockoff_margin": -1.0427961945533752,
+          "knockoff_margins": [
+            -0.21355974674224854,
+            -1.5846526622772217,
+            -1.1228067874908447,
+            -0.9627856016159058
+          ],
+          "controls": 4,
+          "differential_effect": 0.15346580743789673,
+          "support_direction": 1
+        }
+      },
+      "errors": {
+        "conch_claim_verifier": "outside-native-modality-scope",
+        "plip_claim_verifier": "outside-native-modality-scope"
+      },
+      "references_read": false,
+      "unqualified_exploratory": true,
+      "proposer_independence_verified": false
+    },
+    {
+      "id": "omnimedvqa::Fitzpatrick 17k_1436",
+      "baseline": "A",
+      "candidate": "A. Metastatic dermal",
+      "effects": {},
+      "errors": {
+        "input": "answer-not-an-unambiguous-option-label"
+      },
+      "references_read": false,
+      "unqualified_exploratory": true,
+      "proposer_independence_verified": false
+    },
+    {
+      "id": "omnimedvqa::Fitzpatrick 17k_0711",
+      "baseline": "A",
+      "candidate": "C",
+      "effects": {},
+      "errors": {
+        "biomedclip_claim_verifier": "outside-native-modality-scope",
+        "conch_claim_verifier": "outside-native-modality-scope",
+        "plip_claim_verifier": "outside-native-modality-scope"
+      },
+      "references_read": false,
+      "unqualified_exploratory": true,
+      "proposer_independence_verified": false
+    },
+    {
+      "id": "omnimedvqa::Fitzpatrick 17k_0096",
+      "baseline": "A",
+      "candidate": "A. Dermoscopy",
+      "effects": {},
+      "errors": {
+        "input": "answer-not-an-unambiguous-option-label"
+      },
+      "references_read": false,
+      "unqualified_exploratory": true,
+      "proposer_independence_verified": false
+    },
+    {
+      "id": "omnimedvqa::Fitzpatrick 17k_0678",
+      "baseline": "A",
+      "candidate": "A. Inflammatory",
+      "effects": {},
+      "errors": {
+        "input": "answer-not-an-unambiguous-option-label"
+      },
+      "references_read": false,
+      "unqualified_exploratory": true,
+      "proposer_independence_verified": false
+    }
+  ]
+}
