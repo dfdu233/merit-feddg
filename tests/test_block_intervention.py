@@ -449,3 +449,79 @@ def test_merit_block_receiver_configs_exclude_old_admission_policies():
         assert "merit_tx" not in config
         assert "bard" not in config
     assert huatuo["generalist"]["backend"] == "huatuo_vision"
+
+
+def _packet_item(expert_id):
+    return {
+        "evidence_id": f"{expert_id}-1",
+        "expert_id": expert_id,
+        "capability": "classification",
+        "scope": "finding",
+        "payload": {"finding": "x", "score": 0.5},
+    }
+
+
+def test_expert_count_ablation_requires_explicit_subset_and_honors_ids():
+    from scripts.run_merit_block import _branch_packets
+
+    experts = {
+        "alpha": {
+            "real": [_packet_item("alpha")],
+            "matched_controls": [],
+            "random_controls": [],
+        },
+        "beta": {
+            "real": [_packet_item("beta")],
+            "matched_controls": [],
+            "random_controls": [],
+        },
+    }
+    arm = {
+        "changed_axis": "expert_count",
+        "expert_limit": 1,
+        "evidence_fixture": "native_real",
+        "control_kind": "none",
+        "controls": 0,
+    }
+    with pytest.raises(ValueError, match="explicit --experts"):
+        _branch_packets(experts, arm)
+    real, _controls, _kind = _branch_packets(
+        experts,
+        arm,
+        explicit_experts=["beta"],
+    )
+    assert list(real) == ["beta"]
+
+
+def test_control_builder_excludes_duplicate_image_sha_even_across_groups():
+    from scripts.build_merit_block_controls import build_controls
+
+    rows = [
+        {
+            "id": "a",
+            "image_sha256": "same",
+            "group_id": "p1",
+            "modality": "cxr",
+            "task": "open_vqa",
+            "experts": {"e": [_packet_item("e")]},
+        },
+        {
+            "id": "b",
+            "image_sha256": "same",
+            "group_id": "p2",
+            "modality": "cxr",
+            "task": "open_vqa",
+            "experts": {"e": [_packet_item("e")]},
+        },
+        {
+            "id": "c",
+            "image_sha256": "different",
+            "group_id": "p3",
+            "modality": "cxr",
+            "task": "open_vqa",
+            "experts": {"e": [_packet_item("e")]},
+        },
+    ]
+    result = build_controls(rows, count=2, seed=3)
+    matched = result[0]["experts"]["e"]["control_provenance"]["matched_ids"]
+    assert matched == ["c"]
