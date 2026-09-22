@@ -79,14 +79,28 @@ def build_controls(rows, *, count=5, seed=20260923, match_fields=("modality", "t
             )
             matched = matched[:count]
             random = random[:count]
+            matched_packets = [
+                other["experts"][expert_id] for other in matched
+            ]
+            random_packets = [
+                other["experts"][expert_id] for other in random
+            ]
+            shuffled_packet = (
+                random_packets[0]
+                if random_packets
+                else matched_packets[0]
+                if matched_packets
+                else None
+            )
             experts[expert_id] = {
                 "real": real,
-                "matched_controls": [
-                    other["experts"][expert_id] for other in matched
-                ],
-                "random_controls": [
-                    other["experts"][expert_id] for other in random
-                ],
+                "matched_controls": matched_packets,
+                "random_controls": random_packets,
+                "fixtures": (
+                    {"shuffled": shuffled_packet}
+                    if shuffled_packet is not None
+                    else {}
+                ),
                 "control_provenance": {
                     "matched_ids": [other["id"] for other in matched],
                     "random_ids": [other["id"] for other in random],
