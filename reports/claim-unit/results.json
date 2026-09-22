@@ -1,0 +1,90 @@
+{
+  "full": {
+    "baseline": {
+      "n": 81,
+      "correct": 51.0,
+      "accepted": 0,
+      "corrected": 0,
+      "broken": 0
+    },
+    "candidate": {
+      "n": 81,
+      "correct": 50.0,
+      "accepted": 15,
+      "corrected": 7,
+      "broken": 8
+    },
+    "biomedclip_claim_verifier": {
+      "n": 81,
+      "correct": 52.0,
+      "accepted": 3,
+      "corrected": 2,
+      "broken": 1
+    },
+    "conch_claim_verifier": {
+      "n": 81,
+      "correct": 49.0,
+      "accepted": 10,
+      "corrected": 4,
+      "broken": 6
+    },
+    "plip_claim_verifier": {
+      "n": 81,
+      "correct": 52.0,
+      "accepted": 1,
+      "corrected": 1,
+      "broken": 0
+    },
+    "all_three": {
+      "n": 81,
+      "correct": 52.0,
+      "accepted": 3,
+      "corrected": 2,
+      "broken": 1
+    }
+  },
+  "short": {
+    "baseline": {
+      "n": 81,
+      "correct": 51.0,
+      "accepted": 0,
+      "corrected": 0,
+      "broken": 0
+    },
+    "candidate": {
+      "n": 81,
+      "correct": 50.0,
+      "accepted": 15,
+      "corrected": 7,
+      "broken": 8
+    },
+    "biomedclip_claim_verifier": {
+      "n": 81,
+      "correct": 49.0,
+      "accepted": 8,
+      "corrected": 3,
+      "broken": 5
+    },
+    "conch_claim_verifier": {
+      "n": 81,
+      "correct": 52.0,
+      "accepted": 7,
+      "corrected": 4,
+      "broken": 3
+    },
+    "plip_claim_verifier": {
+      "n": 81,
+      "correct": 51.0,
+      "accepted": 6,
+      "corrected": 3,
+      "broken": 3
+    },
+    "all_three": {
+      "n": 81,
+      "correct": 50.0,
+      "accepted": 1,
+      "corrected": 0,
+      "broken": 1
+    }
+  }
+}

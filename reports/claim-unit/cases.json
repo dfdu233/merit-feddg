@@ -1,0 +1,2653 @@
+{
+  "full": [
+    {
+      "id": "pathvqa-train-00005-001881",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 2.22536101937294,
+        "plip_claim_verifier": 0.6124028265476227,
+        "biomedclip_claim_verifier": 0.2007624334655702
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "all_three": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-001782",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": -3.6499661207199097,
+        "biomedclip_claim_verifier": -0.5968090295791626
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000029",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-001842",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 0.8115288019180298,
+        "plip_claim_verifier": -0.22618615627288818,
+        "biomedclip_claim_verifier": -0.6552455425262451
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000020",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "biomedclip_claim_verifier": 0.2542343735694885
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001995",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002311",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002208",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002489",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 0.5692099332809448,
+        "plip_claim_verifier": -0.23953353893011808,
+        "biomedclip_claim_verifier": -1.5532699581235647
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-000816",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002679",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.987889900803566,
+        "biomedclip_claim_verifier": -0.15875494480133057
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002196",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -0.9204254150390625,
+        "biomedclip_claim_verifier": -0.6561775803565979
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002266",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.5117543339729309,
+        "biomedclip_claim_verifier": -1.0155074000358582
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002636",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002740",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 2.8975053057074547,
+        "biomedclip_claim_verifier": -1.4086784571409225
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000760",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 5.293991658836603,
+        "biomedclip_claim_verifier": 0.07207942008972168
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001399",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": -2.0563701391220093,
+        "biomedclip_claim_verifier": 0.12506476044654846
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000180",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -1.9896963238716125,
+        "biomedclip_claim_verifier": 0.28710365295410156
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-000879",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "biomedclip_claim_verifier": 0.421991229057312
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001303",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "biomedclip_claim_verifier": 0.5127964057028294
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001825",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 1.2394506335258484,
+        "biomedclip_claim_verifier": -0.3313004821538925
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000103",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -5.020877808332443,
+        "biomedclip_claim_verifier": -4.136336006224155
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-002769",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 0.834595451131463,
+        "biomedclip_claim_verifier": -2.1552940607070923
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001456",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -3.941084060817957,
+        "biomedclip_claim_verifier": -1.70414200425148
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001797",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "biomedclip_claim_verifier": 0.7227039039134979
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-000270",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 1.9542056918144226,
+        "biomedclip_claim_verifier": -1.336605966091156
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002399",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000792",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.33811837434768677,
+        "biomedclip_claim_verifier": -0.2920890748500824
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-001503",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -1.051097646355629,
+        "biomedclip_claim_verifier": -0.5069505572319031
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002448",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -0.30132490396499634,
+        "biomedclip_claim_verifier": 0.08515876531600952
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-001672",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": -0.5675919875502586,
+        "plip_claim_verifier": 0.024557258933782578,
+        "biomedclip_claim_verifier": -0.9101490378379822
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001832",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 1.403706967830658,
+        "biomedclip_claim_verifier": 0.44705307483673096
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002648",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 1.4894739389419556,
+        "biomedclip_claim_verifier": -0.05037409067153931
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000291",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000525",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -3.712420701980591,
+        "plip_claim_verifier": -0.5087793059647083,
+        "biomedclip_claim_verifier": -2.0243952572345734
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002787",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001741",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "biomedclip_claim_verifier": -0.14768635109066963
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-000168",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002674",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -1.1396955251693726,
+        "plip_claim_verifier": 0.1620447039604187,
+        "biomedclip_claim_verifier": -0.4809321165084839
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002624",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-000315",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-000305",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000830",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -1.6527968235313892,
+        "biomedclip_claim_verifier": -1.5037754774093628
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002497",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "biomedclip_claim_verifier": 1.677633285522461
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000934",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -1.7607401609420776,
+        "biomedclip_claim_verifier": -1.753043882548809
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-001352",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-002381",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "biomedclip_claim_verifier": 0.16451816260814667
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002468",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -0.3657100275158882,
+        "biomedclip_claim_verifier": -0.8654249906539917
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000478",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": -2.076716050505638,
+        "biomedclip_claim_verifier": -0.23972409963607788
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-000195",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000524",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 2.6281496584415436,
+        "biomedclip_claim_verifier": -0.7496890425682068
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001278",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 3.7311631441116333,
+        "plip_claim_verifier": -0.09759227052563801,
+        "biomedclip_claim_verifier": -1.1814101934432983
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-000869",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.9033565856516361,
+        "biomedclip_claim_verifier": -0.31206178665161133
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-002518",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-002049",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.6649031043052673,
+        "plip_claim_verifier": -0.2674127519130707,
+        "biomedclip_claim_verifier": -0.18234170973300934
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002412",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001449",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -2.9238055869936943,
+        "biomedclip_claim_verifier": -3.141713187098503
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001130",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-002458",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": -3.4497265070676804,
+        "plip_claim_verifier": -0.30559922382235527,
+        "biomedclip_claim_verifier": -1.4288115426898003
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002262",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-002619",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 0.3202354907989502,
+        "biomedclip_claim_verifier": 0.08987414836883545
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001136",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000932",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 1.317340612411499,
+        "biomedclip_claim_verifier": 1.3422098457813263
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-001007",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 1.1845734994858503,
+        "biomedclip_claim_verifier": 1.2295344471931458
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000171",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -1.2390156239271164,
+        "biomedclip_claim_verifier": -0.8640779107809067
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-002636",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -0.8968307971954346,
+        "biomedclip_claim_verifier": -1.1544468998908997
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-000869",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 1.109098568558693,
+        "biomedclip_claim_verifier": 0.4367365837097168
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002350",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": -2.0890978202223778,
+        "biomedclip_claim_verifier": -2.41973939538002
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001880",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 2.5058055222034454,
+        "biomedclip_claim_verifier": 1.2263292074203491
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002464",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "biomedclip_claim_verifier": 2.5609199702739716
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-001037",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 1.478527009487152,
+        "biomedclip_claim_verifier": -1.040722794830799
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-002635",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-001912",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -2.413292348384857,
+        "biomedclip_claim_verifier": -0.14903998374938965
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002805",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000988",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001332",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-001652",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002587",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-002544",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.489780992269516,
+        "biomedclip_claim_verifier": -1.8812541849911213
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001257",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 1.0670158863067627,
+        "biomedclip_claim_verifier": -1.6378955841064453
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-002468",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -0.8287793099880219,
+        "plip_claim_verifier": -0.36071813851594925,
+        "biomedclip_claim_verifier": -0.6051363945007324
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    }
+  ],
+  "short": [
+    {
+      "id": "pathvqa-train-00005-001881",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 1.3688896072562784,
+        "plip_claim_verifier": -0.02636796236038208,
+        "biomedclip_claim_verifier": 0.15642504394054413
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-001782",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000029",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-001842",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000020",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001995",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002311",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002208",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002489",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-000816",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002679",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002196",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002266",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002636",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002740",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -0.5808098912239075,
+        "plip_claim_verifier": 0.005771860480308533,
+        "biomedclip_claim_verifier": -0.02297436259686947
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000760",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 1.206346035003662,
+        "plip_claim_verifier": -0.0753541998565197,
+        "biomedclip_claim_verifier": -0.30655229091644287
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001399",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000180",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-000879",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001303",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001825",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.33084219694137573,
+        "plip_claim_verifier": 0.03562977910041809,
+        "biomedclip_claim_verifier": -0.02174079790711403
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000103",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-002769",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001456",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001797",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-000270",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 0.2622203379869461,
+        "plip_claim_verifier": -0.0012724995613098145,
+        "biomedclip_claim_verifier": 0.16879284381866455
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002399",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000792",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": -3.2431355714797974,
+        "plip_claim_verifier": 0.002074122428894043,
+        "biomedclip_claim_verifier": 0.02360183745622635
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-001503",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002448",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-001672",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001832",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002648",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000291",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000525",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002787",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001741",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "biomedclip_claim_verifier": -0.27079710364341736
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-000168",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002674",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002624",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-000315",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-000305",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-000830",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": 0.24796047061681747,
+        "plip_claim_verifier": 0.02285408228635788,
+        "biomedclip_claim_verifier": -0.10343742370605469
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002497",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000934",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-001352",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-002381",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002468",
+      "polarity_flip": true,
+      "baseline_correct": 0.0,
+      "candidate_correct": 1.0,
+      "effects": {
+        "conch_claim_verifier": -0.5304758446291089,
+        "plip_claim_verifier": 0.05935492366552353,
+        "biomedclip_claim_verifier": 0.32535122334957123
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": true,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000478",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-000195",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000524",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001278",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-000869",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": -3.951847583055496,
+        "plip_claim_verifier": -0.22396302223205566,
+        "biomedclip_claim_verifier": 0.3054678440093994
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-002518",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-002049",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002412",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001449",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001130",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-002458",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002262",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00006-002619",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001136",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-000932",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-001007",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000171",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-002636",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-000869",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-002350",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001880",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 1.6843070983886719,
+        "plip_claim_verifier": 0.020384572446346283,
+        "biomedclip_claim_verifier": 0.020840048789978027
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": true,
+        "all_three": true
+      }
+    },
+    {
+      "id": "pathvqa-train-00002-002464",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-001037",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-002635",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-001912",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002805",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-000988",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00003-001332",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00005-001652",
+      "polarity_flip": false,
+      "baseline_correct": 0.0,
+      "candidate_correct": 0.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00004-002587",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-002544",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": -1.6928547620773315,
+        "plip_claim_verifier": -0.09236770868301392,
+        "biomedclip_claim_verifier": 0.21444281563162804
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00001-001257",
+      "polarity_flip": true,
+      "baseline_correct": 1.0,
+      "candidate_correct": 0.0,
+      "effects": {
+        "conch_claim_verifier": 0.5737783908843994,
+        "plip_claim_verifier": -0.2501019984483719,
+        "biomedclip_claim_verifier": 0.5200874712318182
+      },
+      "decisions": {
+        "baseline": false,
+        "candidate": true,
+        "biomedclip_claim_verifier": true,
+        "conch_claim_verifier": true,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    },
+    {
+      "id": "pathvqa-train-00000-002468",
+      "polarity_flip": false,
+      "baseline_correct": 1.0,
+      "candidate_correct": 1.0,
+      "effects": {},
+      "decisions": {
+        "baseline": false,
+        "candidate": false,
+        "biomedclip_claim_verifier": false,
+        "conch_claim_verifier": false,
+        "plip_claim_verifier": false,
+        "all_three": false
+      }
+    }
+  ]
+}

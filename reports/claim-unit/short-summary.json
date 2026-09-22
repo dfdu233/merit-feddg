@@ -1,0 +1,337 @@
+{
+  "schema": "merit-tx-source-observations-v1",
+  "candidate_method": "adaptive-bard",
+  "candidate_path": "/home/dbw/merit-tx-v3/runs/claim-unit/short-candidate.json",
+  "proposer_expert_ids": [
+    "biomedparse_objects",
+    "medcpt_pubmed"
+  ],
+  "n_manifest": 81,
+  "observations": 37,
+  "transaction_observations_path": "/home/dbw/merit-tx-v3/runs/claim-unit/short.jsonl.transactions.jsonl",
+  "transaction_observations": 37,
+  "qualification_unit": "unique source group; worst transaction retained within group",
+  "expert_counts": {
+    "biomedclip_claim_verifier": 13,
+    "conch_claim_verifier": 12,
+    "plip_claim_verifier": 12
+  },
+  "knockoff_controls": 4,
+  "excluded_optional_experts": {
+    "musk_claim_verifier": {
+      "reason": "optional_checkpoint_missing",
+      "expected_checkpoint": "/home/dbw/merit-feddg/artifacts/models/xiangjx--musk",
+      "missing_required_assets": [
+        "/home/dbw/merit-feddg/upstream/MUSK/musk/modeling.py",
+        "/home/dbw/merit-feddg/upstream/MUSK/musk/models/tokenizer.spm"
+      ],
+      "id": "xiangjx/musk",
+      "capabilities": [
+        "classification"
+      ],
+      "scope": "pathology_claim_support",
+      "download_attempted": false,
+      "preparation_hint": "python scripts/prepare_expert_pool_assets.py --print-commands"
+    },
+    "medsam_prompted": {
+      "reason": "optional_checkpoint_missing",
+      "expected_checkpoint": "/home/dbw/merit-feddg/artifacts/models/wanglab--medsam-vit-base",
+      "missing_required_assets": [],
+      "id": "wanglab/medsam-vit-base",
+      "capabilities": [
+        "segmentation"
+      ],
+      "scope": "promptable_medical_region",
+      "download_attempted": false,
+      "preparation_hint": "python scripts/prepare_expert_pool_assets.py --download-open"
+    },
+    "medsiglip_claim_verifier": {
+      "reason": "optional_checkpoint_missing",
+      "expected_checkpoint": "/home/dbw/merit-feddg/artifacts/models/google--medsiglip-448",
+      "missing_required_assets": [],
+      "id": "google/medsiglip-448",
+      "capabilities": [
+        "classification"
+      ],
+      "scope": "medical_claim_support",
+      "download_attempted": false,
+      "preparation_hint": "hf download google/medsiglip-448 --local-dir artifacts/models/google--medsiglip-448"
+    }
+  },
+  "skipped": [
+    {
+      "id": "pathvqa-train-00005-001782",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-000029",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-001842",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-000020",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001995",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00002-002311",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002208",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002489",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000816",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002679",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002196",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002266",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002636",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001399",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-000180",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000879",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001303",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-000103",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-002769",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001456",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001797",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002399",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-001503",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002448",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-001672",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001832",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002648",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-000291",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-000525",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002787",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000168",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002674",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002624",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-000315",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000305",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002497",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-000934",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-001352",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-002381",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-000478",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-000195",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-000524",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001278",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-002518",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-002049",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002412",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001449",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001130",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-002458",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002262",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00006-002619",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001136",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-000932",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-001007",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-000171",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-002636",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000869",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002350",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002464",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-001037",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-002635",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-001912",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002805",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-000988",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001332",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-001652",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002587",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-002468",
+      "reason": "candidate-identical-to-incumbent"
+    }
+  ],
+  "references_used_only_for_source_outcome_measurement": true,
+  "target_test_selection": false
+}
