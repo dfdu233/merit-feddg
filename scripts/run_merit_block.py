@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
+from merit_feddg.block_ablation import build_block_ablation_plan
 from merit_feddg.block_intervention import (
     BlockInterventionConfig,
     decode_counterfactual_blocks,
@@ -14,7 +15,6 @@ from merit_feddg.capability_runtime import NativeSession, NativeState, ValueGene
 from merit_feddg.generalist_factory import load_generalist
 from merit_feddg.io import load_experiment_yaml, load_yaml
 from merit_feddg.matched_evaluation import generation_prompt, load_manifest
-from scripts.build_merit_block_ablation_plan import build_plan
 
 
 def _read_packets(path):
@@ -43,7 +43,7 @@ def _items(values):
 
 
 def _arm(method_config, arm_name):
-    plan = build_plan(method_config)
+    plan = build_block_ablation_plan(method_config)
     if arm_name not in plan["arms"]:
         raise ValueError(f"unknown MERIT-Block arm: {arm_name}")
     return plan["arms"][arm_name]
