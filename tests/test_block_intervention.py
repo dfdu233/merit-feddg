@@ -292,31 +292,35 @@ def test_control_builder_is_label_blind_group_disjoint_and_deterministic():
     rows = [
         {
             "id": "a",
+            "image_sha256": "sha-a",
             "group_id": "p1",
             "modality": "cxr",
             "task": "open_vqa",
-            "experts": {"e": [{"evidence_id": "a", "expert_id": "e"}]},
+            "experts": {"e": [{"evidence_id": "a", "expert_id": "e", "capability": "classification", "scope": "finding"}]},
         },
         {
             "id": "b",
+            "image_sha256": "sha-b",
             "group_id": "p2",
             "modality": "cxr",
             "task": "open_vqa",
-            "experts": {"e": [{"evidence_id": "b", "expert_id": "e"}]},
+            "experts": {"e": [{"evidence_id": "b", "expert_id": "e", "capability": "classification", "scope": "finding"}]},
         },
         {
             "id": "c",
+            "image_sha256": "sha-c",
             "group_id": "p3",
             "modality": "cxr",
             "task": "open_vqa",
-            "experts": {"e": [{"evidence_id": "c", "expert_id": "e"}]},
+            "experts": {"e": [{"evidence_id": "c", "expert_id": "e", "capability": "classification", "scope": "finding"}]},
         },
         {
             "id": "d",
+            "image_sha256": "sha-d",
             "group_id": "p4",
             "modality": "pathology",
             "task": "open_vqa",
-            "experts": {"e": [{"evidence_id": "d", "expert_id": "e"}]},
+            "experts": {"e": [{"evidence_id": "d", "expert_id": "e", "capability": "classification", "scope": "finding"}]},
         },
     ]
     first = build_controls(rows, count=2, seed=7)
@@ -341,6 +345,7 @@ def test_control_builder_rejects_reference_fields(tmp_path):
         json.dumps(
             {
                 "id": "a",
+                "image_sha256": "sha-a",
                 "group_id": "p1",
                 "modality": "cxr",
                 "task": "open_vqa",
