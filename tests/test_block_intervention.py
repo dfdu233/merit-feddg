@@ -3,6 +3,7 @@ import json
 import numpy as np
 import pytest
 
+from merit_feddg.block_ablation import build_block_ablation_plan
 from merit_feddg.block_decode import Block
 from merit_feddg.block_intervention import (
     BlockInterventionConfig,
@@ -351,9 +352,8 @@ def test_control_builder_rejects_reference_fields(tmp_path):
 
 def test_ablation_plan_is_one_factor_and_keeps_primary_arm_fixed():
     from merit_feddg.io import load_yaml
-    from scripts.build_merit_block_ablation_plan import build_plan
 
-    plan = build_plan(load_yaml("configs/merit_block.yaml"))
+    plan = build_block_ablation_plan(load_yaml("configs/merit_block.yaml"))
     assert plan["primary_arm"] == "full"
     assert plan["selection_on_target_forbidden"]
     assert plan["one_factor_at_a_time"]
