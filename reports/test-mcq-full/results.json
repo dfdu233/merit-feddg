@@ -1,0 +1,170 @@
+{
+  "pmcvqa_original_route": {
+    "baseline": {
+      "n": 33430,
+      "accuracy": 0.5235417289859408,
+      "accepted": 0,
+      "new_n": 32918,
+      "new_accuracy": 0.523543350142779,
+      "corrected": 0,
+      "broken": 0
+    },
+    "candidate": {
+      "n": 33430,
+      "accuracy": 0.5169309003888722,
+      "accepted": 4390,
+      "new_n": 32918,
+      "new_accuracy": 0.5170423476517407,
+      "corrected": 602,
+      "broken": 823
+    },
+    "biomedclip_claim_verifier": {
+      "n": 33430,
+      "accuracy": 0.5238707747532156,
+      "accepted": 458,
+      "new_n": 32918,
+      "new_accuracy": 0.5239078923385382,
+      "corrected": 161,
+      "broken": 150
+    },
+    "conch_claim_verifier": {
+      "n": 33430,
+      "accuracy": 0.523422075979659,
+      "accepted": 344,
+      "new_n": 32918,
+      "new_accuracy": 0.5234825931101525,
+      "corrected": 114,
+      "broken": 118
+    },
+    "plip_claim_verifier": {
+      "n": 33430,
+      "accuracy": 0.5230631169608136,
+      "accepted": 348,
+      "new_n": 32918,
+      "new_accuracy": 0.5231180509143933,
+      "corrected": 106,
+      "broken": 122
+    },
+    "all_three": {
+      "n": 33430,
+      "accuracy": 0.5241699072689201,
+      "accepted": 259,
+      "new_n": 32918,
+      "new_accuracy": 0.5242116775016709,
+      "corrected": 98,
+      "broken": 77
+    }
+  },
+  "mmmu_original_route": {
+    "baseline": {
+      "n": 10500,
+      "accuracy": 0.43333333333333335,
+      "accepted": 0,
+      "new_n": 9988,
+      "new_accuracy": 0.43352022426912296,
+      "corrected": 0,
+      "broken": 0
+    },
+    "candidate": {
+      "n": 10500,
+      "accuracy": 0.4319047619047619,
+      "accepted": 1222,
+      "new_n": 9988,
+      "new_accuracy": 0.43211854225070084,
+      "corrected": 155,
+      "broken": 170
+    },
+    "biomedclip_claim_verifier": {
+      "n": 10500,
+      "accuracy": 0.43304761904761907,
+      "accepted": 89,
+      "new_n": 9988,
+      "new_accuracy": 0.4330196235482579,
+      "corrected": 27,
+      "broken": 30
+    },
+    "conch_claim_verifier": {
+      "n": 10500,
+      "accuracy": 0.4338095238095238,
+      "accepted": 11,
+      "new_n": 9988,
+      "new_accuracy": 0.434020824989988,
+      "corrected": 6,
+      "broken": 1
+    },
+    "plip_claim_verifier": {
+      "n": 10500,
+      "accuracy": 0.43304761904761907,
+      "accepted": 18,
+      "new_n": 9988,
+      "new_accuracy": 0.43321986383660394,
+      "corrected": 5,
+      "broken": 8
+    },
+    "all_three": {
+      "n": 10500,
+      "accuracy": 0.43304761904761907,
+      "accepted": 77,
+      "new_n": 9988,
+      "new_accuracy": 0.4331197436924309,
+      "corrected": 23,
+      "broken": 26
+    }
+  },
+  "mmmu_medical_subject_scope": {
+    "baseline": {
+      "n": 10500,
+      "accuracy": 0.43333333333333335,
+      "accepted": 0,
+      "new_n": 9988,
+      "new_accuracy": 0.43352022426912296,
+      "corrected": 0,
+      "broken": 0
+    },
+    "candidate": {
+      "n": 10500,
+      "accuracy": 0.4319047619047619,
+      "accepted": 1222,
+      "new_n": 9988,
+      "new_accuracy": 0.43211854225070084,
+      "corrected": 155,
+      "broken": 170
+    },
+    "biomedclip_claim_verifier": {
+      "n": 10500,
+      "accuracy": 0.43304761904761907,
+      "accepted": 18,
+      "new_n": 9988,
+      "new_accuracy": 0.4331197436924309,
+      "corrected": 5,
+      "broken": 8
+    },
+    "conch_claim_verifier": {
+      "n": 10500,
+      "accuracy": 0.4337142857142857,
+      "accepted": 6,
+      "new_n": 9988,
+      "new_accuracy": 0.43392070484581496,
+      "corrected": 4,
+      "broken": 0
+    },
+    "plip_claim_verifier": {
+      "n": 10500,
+      "accuracy": 0.43333333333333335,
+      "accepted": 11,
+      "new_n": 9988,
+      "new_accuracy": 0.43342010412494997,
+      "corrected": 4,
+      "broken": 4
+    },
+    "all_three": {
+      "n": 10500,
+      "accuracy": 0.43304761904761907,
+      "accepted": 10,
+      "new_n": 9988,
+      "new_accuracy": 0.43321986383660394,
+      "corrected": 2,
+      "broken": 5
+    }
+  }
+}
