@@ -92,7 +92,7 @@ def _branch_packets(experts, arm):
     return real_items, control_items, control_kind
 
 
-def _runtime_config(arm, task):
+def _runtime_config(arm, task, *, drift_horizon=0):
     task_budgets = arm.get("task_max_new_tokens", {})
     max_new_tokens = int(task_budgets.get(task, arm["max_new_tokens"]))
     controls = int(arm.get("controls", 0))
@@ -106,6 +106,7 @@ def _runtime_config(arm, task):
         score_reduction=str(arm["score_reduction"]),
         min_controls=max(1, controls),
         numerical_epsilon=float(arm["numerical_epsilon"]),
+        drift_probe_horizon=int(drift_horizon),
     )
 
 
@@ -134,6 +135,15 @@ def main():
     parser.add_argument("--arm", default="full")
     parser.add_argument("--artifacts", default="artifacts")
     parser.add_argument("--output", required=True)
+    parser.add_argument(
+        "--drift-horizon",
+        type=int,
+        default=0,
+        help=(
+            "Diagnostic only: after an accepted block, measure same-prefix "
+            "persistent-context JSD for this many Generalist-forced steps."
+        ),
+    )
     args = parser.parse_args()
 
     receiver = load_experiment_yaml(args.receiver_config)
@@ -178,7 +188,11 @@ def main():
             result = decode_counterfactual_blocks(
                 base_session,
                 branches,
-                config=_runtime_config(arm, row["task"]),
+                config=_runtime_config(
+                    arm,
+                    row["task"],
+                    drift_horizon=args.drift_horizon,
+                ),
             )
             record = {
                 "id": row["id"],
