@@ -326,6 +326,11 @@ def test_control_builder_is_label_blind_group_disjoint_and_deterministic():
     assert set(a["control_provenance"]["matched_ids"]) == {"b", "c"}
     assert "a" not in a["control_provenance"]["matched_ids"]
     assert a["control_provenance"]["labels_used"] is False
+    assert a["fixtures"]["shuffled"] in (
+        rows[1]["experts"]["e"],
+        rows[2]["experts"]["e"],
+        rows[3]["experts"]["e"],
+    )
 
 
 def test_control_builder_rejects_reference_fields(tmp_path):
@@ -382,3 +387,44 @@ def test_optional_drift_probe_is_diagnostic_only():
     assert trace["expert_block_committed"]
     assert trace["same_prefix_context_drift"]["horizon"] == 2
     assert result["method"]["drift_probe_horizon"] == 2
+
+
+def test_label_free_mechanism_summary_reports_acceptance_drift_and_cost():
+    from scripts.summarize_merit_block_runs import summarize
+
+    rows = [
+        {
+            "id": "x",
+            "seconds": 1.25,
+            "references_read": False,
+            "trace": [
+                {
+                    "expert_block_committed": True,
+                    "selected_expert": "e",
+                    "same_prefix_context_drift": {
+                        "mean_js": 0.2,
+                        "greedy_disagreement_rate": 0.5,
+                    },
+                    "experts": {
+                        "e": {
+                            "reason": "absolute_support_and_counterfactual_specificity",
+                            "real_margin": 0.8,
+                            "gamma": 0.6,
+                            "control_count": 3,
+                            "next_score_queries": 4,
+                            "sequence_score_calls": 0,
+                        }
+                    },
+                }
+            ],
+        }
+    ]
+    result = summarize(rows)
+    assert result["cases"] == 1
+    assert result["accepted_blocks"] == 1
+    assert result["block_accept_rate"] == pytest.approx(1.0)
+    assert result["mean_same_prefix_js"] == pytest.approx(0.2)
+    assert result["mean_greedy_disagreement_rate"] == pytest.approx(0.5)
+    assert result["selected_experts"] == {"e": 1}
+    assert result["wall_seconds"] == pytest.approx(1.25)
+    assert result["references_read"] is False
