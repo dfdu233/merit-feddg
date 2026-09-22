@@ -35,7 +35,7 @@
   "implemented": {
     "immutable_incumbent_transactions": true,
     "same_algorithm_vqa_and_report": true,
-    "qualification_schema": "merit-expert-qualification-v4",
+    "qualification_schema": "merit-expert-qualification-v3",
     "separates_action_prevalence_from_directional_precision": true,
     "consequential_support_precision": true,
     "consequential_veto_precision": true,
