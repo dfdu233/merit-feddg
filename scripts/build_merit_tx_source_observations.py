@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 
 from merit_feddg.capability_study import _filter_optional_experts
-from merit_feddg.contribution import answer_metrics
+from merit_feddg.contribution import answer_metrics, answer_token_recall, mixed_vqa_score
 from merit_feddg.expert_policy import role_card, transaction_descriptors
 from merit_feddg.io import load_experiment_yaml
 from merit_feddg.knockoff import select_matched_knockoffs
@@ -175,6 +175,7 @@ def main():
     parser.add_argument("--config", default="configs/merit_tx.yaml")
     parser.add_argument("--artifacts", default="artifacts")
     parser.add_argument("--proposer-expert-id")
+    parser.add_argument("--proposer-map")
     parser.add_argument(
         "--proposer-expert-ids",
         nargs="*",
@@ -184,7 +185,16 @@ def main():
             "Accepts repeated values or comma-separated groups."
         ),
     )
-    parser.add_argument("--metric", choices=("token_f1", "exact_match"), default="token_f1")
+    parser.add_argument(
+        "--metric",
+        choices=("mixed_vqa", "answer_recall", "token_f1", "exact_match"),
+        default="mixed_vqa",
+        help=(
+            "Source-only transaction utility. mixed_vqa matches the frozen "
+            "closed-binary/open-answer-recall evaluation family and avoids "
+            "penalizing correct explanatory open answers for verbosity."
+        ),
+    )
     parser.add_argument("--claim-type", default="*")
     parser.add_argument("--knockoff-controls", type=int)
     parser.add_argument("--output", required=True)
@@ -207,6 +217,9 @@ def main():
         if set(mapping) != set(ids):
             raise ValueError(f"{name} IDs must exactly match the source manifest")
 
+    proposer_map = json.loads(Path(args.proposer_map).read_text()) if args.proposer_map else {}
+    if args.proposer_map and set(proposer_map) != set(ids):
+        raise ValueError("proposer map IDs must match manifest")
     config = load_experiment_yaml(args.config)
     specs, excluded = _filter_optional_experts(config["experts"], args.artifacts)
     specs.pop("source_cases", None)
@@ -235,6 +248,10 @@ def main():
     try:
         for row in rows:
             sample_id = str(row["id"])
+            if args.proposer_map:
+                proposer_ids = normalize_proposer_expert_ids(None, proposer_map[sample_id])
+                if any(name not in specs for name in proposer_ids):
+                    raise ValueError("unavailable proposer")
             task = str(row["task"])
             if task == "report_generation":
                 if radgraph is None:
@@ -282,7 +299,11 @@ def main():
                 skipped.append({"id": sample_id, "reason": "no-native-direct-visual-verifier"})
                 continue
 
-            match_fields = ("question_type",) if row.get("question_type") else ()
+            # Native verifier scores are functions of the image and the same
+            # compiled candidate/incumbent propositions. Question type is not
+            # an input nuisance variable for these scorers, so matching on it
+            # only destroys control coverage. Expert specs may opt into extra
+            # answer-blind match fields when their native interface requires it.
             for transaction in transactions:
                 if transaction.operation == "DELETE":
                     skipped.append(
@@ -310,12 +331,31 @@ def main():
                         transaction, baseline_claims, reference_claims
                     )
                 else:
-                    before = answer_metrics(
-                        baseline[sample_id], references[sample_id]
-                    )[args.metric]
-                    after = answer_metrics(
-                        candidate[sample_id], references[sample_id]
-                    )[args.metric]
+                    if args.metric == "mixed_vqa":
+                        before = mixed_vqa_score(
+                            baseline[sample_id],
+                            references[sample_id],
+                            answer_type=row.get("answer_type"),
+                        )
+                        after = mixed_vqa_score(
+                            candidate[sample_id],
+                            references[sample_id],
+                            answer_type=row.get("answer_type"),
+                        )
+                    elif args.metric == "answer_recall":
+                        before = answer_token_recall(
+                            baseline[sample_id], references[sample_id]
+                        )
+                        after = answer_token_recall(
+                            candidate[sample_id], references[sample_id]
+                        )
+                    else:
+                        before = answer_metrics(
+                            baseline[sample_id], references[sample_id]
+                        )[args.metric]
+                        after = answer_metrics(
+                            candidate[sample_id], references[sample_id]
+                        )[args.metric]
                     outcome_delta = float(after - before)
 
                 for descriptor in verifiers:
@@ -336,13 +376,22 @@ def main():
                         )
                         continue
 
-                    controls = select_matched_knockoffs(
-                        rows,
-                        row,
-                        expert_id=expert_id,
-                        count=knockoff_count,
-                        match_fields=match_fields,
-                    )
+                    try:
+                        controls = select_matched_knockoffs(
+                            rows,
+                            row,
+                            expert_id=expert_id,
+                            count=knockoff_count,
+                            match_fields=tuple(
+                                specs[expert_id].get("knockoff_match_fields", ())
+                            ),
+                        )
+                    except ValueError as exc:
+                        if not str(exc).startswith("insufficient matched source controls"):
+                            raise
+                        skipped.append({"id": sample_id, "expert_id": expert_id,
+                                        "reason": "insufficient-matched-controls"})
+                        continue
                     knockoff_pairs = []
                     for control in controls:
                         incumbent_control, candidate_control = native_scores(
@@ -370,6 +419,11 @@ def main():
                             "real_effect": effect["real_margin"],
                             "knockoff_effect": effect["knockoff_margin"],
                             "differential_effect": effect["differential_effect"],
+                            "support_direction": effect["support_direction"],
+                            "evidence_certificate": effect["certificate"],
+                            "specificity_pvalue": effect["specificity_pvalue"],
+                            "support_rank_pvalue": effect["support_rank_pvalue"],
+                            "veto_rank_pvalue": effect["veto_rank_pvalue"],
                             "knockoff_margins": list(effect["knockoff_margins"]),
                             "knockoff_ids": [control["id"] for control in controls],
                             "candidate_method": candidate_name,
@@ -429,6 +483,8 @@ def main():
         "qualification_unit": "unique source group; worst transaction retained within group",
         "expert_counts": dict(sorted(expert_counts.items())),
         "knockoff_controls": knockoff_count,
+        "evidence_rule": "absolute-current-image-support-and-strict-control-dominance",
+        "source_outcome_metric": args.metric,
         "excluded_optional_experts": excluded,
         "skipped": skipped,
         "references_used_only_for_source_outcome_measurement": True,
