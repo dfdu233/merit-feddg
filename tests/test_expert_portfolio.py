@@ -9,6 +9,7 @@ from merit_feddg.expert_portfolio import (
     portfolio_experts_for,
     require_disjoint_source_groups,
 )
+from scripts.audit_evidence_certificate_upgrade import audit as audit_certificate_upgrade
 from scripts.fit_expert_qualification import fit as fit_qualification
 from scripts.split_merit_tx_source import assign_units, build_units
 
@@ -74,6 +75,7 @@ def _row(index, expert, effect, outcome, *, split="source"):
         "real_effect": effect,
         "knockoff_effect": 0.0,
         "differential_effect": effect,
+        "support_direction": 1 if effect > 0 else -1 if effect < 0 else 0,
         "proposer_expert_ids": [],
         "split": split,
         "target_test_selection": False,
@@ -98,7 +100,7 @@ def _policy():
     }
 
 
-def test_v3_directional_precision_excludes_neutral_source_transactions():
+def test_v4_directional_precision_excludes_neutral_source_transactions():
     rows = []
     for index in range(20):
         rows.append(
@@ -114,6 +116,7 @@ def test_v3_directional_precision_excludes_neutral_source_transactions():
                 "outcome_delta": 0.5 if index < 4 else 0.0,
                 "real_effect": 0.8,
                 "knockoff_effect": 0.0,
+                "support_direction": 1,
             }
         )
     card = fit_qualification(rows)["cards"][0]
@@ -290,7 +293,7 @@ def test_source_policy_stages_require_group_disjointness():
         )
 
 
-def test_v3_qualification_records_source_group_identity():
+def test_v4_qualification_records_source_group_identity():
     rows = []
     for index in range(8):
         rows.append(
@@ -306,6 +309,7 @@ def test_v3_qualification_records_source_group_identity():
                 "outcome_delta": 0.5 if index < 4 else 0.0,
                 "real_effect": 0.8,
                 "knockoff_effect": 0.0,
+                "support_direction": 1,
             }
         )
     payload = fit_qualification(rows)
@@ -349,3 +353,33 @@ def test_three_way_source_units_merge_duplicate_images_even_with_different_group
         ratios=(0.5, 0.25, 0.25),
     )
     assert assignment[merged["root"]] in {"qualification", "portfolio", "canary"}
+
+def test_v4_replay_audit_separates_removed_harm_from_true_support():
+    rows = [
+        {
+            "expert_id": "biomedclip",
+            "group_id": "harm",
+            "transaction_id": "harm-tx",
+            "real_effect": -0.88933,
+            "knockoff_margins": (-1.20, -1.10, -0.98560, -0.90),
+            "outcome_delta": -1.0,
+            "split": "source",
+        },
+        {
+            "expert_id": "biomedclip",
+            "group_id": "help",
+            "transaction_id": "help-tx",
+            "real_effect": 1.0,
+            "knockoff_margins": (0.1, 0.2, 0.3, 0.4),
+            "outcome_delta": 1.0,
+            "split": "source",
+        },
+    ]
+    result = audit_certificate_upgrade(rows)
+    overall = result["overall"]
+    assert overall["legacy_support"] == 2
+    assert overall["v4_support"] == 1
+    assert overall["legacy_support_removed"] == 1
+    assert overall["removed_support_harmful"] == 1
+    assert overall["relative_only_false_support_shape"] == 1
+

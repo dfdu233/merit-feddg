@@ -289,7 +289,9 @@ def verify_transaction(
     evidences = []
     skipped = []
     control_audit = {}
-    match_fields = ("question_type",) if row.get("question_type") else ()
+    # Native verification compares the same candidate/incumbent propositions
+    # across images. Extra control matching is expert-specific, not tied to the
+    # VQA question type unless the expert explicitly declares that nuisance.
     for descriptor in verifiers:
         expert_id = descriptor["expert"]
         try:
@@ -301,7 +303,9 @@ def verify_transaction(
                 row,
                 expert_id=expert_id,
                 count=knockoff_count,
-                match_fields=match_fields,
+                match_fields=tuple(
+                    specs[expert_id].get("knockoff_match_fields", ())
+                ),
             )
             pairs = [
                 native_scores(pool, expert_id, control["image"], claim)
@@ -330,6 +334,10 @@ def verify_transaction(
             "ids": [control["id"] for control in controls],
             "count": len(controls),
             "matching": controls[0]["selection"] if controls else None,
+            "certificate": evidence.support_direction,
+            "real_margin": evidence.real_margin,
+            "differential_effect": evidence.differential_effect,
+            "specificity_pvalue": evidence.specificity_pvalue,
         }
 
     decision = decide_transaction(

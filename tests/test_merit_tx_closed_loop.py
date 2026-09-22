@@ -96,24 +96,68 @@ def _descriptor(name, capability):
     }
 
 
-def test_differential_direction_is_defined_by_matched_control_effect():
-    support = differential_margin_controls(
+def test_v4_certificate_rejects_relative_only_support_and_veto():
+    # OmniMedVQA exposed this exact failure class: D>0 even though the real
+    # image still prefers the incumbent. v4 must abstain.
+    relative_only = differential_margin_controls(
         incumbent_real=1.0,
         candidate_real=0.9,
         knockoff_pairs=((1.0, 0.1), (1.0, 0.2), (1.0, 0.0)),
     )
-    assert support["real_margin"] == pytest.approx(-0.1)
-    assert support["differential_effect"] > 0
-    assert support["support_direction"] == 1
+    assert relative_only["real_margin"] == pytest.approx(-0.1)
+    assert relative_only["differential_effect"] > 0
+    assert relative_only["support_direction"] == 0
+    assert relative_only["certificate"] == "abstain"
 
-    contradiction = differential_margin_controls(
+    reverse_relative_only = differential_margin_controls(
         incumbent_real=1.0,
         candidate_real=1.3,
         knockoff_pairs=((1.0, 2.0), (1.0, 2.1), (1.0, 1.9)),
     )
-    assert contradiction["real_margin"] > 0
-    assert contradiction["differential_effect"] < 0
-    assert contradiction["support_direction"] == -1
+    assert reverse_relative_only["real_margin"] > 0
+    assert reverse_relative_only["differential_effect"] < 0
+    assert reverse_relative_only["support_direction"] == 0
+
+
+def test_v4_rejects_omnmed_relative_only_false_support_regression():
+    # Frozen OmniMedVQA pilot: real image preferred the incumbent by -0.88933,
+    # but the median wrong-patient margin was -1.04280, so legacy D=+0.15347
+    # incorrectly admitted the candidate. Absolute support must dominate first.
+    value = differential_margin_controls(
+        incumbent_real=0.0,
+        candidate_real=-0.88933,
+        knockoff_pairs=(
+            (0.0, -1.20),
+            (0.0, -1.10),
+            (0.0, -0.98560),
+            (0.0, -0.90),
+        ),
+    )
+    assert value["knockoff_margin"] == pytest.approx(-1.04280)
+    assert value["differential_effect"] == pytest.approx(0.15347)
+    assert value["real_margin"] < 0
+    assert value["support_direction"] == 0
+    assert value["certificate"] == "abstain"
+
+
+def test_v4_certificate_requires_absolute_preference_and_control_dominance():
+    support = differential_margin_controls(
+        incumbent_real=1.0,
+        candidate_real=2.0,
+        knockoff_pairs=((1.0, 1.2), (1.0, 1.3), (1.0, 1.1), (1.0, 1.4)),
+    )
+    assert support["real_margin"] == pytest.approx(1.0)
+    assert support["support_direction"] == 1
+    assert support["specificity_pvalue"] == pytest.approx(0.2)
+
+    veto = differential_margin_controls(
+        incumbent_real=2.0,
+        candidate_real=1.0,
+        knockoff_pairs=((1.0, 0.8), (1.0, 0.9), (1.0, 0.7), (1.0, 0.6)),
+    )
+    assert veto["real_margin"] == pytest.approx(-1.0)
+    assert veto["support_direction"] == -1
+    assert veto["specificity_pvalue"] == pytest.approx(0.2)
 
 
 def test_negative_patient_specific_differential_is_a_qualified_veto():
@@ -392,6 +436,7 @@ def _qualification_row(index, *, outcome_delta, effect, domain):
         "outcome_delta": outcome_delta,
         "real_effect": effect,
         "knockoff_effect": 0.0,
+        "support_direction": 1 if effect > 0 else -1 if effect < 0 else 0,
     }
 
 
@@ -712,7 +757,7 @@ def test_action_domain_coverage_cannot_be_borrowed_from_inactive_domains():
     assert not card.authorizes_commit(min_domains=2)
 
 
-def test_v3_qualification_schema_rejects_legacy_cards(tmp_path):
+def test_v4_qualification_schema_rejects_legacy_cards(tmp_path):
     rows = [
         _qualification_row(
             index,
@@ -723,7 +768,7 @@ def test_v3_qualification_schema_rejects_legacy_cards(tmp_path):
         for index in range(40)
     ]
     payload = fit(rows)
-    assert payload["schema"] == "merit-expert-qualification-v3"
+    assert payload["schema"] == "merit-expert-qualification-v4"
     path = tmp_path / "cards.json"
     path.write_text(json.dumps(payload), encoding="utf-8")
     loaded = load_qualification_cards(path)

@@ -241,7 +241,7 @@ def load_qualification_cards(path):
     if path is None:
         return {}
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
-    if payload.get("schema") != "merit-expert-qualification-v3":
+    if payload.get("schema") != "merit-expert-qualification-v4":
         raise ValueError("unsupported expert qualification card schema")
     if payload.get("source_only") is not True:
         raise ValueError("expert qualification must be source-only")

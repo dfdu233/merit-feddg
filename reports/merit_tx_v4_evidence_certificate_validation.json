@@ -1,0 +1,104 @@
+{
+  "schema": "merit-tx-v4-evidence-certificate-validation-v1",
+  "base_branch": "implementation/merit-tx-portfolio-v3",
+  "experiment_branch_reviewed": "experiments/merit-tx-v3-host-validation",
+  "validated_code_commit": "9183358c9fa9f4704afcac26fbb9e969edd19260",
+  "final_head_before_report": "fd16b4a2b3c30000951cdcdf818a6cefc12fb84a",
+  "github_actions": {
+    "run_id": 35765903039,
+    "torch_enabled_job": "open-generation-cpu",
+    "pytest": {
+      "passed": 277,
+      "failed": 0,
+      "seconds": 7.66
+    },
+    "cli_smoke": {
+      "evidence_certificate_replay_help": "passed",
+      "source_observation_builder_help": "passed",
+      "qualification_fitter_help": "passed",
+      "portfolio_fitter_help": "passed",
+      "source_canary_help": "passed"
+    },
+    "new_v4_ruff_findings": 0,
+    "workflow_green": false,
+    "workflow_blockers": [
+      "generic repository test job installs no torch while collecting existing spatial tests",
+      "repository-wide Ruff retains unrelated legacy findings"
+    ]
+  },
+  "experiment_diagnosis": {
+    "pathvqa_full": {
+      "n": 6719,
+      "generalist": 0.3865673400727572,
+      "bard_candidate": 0.3582847757634204,
+      "biomedclip": 0.3856118816716225,
+      "conch": 0.3819738978134114,
+      "plip": 0.3889485757055766,
+      "joint": 0.38811824567523295
+    },
+    "omnimedvqa_full": {
+      "n": 17673,
+      "generalist": 0.6810388728569003,
+      "bard_candidate": 0.6827363775250382,
+      "joint_v3": 0.682057375657783
+    },
+    "omnimedvqa_margin_replay": {
+      "changed_cases": 520,
+      "verifier_effects": 191,
+      "v3_support": 95,
+      "v3_veto": 96,
+      "v4_support": 32,
+      "v4_veto": 38,
+      "relative_only_support_with_nonpositive_real_margin": 32,
+      "relative_only_veto_with_nonnegative_real_margin": 27,
+      "v3_joint_accepts": 42,
+      "v4_joint_accepts_label_blind": 24,
+      "note": "mechanism replay only; target labels were not used to choose or tune the v4 rule"
+    },
+    "known_counterexample": {
+      "real_margin": -0.88933,
+      "control_median": -1.0428,
+      "legacy_differential": 0.15347,
+      "legacy_action": "support",
+      "v4_action": "abstain"
+    }
+  },
+  "implemented": {
+    "absolute_current_image_support_required": true,
+    "strict_matched_control_dominance": true,
+    "symmetric_veto_certificate": true,
+    "rank_specificity_audit": true,
+    "transaction_decision_uses_certificate_direction": true,
+    "qualification_schema": "merit-expert-qualification-v4",
+    "qualification_uses_certificate_actions": true,
+    "portfolio_replay_uses_certificate_actions": true,
+    "mixed_vqa_source_utility": true,
+    "default_question_type_control_matching_removed": true,
+    "expert_specific_knockoff_match_fields_supported": true,
+    "plip_overlength_claims_fail_closed": true,
+    "zero_inference_v3_to_v4_replay": true,
+    "omni_relative_only_failure_regression_test": true,
+    "immutable_v3_validation_record_restored": true
+  },
+  "not_validated": {
+    "real_v4_source_q_rebuild": false,
+    "real_v4_qualification_cards": false,
+    "real_v4_source_p_portfolio": false,
+    "real_v4_source_c_canary": false,
+    "fresh_v4_target_benchmark": false,
+    "benchmark_improvement": false,
+    "proposal_default_policy": false
+  },
+  "stop_conditions": [
+    "Run zero-inference source replay before GPU inference.",
+    "If v4 removes helpful source actions at least as often as harmful actions, do not scale.",
+    "If no verifier achieves positive source utility LCB and bounded harm under mixed_vqa, keep the empty portfolio.",
+    "Do not introduce proposal-default mode from target results; estimate it on source and validate on fresh source-C first."
+  ],
+  "notes": [
+    "v4 fixes an evidence-definition error rather than tuning a target threshold.",
+    "The exploratory target results are used only to diagnose failure mechanisms.",
+    "PathVQA/VQA-RAD and OmniMedVQA/SLAKE show opposite proposal-utility regimes; source-qualified bidirectional proposal policy is a separate future hypothesis, not enabled here.",
+    "The final branch contains documentation/validation-only commits after the validated code commit."
+  ]
+}

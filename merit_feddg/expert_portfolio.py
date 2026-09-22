@@ -172,11 +172,11 @@ def _qualified_action(
     )
     if qcard is None:
         return None
-    effect = float(row["differential_effect"])
+    direction = int(row["support_direction"])
     card = role_card(expert_id, specs[expert_id])
     if not card.patient_specific or card.commit_authority != "source_qualified":
         return None
-    if effect > 0 and qcard.authorizes_commit(
+    if direction > 0 and qcard.authorizes_commit(
         min_domains=int(policy["qualification_min_domains"]),
         max_harm_ucb=float(policy["qualification_max_harm_ucb"]),
         min_support_precision_lcb=float(
@@ -185,7 +185,7 @@ def _qualified_action(
         min_consequential=int(policy["qualification_min_consequential"]),
     ):
         return "support"
-    if effect < 0 and qcard.authorizes_veto(
+    if direction < 0 and qcard.authorizes_veto(
         min_domains=int(policy["qualification_min_domains"]),
         min_veto_precision_lcb=float(
             policy["qualification_min_veto_precision_lcb"]
@@ -361,6 +361,7 @@ def fit_expert_portfolios(
             "transaction_id",
             "outcome_delta",
             "differential_effect",
+            "support_direction",
         ):
             if key not in row:
                 raise ValueError(f"portfolio observation missing {key}")

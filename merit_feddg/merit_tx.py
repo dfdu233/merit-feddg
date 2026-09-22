@@ -32,25 +32,33 @@ class TransactionEvidence:
     differential_effect: float
     support_direction: int
     patient_specific: bool
+    real_margin: float = 0.0
+    specificity_pvalue: float = 1.0
+    controls: int = 0
 
     def __post_init__(self):
         if not self.expert_id or not self.capability or not self.scope or not self.fault_group:
             raise ValueError("transaction evidence identity cannot be empty")
         if self.support_direction not in {-1, 0, 1}:
             raise ValueError("support_direction must be -1, 0, or 1")
-        if not math.isfinite(self.differential_effect):
-            raise ValueError("differential effect must be finite")
-        expected_direction = (
-            1
-            if self.differential_effect > 0
-            else -1
-            if self.differential_effect < 0
-            else 0
-        )
-        if self.support_direction != expected_direction:
-            raise ValueError(
-                "support_direction must equal sign(differential_effect)"
-            )
+        if not math.isfinite(self.differential_effect) or not math.isfinite(self.real_margin):
+            raise ValueError("transaction evidence margins must be finite")
+        if not 0 < self.specificity_pvalue <= 1:
+            raise ValueError("specificity_pvalue must be in (0,1]")
+        if type(self.controls) is not int or self.controls < 0:
+            raise ValueError("controls must be a nonnegative integer")
+        # Native v4 certificates require both absolute support on the current
+        # image and counterfactual specificity against matched wrong-patient
+        # controls. Legacy/manual test evidence with controls=0 remains valid.
+        if self.controls:
+            if self.support_direction > 0 and not (
+                self.real_margin > 0 and self.differential_effect > 0
+            ):
+                raise ValueError("positive certificate needs positive real and differential margins")
+            if self.support_direction < 0 and not (
+                self.real_margin < 0 and self.differential_effect < 0
+            ):
+                raise ValueError("negative certificate needs negative real and differential margins")
 
 
 @dataclass(frozen=True)
@@ -94,7 +102,7 @@ def differential_margin(
     incumbent_knockoff,
     candidate_knockoff,
 ):
-    """Current-patient candidate margin minus matched-control candidate margin."""
+    """One-control absolute + counterfactual evidence certificate."""
     values = (
         incumbent_real,
         candidate_real,
@@ -109,15 +117,27 @@ def differential_margin(
     real_margin = values[1] - values[0]
     knockoff_margin = values[3] - values[2]
     differential = real_margin - knockoff_margin
+    direction = (
+        1
+        if real_margin > 0 and real_margin > knockoff_margin
+        else -1
+        if real_margin < 0 and real_margin < knockoff_margin
+        else 0
+    )
     return {
         "real_margin": real_margin,
         "knockoff_margin": knockoff_margin,
         "differential_effect": differential,
-        # Direction is defined by the patient-specific contrast D_e, not by
-        # the expert's absolute candidate-vs-incumbent margin.  A biased
-        # verifier may prefer the incumbent on every image while still moving
-        # specifically toward the candidate on the current patient.
-        "support_direction": 1 if differential > 0 else -1 if differential < 0 else 0,
+        "support_direction": direction,
+        "certificate": (
+            "absolute-specific-support"
+            if direction > 0
+            else "absolute-specific-veto"
+            if direction < 0
+            else "abstain"
+        ),
+        "specificity_pvalue": 0.5 if direction else 1.0,
+        "controls": 1,
     }
 
 
@@ -127,35 +147,71 @@ def differential_margin_controls(
     candidate_real,
     knockoff_pairs,
 ):
-    """Real candidate margin minus the median matched-control candidate margin."""
+    """Strict matched-control dominance certificate.
+
+    Candidate support requires two facts simultaneously:
+      1. the current image itself prefers candidate over incumbent; and
+      2. that candidate margin is larger than every matched wrong-patient margin.
+
+    Veto is symmetric. A merely positive difference-from-control is not proof:
+    if the real image still prefers the incumbent, the verifier abstains.
+    Under exchangeable controls, strict extremeness has a one-sided rank bound
+    of 1/(K+1) without a learned threshold.
+    """
     pairs = tuple(knockoff_pairs)
     if not pairs:
         raise ValueError("at least one matched knockoff control is required")
-    real = differential_margin(
-        incumbent_real=incumbent_real,
-        candidate_real=candidate_real,
-        incumbent_knockoff=pairs[0][0],
-        candidate_knockoff=pairs[0][1],
-    )
+    values = (incumbent_real, candidate_real)
+    if any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in values):
+        raise TypeError("real verifier scores must be numeric")
+    real_margin = float(candidate_real) - float(incumbent_real)
+    if not math.isfinite(real_margin):
+        raise ValueError("real candidate margin must be finite")
+
     margins = []
     for incumbent_knockoff, candidate_knockoff in pairs:
-        value = differential_margin(
-            incumbent_real=incumbent_real,
-            candidate_real=candidate_real,
-            incumbent_knockoff=incumbent_knockoff,
-            candidate_knockoff=candidate_knockoff,
-        )
-        margins.append(value["knockoff_margin"])
+        if any(
+            isinstance(value, bool) or not isinstance(value, (int, float))
+            for value in (incumbent_knockoff, candidate_knockoff)
+        ):
+            raise TypeError("knockoff verifier scores must be numeric")
+        margin = float(candidate_knockoff) - float(incumbent_knockoff)
+        if not math.isfinite(margin):
+            raise ValueError("knockoff margins must be finite")
+        margins.append(margin)
+
     knockoff_margin = float(median(margins))
-    real_margin = float(real["real_margin"])
     differential = real_margin - knockoff_margin
+    support_rank = (
+        1 + sum(control >= real_margin for control in margins)
+    ) / (len(margins) + 1)
+    veto_rank = (
+        1 + sum(control <= real_margin for control in margins)
+    ) / (len(margins) + 1)
+
+    direction = 0
+    pvalue = 1.0
+    certificate = "abstain"
+    if real_margin > 0 and real_margin > max(margins):
+        direction = 1
+        pvalue = float(support_rank)
+        certificate = "absolute-specific-support"
+    elif real_margin < 0 and real_margin < min(margins):
+        direction = -1
+        pvalue = float(veto_rank)
+        certificate = "absolute-specific-veto"
+
     return {
         "real_margin": real_margin,
         "knockoff_margin": knockoff_margin,
         "knockoff_margins": tuple(float(value) for value in margins),
         "controls": len(margins),
         "differential_effect": differential,
-        "support_direction": 1 if differential > 0 else -1 if differential < 0 else 0,
+        "support_direction": direction,
+        "certificate": certificate,
+        "specificity_pvalue": pvalue,
+        "support_rank_pvalue": float(support_rank),
+        "veto_rank_pvalue": float(veto_rank),
     }
 
 
@@ -182,6 +238,8 @@ def native_transaction_evidence_controls(
         real_effect=value["real_margin"],
         knockoff_effect=value["knockoff_margin"],
         support_direction=value["support_direction"],
+        specificity_pvalue=value["specificity_pvalue"],
+        controls=value["controls"],
         specs=specs,
     )
 
@@ -224,6 +282,8 @@ def evidence_from_expert(
     knockoff_effect,
     support_direction,
     specs,
+    specificity_pvalue=1.0,
+    controls=0,
 ):
     """Construct one differential verification observation from an expert role card."""
     card = role_card(expert_id, specs[expert_id])
@@ -232,10 +292,7 @@ def evidence_from_expert(
         raise ValueError("real/knockoff evidence effects must be finite")
     if int(support_direction) not in {-1, 0, 1}:
         raise ValueError("support direction must be -1, 0, or 1")
-    # Keep the argument for backward-compatible callers, but normalize the
-    # stored direction to the signed differential effect.  This makes support
-    # and contradiction two sides of the same matched-control statistic.
-    direction = 1 if differential > 0 else -1 if differential < 0 else 0
+    direction = int(support_direction)
     return TransactionEvidence(
         expert_id=expert_id,
         capability=capability,
@@ -245,6 +302,9 @@ def evidence_from_expert(
         differential_effect=differential,
         support_direction=direction,
         patient_specific=card.patient_specific,
+        real_margin=float(real_effect),
+        specificity_pvalue=float(specificity_pvalue),
+        controls=int(controls),
     )
 
 
@@ -305,9 +365,9 @@ def decide_transaction(
         # become patient-specific proof merely because they agree with a candidate.
         if not evidence.patient_specific:
             continue
-        if evidence.differential_effect > 0 and support_authorized:
+        if evidence.support_direction > 0 and support_authorized:
             qualified_support.setdefault(evidence.fault_group, []).append(evidence)
-        elif evidence.differential_effect < 0 and veto_authorized:
+        elif evidence.support_direction < 0 and veto_authorized:
             # Negative D_e can veto only when negative decisions themselves
             # have a conservative source-only precision bound.  Safe positive
             # support does not imply safe contradiction.
