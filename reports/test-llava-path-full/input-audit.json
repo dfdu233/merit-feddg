@@ -1,0 +1,8 @@
+{
+  "n": 6719,
+  "ids_unique": 6719,
+  "baseline": "/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/llava_med_final_v1/cross_common_protocol_v1/pathvqa/greedy/answers.jsonl",
+  "candidate": "/home/dbw/merit-feddg-huatuo-spatial/runs/llava-test-v1/pathvqa-full-predictions.json",
+  "case_order": "same_sha256_order_as_huatuo_full",
+  "same_protocol": true
+}

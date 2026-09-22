@@ -1,0 +1,288 @@
+{
+  "scope": "full6719 PathVQA TEST exploratory postprocessing; not qualified v3",
+  "protocol": "medheval-decoded-eval-v15-option-text-labels",
+  "arms": {
+    "baseline": {
+      "scores": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.31666300172297734,
+          "n": 6719,
+          "ce_n": 3362,
+          "oe_n": 3357,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.5597858417608567,
+          "n": 3362,
+          "open_rows_excluded": 3357,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.07317804842915897,
+          "n": 3357
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.31666300172297734,
+          "ce_oe_macro_score": 0.3164819450950078,
+          "n": 6719,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "accepted": 0,
+      "paired_vs_baseline": {
+        "improved": 0,
+        "harmed": 0
+      }
+    },
+    "candidate": {
+      "scores": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.30877366501830705,
+          "n": 6719,
+          "ce_n": 3362,
+          "oe_n": 3357,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.5502676977989293,
+          "n": 3362,
+          "open_rows_excluded": 3357,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.06691994496812871,
+          "n": 3357
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.30877366501830705,
+          "ce_oe_macro_score": 0.308593821383529,
+          "n": 6719,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "accepted": 3989,
+      "paired_vs_baseline": {
+        "improved": 299,
+        "harmed": 350
+      },
+      "image_cluster_gain_ci95_pp": [
+        -1.3533865870483481,
+        -0.2376765051193484
+      ]
+    },
+    "biomedclip_claim_verifier": {
+      "scores": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.31328146239114774,
+          "n": 6719,
+          "ce_n": 3362,
+          "oe_n": 3357,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.5514574657941701,
+          "n": 3362,
+          "open_rows_excluded": 3357,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.07475071367474645,
+          "n": 3357
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.31328146239114774,
+          "ce_oe_macro_score": 0.31310408973445825,
+          "n": 6719,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "accepted": 1358,
+      "paired_vs_baseline": {
+        "improved": 105,
+        "harmed": 128
+      },
+      "image_cluster_gain_ci95_pp": [
+        -0.7114519771529594,
+        0.032634673836871735
+      ]
+    },
+    "conch_claim_verifier": {
+      "scores": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.3114335469902481,
+          "n": 6719,
+          "ce_n": 3362,
+          "oe_n": 3357,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.5490779298036883,
+          "n": 3362,
+          "open_rows_excluded": 3357,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.07343521067246955,
+          "n": 3357
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.3114335469902481,
+          "ce_oe_macro_score": 0.31125657023807896,
+          "n": 6719,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "accepted": 1495,
+      "paired_vs_baseline": {
+        "improved": 115,
+        "harmed": 146
+      },
+      "image_cluster_gain_ci95_pp": [
+        -0.9202103088308259,
+        -0.14108498740353648
+      ]
+    },
+    "plip_claim_verifier": {
+      "scores": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.32144065676294825,
+          "n": 6719,
+          "ce_n": 3362,
+          "oe_n": 3357,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.5696014277215943,
+          "n": 3362,
+          "open_rows_excluded": 3357,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.07291026892768868,
+          "n": 3357
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.32144065676294825,
+          "ce_oe_macro_score": 0.3212558483246415,
+          "n": 6719,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "accepted": 1161,
+      "paired_vs_baseline": {
+        "improved": 82,
+        "harmed": 45
+      },
+      "image_cluster_gain_ci95_pp": [
+        0.2014282425525074,
+        0.7456740451587013
+      ]
+    },
+    "all_three": {
+      "scores": {
+        "primary_unified": {
+          "metric": "sample_weighted_ce_accuracy_oe_answer_token_recall",
+          "score": 0.31347192075618574,
+          "n": 6719,
+          "ce_n": 3362,
+          "oe_n": 3357,
+          "definition": "CE contributes strict 0/1 correctness; OE contributes reference-token recall; mean over all test samples."
+        },
+        "paper_primary": {
+          "metric": "closed_accuracy_invalid_as_error",
+          "score": 0.5520523497917906,
+          "n": 3362,
+          "open_rows_excluded": 3357,
+          "role": "legacy_closed_only_auxiliary_not_primary_table_value"
+        },
+        "open_auxiliary": {
+          "metric": "answer_token_recall",
+          "score": 0.07453614404552088,
+          "n": 3357
+        },
+        "diagnostic_unified": {
+          "sample_weighted_score": 0.31347192075618574,
+          "ce_oe_macro_score": 0.31329424691865576,
+          "n": 6719,
+          "warning": "Mixed VQA Score, not pure Accuracy; combines 0/1 CE correctness with fractional OE recall."
+        }
+      },
+      "accepted": 506,
+      "paired_vs_baseline": {
+        "improved": 40,
+        "harmed": 62
+      },
+      "image_cluster_gain_ci95_pp": [
+        -0.584355429264355,
+        -0.046618948580029344
+      ]
+    }
+  },
+  "image_clusters": 858,
+  "subsets": {
+    "previous256": {
+      "n": 256,
+      "scores": {
+        "baseline": 0.3070007466491842,
+        "candidate": 0.30325850906905594,
+        "biomedclip_claim_verifier": 0.3072611633158508,
+        "conch_claim_verifier": 0.3042500956075175,
+        "plip_claim_verifier": 0.3145528299825175,
+        "all_three": 0.3028340799825175
+      }
+    },
+    "new6463": {
+      "n": 6463,
+      "scores": {
+        "baseline": 0.3170457244986067,
+        "candidate": 0.30899212083186295,
+        "biomedclip_claim_verifier": 0.31351992696847686,
+        "conch_claim_verifier": 0.3117180841330583,
+        "plip_claim_verifier": 0.3217134841891885,
+        "all_three": 0.31389328656742826
+      }
+    },
+    "pathology": {
+      "n": 3821,
+      "scores": {
+        "baseline": 0.32192862889990453,
+        "candidate": 0.304514774631303,
+        "biomedclip_claim_verifier": 0.3154589710170041,
+        "conch_claim_verifier": 0.3127329454795419,
+        "plip_claim_verifier": 0.33032984957867034,
+        "all_three": 0.3157938806623036
+      }
+    }
+  },
+  "failure_counts": {
+    "biomedclip_claim_verifier": {
+      "available-or-no-transaction": 6300,
+      "insufficient matched source controls: need 4, found 3": 232,
+      "outside-native-modality-scope": 187
+    },
+    "conch_claim_verifier": {
+      "available-or-no-transaction": 6151,
+      "outside-native-modality-scope": 568
+    },
+    "plip_claim_verifier": {
+      "available-or-no-transaction": 5472,
+      "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence": 679,
+      "outside-native-modality-scope": 568
+    }
+  }
+}

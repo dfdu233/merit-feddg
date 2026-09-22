@@ -1,0 +1,9 @@
+{
+  "input_count": 6719,
+  "case_count": 6719,
+  "unique_ids": 6719,
+  "unique_images": 858,
+  "image_hashes_verified": true,
+  "worker_exit_code": 0,
+  "scoring_protocol": "medheval-decoded-eval-v15-option-text-labels"
+}
