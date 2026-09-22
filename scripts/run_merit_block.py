@@ -49,14 +49,20 @@ def _arm(method_config, arm_name):
     return plan["arms"][arm_name]
 
 
-def _branch_packets(experts, arm):
+def _branch_packets(experts, arm, *, explicit_experts=None):
     fixture = str(arm.get("evidence_fixture", "native_real"))
     control_kind = str(arm.get("control_kind", "matched_wrong_patient"))
     control_count = int(arm.get("controls", 0))
     limit = arm.get("expert_limit", "all")
 
     selected_ids = sorted(experts)
-    if limit != "all":
+    if explicit_experts is not None:
+        requested = tuple(dict.fromkeys(str(value) for value in explicit_experts))
+        missing = [value for value in requested if value not in experts]
+        if missing:
+            raise ValueError(f"requested experts missing from packet: {missing}")
+        selected_ids = list(requested)
+    elif limit != "all":
         if type(limit) is not int or limit < 1:
             raise ValueError("expert_limit must be all or a positive integer")
         selected_ids = selected_ids[:limit]
@@ -136,6 +142,14 @@ def main():
     parser.add_argument("--artifacts", default="artifacts")
     parser.add_argument("--output", required=True)
     parser.add_argument(
+        "--experts",
+        nargs="+",
+        help=(
+            "Explicit expert subset for 1/2/many-expert ablations. "
+            "When supplied, this overrides the arm's numeric expert_limit."
+        ),
+    )
+    parser.add_argument(
         "--drift-horizon",
         type=int,
         default=0,
@@ -175,7 +189,9 @@ def main():
             )
             base_session = native._evidence_session(NativeState())
             real_items, control_items, control_kind = _branch_packets(
-                packets[row["id"]], arm
+                packets[row["id"]],
+                arm,
+                explicit_experts=args.experts,
             )
             if not real_items:
                 raise ValueError(f"{row['id']}: no expert evidence for selected arm")
@@ -205,6 +221,7 @@ def main():
                 "evidence_fixture": arm.get("evidence_fixture", "native_real"),
                 "control_kind": control_kind,
                 "expert_ids": sorted(branches),
+                "explicit_expert_subset": list(args.experts or ()),
                 "references_read": False,
                 "target_labels_used_for_decision": False,
             }
