@@ -58,7 +58,7 @@ def summarize(rows):
             if drift:
                 drift_js.append(float(drift["mean_js"]))
                 drift_disagreement.append(float(drift["greedy_disagreement_rate"]))
-            for expert_id, audit in (block.get("experts") or {}).items():
+            for audit in (block.get("experts") or {}).values():
                 reasons[str(audit.get("reason", "unknown"))] += 1
                 if audit.get("real_margin") is not None:
                     real_margins.append(float(audit["real_margin"]))
