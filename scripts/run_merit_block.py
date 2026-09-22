@@ -31,7 +31,7 @@ def _read_packets(path):
         if not sample_id or sample_id in result:
             raise ValueError("evidence packets require unique nonempty IDs")
         if not isinstance(row.get("experts"), dict):
-            raise ValueError("each evidence packet needs an experts mapping")
+            raise TypeError("each evidence packet needs an experts mapping")
         result[sample_id] = row["experts"]
     return result
 
