@@ -119,6 +119,27 @@ def test_v4_certificate_rejects_relative_only_support_and_veto():
     assert reverse_relative_only["support_direction"] == 0
 
 
+def test_v4_rejects_omnmed_relative_only_false_support_regression():
+    # Frozen OmniMedVQA pilot: real image preferred the incumbent by -0.88933,
+    # but the median wrong-patient margin was -1.04280, so legacy D=+0.15347
+    # incorrectly admitted the candidate. Absolute support must dominate first.
+    value = differential_margin_controls(
+        incumbent_real=0.0,
+        candidate_real=-0.88933,
+        knockoff_pairs=(
+            (0.0, -1.20),
+            (0.0, -1.10),
+            (0.0, -0.98560),
+            (0.0, -0.90),
+        ),
+    )
+    assert value["knockoff_margin"] == pytest.approx(-1.04280)
+    assert value["differential_effect"] == pytest.approx(0.15347)
+    assert value["real_margin"] < 0
+    assert value["support_direction"] == 0
+    assert value["certificate"] == "abstain"
+
+
 def test_v4_certificate_requires_absolute_preference_and_control_dominance():
     support = differential_margin_controls(
         incumbent_real=1.0,
