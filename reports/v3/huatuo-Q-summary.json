@@ -1,0 +1,897 @@
+{
+  "schema": "merit-tx-source-observations-v1",
+  "candidate_method": "adaptive-bard",
+  "candidate_path": "/home/dbw/merit-tx-v2/runs/tx-v2/huatuo-qualification-candidate.json",
+  "proposer_expert_ids": [
+    "biomedparse_objects",
+    "medcpt_pubmed"
+  ],
+  "n_manifest": 224,
+  "observations": 312,
+  "transaction_observations_path": "/home/dbw/merit-tx-v3/runs/v3/huatuo-Q.jsonl.transactions.jsonl",
+  "transaction_observations": 320,
+  "qualification_unit": "unique source group; worst transaction retained within group",
+  "expert_counts": {
+    "biomedclip_claim_verifier": 140,
+    "conch_claim_verifier": 123,
+    "plip_claim_verifier": 57
+  },
+  "knockoff_controls": 4,
+  "excluded_optional_experts": {
+    "musk_claim_verifier": {
+      "reason": "optional_checkpoint_missing",
+      "expected_checkpoint": "/home/dbw/merit-feddg/artifacts/models/xiangjx--musk",
+      "missing_required_assets": [
+        "/home/dbw/merit-feddg/upstream/MUSK/musk/modeling.py",
+        "/home/dbw/merit-feddg/upstream/MUSK/musk/models/tokenizer.spm"
+      ],
+      "id": "xiangjx/musk",
+      "capabilities": [
+        "classification"
+      ],
+      "scope": "pathology_claim_support",
+      "download_attempted": false,
+      "preparation_hint": "python scripts/prepare_expert_pool_assets.py --print-commands"
+    },
+    "monet_claim_verifier": {
+      "reason": "optional_checkpoint_missing",
+      "expected_checkpoint": "/home/dbw/merit-feddg/artifacts/models/chanwkim--monet",
+      "missing_required_assets": [],
+      "id": "chanwkim/monet",
+      "capabilities": [
+        "classification"
+      ],
+      "scope": "dermatology_claim_support",
+      "download_attempted": false,
+      "preparation_hint": "python scripts/prepare_expert_pool_assets.py --download-open"
+    },
+    "medsam_prompted": {
+      "reason": "optional_checkpoint_missing",
+      "expected_checkpoint": "/home/dbw/merit-feddg/artifacts/models/wanglab--medsam-vit-base",
+      "missing_required_assets": [],
+      "id": "wanglab/medsam-vit-base",
+      "capabilities": [
+        "segmentation"
+      ],
+      "scope": "promptable_medical_region",
+      "download_attempted": false,
+      "preparation_hint": "python scripts/prepare_expert_pool_assets.py --download-open"
+    },
+    "medsiglip_claim_verifier": {
+      "reason": "optional_checkpoint_missing",
+      "expected_checkpoint": "/home/dbw/merit-feddg/artifacts/models/google--medsiglip-448",
+      "missing_required_assets": [],
+      "id": "google/medsiglip-448",
+      "capabilities": [
+        "classification"
+      ],
+      "scope": "medical_claim_support",
+      "download_attempted": false,
+      "preparation_hint": "hf download google/medsiglip-448 --local-dir artifacts/models/google--medsiglip-448"
+    }
+  },
+  "skipped": [
+    {
+      "id": "pathvqa-train-00003-000414",
+      "expert_id": "biomedclip_claim_verifier",
+      "reason": "insufficient-matched-controls"
+    },
+    {
+      "id": "pathvqa-train-00003-000414",
+      "transaction_id": "pathvqa-train-00003-000414:adaptive-bard-0",
+      "expert_id": "cxr_findings",
+      "reason": "claim-not-natively-scorable",
+      "detail": "claim does not uniquely name an XRV native finding"
+    },
+    {
+      "id": "pathvqa-train-00005-001782",
+      "transaction_id": "pathvqa-train-00005-001782:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00004-000029",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001988",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-001146",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001995",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00002-002311",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00004-002208",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-001260",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002702",
+      "transaction_id": "pathvqa-train-00003-002702:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00006-000816",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002679",
+      "transaction_id": "pathvqa-train-00002-002679:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00001-002046",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002196",
+      "transaction_id": "pathvqa-train-00003-002196:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00005-001285",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002266",
+      "transaction_id": "pathvqa-train-00004-002266:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00001-000688",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002636",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001126",
+      "transaction_id": "pathvqa-train-00001-001126:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-002740",
+      "transaction_id": "pathvqa-train-00003-002740:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00002-000654",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001219",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-001293",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-001398",
+      "transaction_id": "pathvqa-train-00002-001398:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00005-000760",
+      "transaction_id": "pathvqa-train-00005-000760:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-001399",
+      "transaction_id": "pathvqa-train-00003-001399:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-002792",
+      "transaction_id": "pathvqa-train-00003-002792:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00004-000180",
+      "transaction_id": "pathvqa-train-00004-000180:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00006-000257",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001825",
+      "transaction_id": "pathvqa-train-00001-001825:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00002-000116",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-000103",
+      "transaction_id": "pathvqa-train-00005-000103:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-001103",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002585",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-001336",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-002769",
+      "transaction_id": "pathvqa-train-00001-002769:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00002-002779",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000126",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001456",
+      "transaction_id": "pathvqa-train-00003-001456:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-000190",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000270",
+      "transaction_id": "pathvqa-train-00000-000270:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00002-000994",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-001042",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000792",
+      "transaction_id": "pathvqa-train-00002-000792:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-000114",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-001503",
+      "transaction_id": "pathvqa-train-00000-001503:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00001-001571",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002448",
+      "transaction_id": "pathvqa-train-00003-002448:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00001-001832",
+      "transaction_id": "pathvqa-train-00001-001832:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-001066",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00001-001719",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-002128",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002648",
+      "transaction_id": "pathvqa-train-00003-002648:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00002-000089",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-000291",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002787",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000355",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000168",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000718",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002624",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000152",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-000315",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000348",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000305",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000830",
+      "transaction_id": "pathvqa-train-00002-000830:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00004-000934",
+      "transaction_id": "pathvqa-train-00004-000934:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00005-001352",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000389",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002468",
+      "transaction_id": "pathvqa-train-00004-002468:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00004-000478",
+      "transaction_id": "pathvqa-train-00004-000478:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-000195",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-000524",
+      "transaction_id": "pathvqa-train-00004-000524:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00002-001231",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-000869",
+      "transaction_id": "pathvqa-train-00001-000869:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00005-002518",
+      "expert_id": "biomedclip_claim_verifier",
+      "reason": "insufficient-matched-controls"
+    },
+    {
+      "id": "pathvqa-train-00005-002518",
+      "expert_id": "cxr_findings",
+      "reason": "insufficient-matched-controls"
+    },
+    {
+      "id": "pathvqa-train-00002-002412",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00006-002064",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-001363",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001676",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002307",
+      "transaction_id": "pathvqa-train-00003-002307:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-001449",
+      "transaction_id": "pathvqa-train-00003-001449:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-001130",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000323",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00002-002262",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00006-002619",
+      "transaction_id": "pathvqa-train-00006-002619:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00001-000096",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001136",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-002182",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-000932",
+      "transaction_id": "pathvqa-train-00004-000932:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00006-002519",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-001007",
+      "transaction_id": "pathvqa-train-00004-001007:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00005-000171",
+      "transaction_id": "pathvqa-train-00005-000171:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00006-002165",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-001807",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-002636",
+      "transaction_id": "pathvqa-train-00000-002636:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-001976",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000869",
+      "transaction_id": "pathvqa-train-00000-000869:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-002350",
+      "transaction_id": "pathvqa-train-00003-002350:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00001-001880",
+      "transaction_id": "pathvqa-train-00001-001880:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00004-001037",
+      "transaction_id": "pathvqa-train-00004-001037:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00006-001707",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000712",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000512",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-002635",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-001912",
+      "transaction_id": "pathvqa-train-00004-001912:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00006-000219",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00003-000967",
+      "expert_id": "biomedclip_claim_verifier",
+      "reason": "insufficient-matched-controls"
+    },
+    {
+      "id": "pathvqa-train-00003-000967",
+      "transaction_id": "pathvqa-train-00003-000967:adaptive-bard-0",
+      "expert_id": "cxr_findings",
+      "reason": "claim-not-natively-scorable",
+      "detail": "claim does not uniquely name an XRV native finding"
+    },
+    {
+      "id": "pathvqa-train-00004-002805",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-001137",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-001448",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-001970",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000824",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-000988",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001332",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-001652",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002587",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-002544",
+      "transaction_id": "pathvqa-train-00000-002544:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00001-001257",
+      "transaction_id": "pathvqa-train-00001-001257:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-94fae66e42f3665abc20",
+      "transaction_id": "pathorob-tolkach-esca-94fae66e42f3665abc20:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-3226ff64f7360552d38e",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-c412388f3afbb4e61e31",
+      "transaction_id": "pathorob-tolkach-esca-c412388f3afbb4e61e31:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-dcb0738be2abeabbb0d3",
+      "transaction_id": "pathorob-tolkach-esca-dcb0738be2abeabbb0d3:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-f8940865d285328000aa",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-ad1659a9c992b017300d",
+      "transaction_id": "pathorob-tolkach-esca-ad1659a9c992b017300d:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-595330c0fb979d312c2f",
+      "transaction_id": "pathorob-tolkach-esca-595330c0fb979d312c2f:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-a3d03673c279b0de7fb0",
+      "transaction_id": "pathorob-tolkach-esca-a3d03673c279b0de7fb0:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-28ca2005a0219b3e0c5b",
+      "transaction_id": "pathorob-tolkach-esca-28ca2005a0219b3e0c5b:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-634b18f9db0988334fea",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-8efd4daf399f0179e6b9",
+      "transaction_id": "pathorob-tolkach-esca-8efd4daf399f0179e6b9:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-dfab71e922fa7eb86c41",
+      "transaction_id": "pathorob-tolkach-esca-dfab71e922fa7eb86c41:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-47a58c5fff8b40ae6f32",
+      "transaction_id": "pathorob-tolkach-esca-47a58c5fff8b40ae6f32:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-e88f2fdf7a0d7ee1ade5",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-6551c1d54e8e14718361",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-a0a2f73607975e152c9a",
+      "transaction_id": "pathorob-tolkach-esca-a0a2f73607975e152c9a:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-a8e35c2c4857f9c747de",
+      "transaction_id": "pathorob-tolkach-esca-a8e35c2c4857f9c747de:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-09421a2b98a2dabde649",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-bce8bde0a804ff8653e3",
+      "transaction_id": "pathorob-tolkach-esca-bce8bde0a804ff8653e3:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-cd587abde329cf03ab17",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-9a3ee03abb7e4603b80e",
+      "transaction_id": "pathorob-tolkach-esca-9a3ee03abb7e4603b80e:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-970d9d285d3b6addb85b",
+      "transaction_id": "pathorob-tolkach-esca-970d9d285d3b6addb85b:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-928823c8ee37569ee71d",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-72b52532b38d23d3ca26",
+      "transaction_id": "pathorob-tolkach-esca-72b52532b38d23d3ca26:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-be2e2d0808daff0945b5",
+      "transaction_id": "pathorob-tolkach-esca-be2e2d0808daff0945b5:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-103207309b9c56f62245",
+      "transaction_id": "pathorob-tolkach-esca-103207309b9c56f62245:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-f2827e570f55bd90d0db",
+      "transaction_id": "pathorob-tolkach-esca-f2827e570f55bd90d0db:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-0a6254a721a3fb8e26bf",
+      "transaction_id": "pathorob-tolkach-esca-0a6254a721a3fb8e26bf:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-bc846ebb94fb2fd633f0",
+      "transaction_id": "pathorob-tolkach-esca-bc846ebb94fb2fd633f0:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-16220e4402ea5ea19deb",
+      "transaction_id": "pathorob-tolkach-esca-16220e4402ea5ea19deb:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-aaab440210e5ad32c644",
+      "transaction_id": "pathorob-tolkach-esca-aaab440210e5ad32c644:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathorob-tolkach-esca-27ecd01db98eb7a0ccc1",
+      "transaction_id": "pathorob-tolkach-esca-27ecd01db98eb7a0ccc1:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    }
+  ],
+  "references_used_only_for_source_outcome_measurement": true,
+  "target_test_selection": false
+}

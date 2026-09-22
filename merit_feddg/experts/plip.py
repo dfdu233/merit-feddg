@@ -43,8 +43,14 @@ class PlipConceptExpert(ConceptExpert):
             text=list(prompts),
             return_tensors="pt",
             padding=True,
-            truncation=True,
+            truncation=False,
         )
+        limit = self.model.config.text_config.max_position_embeddings
+        if inputs["input_ids"].shape[-1] > limit:
+            raise ValueError(
+                f"PLIP claim exceeds native text capacity ({limit} tokens); "
+                "refusing to truncate transaction evidence"
+            )
         payload = {
             key: value.to(self.device)
             for key, value in inputs.items()

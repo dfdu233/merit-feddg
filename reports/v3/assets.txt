@@ -1,0 +1,31 @@
+MERIT-Tx expert asset audit:
+  plip     present artifacts/models/vinid--plip  [vinid/plip]
+  medsam   MISSING artifacts/models/wanglab--medsam-vit-base  [wanglab/medsam-vit-base]
+  monet    MISSING artifacts/models/chanwkim--monet  [chanwkim/monet]
+  conch    present artifacts/models/MahmoodLab--CONCH  [MahmoodLab/CONCH]
+  maira2   MISSING artifacts/models/microsoft--maira-2  [microsoft/maira-2]
+  medsiglip MISSING artifacts/models/google--medsiglip-448  [google/medsiglip-448]
+  musk     MISSING artifacts/models/xiangjx--musk  [xiangjx/musk]
+  merlin   OPTIONAL artifacts/models/stanfordmimi--Merlin  [stanfordmimi/Merlin]  (research candidate)
+
+# plip: open checkpoint
+hf download vinid/plip --local-dir artifacts/models/vinid--plip
+# medsam: open checkpoint
+hf download wanglab/medsam-vit-base --local-dir artifacts/models/wanglab--medsam-vit-base
+# monet: open checkpoint
+hf download chanwkim/monet --local-dir artifacts/models/chanwkim--monet
+# conch: gated; accept upstream terms first
+hf download MahmoodLab/CONCH --local-dir artifacts/models/MahmoodLab--CONCH
+# maira2: gated; accept upstream terms first
+hf download microsoft/maira-2 --local-dir artifacts/models/microsoft--maira-2
+# medsiglip: gated; accept upstream terms first
+hf download google/medsiglip-448 --local-dir artifacts/models/google--medsiglip-448
+# musk: gated; accept upstream terms first
+hf download xiangjx/musk --local-dir artifacts/models/xiangjx--musk
+# MUSK also requires its official source at the pinned revision
+git clone https://github.com/lilab-stanford/MUSK upstream/MUSK
+git -C upstream/MUSK checkout 714b666969c1911e5efe70d991140a21030f4ef3
+# Literature-selected research candidates; no runtime authority yet
+# merlin: open; adapter/source qualification still required
+hf download stanfordmimi/Merlin --local-dir artifacts/models/stanfordmimi--Merlin
+# EyeCLIP/EchoCLIP use their official repositories/releases; run the coverage audit before downloading because current manifests may not contain ophthalmic or echocardiography-native inputs.

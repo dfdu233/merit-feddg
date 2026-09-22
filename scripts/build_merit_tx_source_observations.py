@@ -175,6 +175,7 @@ def main():
     parser.add_argument("--config", default="configs/merit_tx.yaml")
     parser.add_argument("--artifacts", default="artifacts")
     parser.add_argument("--proposer-expert-id")
+    parser.add_argument("--proposer-map")
     parser.add_argument(
         "--proposer-expert-ids",
         nargs="*",
@@ -207,6 +208,9 @@ def main():
         if set(mapping) != set(ids):
             raise ValueError(f"{name} IDs must exactly match the source manifest")
 
+    proposer_map = json.loads(Path(args.proposer_map).read_text()) if args.proposer_map else {}
+    if args.proposer_map and set(proposer_map) != set(ids):
+        raise ValueError("proposer map IDs must match manifest")
     config = load_experiment_yaml(args.config)
     specs, excluded = _filter_optional_experts(config["experts"], args.artifacts)
     specs.pop("source_cases", None)
@@ -235,6 +239,10 @@ def main():
     try:
         for row in rows:
             sample_id = str(row["id"])
+            if args.proposer_map:
+                proposer_ids = normalize_proposer_expert_ids(None, proposer_map[sample_id])
+                if any(name not in specs for name in proposer_ids):
+                    raise ValueError("unavailable proposer")
             task = str(row["task"])
             if task == "report_generation":
                 if radgraph is None:
@@ -336,13 +344,20 @@ def main():
                         )
                         continue
 
-                    controls = select_matched_knockoffs(
-                        rows,
-                        row,
-                        expert_id=expert_id,
-                        count=knockoff_count,
-                        match_fields=match_fields,
-                    )
+                    try:
+                        controls = select_matched_knockoffs(
+                            rows,
+                            row,
+                            expert_id=expert_id,
+                            count=knockoff_count,
+                            match_fields=match_fields,
+                        )
+                    except ValueError as exc:
+                        if not str(exc).startswith("insufficient matched source controls"):
+                            raise
+                        skipped.append({"id": sample_id, "expert_id": expert_id,
+                                        "reason": "insufficient-matched-controls"})
+                        continue
                     knockoff_pairs = []
                     for control in controls:
                         incumbent_control, candidate_control = native_scores(

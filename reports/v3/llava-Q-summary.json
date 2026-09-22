@@ -1,0 +1,683 @@
+{
+  "schema": "merit-tx-source-observations-v1",
+  "candidate_method": "adaptive-bard",
+  "candidate_path": "/home/dbw/merit-tx-v2/runs/tx-v2/llava-qualification-candidate.json",
+  "proposer_expert_ids": [
+    "biomedparse_objects"
+  ],
+  "n_manifest": 224,
+  "observations": 274,
+  "transaction_observations_path": "/home/dbw/merit-tx-v3/runs/v3/llava-Q.jsonl.transactions.jsonl",
+  "transaction_observations": 274,
+  "qualification_unit": "unique source group; worst transaction retained within group",
+  "expert_counts": {
+    "biomedclip_claim_verifier": 97,
+    "conch_claim_verifier": 94,
+    "plip_claim_verifier": 83
+  },
+  "knockoff_controls": 4,
+  "excluded_optional_experts": {
+    "musk_claim_verifier": {
+      "reason": "optional_checkpoint_missing",
+      "expected_checkpoint": "/home/dbw/merit-feddg/artifacts/models/xiangjx--musk",
+      "missing_required_assets": [
+        "/home/dbw/merit-feddg/upstream/MUSK/musk/modeling.py",
+        "/home/dbw/merit-feddg/upstream/MUSK/musk/models/tokenizer.spm"
+      ],
+      "id": "xiangjx/musk",
+      "capabilities": [
+        "classification"
+      ],
+      "scope": "pathology_claim_support",
+      "download_attempted": false,
+      "preparation_hint": "python scripts/prepare_expert_pool_assets.py --print-commands"
+    },
+    "monet_claim_verifier": {
+      "reason": "optional_checkpoint_missing",
+      "expected_checkpoint": "/home/dbw/merit-feddg/artifacts/models/chanwkim--monet",
+      "missing_required_assets": [],
+      "id": "chanwkim/monet",
+      "capabilities": [
+        "classification"
+      ],
+      "scope": "dermatology_claim_support",
+      "download_attempted": false,
+      "preparation_hint": "python scripts/prepare_expert_pool_assets.py --download-open"
+    },
+    "medsam_prompted": {
+      "reason": "optional_checkpoint_missing",
+      "expected_checkpoint": "/home/dbw/merit-feddg/artifacts/models/wanglab--medsam-vit-base",
+      "missing_required_assets": [],
+      "id": "wanglab/medsam-vit-base",
+      "capabilities": [
+        "segmentation"
+      ],
+      "scope": "promptable_medical_region",
+      "download_attempted": false,
+      "preparation_hint": "python scripts/prepare_expert_pool_assets.py --download-open"
+    },
+    "medsiglip_claim_verifier": {
+      "reason": "optional_checkpoint_missing",
+      "expected_checkpoint": "/home/dbw/merit-feddg/artifacts/models/google--medsiglip-448",
+      "missing_required_assets": [],
+      "id": "google/medsiglip-448",
+      "capabilities": [
+        "classification"
+      ],
+      "scope": "medical_claim_support",
+      "download_attempted": false,
+      "preparation_hint": "hf download google/medsiglip-448 --local-dir artifacts/models/google--medsiglip-448"
+    }
+  },
+  "skipped": [
+    {
+      "id": "pathvqa-train-00005-001881",
+      "transaction_id": "pathvqa-train-00005-001881:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-000414",
+      "expert_id": "biomedclip_claim_verifier",
+      "reason": "insufficient-matched-controls"
+    },
+    {
+      "id": "pathvqa-train-00003-000414",
+      "transaction_id": "pathvqa-train-00003-000414:adaptive-bard-0",
+      "expert_id": "cxr_findings",
+      "reason": "claim-not-natively-scorable",
+      "detail": "claim does not uniquely name an XRV native finding"
+    },
+    {
+      "id": "pathvqa-train-00004-000029",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001988",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-001146",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-000020",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001995",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00002-002311",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00004-002208",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-001260",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000816",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002679",
+      "transaction_id": "pathvqa-train-00002-002679:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00001-002046",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002196",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-000210",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-001753",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-001285",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001126",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002740",
+      "transaction_id": "pathvqa-train-00003-002740:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-001219",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-001293",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-001398",
+      "transaction_id": "pathvqa-train-00002-001398:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-001399",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002792",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-002014",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-000180",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000257",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000879",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001303",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000116",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-000103",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000076",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001103",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002585",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-001336",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000126",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-000190",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000270",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002399",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000994",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-001042",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000375",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-000114",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001571",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001832",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001066",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00001-001719",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-002128",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002648",
+      "transaction_id": "pathvqa-train-00003-002648:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00002-000089",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000355",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000168",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002674",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000718",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002624",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000152",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-000315",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000348",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000305",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-000830",
+      "transaction_id": "pathvqa-train-00002-000830:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00004-000934",
+      "transaction_id": "pathvqa-train-00004-000934:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00005-001352",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-002381",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-002140",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002468",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-000195",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001782",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-001231",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001807",
+      "transaction_id": "pathvqa-train-00001-001807:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00005-002518",
+      "expert_id": "biomedclip_claim_verifier",
+      "reason": "insufficient-matched-controls"
+    },
+    {
+      "id": "pathvqa-train-00005-002518",
+      "expert_id": "cxr_findings",
+      "reason": "insufficient-matched-controls"
+    },
+    {
+      "id": "pathvqa-train-00000-002049",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-002412",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00006-002064",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-001363",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001676",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-002307",
+      "transaction_id": "pathvqa-train-00003-002307:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00003-001130",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000323",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00002-002262",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-002619",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-000096",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-001296",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-001136",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-002182",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-000932",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-002165",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-001807",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000869",
+      "transaction_id": "pathvqa-train-00000-000869:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00002-002464",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-001707",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000712",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-002635",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-001912",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000219",
+      "reason": "no-native-direct-visual-verifier"
+    },
+    {
+      "id": "pathvqa-train-00005-001258",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-000967",
+      "expert_id": "biomedclip_claim_verifier",
+      "reason": "insufficient-matched-controls"
+    },
+    {
+      "id": "pathvqa-train-00003-000967",
+      "transaction_id": "pathvqa-train-00003-000967:adaptive-bard-0",
+      "expert_id": "cxr_findings",
+      "reason": "claim-not-natively-scorable",
+      "detail": "claim does not uniquely name an XRV native finding"
+    },
+    {
+      "id": "pathvqa-train-00004-000055",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00002-001137",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-001448",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00000-000824",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00003-000222",
+      "transaction_id": "pathvqa-train-00003-000222:adaptive-bard-0",
+      "expert_id": "plip_claim_verifier",
+      "reason": "claim-not-natively-scorable",
+      "detail": "PLIP claim exceeds native text capacity (77 tokens); refusing to truncate transaction evidence"
+    },
+    {
+      "id": "pathvqa-train-00005-000988",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00005-001652",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00004-002587",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00006-000527",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathvqa-train-00001-001257",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-94fae66e42f3665abc20",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-3226ff64f7360552d38e",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-c412388f3afbb4e61e31",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-dcb0738be2abeabbb0d3",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-f8940865d285328000aa",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-ad1659a9c992b017300d",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-595330c0fb979d312c2f",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-a3d03673c279b0de7fb0",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-28ca2005a0219b3e0c5b",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-634b18f9db0988334fea",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-8efd4daf399f0179e6b9",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-dfab71e922fa7eb86c41",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-47a58c5fff8b40ae6f32",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-e88f2fdf7a0d7ee1ade5",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-6551c1d54e8e14718361",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-a0a2f73607975e152c9a",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-a8e35c2c4857f9c747de",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-09421a2b98a2dabde649",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-bce8bde0a804ff8653e3",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-cd587abde329cf03ab17",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-9a3ee03abb7e4603b80e",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-970d9d285d3b6addb85b",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-928823c8ee37569ee71d",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-72b52532b38d23d3ca26",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-be2e2d0808daff0945b5",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-103207309b9c56f62245",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-f2827e570f55bd90d0db",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-0a6254a721a3fb8e26bf",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-bc846ebb94fb2fd633f0",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-16220e4402ea5ea19deb",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-aaab440210e5ad32c644",
+      "reason": "candidate-identical-to-incumbent"
+    },
+    {
+      "id": "pathorob-tolkach-esca-27ecd01db98eb7a0ccc1",
+      "reason": "candidate-identical-to-incumbent"
+    }
+  ],
+  "references_used_only_for_source_outcome_measurement": true,
+  "target_test_selection": false
+}

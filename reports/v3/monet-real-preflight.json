@@ -1,0 +1,16 @@
+{
+  "id": "pathvqa-train-00003-001066",
+  "modality": "dermatology",
+  "claims": [
+    "The skin shows a lesion.",
+    "The skin shows no lesion."
+  ],
+  "scores": [
+    3.28125,
+    2.3125
+  ],
+  "seconds": 4.408190727233887,
+  "references_read": false,
+  "purpose": "real checkpoint adapter preflight, not diagnostic accuracy",
+  "physical_gpu": 1
+}
