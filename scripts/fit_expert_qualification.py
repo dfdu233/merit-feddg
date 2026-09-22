@@ -106,10 +106,6 @@ def fit(rows, *, z=1.96):
         if len(groups) != len(set(groups)):
             raise ValueError(f"duplicate group_id within qualification cell: {key}")
         deltas = [float(row["outcome_delta"]) for row in values]
-        effects = [
-            float(row["real_effect"]) - float(row["knockoff_effect"])
-            for row in values
-        ]
         directions = [int(row["support_direction"]) for row in values]
         supported_rows = [
             row
