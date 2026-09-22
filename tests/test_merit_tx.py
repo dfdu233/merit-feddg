@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from merit_feddg.contribution import mixed_vqa_score
 from merit_feddg.expert_policy import (
     SourceQualificationCard,
     select_expert_descriptors,
@@ -306,6 +307,23 @@ def test_independent_source_qualified_visual_verifier_can_commit():
     )
     assert decision.commit
     assert decision.verifier_fault_groups == ("visual",)
+
+
+def test_mixed_vqa_source_utility_is_length_robust_and_binary_strict():
+    assert mixed_vqa_score(
+        "The lesion is in the left lower lobe of the lung.",
+        ["left lower lobe"],
+    ) == pytest.approx(1.0)
+    assert mixed_vqa_score(
+        "Yes, cardiomegaly is present.",
+        ["yes"],
+        answer_type="closed",
+    ) == pytest.approx(1.0)
+    assert mixed_vqa_score(
+        "Cardiomegaly is present.",
+        ["yes"],
+        answer_type="closed",
+    ) == pytest.approx(0.0)
 
 
 def test_vqa_claimization_is_self_contained():
