@@ -1,0 +1,98 @@
+{
+  "pmcvqa_original_route": {
+    "baseline": {
+      "n": 512,
+      "accuracy": 0.494140625,
+      "accepted": 0
+    },
+    "candidate": {
+      "n": 512,
+      "accuracy": 0.478515625,
+      "accepted": 64
+    },
+    "biomedclip_claim_verifier": {
+      "n": 512,
+      "accuracy": 0.49609375,
+      "accepted": 6
+    },
+    "conch_claim_verifier": {
+      "n": 512,
+      "accuracy": 0.498046875,
+      "accepted": 6
+    },
+    "plip_claim_verifier": {
+      "n": 512,
+      "accuracy": 0.4921875,
+      "accepted": 6
+    },
+    "all_three": {
+      "n": 512,
+      "accuracy": 0.494140625,
+      "accepted": 5
+    }
+  },
+  "mmmu_original_route": {
+    "baseline": {
+      "n": 512,
+      "accuracy": 0.4296875,
+      "accepted": 0
+    },
+    "candidate": {
+      "n": 512,
+      "accuracy": 0.427734375,
+      "accepted": 58
+    },
+    "biomedclip_claim_verifier": {
+      "n": 512,
+      "accuracy": 0.43359375,
+      "accepted": 3
+    },
+    "conch_claim_verifier": {
+      "n": 512,
+      "accuracy": 0.4296875,
+      "accepted": 0
+    },
+    "plip_claim_verifier": {
+      "n": 512,
+      "accuracy": 0.4296875,
+      "accepted": 2
+    },
+    "all_three": {
+      "n": 512,
+      "accuracy": 0.431640625,
+      "accepted": 2
+    }
+  },
+  "mmmu_medical_subject_scope": {
+    "baseline": {
+      "n": 512,
+      "accuracy": 0.4296875,
+      "accepted": 0
+    },
+    "candidate": {
+      "n": 512,
+      "accuracy": 0.427734375,
+      "accepted": 58
+    },
+    "biomedclip_claim_verifier": {
+      "n": 512,
+      "accuracy": 0.431640625,
+      "accepted": 1
+    },
+    "conch_claim_verifier": {
+      "n": 512,
+      "accuracy": 0.4296875,
+      "accepted": 0
+    },
+    "plip_claim_verifier": {
+      "n": 512,
+      "accuracy": 0.431640625,
+      "accepted": 1
+    },
+    "all_three": {
+      "n": 512,
+      "accuracy": 0.4296875,
+      "accepted": 0
+    }
+  }
+}

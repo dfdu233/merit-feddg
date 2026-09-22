@@ -14,7 +14,10 @@ for i,row in enumerate(rows):
  if i % args.shard_count != args.shard_index:continue
  p=out/(row['id']+'.json')
  if p.exists():continue
- b=claimize_vqa(row['question'],row['baseline']);c=claimize_vqa(row['question'],row['candidate']);tx=candidate_transactions(task='open_vqa',question=row['question'],baseline_text=row['baseline'],candidate_text=row['candidate'],baseline_claims=b,candidate_claims=c,transaction_prefix=row['id']);effects={};errors={}
+ if row.get('verification_skip'):
+  tx=[];effects={};errors={'input':row['verification_skip']}
+ else:
+  b=claimize_vqa(row['question'],row.get('evidence_baseline',row['baseline']));c=claimize_vqa(row['question'],row.get('evidence_candidate',row['candidate']));tx=candidate_transactions(task='open_vqa',question=row['question'],baseline_text=row.get('evidence_baseline',row['baseline']),candidate_text=row.get('evidence_candidate',row['candidate']),baseline_claims=b,candidate_claims=c,transaction_prefix=row['id']);effects={};errors={}
  if tx:
   claim=transaction_claim_spec(row,tx[0],b)
   for e in ['biomedclip_claim_verifier','conch_claim_verifier','plip_claim_verifier']:

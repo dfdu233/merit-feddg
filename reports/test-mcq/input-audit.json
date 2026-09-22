@@ -1,0 +1,12 @@
+{
+  "pmcvqa": {
+    "baseline_source": "/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/huatuo_final_v1/full/pmcvqa/greedy/answers.jsonl",
+    "n": 512,
+    "unmappable": 54
+  },
+  "mmmu": {
+    "baseline_source": "/home/dbw/ANCHOR/corrected_runs/paper_baselines_v1/huatuo_final_v1/oldcloud_20260919/full/mmmu/greedy/answers.jsonl",
+    "n": 512,
+    "unmappable": 231
+  }
+}
