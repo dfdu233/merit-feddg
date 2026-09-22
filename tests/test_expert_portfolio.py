@@ -308,6 +308,7 @@ def test_v4_qualification_records_source_group_identity():
                 "outcome_delta": 0.5 if index < 4 else 0.0,
                 "real_effect": 0.8,
                 "knockoff_effect": 0.0,
+                "support_direction": 1,
             }
         )
     payload = fit_qualification(rows)
