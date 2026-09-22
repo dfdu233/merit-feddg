@@ -13,7 +13,7 @@ def normalized_tokens(text: str) -> list[str]:
     return re.findall(r"\w+", text.casefold())
 
 
-_LEADING_BINARY = re.compile(r"^\\s*(yes|no)\\b", re.IGNORECASE)
+_LEADING_BINARY = re.compile(r"^\s*(yes|no)\b", re.IGNORECASE)
 
 
 def answer_token_recall(text: str, references: list[str]) -> float:
