@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import pytest
 
@@ -281,3 +283,102 @@ def test_sum_vs_mean_sequence_scoring_is_explicit_oe_ablation():
     assert mean["real_margin"] == pytest.approx(0.05)
     assert total["real_margin"] == pytest.approx(-0.1)
     assert mean["accepted"] and not total["accepted"]
+
+
+def test_control_builder_is_label_blind_group_disjoint_and_deterministic():
+    from scripts.build_merit_block_controls import build_controls
+
+    rows = [
+        {
+            "id": "a",
+            "group_id": "p1",
+            "modality": "cxr",
+            "task": "open_vqa",
+            "experts": {"e": [{"evidence_id": "a", "expert_id": "e"}]},
+        },
+        {
+            "id": "b",
+            "group_id": "p2",
+            "modality": "cxr",
+            "task": "open_vqa",
+            "experts": {"e": [{"evidence_id": "b", "expert_id": "e"}]},
+        },
+        {
+            "id": "c",
+            "group_id": "p3",
+            "modality": "cxr",
+            "task": "open_vqa",
+            "experts": {"e": [{"evidence_id": "c", "expert_id": "e"}]},
+        },
+        {
+            "id": "d",
+            "group_id": "p4",
+            "modality": "pathology",
+            "task": "open_vqa",
+            "experts": {"e": [{"evidence_id": "d", "expert_id": "e"}]},
+        },
+    ]
+    first = build_controls(rows, count=2, seed=7)
+    second = build_controls(rows, count=2, seed=7)
+    assert first == second
+    a = first[0]["experts"]["e"]
+    assert set(a["control_provenance"]["matched_ids"]) == {"b", "c"}
+    assert "a" not in a["control_provenance"]["matched_ids"]
+    assert a["control_provenance"]["labels_used"] is False
+
+
+def test_control_builder_rejects_reference_fields(tmp_path):
+    from scripts.build_merit_block_controls import read_rows
+
+    path = tmp_path / "bad.jsonl"
+    path.write_text(
+        json.dumps(
+            {
+                "id": "a",
+                "group_id": "p1",
+                "modality": "cxr",
+                "task": "open_vqa",
+                "experts": {},
+                "answer": "yes",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="forbidden"):
+        read_rows(path)
+
+
+def test_ablation_plan_is_one_factor_and_keeps_primary_arm_fixed():
+    from merit_feddg.io import load_yaml
+    from scripts.build_merit_block_ablation_plan import build_plan
+
+    plan = build_plan(load_yaml("configs/merit_block.yaml"))
+    assert plan["primary_arm"] == "full"
+    assert plan["selection_on_target_forbidden"]
+    assert plan["one_factor_at_a_time"]
+    full = plan["arms"]["full"]
+    assert full["decision_rule"] == "conjunction"
+    assert full["context_policy"] == "ephemeral"
+    assert full["control_kind"] == "matched_wrong_patient"
+    assert "decision__gamma_only" in plan["arms"]
+    assert "locality__persistent" in plan["arms"]
+    assert "control__random_control" in plan["arms"]
+    assert "granularity__sentence" in plan["arms"]
+
+
+def test_optional_drift_probe_is_diagnostic_only():
+    base, expert, controls = _two_step_sessions()
+    result = decode_counterfactual_blocks(
+        base,
+        {"e": ExpertBlockBranch("e", expert, controls)},
+        config=BlockInterventionConfig(
+            max_new_tokens=1,
+            block_tokens=1,
+            drift_probe_horizon=2,
+        ),
+    )
+    trace = result["trace"][0]
+    assert trace["expert_block_committed"]
+    assert trace["same_prefix_context_drift"]["horizon"] == 2
+    assert result["method"]["drift_probe_horizon"] == 2
