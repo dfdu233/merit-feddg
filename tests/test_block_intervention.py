@@ -428,3 +428,19 @@ def test_label_free_mechanism_summary_reports_acceptance_drift_and_cost():
     assert result["selected_experts"] == {"e": 1}
     assert result["wall_seconds"] == pytest.approx(1.25)
     assert result["references_read"] is False
+
+
+def test_merit_block_receiver_configs_exclude_old_admission_policies():
+    from merit_feddg.io import load_experiment_yaml
+
+    llava = load_experiment_yaml("configs/merit_block_llava.yaml")
+    huatuo = load_experiment_yaml("configs/merit_block_huatuo.yaml")
+    for config in (llava, huatuo):
+        generation = config["capability_value"]["generation"]
+        assert config["prompt_contract"] == "anchor-task-v1"
+        assert generation["evidence_style"] == "semantic"
+        assert generation["token_budgeted_evidence"]
+        assert generation["vector_gate"] == "off"
+        assert "merit_tx" not in config
+        assert "bard" not in config
+    assert huatuo["generalist"]["backend"] == "huatuo_vision"
