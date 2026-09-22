@@ -93,7 +93,7 @@ def main():
         z=args.z,
     )
     payload["qualification_cards"]=str(Path(args.qualification_cards).resolve())
-    payload["qualification_schema"]="merit-expert-qualification-v3"
+    payload["qualification_schema"]="merit-expert-qualification-v4"
     payload["qualification_source_groups_sha256"]=qualification_payload.get("source_groups_sha256")
     source_group_ids=sorted(portfolio_groups)
     payload["source_group_ids"]=source_group_ids
