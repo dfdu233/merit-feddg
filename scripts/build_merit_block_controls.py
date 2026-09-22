@@ -24,7 +24,7 @@ def read_rows(path):
         row = json.loads(line)
         if FORBIDDEN & set(row):
             raise ValueError(f"line {line_number}: label/reference fields are forbidden")
-        required = ("id", "group_id", "modality", "task", "experts")
+        required = ("id", "group_id", "image_sha256", "modality", "task", "experts")
         missing = [key for key in required if key not in row]
         if missing:
             raise ValueError(f"line {line_number}: missing {missing}")
@@ -43,13 +43,29 @@ def _same_fields(left, right, fields):
     return all(left.get(field) == right.get(field) for field in fields)
 
 
-def _candidate_rows(rows, row, expert_id):
+def _packet_signature(packet):
+    if not isinstance(packet, list):
+        raise TypeError("expert packet must be a list of EvidenceItem dictionaries")
+    return tuple(
+        sorted(
+            (
+                str(item.get("capability") or ""),
+                str(item.get("scope") or ""),
+            )
+            for item in packet
+        )
+    )
+
+
+def _candidate_rows(rows, row, expert_id, real_signature):
     return [
         other
         for other in rows
         if other["id"] != row["id"]
         and other["group_id"] != row["group_id"]
+        and other["image_sha256"] != row["image_sha256"]
         and expert_id in other["experts"]
+        and _packet_signature(other["experts"][expert_id]) == real_signature
     ]
 
 
@@ -66,7 +82,13 @@ def build_controls(rows, *, count=5, seed=20260923, match_fields=("modality", "t
     for row in rows:
         experts = {}
         for expert_id, real in sorted(row["experts"].items()):
-            candidates = _candidate_rows(rows, row, expert_id)
+            real_signature = _packet_signature(real)
+            candidates = _candidate_rows(
+                rows,
+                row,
+                expert_id,
+                real_signature,
+            )
             matched = [
                 other for other in candidates
                 if _same_fields(row, other, match_fields)
@@ -105,6 +127,8 @@ def build_controls(rows, *, count=5, seed=20260923, match_fields=("modality", "t
                     "random_ids": [other["id"] for other in random],
                     "match_fields": list(match_fields),
                     "different_group_required": True,
+                    "different_image_sha256_required": True,
+                    "expert_packet_signature": [list(value) for value in real_signature],
                     "labels_used": False,
                     "seed": seed,
                 },
