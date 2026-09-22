@@ -74,6 +74,7 @@ def _row(index, expert, effect, outcome, *, split="source"):
         "real_effect": effect,
         "knockoff_effect": 0.0,
         "differential_effect": effect,
+        "support_direction": 1 if effect > 0 else -1 if effect < 0 else 0,
         "proposer_expert_ids": [],
         "split": split,
         "target_test_selection": False,
@@ -98,7 +99,7 @@ def _policy():
     }
 
 
-def test_v3_directional_precision_excludes_neutral_source_transactions():
+def test_v4_directional_precision_excludes_neutral_source_transactions():
     rows = []
     for index in range(20):
         rows.append(
@@ -114,6 +115,7 @@ def test_v3_directional_precision_excludes_neutral_source_transactions():
                 "outcome_delta": 0.5 if index < 4 else 0.0,
                 "real_effect": 0.8,
                 "knockoff_effect": 0.0,
+                "support_direction": 1,
             }
         )
     card = fit_qualification(rows)["cards"][0]
@@ -290,7 +292,7 @@ def test_source_policy_stages_require_group_disjointness():
         )
 
 
-def test_v3_qualification_records_source_group_identity():
+def test_v4_qualification_records_source_group_identity():
     rows = []
     for index in range(8):
         rows.append(
