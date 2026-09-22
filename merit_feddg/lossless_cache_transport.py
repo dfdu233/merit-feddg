@@ -165,7 +165,7 @@ def send_files(paths, ssh_command, remote_python, remote_root):
     for path in paths:
         path = Path(path)
         # Bound per-file memory; small/unsupported files use ordinary rsync.
-        if not 8 * 2**20 <= path.stat().st_size <= 128 * 2**20:
+        if not 8 * 2**20 <= path.stat().st_size <= 512 * 2**20:
             continue
         try:
             original = path.read_bytes()
