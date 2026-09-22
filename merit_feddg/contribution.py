@@ -13,6 +13,48 @@ def normalized_tokens(text: str) -> list[str]:
     return re.findall(r"\w+", text.casefold())
 
 
+_LEADING_BINARY = re.compile(r"^\\s*(yes|no)\\b", re.IGNORECASE)
+
+
+def answer_token_recall(text: str, references: list[str]) -> float:
+    """Reference-token recall used by the frozen open-VQA evaluation family."""
+    if not references or any(not isinstance(r, str) or not r.strip() for r in references):
+        raise ValueError("at least one nonempty textual reference required")
+    predicted = normalized_tokens(text)
+    scores = []
+    for reference in references:
+        expected = normalized_tokens(reference)
+        overlap = sum((Counter(predicted) & Counter(expected)).values())
+        scores.append(overlap / max(1, len(expected)))
+    return max(scores)
+
+
+def mixed_vqa_score(
+    text: str,
+    references: list[str],
+    *,
+    answer_type: str | None = None,
+) -> float:
+    """Length-robust VQA source utility aligned with the frozen mixed scorer.
+
+    Closed binary questions use leading Yes/No correctness.  Open answers use
+    reference-token recall, so an otherwise correct explanatory answer is not
+    labeled harmful merely because it contains extra words.
+    """
+    reference_keys = {
+        " ".join(normalized_tokens(reference))
+        for reference in references
+    }
+    closed = str(answer_type or "").casefold() in {"closed", "close", "binary", "yes_no"}
+    closed = closed or bool(reference_keys) and reference_keys <= {"yes", "no"}
+    if closed:
+        match = _LEADING_BINARY.search(str(text))
+        if match is None:
+            return 0.0
+        return float(match.group(1).casefold() in reference_keys)
+    return answer_token_recall(text, references)
+
+
 def answer_metrics(text: str, references: list[str]) -> dict:
     if not references or any(not isinstance(r, str) or not r.strip() for r in references):
         raise ValueError("at least one nonempty textual reference required")
