@@ -21,10 +21,10 @@ that context can influence the autoregressive trajectory.
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from statistics import median
 from time import perf_counter
-from typing import Mapping, Sequence
 
 import numpy as np
 
