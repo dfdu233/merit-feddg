@@ -151,8 +151,19 @@ class MuskConceptExpert(ConceptExpert):
 
     def _text_embeddings(self, concepts):
         phrases = [self._phrase(value) for value in concepts]
+        # The released xlm_tokenizer silently truncates at max_len. A clipped
+        # negation or diagnosis would change the transaction being verified.
+        max_len = 100
+        for index, phrase in enumerate(phrases):
+            length = len(self.tokenizer.encode(phrase))
+            if length > max_len:
+                raise ValueError(
+                    "MUSK claim exceeds native text capacity "
+                    f"({length}>{max_len} tokens, proposition {index}); "
+                    "refusing to truncate transaction evidence"
+                )
         encoded = [
-            self.utils.xlm_tokenizer(text, self.tokenizer, max_len=100)
+            self.utils.xlm_tokenizer(text, self.tokenizer, max_len=max_len)
             for text in phrases
         ]
         ids = self.torch.tensor(
