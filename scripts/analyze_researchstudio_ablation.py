@@ -38,6 +38,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run", type=Path, required=True)
     parser.add_argument("--source", type=Path, required=True)
+    parser.add_argument("--manifest", type=Path,
+                        help="Frozen receiver manifest; required for native SLAKE source normalization")
     parser.add_argument("--anchor-root", type=Path, required=True)
     parser.add_argument("--receiver", required=True)
     parser.add_argument("--dataset", required=True)
@@ -61,6 +63,34 @@ def main() -> None:
     source = json.loads(source_text)
     if not isinstance(source, list) or not source:
         raise ValueError("source must be a nonempty authoritative JSON list")
+    source_manifest_sha256 = None
+    if args.dataset.casefold() == "slake":
+        if args.manifest is None or len(source) != 2094:
+            raise ValueError("SLAKE requires its full 2,094-row native TEST JSON and --manifest")
+        manifest_text = args.manifest.read_text()
+        manifest = [json.loads(line) for line in manifest_text.splitlines() if line.strip()]
+        if len(manifest) < len(source):
+            raise ValueError("receiver manifest is shorter than native SLAKE TEST")
+        source_manifest_sha256 = hashlib.sha256(manifest_text.encode()).hexdigest()
+        image_hashes: dict[str, str] = {}
+        normalized = []
+        for native, frozen in zip(source, manifest):
+            sample_id = str(native["qid"])
+            image_path = str(frozen["image"])
+            if (str(frozen["id"]) != sample_id or frozen["question"] != native["question"]
+                    or not image_path.endswith("/" + native["img_name"])):
+                raise ValueError(f"SLAKE native/manifest ID, question or image mismatch: {sample_id}")
+            if image_path not in image_hashes:
+                image_hashes[image_path] = hashlib.sha256(Path(image_path).read_bytes()).hexdigest()
+            if frozen["image_sha256"] != image_hashes[image_path]:
+                raise ValueError(f"SLAKE image-byte SHA mismatch: {sample_id}")
+            normalized.append({
+                "id": sample_id, "question": native["question"],
+                "answer": native["answer"], "answer_type": native["answer_type"].lower(),
+                "image_sha256": frozen["image_sha256"], "q_lang": native["q_lang"],
+                "modality": native.get("modality"),
+            })
+        source = normalized
     ids = [str(row["id"]) for row in source]
     if len(ids) != len(set(ids)):
         raise ValueError("duplicate source IDs")
@@ -92,6 +122,8 @@ def main() -> None:
             frozen_identity = identity
         elif identity != frozen_identity:
             raise ValueError(f"receiver/manifest/protocol/cache changed mid-run: {sample_id}")
+        if source_manifest_sha256 is not None and identity[0] != source_manifest_sha256:
+            raise ValueError(f"SLAKE provenance manifest SHA mismatch: {sample_id}")
         input_hashes.append(hashlib.sha256(json.dumps({
             "id": sample_id, "question": row["question"],
             "image_sha256": row["image_sha256"], "prompt": prov["prompt"],
@@ -241,6 +273,8 @@ def main() -> None:
         "score_version": SCORE_VERSION,
         "executed_code_identity": args.executed_code_identity,
         "source_sha256": hashlib.sha256(source_text.encode()).hexdigest(),
+        "source_format": "slake_native_test" if source_manifest_sha256 else "normalized_official_test",
+        "source_manifest_sha256": source_manifest_sha256,
         "analysis_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "evaluator_source_sha256": hashlib.sha256(
             (args.anchor_root / "anchor" / "corrected_sgta" / "evaluate_medheval_answers.py").read_bytes()
