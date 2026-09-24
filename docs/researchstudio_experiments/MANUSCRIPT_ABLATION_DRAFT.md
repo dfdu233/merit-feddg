@@ -1,0 +1,49 @@
+# Mechanism ablation: manuscript-ready draft (results pending)
+
+This file is a writing scaffold, **not** evidence that the experiments have finished. Replace every `TBD` only from the full-coverage, provenance-checked paired analysis. Do not fill cells from interim logs or historical main-table numbers.
+
+## Experimental setup
+
+We evaluate two frozen receivers, HuatuoGPT-Vision-7B and LLaVA-Med-7B, on the complete VQA-RAD TEST set (451 questions) and SLAKE TEST set (2,094 questions). For each receiver–dataset pair, all five arms use the same image, question, receiver checkpoint, native expert cache, answer-blind source selection and evidence-rendering protocol. The arms are: (i) the generalist without expert evidence; (ii) `joint_all`, which presents the selected evidence jointly to the receiver; (iii) `isolated_mean`, which decodes from source-isolated receiver branches and aggregates arithmetically; (iv) `isolated_geomedian`, which changes only the branch aggregation rule; and (v) `BARD (matched evidence)`, which adds anchored support and bounded commitment to the same isolated branches. The matched-evidence BARD arm is distinct from the previously reported full-native-schedule BARD: the latter may deliver more evidence and is not a causal comparator in this ablation.
+
+The VQA score is the sample-weighted mean of CE strict correctness (0/1) and OE reference-token recall, expressed as a percentage. It is **not** pure accuracy. Each TEST question contributes once; nonempty text from a decode that reached `max_new_tokens` is scored as generated, while the unfinished flag is reported separately. Empty outputs remain in the denominator. Deterministic, answer-blind repairs, if any, are reported as a separate analysis and never substituted silently for raw generations. Because these TEST outcomes were previously inspected, statistical intervals quantify paired variability rather than a pristine confirmatory test of a newly tuned rule.
+
+For arm `m` and question `i`, with score `s_mi` and generalist score `s_0i` in `[0,1]`, define `rescue_m = mean_i max(s_mi-s_0i,0)`, `harm_m = mean_i max(s_0i-s_mi,0)`, and `net_m = rescue_m-harm_m`. We use the same question/image clusters across all arms for paired bootstrap intervals (10,000 resamples, fixed seed). The prespecified contrasts are `joint_all - generalist` (descriptive evidence utility), `isolated_mean - joint_all`, `isolated_geomedian - isolated_mean`, and `BARD - isolated_geomedian`. The joint-to-isolated contrast identifies the **isolation-and-merge package**, not isolation alone. Holm adjustment applies to the latter three mechanistic contrasts; source, modality, language and CE/OE strata are descriptive.
+
+## Table A: complete paired ablation
+
+Create **one table per receiver and dataset** from the corresponding full-coverage analysis. Report raw outputs first; any length-extension or EOS repair belongs in a separate table with its own denominator and selection rule. Units: score/rescue/harm/net/change/parse/unfinished as %, time as seconds or GPU-hours (specify), calls as count per question.
+
+| Receiver | Dataset | Arm | N | Score | Rescue | Harm | Net | Exact change | Decision change | Parse | Empty | Unfinished | Forward calls | Receiver decode time |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| HuatuoGPT-Vision-7B | VQA-RAD | generalist / joint_all / isolated_mean / isolated_geomedian / BARD | 451 | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
+| LLaVA-Med-7B | VQA-RAD | same five arms | 451 | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
+| HuatuoGPT-Vision-7B | SLAKE | same five arms | 2,094 | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
+| LLaVA-Med-7B | SLAKE | same five arms | 2,094 | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
+
+The compact rows above are placeholders, **not** four five-arm result tables. Expand each row into five rows after the coverage gate passes. Account for native-expert acquisition time separately from cached receiver decoding; otherwise a cached comparison understates deployment cost.
+
+## Table B: paired effects and claim gate
+
+| Receiver | Dataset | Prespecified contrast | Paired score effect (95% cluster CI) | Rescue change | Harm change | Adjusted p | Interpretation |
+|---|---|---|---|---|---|---|---|
+| TBD | TBD | joint_all − generalist | TBD | TBD | TBD | TBD | evidence utility, not isolation |
+| TBD | TBD | isolated_mean − joint_all | TBD | TBD | TBD | TBD | isolation plus merge |
+| TBD | TBD | isolated_geomedian − isolated_mean | TBD | TBD | TBD | TBD | center rule |
+| TBD | TBD | BARD − isolated_geomedian | TBD | TBD | TBD | TBD | anchored commit |
+
+The anchored-commit claim requires a favorable rescue–harm trade-off, not merely fewer changed answers. A lower harm accompanied by a larger loss of rescue is a negative or ambiguous result unless a tolerance was frozen on development data. No TEST-selected threshold, route, expert pool or repair rule may be relabeled as confirmatory. If the later base-relative/quorum consensus baseline matches or exceeds BARD, narrow the claimed contribution accordingly.
+
+## Figure and diagnostic material
+
+Plot each arm's rescue against harm (same axes and dataset-specific scale), annotate changed-decision coverage, and add the Stage-2 consensus baseline only after its branch-score protocol is frozen. Report the count of delivered source groups (`0/1/2/3+`), selected-versus-presented evidence discrepancy, and context-token budget for each arm. The case appendix should be selected by predeclared categories—rescued, harmed, unchanged despite useful evidence, missing source coverage, unfinished generation—and show the generalist answer, native evidence, joint and isolated outputs, BARD anchor/commit decision, reference answer and image identifier. Do not select anecdotes by desired outcome.
+
+## Required checks before replacing `TBD`
+
+1. Exact TEST ID count, no duplicates or missing IDs; source/manifest/image bytes match the run ledger.
+2. Prompt, receiver, model weights, native cache and delivered evidence identity match for all paired evidence arms; ineligible mismatched rows are disclosed, not dropped silently.
+3. Raw empty, unfinished and repeated-span counts, parse rate and scorer version are reported for every arm.
+4. Cluster unit and number of clusters are reported; paired bootstrap uses identical clusters across arms.
+5. Old full-native BARD and historical baselines remain separately labelled and are never pooled with the matched-evidence ablation.
+
+The execution identities and commands are frozen in the experimental branch's `VQARAD_RUN_LEDGER.md` and `SLAKE_RUN_LEDGER.md`. The authoritative result source will be the full-coverage `paired_rows.jsonl` plus `summary.json` produced by `scripts/analyze_researchstudio_ablation.py` after each run is complete.
