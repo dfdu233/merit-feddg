@@ -22,10 +22,22 @@ Create **one table per receiver and dataset** from the corresponding full-covera
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | HuatuoGPT-Vision-7B | VQA-RAD | five arms; detailed table below | 451 | complete | — | — | — | — | — | — | — | — | — | — |
 | LLaVA-Med-7B | VQA-RAD | five arms; detailed table below | 451 | complete | — | — | — | — | — | — | — | — | — | — | — |
-| HuatuoGPT-Vision-7B | SLAKE | same five arms | 2,094 | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
+| HuatuoGPT-Vision-7B | SLAKE | five arms; detailed table below | 2,094 | complete | — | — | — | — | — | — | — | — | — | — |
 | LLaVA-Med-7B | SLAKE | five arms; detailed table below | 2,094 | complete | — | — | — | — | — | — | — | — | — | — |
 
-The Huatuo SLAKE row remains a placeholder pending full 2,094-ID audit; the LLaVA SLAKE and two VQA-RAD results are expanded below. Report raw outputs first. Score/rescue/harm/net/change/parse/empty/unfinished are percentages; decoder time is summed per-arm receiver seconds, **not** end-to-end expert acquisition. The multi-arm runner recorded forward calls jointly per case, not attributable per arm, so no arm-specific call number is asserted. Native-expert acquisition time is incomplete for two producer stages and must not be folded into cached decode time.
+Both SLAKE and VQA-RAD receivers have passed the full paired audit and are expanded below. Report raw outputs first. Score/rescue/harm/net/change/parse/empty/unfinished are percentages; decoder time is summed per-arm receiver seconds, **not** end-to-end expert acquisition. The multi-arm runner recorded forward calls jointly per case, not attributable per arm, so no arm-specific call number is asserted. Native-expert acquisition time is incomplete for two producer stages and must not be folded into cached decode time.
+
+**HuatuoGPT-Vision-7B, SLAKE, all 2,094 TEST IDs, raw matched evidence**
+
+| Arm | Score % | Rescue % | Harm % | Net % | Parsed / 2,094 | Empty | Unfinished | Long-span repetition flags |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| generalist | 54.67 | 0.00 | 0.00 | 0.00 | 2,094 | 0 | 0 | 0 |
+| joint_all | 49.31 | 12.48 | 17.83 | −5.35 | 2,090 | 0 | 0 | 0 |
+| isolated_mean | 48.08 | 9.86 | 16.44 | −6.58 | 2,093 | 0 | 0 | 0 |
+| isolated_geomedian | 48.00 | 9.59 | 16.26 | −6.67 | 2,092 | 0 | 0 | 0 |
+| BARD (matched evidence) | 57.24 | 5.22 | 2.65 | +2.57 | 2,093 | 0 | 0 | 0 |
+
+The fail-closed analyzer verified all 2,094 IDs (836 CE/1,258 OE), source images, frozen manifest/receiver/cache and equal delivered evidence. BARD minus isolated_geomedian is +9.24 points (95% paired image-cluster CI +7.17 to +11.45; Holm-adjusted p=0.0003); BARD minus generalist is +2.57 (CI +1.14 to +4.07). However, 1,182 single-source rows have BARD=generalist=58.72% against geomedian 42.95%. In the 912 multi-source rows, BARD is 55.32%, geomedian 54.53%, generalist 49.42%; an exploratory 109-image-cluster paired bootstrap gives BARD-minus-geomedian +0.78 points (95% CI −0.59 to +2.28). Thus a superior multi-source commit rule remains unresolved despite the positive overall score. [Raw summary](https://github.com/dfdu233/merit-feddg/blob/experiments/huatuo-adaptive-bard-validation-v1/reports/researchstudio_ablation/huatuo_slake_raw_full/summary.json) and paired rows are archived; do not conflate these matched-evidence values with the reused main-table Greedy 54.69/MERIT 57.16 values.
 
 **LLaVA-Med-7B, SLAKE, all 2,094 TEST IDs, raw matched evidence**
 
