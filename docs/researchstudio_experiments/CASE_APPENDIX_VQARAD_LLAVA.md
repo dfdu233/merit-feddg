@@ -11,4 +11,13 @@ These examples come from the **complete 451-question TEST run**, not a score-sel
 
 The examples show both sides of the rescue–harm trade-off. ID `0005` is a strong illustration of **conservative one-source fallback**, not proof that the multi-source anchored commit rule is superior. ID `0015` is a missed rescue caused by that conservatism. ID `0059` also shows why a syntactically finished answer is not automatically correct: BARD gives an evasive image-visibility qualification despite a direct binary question. None of these cases was used to retune a gate or select a repair.
 
+The exact native-evidence references were expanded from the frozen cache with SHA verification, then reduced here to **non-mask, non-patient-specific descriptors**; the complete payloads remain in the raw artifacts. CheXagent outputs are unverified specialist observations, BiomedParse labels are candidate soft-mask structures rather than proof of a finding, and MedCPT titles are general literature rather than image evidence.
+
+| ID | Delivered native evidence relevant to interpretation |
+|---|---|
+| `0051` | CheXagent returned “Yes”; BiomedParse proposed left/right lung structures; MedCPT retrieved a general cervical-lymphadenopathy/airway-mass paper. BARD changed the generalist's “No” to “Yes”. |
+| `0059` | CheXagent returned “Yes” and BiomedParse proposed left/right lung structures, yet BARD gave an evasive answer that the CE scorer rejected. This is an actual harmful commitment, not absence of supporting specialist text. |
+| `0005` | The **only** delivered group was MedCPT, retrieving a general kidney-histopathology article. The literature topic is not evidence that kidneys appear in this image; BARD's one-source fallback retained the correct “No”. |
+| `0015` | CheXagent returned “No” and BiomedParse proposed lung structures. Geomedian adopted the correct no-consolidation answer, whereas BARD's pair-support gate kept the incorrect generalist “Yes”. |
+
 To reproduce the appendix, score the same complete TEST outputs with the pinned mixed CE/OE evaluator, form the four Boolean categories above, sort IDs ascending, and inspect the first ID in each category. The reported category counts are CE-only and may overlap across categories as defined; they are not pooled accuracy denominators. Any final figure with image thumbnails must retrieve the exact source images by recorded SHA and receive a separate visual check before publication.
