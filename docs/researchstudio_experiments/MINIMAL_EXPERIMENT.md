@@ -87,6 +87,8 @@ If Stage 1 shows a nontrivial signal, add a **base-relative/quorum consensus** d
 
 Use the **same receiver-branch distributions**. This is a decoding baseline, not a new expert run.
 
+Implement the prior's **base-relative probability** rule, not a minimum of logits: compare each source branch's normalized next-token probability with the common generalist probability, retain the weakest same-direction change when the required source quorum agrees, and otherwise revert to the generalist probability before vocabulary renormalization. The original paper aggregates separately fine-tuned reference models; our branches are one frozen medical VLM under isolated evidence contexts. Call this an **evidence-conditioned adaptation of base-relative consensus**, not a reproduction of that paper's training setup or an official reported score. The paper's support assumptions do not establish correctness of medical evidence, so measure rescue and harm rather than claiming a safety guarantee.
+
 Compare its rescue-harm curve and intervention coverage with BARD. Do not tune quorum/fault parameters on the final test set.
 
 At each matched prefix reuse the **same cached base and isolated branch scores**, candidate mask and evidence renderings. Predefine any quorum threshold, weighting and tie-break on development data. Record the exact token rule and whether it needs extra receiver forwards; if logits/branch scores were not saved—or the consensus output diverges into a new prefix—run the required receiver branches rather than claiming a zero-compute free-generation replay. A consensus win or tie means the paper should foreground the heterogeneous receiver interface and narrow any unique claim about BARD commitment.
