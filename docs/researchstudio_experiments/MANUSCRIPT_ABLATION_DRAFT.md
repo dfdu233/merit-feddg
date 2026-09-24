@@ -90,6 +90,12 @@ For Stage 2, start with strict base-relative unanimity (`q=m`), whose paper equa
 
 ## Required checks before replacing `TBD`
 
+### PathVQA failure-domain diagnostic (exploratory, not a benchmark row)
+
+The LLaVA-Med PathVQA native cache now covers the full 6,719-case TEST set, but receiver inference has only been completed for a frozen, answer-blind **58-image diagnostic subset** (up to eight distinct images per routed modality). Its selected-case CE/OE composite percentages are generalist 25.06, joint_all 25.29, isolated_mean 23.28, isolated_geomedian 23.28, and BARD 28.79. The BARD-minus-geomedian paired image-cluster bootstrap difference is +5.52 percentage points, 95% CI [-1.72,+13.10]. The subset intentionally overrepresents rare modalities and cannot be presented as full PathVQA performance or an established gain.
+
+The diagnostic points to an evidence-delivery bottleneck: 27/58 cases received only one expert group, and 23/58 had fewer presented evidence items than selected (127 selected versus 99 presented in total). In 53/58 cases, isolated geomedian did not improve on generalist, including ties. This motivates reporting *actual delivered* source count and evidence packing, not only the router's scheduled modalities. There were no empty outputs or long-span repetition flags; unfinished raw outputs were 1/9/9/9/2 for the five arms in the order above. These flags were not silently repaired. Source/manifest/cache hashes, per-case scores and modality strata are frozen in `reports/researchstudio_ablation/pathvqa_stage3_58_full/` on the experimental branch.
+
 1. Exact TEST ID count, no duplicates or missing IDs; source/manifest/image bytes match the run ledger.
 2. Prompt, receiver, model weights, native cache and delivered evidence identity match for all paired evidence arms; ineligible mismatched rows are disclosed, not dropped silently.
 3. Raw empty, unfinished and repeated-span counts, parse rate and scorer version are reported for every arm.
