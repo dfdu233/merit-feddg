@@ -1,0 +1,25 @@
+# ResearchStudio-guided MERIT experiment plan
+
+This directory records the shortest falsification path for the current MERIT paper.
+
+It contains **no new benchmark results** and should not be cited as evidence that a proposed mechanism works. The purpose is to bind the reported results to a reproducible method configuration, isolate the smallest missing mechanism experiments, and stop early when the hypothesis is unsupported.
+
+## Read in this order
+
+1. [RESEARCHSTUDIO_IDEA.md](RESEARCHSTUDIO_IDEA.md): the current receiver-mediated collaboration hypothesis.
+2. [NOVELTY_AUDIT.md](NOVELTY_AUDIT.md): scoped prior-art collision check and the defensible novelty delta.
+3. [MINIMAL_EXPERIMENT.md](MINIMAL_EXPERIMENT.md): staged experiment plan designed to avoid another full benchmark sweep before the mechanism is validated.
+4. [DATA_REQUEST_MINIMAL_CN.md](DATA_REQUEST_MINIMAL_CN.md): minimum server-side data needed to run the paired analysis.
+5. [ROW_SCHEMA.json](ROW_SCHEMA.json): normalized per-example result schema for matched comparisons.
+
+## Current decision rule
+
+Do **not** tune a new gate, fault budget, quorum, or expert pool on the final benchmark before the mechanism experiment is complete.
+
+The immediate questions are:
+
+- Does source isolation help when the delivered expert evidence is held fixed?
+- Does the anchored commit rule reduce harmful revisions without deleting useful corrections?
+- Can a simpler base-relative/quorum consensus baseline explain the same effect?
+
+Only a configuration that survives these checks should be promoted to a new full benchmark run.

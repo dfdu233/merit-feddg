@@ -1,0 +1,27 @@
+{
+  "format": "one JSON object per line; complete evaluated set, not only errors",
+  "required": {
+    "dataset": "string",
+    "receiver": "string",
+    "split": "string",
+    "sample_id": "string",
+    "image_id": "string",
+    "method": "string",
+    "score": "finite number in [0,1], using a declared upstream scorer",
+    "protocol_id": "hash/identity of task/scoring/generation contract shared by matched arms",
+    "input_id": "hash/identity of the exact question and image"
+  },
+  "optional": {
+    "cluster_id": "deidentified patient ID preferred for resampling",
+    "prediction": "original prediction text",
+    "evidence_id": "native evidence-cache identity",
+    "n_source_groups": "delivered group count",
+    "run_id": "original run identifier"
+  },
+  "notes": [
+    "No real example rows are fabricated.",
+    "Different method rows must agree on the original inputs for paired comparisons.",
+    "Generation/scoring changes require a new protocol identity.",
+    "Full raw branch logits are not needed for Stage 1 paired score analysis."
+  ]
+}
