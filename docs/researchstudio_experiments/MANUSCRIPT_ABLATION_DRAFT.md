@@ -51,6 +51,22 @@ The independently free-decoded, base-relative **strict `q=m` probability consens
 
 The same source-count caveat persists: for the 243 one-group cases, consensus and isolated_geomedian both score 32.43%, while BARD falls back to the generalist at 42.89%. On the 208 cases with at least two groups, consensus scores 57.99%, BARD 59.02%; the descriptive BARD–consensus difference is +1.03 points (99 clusters; 95% cluster-bootstrap CI −1.58 to +3.89). Therefore the full-set comparator establishes a **better risk-control policy overall**, but does not isolate a statistically resolved multi-source anchored-commit advantage. The latter remains an open claim for SLAKE and later failure-domain analysis.
 
+### Verified full-TEST result: HuatuoGPT-Vision-7B on VQA-RAD
+
+The second receiver also passed exact 451-ID full coverage, native source/image/prompt/cache identity and equal delivered evidence across arms (251 CE, 200 OE; 203 image/patient clusters). All five arms have **zero** empty, unfinished and repeated-long-span outputs and **451/451** parsed decisions. The same frozen mixed scorer gives:
+
+| Arm | Score % | Rescue % | Harm % | Net % |
+|---|---:|---:|---:|---:|
+| generalist | 62.84 | 0.00 | 0.00 | 0.00 |
+| joint_all | 44.79 | 8.28 | 26.33 | −18.05 |
+| isolated_mean | 47.23 | 5.31 | 20.92 | −15.61 |
+| isolated_geomedian | 47.95 | 5.26 | 20.15 | −14.89 |
+| BARD (matched evidence) | 61.84 | 0.99 | 1.99 | −1.00 |
+
+BARD minus isolated_geomedian is **+13.89 points** (95% paired cluster-bootstrap CI +9.63 to +18.31; Holm-adjusted paired sign-flip p≈0.0003). Yet BARD minus the generalist is **−1.00 point** (net CI −2.66 to +0.54): this receiver does **not** show a resolved generalist improvement. Joint evidence and both unbounded isolated aggregators are substantially harmful. Huatuo CE scores are 76.49% for both generalist and BARD; OE scores are 45.70% and 43.45%, respectively. Selection exceeded the common joint presentation budget on 189 cases, but compared arms received the same *delivered* set.
+
+The source-count decomposition again matters. For 218 one-group rows, BARD equals the generalist at 66.60% while geomedian scores 41.95%. For 233 rows with at least two groups, the scores are generalist 59.32%, geomedian 53.57%, BARD 57.39%; BARD–geomedian is +3.82 points (113 clusters, descriptive 95% CI +0.79 to +7.20), but BARD remains −1.93 points below the generalist. Thus BARD is a strong **harm limiter relative to naive evidence fusion** in this setting, not evidence of consistent improvement over the frozen receiver. The matched-evidence result must not be conflated with the historical full-native-schedule MERIT row.
+
 **Compute-accounting gate:** the frozen cache's `progress.json` currently records 602.91 seconds summed over five local producer stages (`biomed_anatomy`, `cxr_findings`, `cxr_anatomy`, `chexagent_description`, `biomedparse_objects`) across the shared 2,545-case SLAKE/VQA-RAD manifest. This is **not** complete native-expert cost: `conch_tissue` and `medcpt_pubmed` timings are absent from that file, and the stage totals do not establish per-case latency or end-to-end wall time. The paired analyzer therefore leaves `native_expert_inference_seconds_total` null while reporting measured cached-access and receiver-decoding time separately. Do not turn the 602.91-second partial subtotal into a method latency claim; recover the missing producer logs or run a separately labelled acquisition-cost measurement before any full-cost comparison.
 
 ## Table B: paired effects and claim gate
