@@ -74,8 +74,12 @@ def main():
         groups = int(outputs["bard"].get("adopted_evidence_count", 0))
         if groups > len(native):
             raise ValueError(f"impossible delivered group count: {sid}")
-        cases.append({"sample_id": sid, "image_sha256": row["image_sha256"], "modality": row["modality"],
+        # PathVQA's normalized source labels every row Pathology; the frozen
+        # image-only route is the modality used to stratify this diagnostic.
+        cases.append({"sample_id": sid, "image_sha256": row["image_sha256"], "modality": prov["row"]["modality"],
                       "answer_type": source_task_group(row), "delivered_group_count": groups,
+                      "selected_evidence_items": int(outputs["joint_all"]["selected_evidence_count"]),
+                      "presented_evidence_items": int(outputs["joint_all"]["presented_evidence_count"]),
                       "methods": {method: {"text": outputs[method].get("text", ""),
                                            "finished": bool(outputs[method]["finished"]),
                                            "generated_tokens": len(outputs[method]["token_ids"]),
@@ -127,6 +131,14 @@ def main():
         contrasts[f"{arm}-{reference}"] = {"score_delta": effect, "ci95": [percentile(draws, .025), percentile(draws, .975)]}
     groups = Counter(case["delivered_group_count"] for case in cases)
     modalities = Counter(case["modality"] for case in cases)
+    strata = {}
+    for field in ("modality", "answer_type", "delivered_group_count"):
+        buckets = defaultdict(list)
+        for case in cases:
+            buckets[str(case[field])].append(case)
+        strata[field] = {name: {"n": len(items), "scores": {
+            method: sum(item["methods"][method]["score"] for item in items) / len(items)
+            for method in METHODS}} for name, items in sorted(buckets.items())}
     report = {
         "status": "complete_frozen_58_case_exploratory_diagnostic", "not_full_test": True,
         "dataset": "PathVQA", "receiver": "LLaVA-Med-7B", "n": n, "full_test_n": 6719,
@@ -139,6 +151,10 @@ def main():
         "sampling": "up to eight unique images per frozen modality, SHA256(modality:sample_id) rank; rare modalities have one image",
         "cluster_bootstrap": {"unit": "image_sha256", "clusters": len(clusters), "replicates": 10000, "seed": 20260924},
         "delivered_group_counts": dict(groups), "modality_counts": dict(modalities),
+        "selected_evidence_items_total": sum(case["selected_evidence_items"] for case in cases),
+        "presented_evidence_items_total": sum(case["presented_evidence_items"] for case in cases),
+        "selected_vs_presented_mismatch_n": sum(case["selected_evidence_items"] != case["presented_evidence_items"] for case in cases),
+        "descriptive_strata": strata,
         "methods": methods, "contrasts": contrasts,
         "failure_diagnostics": {
             "low_source_coverage_n": sum(case["delivered_group_count"] <= 1 for case in cases),

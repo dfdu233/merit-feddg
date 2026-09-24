@@ -1,0 +1,272 @@
+{
+  "status": "complete_frozen_58_case_exploratory_diagnostic",
+  "not_full_test": true,
+  "dataset": "PathVQA",
+  "receiver": "LLaVA-Med-7B",
+  "n": 58,
+  "full_test_n": 6719,
+  "source_sha256": "9d559391099de51105aa6a17f9e54c74442f2d031317dd38091a9b1867ed7fd1",
+  "selection_sha256": "2cdaa751e514b92c57ebefb244d732b95924a587abc7150369fbe70b2d50abac",
+  "manifest_sha256": "965e27912be6cdfa3940a341de4b05d9a50b7a7e98b9c1e8abe4f0a1dafc0c91",
+  "native_cache_identity": "b2fb387f19bd079203a85db91599dd4c0b08489d11a1b63a60c560a361f03084",
+  "protocol_sha256": "2bfc4aa3bdc945f726e3d8ba65754185207f82418485a47a85757b95cfc174cb",
+  "executed_code_identity": "9f38387fafa4bc9adedf674129c24b6486462dea531a5685a1dd5f65449988bc:bf8b0a53814d986200b5beac8c8917718f581936061776b6f8328353bdac0bc3:f8f2d6cd7410b53765143e592b44c52160e2836f7154ab3fa4ed528ef6c1cb9c",
+  "score_definition": "CE strict 0/1; OE reference-token recall; selected-case mean only",
+  "sampling": "up to eight unique images per frozen modality, SHA256(modality:sample_id) rank; rare modalities have one image",
+  "cluster_bootstrap": {
+    "unit": "image_sha256",
+    "clusters": 58,
+    "replicates": 10000,
+    "seed": 20260924
+  },
+  "delivered_group_counts": {
+    "1": 27,
+    "2": 29,
+    "3": 2
+  },
+  "modality_counts": {
+    "mri": 8,
+    "gross_pathology": 8,
+    "ct": 8,
+    "dermatology": 8,
+    "ultrasound": 1,
+    "cxr": 8,
+    "pathology": 8,
+    "endoscopy": 1,
+    "oct": 8
+  },
+  "selected_evidence_items_total": 127,
+  "presented_evidence_items_total": 99,
+  "selected_vs_presented_mismatch_n": 23,
+  "descriptive_strata": {
+    "modality": {
+      "ct": {
+        "n": 8,
+        "scores": {
+          "generalist": 0.275,
+          "joint_all": 0.25,
+          "isolated_mean": 0.25,
+          "isolated_geomedian": 0.25,
+          "bard": 0.275
+        }
+      },
+      "cxr": {
+        "n": 8,
+        "scores": {
+          "generalist": 0.27083333333333337,
+          "joint_all": 0.29166666666666663,
+          "isolated_mean": 0.29166666666666663,
+          "isolated_geomedian": 0.29166666666666663,
+          "bard": 0.29166666666666663
+        }
+      },
+      "dermatology": {
+        "n": 8,
+        "scores": {
+          "generalist": 0.39583333333333337,
+          "joint_all": 0.29166666666666663,
+          "isolated_mean": 0.14583333333333334,
+          "isolated_geomedian": 0.14583333333333334,
+          "bard": 0.27083333333333337
+        }
+      },
+      "endoscopy": {
+        "n": 1,
+        "scores": {
+          "generalist": 0.0,
+          "joint_all": 0.0,
+          "isolated_mean": 0.0,
+          "isolated_geomedian": 0.0,
+          "bard": 0.0
+        }
+      },
+      "gross_pathology": {
+        "n": 8,
+        "scores": {
+          "generalist": 0.25,
+          "joint_all": 0.375,
+          "isolated_mean": 0.375,
+          "isolated_geomedian": 0.375,
+          "bard": 0.25
+        }
+      },
+      "mri": {
+        "n": 8,
+        "scores": {
+          "generalist": 0.375,
+          "joint_all": 0.25,
+          "isolated_mean": 0.25,
+          "isolated_geomedian": 0.25,
+          "bard": 0.375
+        }
+      },
+      "oct": {
+        "n": 8,
+        "scores": {
+          "generalist": 0.25,
+          "joint_all": 0.0,
+          "isolated_mean": 0.0,
+          "isolated_geomedian": 0.0,
+          "bard": 0.25
+        }
+      },
+      "pathology": {
+        "n": 8,
+        "scores": {
+          "generalist": 0.0,
+          "joint_all": 0.375,
+          "isolated_mean": 0.375,
+          "isolated_geomedian": 0.375,
+          "bard": 0.375
+        }
+      },
+      "ultrasound": {
+        "n": 1,
+        "scores": {
+          "generalist": 0.0,
+          "joint_all": 0.0,
+          "isolated_mean": 0.0,
+          "isolated_geomedian": 0.0,
+          "bard": 0.0
+        }
+      }
+    },
+    "answer_type": {
+      "ce": {
+        "n": 24,
+        "scores": {
+          "generalist": 0.4166666666666667,
+          "joint_all": 0.5,
+          "isolated_mean": 0.5,
+          "isolated_geomedian": 0.5,
+          "bard": 0.5416666666666666
+        }
+      },
+      "oe": {
+        "n": 34,
+        "scores": {
+          "generalist": 0.13333333333333333,
+          "joint_all": 0.0784313725490196,
+          "isolated_mean": 0.04411764705882353,
+          "isolated_geomedian": 0.04411764705882353,
+          "bard": 0.10882352941176471
+        }
+      }
+    },
+    "delivered_group_count": {
+      "1": {
+        "n": 27,
+        "scores": {
+          "generalist": 0.34074074074074073,
+          "joint_all": 0.25925925925925924,
+          "isolated_mean": 0.25925925925925924,
+          "isolated_geomedian": 0.25925925925925924,
+          "bard": 0.34074074074074073
+        }
+      },
+      "2": {
+        "n": 29,
+        "scores": {
+          "generalist": 0.14942528735632182,
+          "joint_all": 0.22988505747126434,
+          "isolated_mean": 0.1896551724137931,
+          "isolated_geomedian": 0.1896551724137931,
+          "bard": 0.22413793103448276
+        }
+      },
+      "3": {
+        "n": 2,
+        "scores": {
+          "generalist": 0.5,
+          "joint_all": 0.5,
+          "isolated_mean": 0.5,
+          "isolated_geomedian": 0.5,
+          "bard": 0.5
+        }
+      }
+    }
+  },
+  "methods": {
+    "generalist": {
+      "score": 0.25057471264367814,
+      "rescue_vs_generalist": 0.0,
+      "harm_vs_generalist": 0.0,
+      "blank_n": 0,
+      "unfinished_n": 1,
+      "parsed_n": 58,
+      "repeated_long_span_flag_n": 0
+    },
+    "joint_all": {
+      "score": 0.25287356321839083,
+      "rescue_vs_generalist": 0.07471264367816091,
+      "harm_vs_generalist": 0.07241379310344828,
+      "blank_n": 0,
+      "unfinished_n": 9,
+      "parsed_n": 58,
+      "repeated_long_span_flag_n": 0
+    },
+    "isolated_mean": {
+      "score": 0.23275862068965517,
+      "rescue_vs_generalist": 0.07183908045977012,
+      "harm_vs_generalist": 0.0896551724137931,
+      "blank_n": 0,
+      "unfinished_n": 9,
+      "parsed_n": 57,
+      "repeated_long_span_flag_n": 0
+    },
+    "isolated_geomedian": {
+      "score": 0.23275862068965517,
+      "rescue_vs_generalist": 0.07183908045977012,
+      "harm_vs_generalist": 0.0896551724137931,
+      "blank_n": 0,
+      "unfinished_n": 9,
+      "parsed_n": 57,
+      "repeated_long_span_flag_n": 0
+    },
+    "bard": {
+      "score": 0.2879310344827586,
+      "rescue_vs_generalist": 0.07183908045977012,
+      "harm_vs_generalist": 0.034482758620689655,
+      "blank_n": 0,
+      "unfinished_n": 2,
+      "parsed_n": 57,
+      "repeated_long_span_flag_n": 0
+    }
+  },
+  "contrasts": {
+    "joint_all-generalist": {
+      "score_delta": 0.002298850574712643,
+      "ci95": [
+        -0.09080459770114943,
+        0.09942528735632182
+      ]
+    },
+    "isolated_mean-joint_all": {
+      "score_delta": -0.020114942528735632,
+      "ci95": [
+        -0.05747126436781609,
+        0.0
+      ]
+    },
+    "isolated_geomedian-isolated_mean": {
+      "score_delta": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ]
+    },
+    "bard-isolated_geomedian": {
+      "score_delta": 0.055172413793103454,
+      "ci95": [
+        -0.017241379310344827,
+        0.1310344827586207
+      ]
+    }
+  },
+  "failure_diagnostics": {
+    "low_source_coverage_n": 27,
+    "isolated_geomedian_not_better_than_generalist_n": 53,
+    "bard_worse_than_geomedian_n": 1
+  },
+  "caution": "Exploratory TEST subset selected without labels, intentionally modality-balanced and not population-weighted; never report as full PathVQA accuracy or tune a gate on it."
+}

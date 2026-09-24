@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--stage1-rows", type=Path, required=True)
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--anchor-root", type=Path, required=True)
+    parser.add_argument("--receiver", choices=("LLaVA-Med-7B", "HuatuoGPT-Vision-7B"), default="LLaVA-Med-7B")
     parser.add_argument("--executed-code-identity", required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
@@ -106,7 +107,7 @@ def main():
         contrasts[f"consensus_strict-{label}"] = {"score_delta": delta, "ci95": [percentile(draws, .025), percentile(draws, .975)]}
     base_delta = [record["score"] - record["generalist_score"] for record in records]
     report = {
-        "status": "complete_full_test_descriptive", "dataset": "VQA-RAD", "receiver": "LLaVA-Med-7B", "n": n,
+        "status": "complete_full_test_descriptive", "dataset": "VQA-RAD", "receiver": args.receiver, "n": n,
         "source_sha256": hashlib.sha256(source_bytes).hexdigest(),
         "executed_code_identity": args.executed_code_identity,
         "stage1_run": str(args.stage1_run.resolve()), "consensus_run": str(args.run.resolve()),
