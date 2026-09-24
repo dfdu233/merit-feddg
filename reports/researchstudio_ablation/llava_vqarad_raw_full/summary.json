@@ -1,0 +1,606 @@
+{
+  "status": "complete_full_test_descriptive",
+  "dataset": "VQA-RAD",
+  "receiver": "LLaVA-Med-7B",
+  "n": 451,
+  "ce_n": 251,
+  "oe_n": 200,
+  "score_version": "mixed-medical-vqa-table-v4-source-typed-mmmu-official-primary",
+  "executed_code_identity": "01670098767b3d3a172e2371238977d210e395caaf1805672e1b3402cc19bce5:91b458624fdbfe5a71d6ef09852ccac3e00735c27fa915a445e7f413bc37f21b:f8f2d6cd7410b53765143e592b44c52160e2836f7154ab3fa4ed528ef6c1cb9c",
+  "source_sha256": "eda8463126dcb89929b18681823cc661c0c5c8e221ffd2e5297ed59650b54c03",
+  "source_format": "normalized_official_test",
+  "source_manifest_sha256": null,
+  "analysis_source_sha256": "625c460abf0c874fa86a3ca9b469daff40ae95e7000edd9c5e0053a782fbf19b",
+  "evaluator_source_sha256": "497831651bfb9e178c7a79b9b5312ef578e6e36c3fa413c92cb12d3c63132163",
+  "score_definition": "CE strict correct 0/1; OE reference-token recall; sample-weighted mean",
+  "repetition_screen_definition": "A normalized 12-token span repeated at least three times; heuristic flags require manual review and never alter score",
+  "raw_or_repair": "raw",
+  "manifest_sha256": "b9ec5d6a8e252eb07cca1d88e73c5f18e3054a427602f57a0966898e40ae460a",
+  "protocol_sha256": "dad86fc2c9cce5399c4f7cabcc6fe64b15d95ddc9a0979260772d0eb6eeed2d2",
+  "native_cache_identity": "4665a34cfc1cad8b2883e493bd599b7f43415cbfe8b5ea5d0aab863aa2042c85",
+  "cached_native_access_seconds_total": 662.8034241683781,
+  "native_expert_inference_seconds_total": null,
+  "matched_evidence_rows": 451,
+  "selected_vs_presented_mismatch_n": 185,
+  "delivered_group_strata_n": {
+    "0": 0,
+    "1": 243,
+    "2": 187,
+    "3+": 21
+  },
+  "descriptive_strata": {
+    "ce": {
+      "n": 251,
+      "methods": {
+        "generalist": {
+          "score": 0.6135458167330677,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.5577689243027888,
+          "rescue": 0.1394422310756972,
+          "harm": 0.1952191235059761,
+          "net": -0.05577689243027889
+        },
+        "isolated_mean": {
+          "score": 0.5298804780876494,
+          "rescue": 0.099601593625498,
+          "harm": 0.18326693227091634,
+          "net": -0.08366533864541834
+        },
+        "isolated_geomedian": {
+          "score": 0.5378486055776892,
+          "rescue": 0.09561752988047809,
+          "harm": 0.17131474103585656,
+          "net": -0.07569721115537847
+        },
+        "bard": {
+          "score": 0.6334661354581673,
+          "rescue": 0.05179282868525897,
+          "harm": 0.03187250996015936,
+          "net": 0.019920318725099605
+        }
+      }
+    },
+    "oe": {
+      "n": 200,
+      "methods": {
+        "generalist": {
+          "score": 0.3230676406926407,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.32466504329004336,
+          "rescue": 0.09353787878787877,
+          "harm": 0.09194047619047618,
+          "net": 0.0015974025974025835
+        },
+        "isolated_mean": {
+          "score": 0.31634361471861483,
+          "rescue": 0.08228787878787878,
+          "harm": 0.08901190476190475,
+          "net": -0.006724025974025966
+        },
+        "isolated_geomedian": {
+          "score": 0.3113436147186148,
+          "rescue": 0.07728787878787878,
+          "harm": 0.08901190476190475,
+          "net": -0.01172402597402597
+        },
+        "bard": {
+          "score": 0.3399009740259741,
+          "rescue": 0.030333333333333334,
+          "harm": 0.013500000000000002,
+          "net": 0.016833333333333332
+        }
+      }
+    },
+    "delivered_groups_1": {
+      "n": 243,
+      "methods": {
+        "generalist": {
+          "score": 0.4288524575561613,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.32427849927849933,
+          "rescue": 0.07074448185559297,
+          "harm": 0.17531844013325498,
+          "net": -0.10457395827766201
+        },
+        "isolated_mean": {
+          "score": 0.32427849927849933,
+          "rescue": 0.07074448185559297,
+          "harm": 0.17531844013325498,
+          "net": -0.10457395827766201
+        },
+        "isolated_geomedian": {
+          "score": 0.32427849927849933,
+          "rescue": 0.07074448185559297,
+          "harm": 0.17531844013325498,
+          "net": -0.10457395827766201
+        },
+        "bard": {
+          "score": 0.4288524575561613,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        }
+      }
+    },
+    "delivered_groups_2": {
+      "n": 187,
+      "methods": {
+        "generalist": {
+          "score": 0.550280112044818,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.6237076648841355,
+          "rescue": 0.17388591800356507,
+          "harm": 0.10045836516424751,
+          "net": 0.07342755283931755
+        },
+        "isolated_mean": {
+          "score": 0.5559842118665649,
+          "rescue": 0.10303030303030303,
+          "harm": 0.09732620320855614,
+          "net": 0.005704099821746883
+        },
+        "isolated_geomedian": {
+          "score": 0.5559842118665649,
+          "rescue": 0.10303030303030303,
+          "harm": 0.09732620320855614,
+          "net": 0.005704099821746883
+        },
+        "bard": {
+          "score": 0.578978864272982,
+          "rescue": 0.08591800356506239,
+          "harm": 0.05721925133689839,
+          "net": 0.028698752228164003
+        }
+      }
+    },
+    "delivered_groups_3+": {
+      "n": 21,
+      "methods": {
+        "generalist": {
+          "score": 0.5476190476190477,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.4523809523809524,
+          "rescue": 0.19047619047619047,
+          "harm": 0.2857142857142857,
+          "net": -0.09523809523809523
+        },
+        "isolated_mean": {
+          "score": 0.6428571428571429,
+          "rescue": 0.23809523809523808,
+          "harm": 0.14285714285714285,
+          "net": 0.09523809523809523
+        },
+        "isolated_geomedian": {
+          "score": 0.6904761904761905,
+          "rescue": 0.14285714285714285,
+          "harm": 0.0,
+          "net": 0.14285714285714285
+        },
+        "bard": {
+          "score": 0.6904761904761905,
+          "rescue": 0.14285714285714285,
+          "harm": 0.0,
+          "net": 0.14285714285714285
+        }
+      }
+    },
+    "source_group:biomed_anatomy": {
+      "n": 6,
+      "methods": {
+        "generalist": {
+          "score": 0.8333333333333334,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.8333333333333334,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "isolated_mean": {
+          "score": 0.8333333333333334,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "isolated_geomedian": {
+          "score": 0.8333333333333334,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "bard": {
+          "score": 0.8333333333333334,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        }
+      }
+    },
+    "source_group:biomedparse_objects": {
+      "n": 196,
+      "methods": {
+        "generalist": {
+          "score": 0.5441326530612245,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.6025510204081632,
+          "rescue": 0.18086734693877551,
+          "harm": 0.12244897959183673,
+          "net": 0.05841836734693878
+        },
+        "isolated_mean": {
+          "score": 0.5543367346938776,
+          "rescue": 0.11581632653061225,
+          "harm": 0.10561224489795917,
+          "net": 0.010204081632653073
+        },
+        "isolated_geomedian": {
+          "score": 0.5594387755102042,
+          "rescue": 0.10561224489795917,
+          "harm": 0.09030612244897959,
+          "net": 0.015306122448979581
+        },
+        "bard": {
+          "score": 0.5762755102040816,
+          "rescue": 0.08418367346938775,
+          "harm": 0.05204081632653061,
+          "net": 0.03214285714285714
+        }
+      }
+    },
+    "source_group:chexagent_description": {
+      "n": 174,
+      "methods": {
+        "generalist": {
+          "score": 0.5459906951286261,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.6450191570881226,
+          "rescue": 0.19262452107279693,
+          "harm": 0.09359605911330049,
+          "net": 0.09902846195949644
+        },
+        "isolated_mean": {
+          "score": 0.5992474001094691,
+          "rescue": 0.12796934865900383,
+          "harm": 0.07471264367816093,
+          "net": 0.05325670498084291
+        },
+        "isolated_geomedian": {
+          "score": 0.6049945265462507,
+          "rescue": 0.1164750957854406,
+          "harm": 0.05747126436781609,
+          "net": 0.05900383141762451
+        },
+        "bard": {
+          "score": 0.6009715380405036,
+          "rescue": 0.09808429118773947,
+          "harm": 0.04310344827586207,
+          "net": 0.054980842911877395
+        }
+      }
+    },
+    "source_group:medcpt_pubmed": {
+      "n": 273,
+      "methods": {
+        "generalist": {
+          "score": 0.4472935794364366,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.3194127301270158,
+          "rescue": 0.08128538128538128,
+          "harm": 0.20916623059480205,
+          "net": -0.12788084930942079
+        },
+        "isolated_mean": {
+          "score": 0.3315006422149279,
+          "rescue": 0.08128538128538128,
+          "harm": 0.19707831850688998,
+          "net": -0.1157929372215087
+        },
+        "isolated_geomedian": {
+          "score": 0.33516364587793157,
+          "rescue": 0.07395937395937395,
+          "harm": 0.186089307517879,
+          "net": -0.11212993355850505
+        },
+        "bard": {
+          "score": 0.45388698602984323,
+          "rescue": 0.018315018315018316,
+          "harm": 0.011721611721611722,
+          "net": 0.006593406593406594
+        }
+      }
+    },
+    "source_group:torchxrayvision": {
+      "n": 31,
+      "methods": {
+        "generalist": {
+          "score": 0.5081413210445469,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.5817204301075268,
+          "rescue": 0.0989247311827957,
+          "harm": 0.025345622119815666,
+          "net": 0.07357910906298003
+        },
+        "isolated_mean": {
+          "score": 0.6070660522273426,
+          "rescue": 0.11505376344086021,
+          "harm": 0.016129032258064516,
+          "net": 0.0989247311827957
+        },
+        "isolated_geomedian": {
+          "score": 0.6070660522273426,
+          "rescue": 0.11505376344086021,
+          "harm": 0.016129032258064516,
+          "net": 0.0989247311827957
+        },
+        "bard": {
+          "score": 0.5748079877112136,
+          "rescue": 0.08279569892473118,
+          "harm": 0.016129032258064516,
+          "net": 0.06666666666666667
+        }
+      }
+    }
+  },
+  "bootstrap": {
+    "unit": "patient_id_else_image_sha256",
+    "clusters": 203,
+    "replicates": 10000,
+    "seed": 20260924
+  },
+  "mechanistic_test": {
+    "type": "two-sided paired cluster sign-flip Monte Carlo",
+    "replicates": 10000,
+    "seed": 20260925,
+    "multiple_testing": "Holm correction over three prespecified mechanistic contrasts"
+  },
+  "methods": {
+    "generalist": {
+      "score": 0.48473066106103796,
+      "rescue": 0.0,
+      "harm": 0.0,
+      "net": 0.0,
+      "ci95": {
+        "score": [
+          0.435705264988148,
+          0.5344444664658317
+        ],
+        "rescue": [
+          0.0,
+          0.0
+        ],
+        "harm": [
+          0.0,
+          0.0
+        ],
+        "net": [
+          0.0,
+          0.0
+        ]
+      },
+      "blank_n": 0,
+      "unfinished_n": 11,
+      "repeated_long_span_flag_n": 0,
+      "parsed_n": 450,
+      "receiver_decode_seconds_total": 556.429200515151,
+      "generated_tokens_total": 9503,
+      "exact_text_changed_n": 0,
+      "parsed_decision_changed_n": 0,
+      "ce_wrong_to_right_n": 0,
+      "ce_right_to_wrong_n": 0
+    },
+    "joint_all": {
+      "score": 0.4543969149844983,
+      "rescue": 0.11908553383054492,
+      "harm": 0.14941927990708478,
+      "net": -0.030333746076539866,
+      "ci95": {
+        "score": [
+          0.40774828941906693,
+          0.5021833075522371
+        ],
+        "rescue": [
+          0.0886473409258886,
+          0.1501536292600554
+        ],
+        "harm": [
+          0.11466353240266254,
+          0.18497648084165555
+        ],
+        "net": [
+          -0.0819398974110319,
+          0.02156564867185519
+        ]
+      },
+      "blank_n": 0,
+      "unfinished_n": 26,
+      "repeated_long_span_flag_n": 0,
+      "parsed_n": 421,
+      "receiver_decode_seconds_total": 1159.4996875189245,
+      "generated_tokens_total": 9740,
+      "exact_text_changed_n": 379,
+      "parsed_decision_changed_n": 268,
+      "ce_wrong_to_right_n": 35,
+      "ce_right_to_wrong_n": 49
+    },
+    "isolated_mean": {
+      "score": 0.43518563845614855,
+      "rescue": 0.09192367130282873,
+      "harm": 0.14146869390771832,
+      "net": -0.04954502260488959,
+      "ci95": {
+        "score": [
+          0.3875056862304906,
+          0.48195995900051325
+        ],
+        "rescue": [
+          0.06606308159898763,
+          0.1191747710218432
+        ],
+        "harm": [
+          0.10897735515440257,
+          0.17595755950901368
+        ],
+        "net": [
+          -0.09564821478214967,
+          -0.002650566162693072
+        ]
+      },
+      "blank_n": 0,
+      "unfinished_n": 26,
+      "repeated_long_span_flag_n": 0,
+      "parsed_n": 425,
+      "receiver_decode_seconds_total": 3930.136359382421,
+      "generated_tokens_total": 9696,
+      "exact_text_changed_n": 373,
+      "parsed_decision_changed_n": 251,
+      "ce_wrong_to_right_n": 25,
+      "ce_right_to_wrong_n": 46
+    },
+    "isolated_geomedian": {
+      "score": 0.43740293335637026,
+      "rescue": 0.08748908150238527,
+      "harm": 0.13481680920705313,
+      "net": -0.047327727704667866,
+      "ci95": {
+        "score": [
+          0.3906267375212468,
+          0.48375769264817364
+        ],
+        "rescue": [
+          0.062096149026861114,
+          0.11467892688528775
+        ],
+        "harm": [
+          0.10282593369801002,
+          0.1687653753809216
+        ],
+        "net": [
+          -0.09237694318450601,
+          -0.000722897800064845
+        ]
+      },
+      "blank_n": 0,
+      "unfinished_n": 26,
+      "repeated_long_span_flag_n": 0,
+      "parsed_n": 425,
+      "receiver_decode_seconds_total": 4086.9295307323337,
+      "generated_tokens_total": 9664,
+      "exact_text_changed_n": 373,
+      "parsed_decision_changed_n": 247,
+      "ce_wrong_to_right_n": 24,
+      "ce_right_to_wrong_n": 43
+    },
+    "bard": {
+      "score": 0.5032820283928932,
+      "rescue": 0.04227642276422764,
+      "harm": 0.023725055432372504,
+      "net": 0.018551367331855136,
+      "ci95": {
+        "score": [
+          0.4517760421628225,
+          0.5536971960088195
+        ],
+        "rescue": [
+          0.022925536754002912,
+          0.06410282953761215
+        ],
+        "harm": [
+          0.009824683187286645,
+          0.039421552751672743
+        ],
+        "net": [
+          -0.007187959817463062,
+          0.04544787605171352
+        ]
+      },
+      "blank_n": 0,
+      "unfinished_n": 10,
+      "repeated_long_span_flag_n": 0,
+      "parsed_n": 447,
+      "receiver_decode_seconds_total": 2710.163383398205,
+      "generated_tokens_total": 9390,
+      "exact_text_changed_n": 130,
+      "parsed_decision_changed_n": 67,
+      "ce_wrong_to_right_n": 13,
+      "ce_right_to_wrong_n": 8
+    }
+  },
+  "contrasts": {
+    "joint_all-generalist": {
+      "score_delta": -0.030333746076539658,
+      "ci95": [
+        -0.0819398974110318,
+        0.02156564867185516
+      ],
+      "cluster_permutation_p_two_sided": null,
+      "holm_adjusted_p": null
+    },
+    "isolated_mean-joint_all": {
+      "score_delta": -0.019211276528349752,
+      "ci95": [
+        -0.04809669251907298,
+        0.008999008756104833
+      ],
+      "cluster_permutation_p_two_sided": 0.19608039196080393,
+      "holm_adjusted_p": 0.39216078392160786
+    },
+    "isolated_geomedian-isolated_mean": {
+      "score_delta": 0.0022172949002217113,
+      "ci95": [
+        -0.006928807415961007,
+        0.012474662162162154
+      ],
+      "cluster_permutation_p_two_sided": 1.0,
+      "holm_adjusted_p": 1.0
+    },
+    "bard-isolated_geomedian": {
+      "score_delta": 0.0658790950365229,
+      "ci95": [
+        0.026016033448699353,
+        0.10629022975276296
+      ],
+      "cluster_permutation_p_two_sided": 0.0015998400159984002,
+      "holm_adjusted_p": 0.0047995200479952005
+    }
+  },
+  "caution": "TEST outcomes were previously inspected; descriptive paired analysis, not pristine held-out tuning evidence."
+}
