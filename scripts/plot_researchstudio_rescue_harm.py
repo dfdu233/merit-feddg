@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the verified full-TEST VQA-RAD rescue–harm figure for the paper."""
+"""Render verified full-TEST rescue–harm figures for the paper."""
 
 import argparse
 import json
@@ -22,21 +22,21 @@ ARMS = (
 )
 
 
-def load_full(path):
+def load_full(path, dataset, n):
     report = json.loads(path.read_text())
     if (report.get("status") != "complete_full_test_descriptive"
-            or report.get("dataset") != "VQA-RAD" or report.get("n") != 451
+            or report.get("dataset") != dataset or report.get("n") != n
             or report.get("raw_or_repair") != "raw"
             or set(name for name, _, _, _ in ARMS) - report["methods"].keys()):
-        raise ValueError(f"not a verified full raw five-arm VQA-RAD summary: {path}")
+        raise ValueError(f"not a verified full raw five-arm {dataset} summary: {path}")
     return report
 
 
-def load_consensus(path, receiver):
+def load_consensus(path, receiver, dataset, n):
     report = json.loads(path.read_text())
     if (report.get("status") != "complete_full_test_descriptive"
             or report.get("receiver") != receiver
-            or report.get("dataset") != "VQA-RAD" or report.get("n") != 451
+            or report.get("dataset") != dataset or report.get("n") != n
             or report.get("rule") != "strict q=m base-relative normalized-probability consensus; evidence-conditioned adaptation"):
         raise ValueError(f"not the verified complete strict comparator: {path}")
     return report
@@ -44,32 +44,46 @@ def load_consensus(path, receiver):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--dataset", choices=("VQA-RAD", "SLAKE"), default="VQA-RAD")
     parser.add_argument("--llava", type=Path, required=True)
     parser.add_argument("--huatuo", type=Path, required=True)
-    parser.add_argument("--llava-consensus", type=Path, required=True)
-    parser.add_argument("--huatuo-consensus", type=Path, required=True)
+    parser.add_argument("--llava-consensus", type=Path)
+    parser.add_argument("--huatuo-consensus", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    llava, huatuo = load_full(args.llava), load_full(args.huatuo)
-    llava_consensus = load_consensus(args.llava_consensus, "LLaVA-Med-7B")
-    huatuo_consensus = load_consensus(args.huatuo_consensus, "HuatuoGPT-Vision-7B")
+    n = {"VQA-RAD": 451, "SLAKE": 2094}[args.dataset]
+    if bool(args.llava_consensus) != bool(args.huatuo_consensus):
+        parser.error("provide both consensus summaries or neither")
+    llava, huatuo = load_full(args.llava, args.dataset, n), load_full(args.huatuo, args.dataset, n)
+    llava_consensus = (load_consensus(args.llava_consensus, "LLaVA-Med-7B", args.dataset, n)
+                       if args.llava_consensus else None)
+    huatuo_consensus = (load_consensus(args.huatuo_consensus, "HuatuoGPT-Vision-7B", args.dataset, n)
+                        if args.huatuo_consensus else None)
+
+    maxima = [100 * report["methods"][name][metric]
+              for report in (llava, huatuo) for name, _, _, _ in ARMS
+              for metric in ("harm", "rescue")]
+    maxima.extend(100 * report[metric] for report in (llava_consensus, huatuo_consensus)
+                  if report for metric in ("harm_vs_generalist", "rescue_vs_generalist"))
+    limit = max(maxima) * 1.12 + 1
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 5.5), sharex=True, sharey=True)
     for ax, report, consensus, title in zip(
             axes, (llava, huatuo), (llava_consensus, huatuo_consensus),
             ("LLaVA-Med-7B", "HuatuoGPT-Vision-7B")):
-        ax.plot([0, 30], [0, 30], color="#888888", linestyle="--", linewidth=1,
+        ax.plot([0, limit], [0, limit], color="#888888", linestyle="--", linewidth=1,
                 label="No net score change")
         for name, label, color, marker in ARMS:
             item = report["methods"][name]
             ax.scatter(100 * item["harm"], 100 * item["rescue"], s=100,
                        marker=marker, color=color, edgecolor="white", linewidth=.7,
                        zorder=3, label=label)
-        ax.scatter(100 * consensus["harm_vs_generalist"],
-                   100 * consensus["rescue_vs_generalist"], s=120,
-                   marker="X", color="#e69f00", edgecolor="white",
-                   linewidth=.7, zorder=3, label="Strict consensus")
-        ax.set(title=f"{title} (N=451)", xlim=(-.7, 29), ylim=(-.7, 29),
+        if consensus:
+            ax.scatter(100 * consensus["harm_vs_generalist"],
+                       100 * consensus["rescue_vs_generalist"], s=120,
+                       marker="X", color="#e69f00", edgecolor="white",
+                       linewidth=.7, zorder=3, label="Strict consensus")
+        ax.set(title=f"{title} (N={n:,})", xlim=(-.7, limit), ylim=(-.7, limit),
                xlabel="Harm vs generalist (percentage points)")
         ax.title.set_fontsize(11)
         ax.grid(alpha=.18)
@@ -77,7 +91,7 @@ def main():
     c_handles, c_labels = axes[0].get_legend_handles_labels()
     fig.legend(c_handles, c_labels, loc="lower center", bbox_to_anchor=(.5, .01),
                ncol=4, frameon=False, fontsize=9)
-    fig.suptitle("VQA-RAD matched-evidence ablation: rescue–harm trade-off",
+    fig.suptitle(f"{args.dataset} matched-evidence ablation: rescue–harm trade-off",
                  fontsize=14, y=.97)
     fig.subplots_adjust(left=.08, right=.98, top=.85, bottom=.27, wspace=.12)
     args.output.parent.mkdir(parents=True, exist_ok=True)
