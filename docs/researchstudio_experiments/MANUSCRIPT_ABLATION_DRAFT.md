@@ -23,6 +23,22 @@ Create **one table per receiver and dataset** from the corresponding full-covera
 
 The compact rows above are placeholders, **not** four five-arm result tables. Expand each row into five rows after the coverage gate passes. Account for native-expert acquisition time separately from cached receiver decoding; otherwise a cached comparison understates deployment cost.
 
+### Verified full-TEST result: LLaVA-Med-7B on VQA-RAD
+
+The first completed paired analysis covers **all 451 official TEST questions** (251 CE, 200 OE; 203 image/patient clusters), with the frozen raw outputs and identical delivered evidence for all paired evidence arms. The score below is the mixed CE-strict/OE-reference-token-recall measure, not pure accuracy; rescue and harm are relative to the generalist. This is a descriptive analysis of an already inspected TEST set, not a new held-out tuning result. The authoritative files are `reports/researchstudio_ablation/llava_vqarad_raw_full/{summary.json,paired_rows.jsonl}` on the experimental runtime branch.
+
+| Arm | Score % | Rescue % | Harm % | Net % | Exact changes / 451 | Parsed / 451 | Empty | Unfinished |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| generalist | 48.47 | 0.00 | 0.00 | 0.00 | 0 | 450 | 0 | 11 |
+| joint_all | 45.44 | 11.91 | 14.94 | −3.03 | 379 | 421 | 0 | 26 |
+| isolated_mean | 43.52 | 9.19 | 14.15 | −4.95 | 373 | 425 | 0 | 26 |
+| isolated_geomedian | 43.74 | 8.75 | 13.48 | −4.73 | 373 | 425 | 0 | 26 |
+| BARD (matched evidence) | 50.33 | 4.23 | 2.37 | +1.86 | 130 | 447 | 0 | 10 |
+
+The anchored-commit contrast, BARD minus isolated_geomedian, is **+6.59 percentage points** (95% paired cluster-bootstrap CI +2.60 to +10.63; Holm-adjusted paired sign-flip p=0.0048). Relative to the generalist, BARD's +1.86-point net gain has a 95% CI of −0.72 to +4.54 points; do **not** claim a statistically resolved generalist win. Joint_all minus generalist is −3.03 points (CI −8.19 to +2.16); isolated_mean minus joint_all is −1.92 (CI −4.81 to +0.90); isolated_geomedian minus isolated_mean is +0.22 (CI −0.69 to +1.25). Thus this dataset supports a reduction of harm by anchored commitment relative to unbounded isolation, **not** a claim that isolation itself improves the receiver. CE and OE descriptive scores for BARD are 63.35% and 33.99%, respectively; the generalist scores are 61.35% and 32.31%.
+
+Of 451 rows, 243 delivered one source group, 187 delivered two, and 21 delivered three or more. For 185 rows the answer-blind selection included evidence that could not fit the common joint context; all five evidence arms were nevertheless compared on the **same delivered** set. The raw LLaVA answer budget was 64 tokens, and nonempty unfinished answers were scored from their generated text. A separately frozen 128-token, answer-blind extension is ongoing and is **not** included here. Cached native access totaled 662.8 s; complete native expert acquisition cost is still unavailable and must not be inferred from this value.
+
 **Compute-accounting gate:** the frozen cache's `progress.json` currently records 602.91 seconds summed over five local producer stages (`biomed_anatomy`, `cxr_findings`, `cxr_anatomy`, `chexagent_description`, `biomedparse_objects`) across the shared 2,545-case SLAKE/VQA-RAD manifest. This is **not** complete native-expert cost: `conch_tissue` and `medcpt_pubmed` timings are absent from that file, and the stage totals do not establish per-case latency or end-to-end wall time. The paired analyzer therefore leaves `native_expert_inference_seconds_total` null while reporting measured cached-access and receiver-decoding time separately. Do not turn the 602.91-second partial subtotal into a method latency claim; recover the missing producer logs or run a separately labelled acquisition-cost measurement before any full-cost comparison.
 
 ## Table B: paired effects and claim gate
