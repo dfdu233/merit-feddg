@@ -16,12 +16,32 @@ Create **one table per receiver and dataset** from the corresponding full-covera
 
 | Receiver | Dataset | Arm | N | Score | Rescue | Harm | Net | Exact change | Decision change | Parse | Empty | Unfinished | Forward calls | Receiver decode time |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| HuatuoGPT-Vision-7B | VQA-RAD | generalist / joint_all / isolated_mean / isolated_geomedian / BARD | 451 | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
-| LLaVA-Med-7B | VQA-RAD | same five arms | 451 | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
+| HuatuoGPT-Vision-7B | VQA-RAD | five arms; detailed table below | 451 | complete | — | — | — | — | — | — | — | — | — | — |
+| LLaVA-Med-7B | VQA-RAD | five arms; detailed table below | 451 | complete | — | — | — | — | — | — | — | — | — | — | — |
 | HuatuoGPT-Vision-7B | SLAKE | same five arms | 2,094 | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
 | LLaVA-Med-7B | SLAKE | same five arms | 2,094 | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
 
-The compact rows above are placeholders, **not** four five-arm result tables. Expand each row into five rows after the coverage gate passes. Account for native-expert acquisition time separately from cached receiver decoding; otherwise a cached comparison understates deployment cost.
+The SLAKE rows above remain placeholders pending full 2,094-ID audit; the two VQA-RAD results are expanded below. Report raw outputs first. Score/rescue/harm/net/change/parse/empty/unfinished are percentages; decoder time is summed per-arm receiver seconds, **not** end-to-end expert acquisition. The multi-arm runner recorded forward calls jointly per case, not attributable per arm, so no arm-specific call number is asserted. Native-expert acquisition time is incomplete for two producer stages and must not be folded into cached decode time.
+
+**HuatuoGPT-Vision-7B, VQA-RAD, all 451 TEST IDs, raw matched evidence**
+
+| Arm | Score | Rescue | Harm | Net | Exact change | Decision change | Parse | Empty | Unfinished | Decode s |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| generalist | 62.84 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 100.00 | 0.00 | 0.00 | 701.4 |
+| joint_all | 44.79 | 8.28 | 26.33 | -18.05 | 93.13 | 59.20 | 100.00 | 0.00 | 0.00 | 907.3 |
+| isolated_mean | 47.23 | 5.31 | 20.92 | -15.61 | 91.57 | 51.44 | 100.00 | 0.00 | 0.00 | 4670.5 |
+| isolated_geomedian | 47.95 | 5.26 | 20.15 | -14.89 | 91.13 | 50.33 | 100.00 | 0.00 | 0.00 | 5664.2 |
+| BARD | 61.84 | 0.99 | 1.99 | -1.00 | 44.57 | 12.86 | 100.00 | 0.00 | 0.00 | 4548.3 |
+
+**LLaVA-Med-7B, VQA-RAD, all 451 TEST IDs, raw matched evidence**
+
+| Arm | Score | Rescue | Harm | Net | Exact change | Decision change | Parse | Empty | Unfinished | Decode s |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| generalist | 48.47 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 99.78 | 0.00 | 2.44 | 556.4 |
+| joint_all | 45.44 | 11.91 | 14.94 | -3.03 | 84.04 | 59.42 | 93.35 | 0.00 | 5.76 | 1159.5 |
+| isolated_mean | 43.52 | 9.19 | 14.15 | -4.95 | 82.71 | 55.65 | 94.24 | 0.00 | 5.76 | 3930.1 |
+| isolated_geomedian | 43.74 | 8.75 | 13.48 | -4.73 | 82.71 | 54.77 | 94.24 | 0.00 | 5.76 | 4086.9 |
+| BARD | 50.33 | 4.23 | 2.37 | 1.86 | 28.82 | 14.86 | 99.11 | 0.00 | 2.22 | 2710.2 |
 
 ### Verified full-TEST result: LLaVA-Med-7B on VQA-RAD
 
