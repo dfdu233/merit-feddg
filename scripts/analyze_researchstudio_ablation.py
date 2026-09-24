@@ -8,8 +8,9 @@ import gzip
 import hashlib
 import json
 import random
+import re
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 
 METHODS = ("generalist", "joint_all", "isolated_mean", "isolated_geomedian", "bard")
@@ -32,6 +33,15 @@ def percentile(values: list[float], p: float) -> float:
     lower = int(position)
     upper = min(lower + 1, len(ordered) - 1)
     return ordered[lower] + (ordered[upper] - ordered[lower]) * (position - lower)
+
+
+def repeated_long_span(text: str) -> bool:
+    """Flag, but never auto-repair, a 12-token span occurring at least 3 times."""
+    tokens = re.findall(r"[\u3400-\u9fff]|[a-z0-9]+", text.lower())
+    if len(tokens) < 36:
+        return False
+    spans = Counter(tuple(tokens[i:i + 12]) for i in range(len(tokens) - 11))
+    return max(spans.values(), default=0) >= 3
 
 
 def main() -> None:
@@ -196,6 +206,7 @@ def main() -> None:
                 "score": value, "parsed": detail["prediction"] is not None,
                 "finished": bool(output.get("finished")),
                 "generated_tokens": len(output.get("token_ids", [])),
+                "repeated_long_span_flag": repeated_long_span(output.get("text", "")),
                 "wall_seconds": output.get("seconds"),
                 "delivered_evidence_items": len(output.get("evidence", [])),
                 "selected_evidence_items": output.get("selected_evidence_count"),
@@ -292,6 +303,7 @@ def main() -> None:
             (args.anchor_root / "anchor" / "corrected_sgta" / "evaluate_medheval_answers.py").read_bytes()
         ).hexdigest(),
         "score_definition": "CE strict correct 0/1; OE reference-token recall; sample-weighted mean",
+        "repetition_screen_definition": "A normalized 12-token span repeated at least three times; heuristic flags require manual review and never alter score",
         "raw_or_repair": "raw",
         "manifest_sha256": frozen_identity[0],
         "protocol_sha256": frozen_identity[1],
@@ -326,6 +338,7 @@ def main() -> None:
                          for metric, values in distributions[method].items()},
                 "blank_n": sum(not item.get("text", "").strip() for item in decoded[method]),
                 "unfinished_n": sum(not item.get("finished") for item in decoded[method]),
+                "repeated_long_span_flag_n": sum(repeated_long_span(item.get("text", "")) for item in decoded[method]),
                 "parsed_n": sum(detail["prediction"] is not None for detail in method_details[method]),
                 "receiver_decode_seconds_total": sum(float(item.get("seconds") or 0.0) for item in decoded[method]),
                 "generated_tokens_total": sum(len(item.get("token_ids", [])) for item in decoded[method]),
