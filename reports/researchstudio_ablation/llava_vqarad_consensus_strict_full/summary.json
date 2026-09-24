@@ -1,0 +1,54 @@
+{
+  "status": "complete_full_test_descriptive",
+  "dataset": "VQA-RAD",
+  "receiver": "LLaVA-Med-7B",
+  "n": 451,
+  "source_sha256": "eda8463126dcb89929b18681823cc661c0c5c8e221ffd2e5297ed59650b54c03",
+  "executed_code_identity": "9f38387fafa4bc9adedf674129c24b6486462dea531a5685a1dd5f65449988bc:bf8b0a53814d986200b5beac8c8917718f581936061776b6f8328353bdac0bc3:c35d4439b8336e19e64883221fb17b54d49e8d026e53168b69b0b98ef193e3dc",
+  "stage1_run": "/home/dbw/merit-feddg-huatuo-spatial/runs/researchstudio-vqarad-llava-matched-v1",
+  "consensus_run": "/home/dbw/merit-feddg-huatuo-spatial/runs/researchstudio-vqarad-llava-consensus-strict-canary-v1",
+  "manifest_sha256": "b9ec5d6a8e252eb07cca1d88e73c5f18e3054a427602f57a0966898e40ae460a",
+  "protocol_sha256": "dad86fc2c9cce5399c4f7cabcc6fe64b15d95ddc9a0979260772d0eb6eeed2d2",
+  "native_cache_identity": "4665a34cfc1cad8b2883e493bd599b7f43415cbfe8b5ea5d0aab863aa2042c85",
+  "score_definition": "CE strict 0/1; OE reference-token recall; sample-weighted mean",
+  "rule": "strict q=m base-relative normalized-probability consensus; evidence-conditioned adaptation",
+  "score": 0.4421701173918469,
+  "rescue_vs_generalist": 0.080726332056709,
+  "harm_vs_generalist": 0.12328687572590014,
+  "blank_n": 0,
+  "unfinished_n": 21,
+  "parsed_n": 433,
+  "repeated_long_span_flag_n": 0,
+  "receiver_decode_seconds_total": 1411.1441507346462,
+  "generated_tokens_total": 9663,
+  "cluster_bootstrap": {
+    "unit": "patient_id_else_image_sha256",
+    "clusters": 203,
+    "replicates": 10000,
+    "seed": 20260924
+  },
+  "contrasts": {
+    "consensus_strict-generalist": {
+      "score_delta": -0.04256054366919111,
+      "ci95": [
+        -0.08853334404221297,
+        0.0037119596144130937
+      ]
+    },
+    "consensus_strict-isolated_geomedian": {
+      "score_delta": 0.0047671840354767195,
+      "ci95": [
+        -0.017592800199302438,
+        0.028013168780025247
+      ]
+    },
+    "consensus_strict-bard": {
+      "score_delta": -0.06111191100104626,
+      "ci95": [
+        -0.09787786609941782,
+        -0.023804400548392397
+      ]
+    }
+  },
+  "caution": "TEST previously inspected; descriptive inference only. Native expert acquisition cost is not included."
+}
