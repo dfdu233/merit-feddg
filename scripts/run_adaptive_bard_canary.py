@@ -3,6 +3,8 @@ import argparse
 import gzip
 import hashlib
 import json
+import time
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -11,8 +13,10 @@ from merit_feddg.bard import BARDConfig, _decision_from_residuals, _prepare
 from merit_feddg.bard_protocol import (
     acquire_expert_groups,
     build_isolated_sessions,
+    run_matched_joint,
     run_bard_bundle,
     run_bard_method,
+    run_consensus_method,
 )
 from merit_feddg.capability_runtime import CapabilityRuntime, NativeSession, ValueGenerationConfig
 from merit_feddg.generalist_factory import load_generalist
@@ -30,8 +34,10 @@ from merit_feddg.open_study import atomic_json, fingerprint
 def native_evidence_references(directory, cache):
     """Index immutable native items already retained in the frozen cache."""
     index = {}
-    for source in sorted(directory.glob('*.json')):
-        raw = source.read_bytes()
+    sources = list(directory.glob('*.json'))
+    sources += [p for p in directory.glob('*.json.gz') if not p.with_suffix('').exists()]
+    for source in sorted(sources):
+        raw = gzip.decompress(source.read_bytes()) if source.suffix == '.gz' else source.read_bytes()
         record = json.loads(raw)
         for position, item in enumerate(record.get('output', {}).get('items', [])):
             key = item.get('evidence_id')
@@ -67,8 +73,12 @@ def restore_native_evidence(value, cache, loaded=None):
             path = (cache / ref['relative_path']).resolve()
             if not path.is_relative_to(cache.resolve()):
                 raise ValueError('Native evidence reference escapes cache')
+            if not path.exists() and Path(str(path) + '.gz').exists():
+                path = Path(str(path) + '.gz').resolve()
+                if not path.is_relative_to(cache.resolve()):
+                    raise ValueError('Compressed native evidence reference escapes cache')
             if path not in loaded:
-                raw = path.read_bytes()
+                raw = gzip.decompress(path.read_bytes()) if path.suffix == '.gz' else path.read_bytes()
                 loaded[path] = (hashlib.sha256(raw).hexdigest(), json.loads(raw))
             digest, record = loaded[path]
             if digest != ref['file_sha256'] or record['identity'] != ref['cache_identity']:
@@ -146,9 +156,12 @@ def main():
     parser.add_argument('--case-id', action='append', help='Restrict scheduling only; validate the full frozen manifest')
     parser.add_argument('--manifest', required=True)
     parser.add_argument('--output', required=True)
-    parser.add_argument('--methods', nargs='+', choices=['generalist', 'joint_all', 'isolated_mean', 'isolated_geomedian', 'bard'], default=['generalist', 'joint_all', 'isolated_mean', 'isolated_geomedian', 'bard'])
+    parser.add_argument('--methods', nargs='+', choices=['generalist', 'joint_all', 'isolated_mean', 'isolated_geomedian', 'bard', 'consensus_strict'], default=['generalist', 'joint_all', 'isolated_mean', 'isolated_geomedian', 'bard'])
+    parser.add_argument('--matched-joint-evidence', action='store_true',
+                        help='Ablation protocol: joint and isolated arms receive the same actually presented native items')
     parser.add_argument('--skip-stress', action='store_true')
     parser.add_argument('--prevent-empty-eos', action='store_true', help='Separate repair protocol: reject selected EOS only while decoded output is blank')
+    parser.add_argument('--decode-max-tokens', type=int, help='Separate length-repair run: extend decoding while preserving the original evidence packing configuration')
     parser.add_argument('--drop-expert-group', action='append', default=[], help='Exploratory ablation: remove a fault group after frozen selection, without refilling the expert budget')
     parser.add_argument('--compress-artifacts', action='store_true',
                         help='Losslessly gzip complete per-case JSON artifacts; no evidence is removed')
@@ -156,13 +169,26 @@ def main():
                         help='Store exact native evidence duplicates as SHA-verified references; retain native cache')
     parser.add_argument('--max-forwards', type=int, default=200000)
     parser.add_argument('--cached-receiver', action='store_true', help='Use separately parity-validated native receiver KV scores')
+    parser.add_argument('--wait-for-cache', action='store_true',
+                        help='Wait for each scheduled case native cache; never infer missing experts or skip cases')
     parser.add_argument('--start-index', type=int, default=0)
     parser.add_argument('--end-index', type=int)
     parser.add_argument('--shard-index', type=int, required=True)
     parser.add_argument('--shard-count', type=int, default=4)
     args = parser.parse_args()
+    case_ids = set(args.case_id or ())
+    if args.matched_joint_evidence and 'joint_all' not in args.methods:
+        raise ValueError('Matched joint evidence requires the joint_all arm')
+    if 'consensus_strict' in args.methods and (not args.matched_joint_evidence or not args.cached_receiver):
+        raise ValueError('Strict consensus requires matched joint evidence and cached receiver sessions')
+    if args.wait_for_cache and (not args.cached_receiver or args.methods != ['bard'] or not args.skip_stress):
+        raise ValueError('Waiting for native caches requires cached receiver, bard only, and skip-stress')
     if args.prevent_empty_eos and (not args.cached_receiver or args.methods != ['bard'] or not args.skip_stress):
         raise ValueError('Empty-EOS repair requires cached receiver, bard only, and skip-stress')
+    if args.decode_max_tokens is not None and (not args.cached_receiver or not args.skip_stress):
+        raise ValueError('Decode-only extension requires cached receiver and skip-stress')
+    if args.decode_max_tokens is not None and 'joint_all' in args.methods and not args.matched_joint_evidence:
+        raise ValueError('Joint decode-only extension requires the matched-evidence context')
     cache = Path(args.cache)
     protocol = json.loads((cache / 'protocol.json').read_text())
     assert protocol['cache_only']
@@ -192,13 +218,74 @@ def main():
             benchmark_prompts[source['id']] = prompt
     assert set(routes) == {r['id'] for r in original}
     decoder = ValueGenerationConfig(**config['capability_value']['generation'])
+    if args.decode_max_tokens is not None and args.decode_max_tokens < decoder.max_new_tokens:
+        raise ValueError('Decode-only extension must retain the original token allowance')
     arms = experiment_arms(decoder, 'bard')
     out = Path(args.output)
     out.mkdir(parents=True, exist_ok=True)
     native_index = None
     def save_case(path, value):
         write_case_artifact(path, value, compressed=args.compress_artifacts, native_index=native_index)
-    if partial_cache:
+    def completed_case(source):
+        case_dir = out / source['id']
+        def saved_json(name):
+            plain = case_dir / (name + '.json')
+            compressed = case_dir / (name + '.json.gz')
+            if plain.exists():
+                return json.loads(plain.read_text())
+            if compressed.exists():
+                return json.loads(gzip.decompress(compressed.read_bytes()))
+            return None
+        prior = saved_json('provenance')
+        if prior is None:
+            return False
+        expected_prompt = benchmark_prompts.get(source['id'], generation_prompt(source, config))
+        expected_repair = 'selected-eos-visible-continuation-v1' if args.prevent_empty_eos else None
+        if not (prior['cache_identity'] == protocol['identity']
+                and prior['receiver_config'] == config
+                and prior['prompt'] == expected_prompt
+                and prior['row']['image_sha256'] == source['image_sha256']
+                and prior['methods'] == args.methods
+                and prior.get('empty_eos_repair') == expected_repair
+                and prior.get('decode_max_tokens') == args.decode_max_tokens
+                and prior.get('expert_group_ablation', {}).get('requested', []) == args.drop_expert_group
+                and prior.get('matched_joint_evidence', False) == args.matched_joint_evidence
+                and prior['receiver_execution'] == ('parity_validated_kv' if args.cached_receiver else 'production_replay')):
+            raise ValueError(f'Existing completed case protocol differs: {source["id"]}')
+        if not (all(saved_json(method) is not None for method in args.methods)
+                and (args.skip_stress or saved_json('stress') is not None)):
+            raise ValueError(f'Completed provenance has missing outputs: {source["id"]}')
+        return True
+    def await_case_cache(source):
+        from dataclasses import asdict
+        from prepare_bard_expert_cache import make_request
+        check_row = dict(source, modality=routes[source['id']]['modality'], group_id=source['image_sha256'])
+        for descriptor in pending_schedule[source['id']]:
+            if specs[descriptor['expert']].get('fault_group', descriptor['expert']) in args.drop_expert_group:
+                continue
+            request = make_request(check_row, descriptor, decoder)
+            key = fingerprint(['infer', descriptor['expert'], asdict(request)])
+            path = cache / 'expert-cache' / fingerprint(source['id']) / f'{key}.json'
+            announced = False
+            while load_cached(path, protocol['identity']) is None:
+                if completed_case(source):
+                    return
+                if not announced:
+                    print('WAIT_NATIVE_CACHE', source['id'], descriptor['expert'], flush=True)
+                    announced = True
+                time.sleep(3)
+    if args.wait_for_cache:
+        pending_schedule = json.loads((cache / 'schedule.json').read_text())
+        for index, source in enumerate(original):
+            if index < args.start_index or (args.end_index is not None and index >= args.end_index):
+                continue
+            if index % args.shard_count != args.shard_index or (case_ids and source['id'] not in case_ids):
+                continue
+            if completed_case(source):
+                continue
+            await_case_cache(source)
+            break
+    if partial_cache and not args.wait_for_cache:
         from dataclasses import asdict
 
         from prepare_bard_expert_cache import make_request
@@ -206,7 +293,7 @@ def main():
         for index, source in enumerate(original):
             if index < args.start_index or (args.end_index is not None and index >= args.end_index):
                 continue
-            if index % args.shard_count != args.shard_index or (args.case_id and source['id'] not in args.case_id):
+            if index % args.shard_count != args.shard_index or (case_ids and source['id'] not in case_ids):
                 continue
             check_row = dict(source, modality=routes[source['id']]['modality'], group_id=source['image_sha256'])
             for descriptor in schedule[source['id']]:
@@ -233,8 +320,17 @@ def main():
                 continue
             if index % args.shard_count != args.shard_index:
                 continue
-            if args.case_id and original_row['id'] not in args.case_id:
+            if case_ids and original_row['id'] not in case_ids:
                 continue
+            # A completed provenance file is written after all method outputs.
+            # Reuse only an exact protocol match; never overwrite a completed
+            # run from a different configuration when restarting a queue.
+            if completed_case(original_row):
+                continue
+            if args.wait_for_cache:
+                await_case_cache(original_row)
+                if completed_case(original_row):
+                    continue
             assert hashlib.sha256(Path(original_row['image']).read_bytes()).hexdigest() == original_row['image_sha256']
             row = {k: original_row[k] for k in ('id', 'image', 'question', 'image_sha256')}
             row.update(modality=routes[row['id']]['modality'], capability='classification',
@@ -251,22 +347,48 @@ def main():
             for method in ('generalist', 'joint_all'):
                 if method not in args.methods:
                     continue
+                if method == 'joint_all' and args.matched_joint_evidence:
+                    continue
                 arm = arms[method]
+                if method == 'generalist' and args.decode_max_tokens is not None:
+                    # No evidence is packed in this arm; only the answer budget
+                    # changes. Evidence arms retain the frozen original config.
+                    arm = replace(arm, max_new_tokens=args.decode_max_tokens)
                 arm_session = NativeSession(probe, row['image'], prompt, row['question'], arm)
                 runtime = CapabilityRuntime(arm_session, pool, row, specs, arm, None)
                 outputs[method] = runtime.run('generalist' if method == 'generalist' else 'all_evidence')
                 save_case(out / row['id'] / f'{method}.json', outputs[method])
-            isolated = [m for m in ('bard', 'isolated_mean', 'isolated_geomedian') if m in args.methods]
-            acquisition = acquire_expert_groups(engine, excluded_groups=args.drop_expert_group) if isolated else {'groups': {}, 'events': [], 'fault_group_members': {}}
+            isolated = [m for m in ('bard', 'isolated_mean', 'isolated_geomedian', 'consensus_strict') if m in args.methods]
+            acquisition = (
+                (acquire_expert_groups(engine, excluded_groups=args.drop_expert_group)
+                 if args.drop_expert_group else acquire_expert_groups(engine))
+                if isolated or args.matched_joint_evidence
+                else {'groups': {}, 'events': [], 'fault_group_members': {}}
+            )
             excluded_groups = sorted(set(args.drop_expert_group))
             removed_groups = sorted({event['fault_group'] for event in acquisition['events'] if event.get('ablation_skipped')})
             acquisition['groups'] = {
                 key: value for key, value in acquisition['groups'].items()
                 if key not in excluded_groups
             }
+            if args.matched_joint_evidence:
+                outputs['joint_all'], acquisition['groups'] = run_matched_joint(
+                    session, acquisition, decode_max_tokens=args.decode_max_tokens)
+                save_case(out / row['id'] / 'joint_all.json', outputs['joint_all'])
             if args.cached_receiver or not isolated:
                 for method in isolated:
-                    outputs[method] = run_bard_method(session, acquisition, config.get('bard', {}), method, fault_probe=not args.skip_stress, prevent_empty_eos=args.prevent_empty_eos)
+                    if method == 'consensus_strict':
+                        outputs[method] = run_consensus_method(
+                            session, acquisition,
+                            **({'decode_max_tokens': args.decode_max_tokens} if args.decode_max_tokens is not None else {}),
+                        )
+                    else:
+                        outputs[method] = run_bard_method(
+                            session, acquisition, config.get('bard', {}), method,
+                            fault_probe=not args.skip_stress,
+                            **({'prevent_empty_eos': True} if args.prevent_empty_eos else {}),
+                            **({'decode_max_tokens': args.decode_max_tokens} if args.decode_max_tokens is not None else {}),
+                        )
                     save_case(out / row['id'] / f'{method}.json', outputs[method])
             else:
                 outputs.update(run_bard_bundle(session, acquisition, config.get('bard', {})))
@@ -287,7 +409,8 @@ def main():
                 'routing_source': protocol['routing'],
                 'protocol_sha256': hashlib.sha256((cache / 'protocol.json').read_bytes()).hexdigest(),
                 'native_cache_sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-                                        for p in (cache / 'expert-cache' / fingerprint(row['id'])).glob('*.json')},
+                                        for p in (cache / 'expert-cache' / fingerprint(row['id'])).iterdir()
+                                        if p.name.endswith(('.json', '.json.gz'))},
                 'model_forwards': count[0] - before, 'torch_version': probe.torch.__version__,
                 'device': probe.torch.cuda.get_device_name(0),
                 'acquisition_events': acquisition['events'],
@@ -295,6 +418,8 @@ def main():
                 'answers_loaded': False,
                 'expert_group_ablation': {'requested': excluded_groups, 'removed': removed_groups, 'refill_budget': False},
                 'empty_eos_repair': 'selected-eos-visible-continuation-v1' if args.prevent_empty_eos else None,
+                'matched_joint_evidence': args.matched_joint_evidence,
+                **({'decode_max_tokens': args.decode_max_tokens} if args.decode_max_tokens is not None else {}),
             })
             print('COMPLETE', index, row['id'], 'forwards', count[0] - before,
                   {m: v['text'] for m, v in outputs.items()}, flush=True)
