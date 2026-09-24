@@ -4,7 +4,7 @@ This records the **raw, ongoing** five-arm experiment launched 2026-09-24 on clo
 
 | Item | Frozen identity |
 |---|---|
-| Dataset | Official VQA-RAD TEST, 451 IDs, `/home/dbw/ANCHOR/data/vqa_rad/official_test_full_v1.json`, SHA256 `eda8463126dcb89929b18681823cc661c0c5c8e221ffd2e5297ed59650b54c03` |
+| Dataset | Official VQA-RAD TEST, 451 IDs (251 CE, 200 OE; 203 unique image clusters), `/home/dbw/ANCHOR/data/vqa_rad/official_test_full_v1.json`, SHA256 `eda8463126dcb89929b18681823cc661c0c5c8e221ffd2e5297ed59650b54c03` |
 | Split/index | Frozen short manifest indices `[2094,2545)`; all 451, no sampled subset |
 | Arms | `generalist`, `joint_all`, `isolated_mean`, `isolated_geomedian`, `bard` |
 | Scientific label | `BARD (matched evidence)`, not the earlier `BARD (full native schedule)` headline |
@@ -26,7 +26,16 @@ This records the **raw, ongoing** five-arm experiment launched 2026-09-24 on clo
 | HuatuoGPT-Vision-7B | `FreedomIntelligence/HuatuoGPT-Vision-7B`, `/home/dbw/models/HuatuoGPT-Vision-7B`; `bfloat16`; decoder max 1024 | `fac80988b1d0377bf81755abff0e53ad07a508e262836496f1f82d3d4c20c50f` | `9d9cdb56e8c8a8ab1023602bb9d453cd11d146d3e5b2d53a5250240bd9034439` | 0 | `runs/researchstudio-vqarad-huatuo-matched-v1/`, `runs/researchstudio-vqarad-huatuo-matched-v1-full.log` |
 | LLaVA-Med-7B | `microsoft/llava-med-v1.5-mistral-7b`, `/home/dbw/ANCHOR/hf_cache/llava-med-v1.5-mistral-7b`; `float16`; decoder max 64 | `0d3f8c62b6ba02d944dbcd7d59a33f585777b8c5e7093bb692d4edb8285147a7` | `b9ec5d6a8e252eb07cca1d88e73c5f18e3054a427602f57a0966898e40ae460a` | 1 | `runs/researchstudio-vqarad-llava-matched-v1/`, `runs/researchstudio-vqarad-llava-matched-v1-full.log` |
 
-The local and cloud copies agree on these checkpoint metadata hashes: Huatuo `config.json` `3d96adabfe401f3f533f98c66478324c01159370e55c58bfdea1191a642f9fb9`, safetensors index `9326fc7c300ba6e894d50a8f9acd6f5b80e5ed8665648119d5005eaee2daf47a`; LLaVA `config.json` `f6ae889c5488ef86895e78f641339062962dd6b434666019fa119ab09d2bd8b3`, safetensors index `d5ecec60dba218c6621cfa524d739de942b4552bcbb25efe63848c18a731b2f6`; both vision preprocessors `d253881f65322dc546df59cf925a408e5538b8ecb5a1b496cdd36af9992686d4`. These identify metadata, **not yet the content hashes of all weight shards**. Weight-shard identity must be bound before claiming complete byte-level reproduction.
+The local and cloud copies agree on checkpoint metadata **and all loaded weight-shard bytes**. Metadata: Huatuo `config.json` `3d96adabfe401f3f533f98c66478324c01159370e55c58bfdea1191a642f9fb9`, safetensors index `9326fc7c300ba6e894d50a8f9acd6f5b80e5ed8665648119d5005eaee2daf47a`; LLaVA `config.json` `f6ae889c5488ef86895e78f641339062962dd6b434666019fa119ab09d2bd8b3`, safetensors index `d5ecec60dba218c6621cfa524d739de942b4552bcbb25efe63848c18a731b2f6`; both vision preprocessors `d253881f65322dc546df59cf925a408e5538b8ecb5a1b496cdd36af9992686d4`.
+
+Weight SHA256 values, in filename shard order `00001`–`00004`:
+
+| Checkpoint | Shard 1 | Shard 2 | Shard 3 | Shard 4 |
+|---|---|---|---|---|
+| HuatuoGPT-Vision-7B | `da1f9b7837a6c54e7803a8a36dca76ba2b09f116b044225f1bcf04c6ab18db4d` | `5ab6f7191d5d35b13f22bd238155b83d15a683a56d9a6b46d038ef6e4d3b897b` | `cf5442ead64542c60c0ecc647fee679b7f18b531d47d169cac08d496e8b78be3` | `9df68cee325562ea25cba56f5bac5027000fd288031fbeb1f66000a4c8dafaf4` |
+| LLaVA-Med-7B | `ef2190dc6c2a940e60f03f5fdb4dddb2320eb87801aeca5c40b0a28ce8aa420e` | `2b229607fecd98b8111320178e5bf3e2c527b05a942c85d65b5b507c76c1ed00` | `12b18ecdf8924d5fe28ada797fe6697fa60e62cba630759fbeb52975b261c4e2` | `1d2063fcd429d3f0f0a8a091b0522f0e02f2d85fe0e5b0eeb4ae168183a603bc` |
+
+The Huatuo and LLaVA CLIP vision-tower binaries each hash to `c6032c2e0caae3dc2d4fba35535fa6307dbb49df59c7e182b1bc4b3329b81801`.
 
 Both raw runs use the existing `scripts/run_adaptive_bard_canary.py` with `--cache`, the receiver-specific `--manifest` and `--config`, receiver-specific `--output`, the five `--methods` listed above, the decoder flags above, and `--start-index 2094 --end-index 2545 --shard-index 0 --shard-count 1 --max-forwards 200000000`. Their cloud processes are detached from the SSH terminal. The local copy is an incremental backup, not the source of truth while jobs remain active.
 
