@@ -12,6 +12,8 @@ It contains **no new benchmark results** and should not be cited as evidence tha
 4. [DATA_REQUEST_MINIMAL_CN.md](DATA_REQUEST_MINIMAL_CN.md): minimum server-side data needed to run the paired analysis.
 5. [ROW_SCHEMA.json](ROW_SCHEMA.json): normalized per-example result schema for matched comparisons.
 
+The [minimal plan](MINIMAL_EXPERIMENT.md) now includes the paper-ready five-arm contrast matrix, paired rescue/harm definitions, statistical unit, reporting tables/plot, compute accounting, and a guard against turning previously inspected TEST splits into tuning data. [DATA_REQUEST_MINIMAL_CN.md](DATA_REQUEST_MINIMAL_CN.md) identifies the exact provenance and per-example fields needed to populate those displays. These are specifications; no ablation result is asserted by this documentation commit.
+
 ## Current decision rule
 
 Do **not** tune a new gate, fault budget, quorum, or expert pool on the final benchmark before the mechanism experiment is complete.

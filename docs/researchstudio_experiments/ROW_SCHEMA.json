@@ -7,21 +7,36 @@
     "sample_id": "string",
     "image_id": "string",
     "method": "string",
+    "prediction": "original prediction text, including empty string when generated",
+    "finished": "boolean; false if decoding reached its limit without EOS",
+    "parsed": "boolean under the declared scorer",
     "score": "finite number in [0,1], using a declared upstream scorer",
     "protocol_id": "hash/identity of task/scoring/generation contract shared by matched arms",
-    "input_id": "hash/identity of the exact question and image"
+    "method_protocol_id": "hash/identity of this arm's implementation and resolved decoder configuration",
+    "input_id": "hash/identity of the exact question, image, and frozen prompt",
+    "evidence_id": "native evidence-cache identity; empty only for an independently declared no-evidence arm",
+    "delivered_source_group_ids": "ordered array of selected and actually delivered source-group IDs; [] for generalist",
+    "run_id": "identifier linking to the immutable P0 run ledger"
   },
   "optional": {
     "cluster_id": "deidentified patient ID preferred for resampling",
-    "prediction": "original prediction text",
-    "evidence_id": "native evidence-cache identity",
-    "n_source_groups": "delivered group count",
-    "run_id": "original run identifier"
+    "n_source_groups": "integer equal to len(delivered_source_group_ids)",
+    "rendered_evidence_sha256": "ordered hashes of the exact text/structured renderings shown to the receiver",
+    "source_context_tokens": "context-token counts by source and joint arm",
+    "answer_type": "CE or short OE; report generation is evaluated separately",
+    "parsed_decision": "normalized option/Yes-No when applicable",
+    "generated_tokens": "integer output-token count",
+    "model_forwards": "receiver forward calls for this case/arm",
+    "wall_seconds": "receiver decoding time, excluding separately reported native expert acquisition",
+    "raw_or_repair": "raw or named deterministic answer-blind repair protocol",
+    "trace": "candidate, anchor, selected token and commit reason if retained",
+    "branch_score_ref": "reference to same-prefix receiver branch scores when retained"
   },
   "notes": [
     "No real example rows are fabricated.",
-    "Different method rows must agree on the original inputs for paired comparisons.",
-    "Generation/scoring changes require a new protocol identity.",
-    "Full raw branch logits are not needed for Stage 1 paired score analysis."
+    "Different method rows must agree on the original input_id, scorer, receiver checkpoint, frozen native source identities and evaluated ID set for paired comparisons.",
+    "The shared protocol_id identifies the common task contract; method_protocol_id identifies the intentionally different arm implementation. A generation/scoring change requires a new relevant identity.",
+    "Preserve empty, unfinished and unparsed rows with score 0 only when that is the declared upstream scorer rule; never silently drop them.",
+    "Full raw branch logits are not needed for Stage 1 paired score analysis, but Stage 2 zero-inference replay requires the actual same-prefix branch scores."
   ]
 }
