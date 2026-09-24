@@ -60,6 +60,8 @@ The anchored-commit claim requires a favorable rescue–harm trade-off, not mere
 
 Plot each arm's rescue against harm (same axes and dataset-specific scale), annotate changed-decision coverage, and add the Stage-2 consensus baseline only after its branch-score protocol is frozen. Report the count of delivered source groups (`0/1/2/3+`), selected-versus-presented evidence discrepancy, and context-token budget for each arm. The case appendix should be selected by predeclared categories—rescued, harmed, unchanged despite useful evidence, missing source coverage, unfinished generation—and show the generalist answer, native evidence, joint and isolated outputs, BARD anchor/commit decision, reference answer and image identifier. Do not select anecdotes by desired outcome.
 
+The first deterministic CE case selection for LLaVA VQA-RAD is recorded in [CASE_APPENDIX_VQARAD_LLAVA.md](CASE_APPENDIX_VQARAD_LLAVA.md); it deliberately includes both harm and missed rescue, and awaits exact-image visual review before any illustrated paper figure.
+
 For Stage 2, start with strict base-relative unanimity (`q=m`), whose paper equation and released code agree. If a relaxed quorum is added, name whether its downward branch follows the paper's `q`-th ordered change or the released code's least-negative-supported change; the two differ when `q<m`. Freeze that choice before evaluating TEST and cite both the paper and code revision.
 
 ## Required checks before replacing `TBD`
