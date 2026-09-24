@@ -41,6 +41,8 @@ def main() -> None:
     parser.add_argument("--anchor-root", type=Path, required=True)
     parser.add_argument("--receiver", required=True)
     parser.add_argument("--dataset", required=True)
+    parser.add_argument("--executed-code-identity", required=True,
+                        help="Frozen runtime code identity from the run ledger, not the analysis worktree")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--bootstrap-replicates", type=int, default=10000)
     parser.add_argument("--bootstrap-seed", type=int, default=20260924)
@@ -154,6 +156,7 @@ def main() -> None:
                 "method_protocol_id": hashlib.sha256(json.dumps({
                     "protocol": record["protocol_id"], "method": method,
                     "receiver_config": provenance[index]["receiver_config"],
+                    "executed_code_identity": args.executed_code_identity,
                 }, sort_keys=True).encode()).hexdigest(),
                 "delivered_source_group_ids": [] if method == "generalist" else delivered_groups[index],
                 "raw_or_repair": "raw",
@@ -219,6 +222,7 @@ def main() -> None:
         "ce_n": sum(source_task_group(row) == "ce" for row in source),
         "oe_n": sum(source_task_group(row) == "oe" for row in source),
         "score_version": SCORE_VERSION,
+        "executed_code_identity": args.executed_code_identity,
         "source_sha256": hashlib.sha256(source_text.encode()).hexdigest(),
         "analysis_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "evaluator_source_sha256": hashlib.sha256(
