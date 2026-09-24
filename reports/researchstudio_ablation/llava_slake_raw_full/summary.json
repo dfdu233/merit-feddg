@@ -1,0 +1,781 @@
+{
+  "status": "complete_full_test_descriptive",
+  "dataset": "SLAKE",
+  "receiver": "LLaVA-Med-7B",
+  "n": 2094,
+  "ce_n": 836,
+  "oe_n": 1258,
+  "score_version": "mixed-medical-vqa-table-v4-source-typed-mmmu-official-primary",
+  "executed_code_identity": "english+cloudfront=266491b789aa0cb4dc6bc28abe02b8041a4c3d87db03f5d1cd7f5580ceefa55b:5191265bb63505539423020c100ba232585c7ba9af8c418ec99546d475911ec7:f8f2d6cd7410b53765143e592b44c52160e2836f7154ab3fa4ed528ef6c1cb9c;hosttail=9f38387fafa4bc9adedf674129c24b6486462dea531a5685a1dd5f65449988bc:bf8b0a53814d986200b5beac8c8917718f581936061776b6f8328353bdac0bc3:f8f2d6cd7410b53765143e592b44c52160e2836f7154ab3fa4ed528ef6c1cb9c",
+  "source_sha256": "6be8f7b4c5a46cdbc713a5210a25b6ed5aa1fd1574c83cefb4f998131f17c2c3",
+  "source_format": "slake_native_test",
+  "source_manifest_sha256": "b9ec5d6a8e252eb07cca1d88e73c5f18e3054a427602f57a0966898e40ae460a",
+  "analysis_source_sha256": "625c460abf0c874fa86a3ca9b469daff40ae95e7000edd9c5e0053a782fbf19b",
+  "evaluator_source_sha256": "497831651bfb9e178c7a79b9b5312ef578e6e36c3fa413c92cb12d3c63132163",
+  "score_definition": "CE strict correct 0/1; OE reference-token recall; sample-weighted mean",
+  "repetition_screen_definition": "A normalized 12-token span repeated at least three times; heuristic flags require manual review and never alter score",
+  "raw_or_repair": "raw",
+  "manifest_sha256": "b9ec5d6a8e252eb07cca1d88e73c5f18e3054a427602f57a0966898e40ae460a",
+  "protocol_sha256": "dad86fc2c9cce5399c4f7cabcc6fe64b15d95ddc9a0979260772d0eb6eeed2d2",
+  "native_cache_identity": "4665a34cfc1cad8b2883e493bd599b7f43415cbfe8b5ea5d0aab863aa2042c85",
+  "cached_native_access_seconds_total": 710.0064614596777,
+  "native_expert_inference_seconds_total": null,
+  "matched_evidence_rows": 2094,
+  "selected_vs_presented_mismatch_n": 791,
+  "delivered_group_strata_n": {
+    "0": 0,
+    "1": 1277,
+    "2": 661,
+    "3+": 156
+  },
+  "descriptive_strata": {
+    "ce": {
+      "n": 836,
+      "methods": {
+        "generalist": {
+          "score": 0.4677033492822967,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.3875598086124402,
+          "rescue": 0.145933014354067,
+          "harm": 0.22607655502392343,
+          "net": -0.08014354066985643
+        },
+        "isolated_mean": {
+          "score": 0.39712918660287083,
+          "rescue": 0.15311004784688995,
+          "harm": 0.2236842105263158,
+          "net": -0.07057416267942584
+        },
+        "isolated_geomedian": {
+          "score": 0.4019138755980861,
+          "rescue": 0.15669856459330145,
+          "harm": 0.22248803827751196,
+          "net": -0.06578947368421051
+        },
+        "bard": {
+          "score": 0.4569377990430622,
+          "rescue": 0.017942583732057416,
+          "harm": 0.028708133971291867,
+          "net": -0.01076555023923445
+        }
+      }
+    },
+    "oe": {
+      "n": 1258,
+      "methods": {
+        "generalist": {
+          "score": 0.2664765128000422,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.27968530983236867,
+          "rescue": 0.07117719323601678,
+          "harm": 0.057968396203690306,
+          "net": 0.01320879703232647
+        },
+        "isolated_mean": {
+          "score": 0.2842223334870394,
+          "rescue": 0.073064508358626,
+          "harm": 0.05531868767162885,
+          "net": 0.017745820686997156
+        },
+        "isolated_geomedian": {
+          "score": 0.2842223334870394,
+          "rescue": 0.073064508358626,
+          "harm": 0.05531868767162885,
+          "net": 0.017745820686997156
+        },
+        "bard": {
+          "score": 0.2973456171985584,
+          "rescue": 0.03306113600231246,
+          "harm": 0.0021920316037963095,
+          "net": 0.030869104398516152
+        }
+      }
+    },
+    "delivered_groups_1": {
+      "n": 1277,
+      "methods": {
+        "generalist": {
+          "score": 0.3525807634460727,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.26807280207828366,
+          "rescue": 0.09090315844427044,
+          "harm": 0.1754111198120595,
+          "net": -0.08450796136778907
+        },
+        "isolated_mean": {
+          "score": 0.26807280207828366,
+          "rescue": 0.09090315844427044,
+          "harm": 0.1754111198120595,
+          "net": -0.08450796136778907
+        },
+        "isolated_geomedian": {
+          "score": 0.26807280207828366,
+          "rescue": 0.09090315844427044,
+          "harm": 0.1754111198120595,
+          "net": -0.08450796136778907
+        },
+        "bard": {
+          "score": 0.3525807634460727,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        }
+      }
+    },
+    "delivered_groups_2": {
+      "n": 661,
+      "methods": {
+        "generalist": {
+          "score": 0.30254435428414256,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.386558474304314,
+          "rescue": 0.13079814789345806,
+          "harm": 0.046784027873286574,
+          "net": 0.08401412002017149
+        },
+        "isolated_mean": {
+          "score": 0.4110782560858203,
+          "rescue": 0.14800577637188836,
+          "harm": 0.03947187457021043,
+          "net": 0.10853390180167793
+        },
+        "isolated_geomedian": {
+          "score": 0.4110782560858203,
+          "rescue": 0.14800577637188836,
+          "harm": 0.03947187457021043,
+          "net": 0.10853390180167793
+        },
+        "bard": {
+          "score": 0.3454087012332095,
+          "rescue": 0.07502406821620133,
+          "harm": 0.03215972126713428,
+          "net": 0.04286434694906705
+        }
+      }
+    },
+    "delivered_groups_3+": {
+      "n": 156,
+      "methods": {
+        "generalist": {
+          "score": 0.48717948717948717,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.5,
+          "rescue": 0.057692307692307696,
+          "harm": 0.04487179487179487,
+          "net": 0.012820512820512824
+        },
+        "isolated_mean": {
+          "score": 0.483974358974359,
+          "rescue": 0.038461538461538464,
+          "harm": 0.041666666666666664,
+          "net": -0.0032051282051282007
+        },
+        "isolated_geomedian": {
+          "score": 0.5096153846153846,
+          "rescue": 0.057692307692307696,
+          "harm": 0.035256410256410256,
+          "net": 0.02243589743589744
+        },
+        "bard": {
+          "score": 0.4967948717948718,
+          "rescue": 0.04487179487179487,
+          "harm": 0.035256410256410256,
+          "net": 0.009615384615384616
+        }
+      }
+    },
+    "source_group:biomed_anatomy": {
+      "n": 60,
+      "methods": {
+        "generalist": {
+          "score": 0.2833333333333333,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.3,
+          "rescue": 0.03333333333333333,
+          "harm": 0.016666666666666666,
+          "net": 0.016666666666666666
+        },
+        "isolated_mean": {
+          "score": 0.3,
+          "rescue": 0.03333333333333333,
+          "harm": 0.016666666666666666,
+          "net": 0.016666666666666666
+        },
+        "isolated_geomedian": {
+          "score": 0.3,
+          "rescue": 0.03333333333333333,
+          "harm": 0.016666666666666666,
+          "net": 0.016666666666666666
+        },
+        "bard": {
+          "score": 0.2833333333333333,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        }
+      }
+    },
+    "source_group:biomedparse_objects": {
+      "n": 773,
+      "methods": {
+        "generalist": {
+          "score": 0.3401015327923478,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.3713003253753577,
+          "rescue": 0.09761652750009801,
+          "harm": 0.06641773491708809,
+          "net": 0.03119879258300992
+        },
+        "isolated_mean": {
+          "score": 0.3856913246305227,
+          "rescue": 0.10629385707005369,
+          "harm": 0.06070406523187894,
+          "net": 0.04558979183817475
+        },
+        "isolated_geomedian": {
+          "score": 0.390865968873731,
+          "rescue": 0.11017484025245991,
+          "harm": 0.059410404171076875,
+          "net": 0.050764436081383035
+        },
+        "bard": {
+          "score": 0.37373672037320166,
+          "rescue": 0.06652554000548826,
+          "harm": 0.03289035242463444,
+          "net": 0.03363518758085381
+        }
+      }
+    },
+    "source_group:chexagent_description": {
+      "n": 740,
+      "methods": {
+        "generalist": {
+          "score": 0.3101105651105652,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.41218263718263715,
+          "rescue": 0.12359131859131862,
+          "harm": 0.02151924651924652,
+          "net": 0.10207207207207211
+        },
+        "isolated_mean": {
+          "score": 0.41888206388206384,
+          "rescue": 0.1338943488943489,
+          "harm": 0.02512285012285012,
+          "net": 0.10877149877149878
+        },
+        "isolated_geomedian": {
+          "score": 0.42428746928746924,
+          "rescue": 0.13794840294840297,
+          "harm": 0.02377149877149877,
+          "net": 0.1141769041769042
+        },
+        "bard": {
+          "score": 0.36326371826371817,
+          "rescue": 0.07039312039312037,
+          "harm": 0.01723996723996724,
+          "net": 0.05315315315315314
+        }
+      }
+    },
+    "source_group:medcpt_pubmed": {
+      "n": 1415,
+      "methods": {
+        "generalist": {
+          "score": 0.38568596107465364,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.3023526277413204,
+          "rescue": 0.08415783274440518,
+          "harm": 0.1674911660777385,
+          "net": -0.08333333333333333
+        },
+        "isolated_mean": {
+          "score": 0.3067695888720624,
+          "rescue": 0.08256772673733805,
+          "harm": 0.16148409893992932,
+          "net": -0.07891637220259128
+        },
+        "isolated_geomedian": {
+          "score": 0.3095964439957373,
+          "rescue": 0.08468786808009424,
+          "harm": 0.1607773851590106,
+          "net": -0.07608951707891637
+        },
+        "bard": {
+          "score": 0.3800322508273038,
+          "rescue": 0.00812720848056537,
+          "harm": 0.013780918727915195,
+          "net": -0.005653710247349824
+        }
+      }
+    },
+    "source_group:torchxrayvision": {
+      "n": 79,
+      "methods": {
+        "generalist": {
+          "score": 0.2921940928270042,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.6265822784810126,
+          "rescue": 0.35443037974683544,
+          "harm": 0.020042194092827002,
+          "net": 0.33438818565400846
+        },
+        "isolated_mean": {
+          "score": 0.6592827004219408,
+          "rescue": 0.3755274261603375,
+          "harm": 0.008438818565400845,
+          "net": 0.36708860759493667
+        },
+        "isolated_geomedian": {
+          "score": 0.6592827004219408,
+          "rescue": 0.3755274261603375,
+          "harm": 0.008438818565400845,
+          "net": 0.36708860759493667
+        },
+        "bard": {
+          "score": 0.34071729957805913,
+          "rescue": 0.06540084388185655,
+          "harm": 0.016877637130801686,
+          "net": 0.048523206751054856
+        }
+      }
+    },
+    "language:en": {
+      "n": 1061,
+      "methods": {
+        "generalist": {
+          "score": 0.4427214449598991,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.4216249950698583,
+          "rescue": 0.11643818010453257,
+          "harm": 0.13753462999457344,
+          "net": -0.021096449890040878
+        },
+        "isolated_mean": {
+          "score": 0.43972827099594275,
+          "rescue": 0.12621597692285721,
+          "harm": 0.12920915088681348,
+          "net": -0.002993173963956264
+        },
+        "isolated_geomedian": {
+          "score": 0.44067077806474575,
+          "rescue": 0.12715848399166024,
+          "harm": 0.12920915088681348,
+          "net": -0.002050666895153236
+        },
+        "bard": {
+          "score": 0.462828262427697,
+          "rescue": 0.03542969754091337,
+          "harm": 0.015322880073115703,
+          "net": 0.020106817467797668
+        }
+      }
+    },
+    "language:zh": {
+      "n": 1033,
+      "methods": {
+        "generalist": {
+          "score": 0.24830590513068732,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.22120038722168442,
+          "rescue": 0.08518877057115198,
+          "harm": 0.1122942884801549,
+          "net": -0.02710551790900291
+        },
+        "isolated_mean": {
+          "score": 0.2158760890609874,
+          "rescue": 0.08325266214908035,
+          "harm": 0.11568247821878025,
+          "net": -0.0324298160696999
+        },
+        "isolated_geomedian": {
+          "score": 0.21878025169409487,
+          "rescue": 0.08518877057115198,
+          "harm": 0.11471442400774444,
+          "net": -0.029525653436592456
+        },
+        "bard": {
+          "score": 0.25653436592449175,
+          "rescue": 0.018393030009680542,
+          "harm": 0.01016456921587609,
+          "net": 0.008228460793804453
+        }
+      }
+    },
+    "modality:CT": {
+      "n": 865,
+      "methods": {
+        "generalist": {
+          "score": 0.3803192953481971,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.29515551885494085,
+          "rescue": 0.11676300578034682,
+          "harm": 0.2019267822736031,
+          "net": -0.0851637764932563
+        },
+        "isolated_mean": {
+          "score": 0.30295898706303337,
+          "rescue": 0.1176300578034682,
+          "harm": 0.19499036608863202,
+          "net": -0.07736030828516381
+        },
+        "isolated_geomedian": {
+          "score": 0.30295898706303337,
+          "rescue": 0.1176300578034682,
+          "harm": 0.19499036608863202,
+          "net": -0.07736030828516381
+        },
+        "bard": {
+          "score": 0.37049270575282134,
+          "rescue": 0.005202312138728324,
+          "harm": 0.015028901734104046,
+          "net": -0.009826589595375721
+        }
+      }
+    },
+    "modality:MRI": {
+      "n": 489,
+      "methods": {
+        "generalist": {
+          "score": 0.3430867984548966,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.23623608270847535,
+          "rescue": 0.03902522154055897,
+          "harm": 0.14587593728698026,
+          "net": -0.10685071574642128
+        },
+        "isolated_mean": {
+          "score": 0.24032606225857764,
+          "rescue": 0.03902522154055897,
+          "harm": 0.141785957736878,
+          "net": -0.10276073619631902
+        },
+        "isolated_geomedian": {
+          "score": 0.24032606225857764,
+          "rescue": 0.03902522154055897,
+          "harm": 0.141785957736878,
+          "net": -0.10276073619631902
+        },
+        "bard": {
+          "score": 0.3410418086798455,
+          "rescue": 0.0,
+          "harm": 0.002044989775051125,
+          "net": -0.002044989775051125
+        }
+      }
+    },
+    "modality:X-Ray": {
+      "n": 740,
+      "methods": {
+        "generalist": {
+          "score": 0.3101105651105652,
+          "rescue": 0.0,
+          "harm": 0.0,
+          "net": 0.0
+        },
+        "joint_all": {
+          "score": 0.41218263718263715,
+          "rescue": 0.12359131859131862,
+          "harm": 0.02151924651924652,
+          "net": 0.10207207207207211
+        },
+        "isolated_mean": {
+          "score": 0.41888206388206384,
+          "rescue": 0.1338943488943489,
+          "harm": 0.02512285012285012,
+          "net": 0.10877149877149878
+        },
+        "isolated_geomedian": {
+          "score": 0.42428746928746924,
+          "rescue": 0.13794840294840297,
+          "harm": 0.02377149877149877,
+          "net": 0.1141769041769042
+        },
+        "bard": {
+          "score": 0.36326371826371817,
+          "rescue": 0.07039312039312037,
+          "harm": 0.01723996723996724,
+          "net": 0.05315315315315314
+        }
+      }
+    }
+  },
+  "bootstrap": {
+    "unit": "patient_id_else_image_sha256",
+    "clusters": 180,
+    "replicates": 10000,
+    "seed": 20260924
+  },
+  "mechanistic_test": {
+    "type": "two-sided paired cluster sign-flip Monte Carlo",
+    "replicates": 10000,
+    "seed": 20260925,
+    "multiple_testing": "Holm correction over three prespecified mechanistic contrasts"
+  },
+  "methods": {
+    "generalist": {
+      "score": 0.3468134924080482,
+      "rescue": 0.0,
+      "harm": 0.0,
+      "net": 0.0,
+      "ci95": {
+        "score": [
+          0.3226332847397066,
+          0.3710729737383293
+        ],
+        "rescue": [
+          0.0,
+          0.0
+        ],
+        "harm": [
+          0.0,
+          0.0
+        ],
+        "net": [
+          0.0,
+          0.0
+        ]
+      },
+      "blank_n": 0,
+      "unfinished_n": 52,
+      "repeated_long_span_flag_n": 1,
+      "parsed_n": 2069,
+      "receiver_decode_seconds_total": 1564.5772432095837,
+      "generated_tokens_total": 43107,
+      "exact_text_changed_n": 0,
+      "parsed_decision_changed_n": 0,
+      "ce_wrong_to_right_n": 0,
+      "ce_right_to_wrong_n": 0
+    },
+    "joint_all": {
+      "score": 0.32275268374838567,
+      "rescue": 0.10102240166710079,
+      "harm": 0.12508321032676334,
+      "net": -0.02406080865966255,
+      "ci95": {
+        "score": [
+          0.2978799505869422,
+          0.3482703092809914
+        ],
+        "rescue": [
+          0.089820713917964,
+          0.11195354693541384
+        ],
+        "harm": [
+          0.10738375477205811,
+          0.14332935338048822
+        ],
+        "net": [
+          -0.04715930290503526,
+          -0.0013945453417322866
+        ]
+      },
+      "blank_n": 0,
+      "unfinished_n": 45,
+      "repeated_long_span_flag_n": 1,
+      "parsed_n": 2034,
+      "receiver_decode_seconds_total": 2651.2116519056726,
+      "generated_tokens_total": 40792,
+      "exact_text_changed_n": 1881,
+      "parsed_decision_changed_n": 1553,
+      "ce_wrong_to_right_n": 122,
+      "ce_right_to_wrong_n": 189
+    },
+    "isolated_mean": {
+      "score": 0.3292988039764543,
+      "rescue": 0.10502156232815259,
+      "harm": 0.12253625075974647,
+      "net": -0.017514688431593886,
+      "ci95": {
+        "score": [
+          0.30267457278654886,
+          0.35676616125721045
+        ],
+        "rescue": [
+          0.09337161635782401,
+          0.11676073834210754
+        ],
+        "harm": [
+          0.10550527231949901,
+          0.14023121683943793
+        ],
+        "net": [
+          -0.040896682020310916,
+          0.005727131842875307
+        ]
+      },
+      "blank_n": 0,
+      "unfinished_n": 47,
+      "repeated_long_span_flag_n": 1,
+      "parsed_n": 2037,
+      "receiver_decode_seconds_total": 6607.792769875145,
+      "generated_tokens_total": 41127,
+      "exact_text_changed_n": 1852,
+      "parsed_decision_changed_n": 1536,
+      "ce_wrong_to_right_n": 128,
+      "ce_right_to_wrong_n": 187
+    },
+    "isolated_geomedian": {
+      "score": 0.33120902365171695,
+      "rescue": 0.10645422708459958,
+      "harm": 0.1220586958409308,
+      "net": -0.01560446875633123,
+      "ci95": {
+        "score": [
+          0.30463502137693016,
+          0.35863744303970235
+        ],
+        "rescue": [
+          0.0946837094285598,
+          0.11827728373022633
+        ],
+        "harm": [
+          0.10500326474096443,
+          0.1398412669625554
+        ],
+        "net": [
+          -0.03914568069588668,
+          0.007768797386624784
+        ]
+      },
+      "blank_n": 0,
+      "unfinished_n": 46,
+      "repeated_long_span_flag_n": 1,
+      "parsed_n": 2037,
+      "receiver_decode_seconds_total": 6514.559907928109,
+      "generated_tokens_total": 40662,
+      "exact_text_changed_n": 1866,
+      "parsed_decision_changed_n": 1549,
+      "ce_wrong_to_right_n": 131,
+      "ce_right_to_wrong_n": 186
+    },
+    "bard": {
+      "score": 0.36106054748604893,
+      "rescue": 0.0270252669966137,
+      "harm": 0.012778211918613067,
+      "net": 0.014247055078000634,
+      "ci95": {
+        "score": [
+          0.33617496234474925,
+          0.3862035835868499
+        ],
+        "rescue": [
+          0.019692399097150773,
+          0.03442516351410743
+        ],
+        "harm": [
+          0.008187401107218793,
+          0.017610250487795354
+        ],
+        "net": [
+          0.005427563903146926,
+          0.023152846570720653
+        ]
+      },
+      "blank_n": 0,
+      "unfinished_n": 54,
+      "repeated_long_span_flag_n": 1,
+      "parsed_n": 2064,
+      "receiver_decode_seconds_total": 4429.920659369789,
+      "generated_tokens_total": 41931,
+      "exact_text_changed_n": 625,
+      "parsed_decision_changed_n": 476,
+      "ce_wrong_to_right_n": 15,
+      "ce_right_to_wrong_n": 24
+    }
+  },
+  "contrasts": {
+    "joint_all-generalist": {
+      "score_delta": -0.024060808659662536,
+      "ci95": [
+        -0.04715930290503512,
+        -0.0013945453417321067
+      ],
+      "cluster_permutation_p_two_sided": null,
+      "holm_adjusted_p": null
+    },
+    "isolated_mean-joint_all": {
+      "score_delta": 0.006546120228068608,
+      "ci95": [
+        0.001033513926900036,
+        0.012276380141285369
+      ],
+      "cluster_permutation_p_two_sided": 0.023997600239976002,
+      "holm_adjusted_p": 0.047995200479952004
+    },
+    "isolated_geomedian-isolated_mean": {
+      "score_delta": 0.00191021967526267,
+      "ci95": [
+        0.0004653327128897308,
+        0.00386478099761143
+      ],
+      "cluster_permutation_p_two_sided": 0.12818718128187181,
+      "holm_adjusted_p": 0.12818718128187181
+    },
+    "bard-isolated_geomedian": {
+      "score_delta": 0.029851523834331983,
+      "ci95": [
+        0.010628783748106394,
+        0.04967271380390584
+      ],
+      "cluster_permutation_p_two_sided": 0.0027997200279972004,
+      "holm_adjusted_p": 0.008399160083991601
+    }
+  },
+  "caution": "TEST outcomes were previously inspected; descriptive paired analysis, not pristine held-out tuning evidence."
+}
