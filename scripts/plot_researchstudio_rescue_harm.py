@@ -10,6 +10,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+matplotlib.rcParams["svg.hashsalt"] = "researchstudio-vqarad-matched-v1"
+
 
 ARMS = (
     ("generalist", "Generalist", "#404040", "o"),
@@ -73,6 +75,10 @@ def main():
     fig.subplots_adjust(left=.08, right=.98, top=.85, bottom=.27, wspace=.12)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.output, format=args.output.suffix.removeprefix("."))
+    if args.output.suffix == ".svg":
+        # Matplotlib emits trailing path-coordinate spaces; keep generated SVG
+        # diff-clean without changing geometry.
+        args.output.write_text("\n".join(line.rstrip() for line in args.output.read_text().splitlines()) + "\n")
     print(args.output)
 
 
