@@ -186,6 +186,23 @@ def main() -> None:
         return result
 
     point = metrics(list(range(n)))
+    strata_indices = {
+        "ce": [i for i, row in enumerate(source) if source_task_group(row) == "ce"],
+        "oe": [i for i, row in enumerate(source) if source_task_group(row) == "oe"],
+        **{
+            f"delivered_groups_{label}": [
+                i for i, groups in enumerate(delivered_groups)
+                if ("3+" if len(groups) >= 3 else str(len(groups))) == label
+            ]
+            for label in ("0", "1", "2", "3+")
+        },
+        **{
+            f"source_group:{group}": [
+                i for i, groups in enumerate(delivered_groups) if group in groups
+            ]
+            for group in sorted({group for groups in delivered_groups for group in groups})
+        },
+    }
     cluster_keys = sorted(clusters)
     rng = random.Random(args.bootstrap_seed)
     distributions = {method: {metric: [] for metric in ("score", "rescue", "harm", "net")} for method in METHODS}
@@ -245,6 +262,10 @@ def main() -> None:
             label: sum(("3+" if len(groups) >= 3 else str(len(groups))) == label
                        for groups in delivered_groups)
             for label in ("0", "1", "2", "3+")
+        },
+        "descriptive_strata": {
+            label: {"n": len(indices), "methods": metrics(indices)}
+            for label, indices in strata_indices.items() if indices
         },
         "bootstrap": {"unit": "patient_id_else_image_sha256", "clusters": len(clusters),
                       "replicates": args.bootstrap_replicates, "seed": args.bootstrap_seed},
