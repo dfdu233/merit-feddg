@@ -27,7 +27,7 @@ The compact rows above are placeholders, **not** four five-arm result tables. Ex
 
 | Receiver | Dataset | Prespecified contrast | Paired score effect (95% cluster CI) | Rescue change | Harm change | Adjusted p | Interpretation |
 |---|---|---|---|---|---|---|---|
-| TBD | TBD | joint_all − generalist | TBD | TBD | TBD | TBD | evidence utility, not isolation |
+| TBD | TBD | joint_all − generalist | TBD | TBD | TBD | N/A (descriptive) | evidence utility, not isolation |
 | TBD | TBD | isolated_mean − joint_all | TBD | TBD | TBD | TBD | isolation plus merge |
 | TBD | TBD | isolated_geomedian − isolated_mean | TBD | TBD | TBD | TBD | center rule |
 | TBD | TBD | BARD − isolated_geomedian | TBD | TBD | TBD | TBD | anchored commit |
