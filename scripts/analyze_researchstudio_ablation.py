@@ -234,6 +234,18 @@ def main() -> None:
             ]
             for group in sorted({group for groups in delivered_groups for group in groups})
         },
+        **{
+            f"language:{language}": [
+                i for i, row in enumerate(source) if row.get("q_lang") == language
+            ]
+            for language in sorted({str(row["q_lang"]) for row in source if row.get("q_lang")})
+        },
+        **{
+            f"modality:{modality}": [
+                i for i, row in enumerate(source) if row.get("modality") == modality
+            ]
+            for modality in sorted({str(row["modality"]) for row in source if row.get("modality")})
+        },
     }
     cluster_keys = sorted(clusters)
     rng = random.Random(args.bootstrap_seed)
