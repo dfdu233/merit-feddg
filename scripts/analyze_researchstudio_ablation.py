@@ -261,8 +261,14 @@ def main() -> None:
                 "unfinished_n": sum(not item.get("finished") for item in decoded[method]),
                 "parsed_n": sum(detail["prediction"] is not None for detail in method_details[method]),
                 "receiver_decode_seconds_total": sum(float(item.get("seconds") or 0.0) for item in decoded[method]),
+                "generated_tokens_total": sum(len(item.get("token_ids", [])) for item in decoded[method]),
                 "exact_text_changed_n": sum(
                     decoded[method][i].get("text", "") != decoded["generalist"][i].get("text", "")
+                    for i in range(n)
+                ),
+                "parsed_decision_changed_n": sum(
+                    method_details[method][i]["prediction"]
+                    != method_details["generalist"][i]["prediction"]
                     for i in range(n)
                 ),
                 "ce_wrong_to_right_n": sum(
