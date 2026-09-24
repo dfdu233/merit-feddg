@@ -11,6 +11,7 @@ It contains **no new benchmark results** and should not be cited as evidence tha
 3. [MINIMAL_EXPERIMENT.md](MINIMAL_EXPERIMENT.md): staged experiment plan designed to avoid another full benchmark sweep before the mechanism is validated.
 4. [DATA_REQUEST_MINIMAL_CN.md](DATA_REQUEST_MINIMAL_CN.md): minimum server-side data needed to run the paired analysis.
 5. [ROW_SCHEMA.json](ROW_SCHEMA.json): normalized per-example result schema for matched comparisons.
+6. [MAIN_TABLE_BINDING_AUDIT.md](MAIN_TABLE_BINDING_AUDIT.md): current full-result provenance/scorer caveats and rows that are not yet paper-ready.
 
 The [minimal plan](MINIMAL_EXPERIMENT.md) now includes the paper-ready five-arm contrast matrix, paired rescue/harm definitions, statistical unit, reporting tables/plot, compute accounting, and a guard against turning previously inspected TEST splits into tuning data. [DATA_REQUEST_MINIMAL_CN.md](DATA_REQUEST_MINIMAL_CN.md) identifies the exact provenance and per-example fields needed to populate those displays. These are specifications; no ablation result is asserted by this documentation commit.
 
