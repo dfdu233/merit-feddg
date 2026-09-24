@@ -13,6 +13,7 @@ This records the **raw, ongoing** five-arm experiment launched 2026-09-24 on clo
 | Executed runner | `scripts/run_adaptive_bard_canary.py` SHA256 `01670098767b3d3a172e2371238977d210e395caaf1805672e1b3402cc19bce5` |
 | Executed BARD protocol | `merit_feddg/bard_protocol.py` SHA256 `91b458624fdbfe5a71d6ef09852ccac3e00735c27fa915a445e7f413bc37f21b` |
 | Executed capability runtime | `merit_feddg/capability_runtime.py` SHA256 `f8f2d6cd7410b53765143e592b44c52160e2836f7154ab3fa4ed528ef6c1cb9c` |
+| Receiver loader | `merit_feddg/generalist_factory.py` SHA256 `8579b21550991d0b3592f421d12f91364b217b690e306a943897b3f6c215668e`, identical local/cloud; `.py` source trees for both model implementations showed no file-content difference in a read-only checksum comparison (the cloud copies lack Git metadata) |
 | Relevant dirty diff | Runner, BARD protocol, capability runtime and matched evaluation combined diff SHA256 `41c92acf5366f34cbd2570dee7d76b2c0ce2a60123533afb2a1a01ef5f3cd8f4`; per-file hashes above are the more direct identity |
 | Decoder | `--matched-joint-evidence --skip-stress --cached-receiver --compress-artifacts --reference-native-evidence`; one shard, complete `[2094,2545)`, max-forwards ceiling 200,000,000 |
 | Empty/repetition policy | Raw run, no EOS suppression, no answer-selected repair. Preserve empty, unfinished and repetition outputs in denominator; separate deterministic repair experiment only. |
