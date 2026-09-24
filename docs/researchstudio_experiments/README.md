@@ -14,6 +14,8 @@ It contains **no new benchmark results** and should not be cited as evidence tha
 
 The [minimal plan](MINIMAL_EXPERIMENT.md) now includes the paper-ready five-arm contrast matrix, paired rescue/harm definitions, statistical unit, reporting tables/plot, compute accounting, and a guard against turning previously inspected TEST splits into tuning data. [DATA_REQUEST_MINIMAL_CN.md](DATA_REQUEST_MINIMAL_CN.md) identifies the exact provenance and per-example fields needed to populate those displays. These are specifications; no ablation result is asserted by this documentation commit.
 
+The live VQA-RAD execution is tracked on the separate experimental branch in the [run ledger](https://github.com/dfdu233/merit-feddg/blob/experiments/huatuo-adaptive-bard-validation-v1/reports/researchstudio_ablation/VQARAD_RUN_LEDGER.md). Its [paired analysis code](https://github.com/dfdu233/merit-feddg/blob/experiments/huatuo-adaptive-bard-validation-v1/scripts/analyze_researchstudio_ablation.py) rejects incomplete or evidence-mismatched runs. Both are preparation artifacts, not a completed result or a change to `main`.
+
 ## Current decision rule
 
 Do **not** tune a new gate, fault budget, quorum, or expert pool on the final benchmark before the mechanism experiment is complete.
