@@ -23,6 +23,8 @@ Create **one table per receiver and dataset** from the corresponding full-covera
 
 The compact rows above are placeholders, **not** four five-arm result tables. Expand each row into five rows after the coverage gate passes. Account for native-expert acquisition time separately from cached receiver decoding; otherwise a cached comparison understates deployment cost.
 
+**Compute-accounting gate:** the frozen cache's `progress.json` currently records 602.91 seconds summed over five local producer stages (`biomed_anatomy`, `cxr_findings`, `cxr_anatomy`, `chexagent_description`, `biomedparse_objects`) across the shared 2,545-case SLAKE/VQA-RAD manifest. This is **not** complete native-expert cost: `conch_tissue` and `medcpt_pubmed` timings are absent from that file, and the stage totals do not establish per-case latency or end-to-end wall time. The paired analyzer therefore leaves `native_expert_inference_seconds_total` null while reporting measured cached-access and receiver-decoding time separately. Do not turn the 602.91-second partial subtotal into a method latency claim; recover the missing producer logs or run a separately labelled acquisition-cost measurement before any full-cost comparison.
+
 ## Table B: paired effects and claim gate
 
 | Receiver | Dataset | Prespecified contrast | Paired score effect (95% cluster CI) | Rescue change | Harm change | Adjusted p | Interpretation |
