@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-09-24T13:47:25.868525</dc:date>
+    <dc:date>2026-09-24T14:25:16.249313</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -1471,6 +1471,11 @@ L 846.72 59.4
      <use xlink:href="#m4705a21d86" x="513.087152" y="276.036216" style="fill: #cc79a7; stroke: #ffffff; stroke-width: 0.7"/>
     </g>
    </g>
+   <g id="PathCollection_12">
+    <g clip-path="url(#p31d42c657b)">
+     <use xlink:href="#m4fe2933cc9" x="694.51434" y="248.658044" style="fill: #e69f00; stroke: #ffffff; stroke-width: 0.7"/>
+    </g>
+   </g>
    <g id="text_23">
     <!-- HuatuoGPT-Vision-7B (N=451) -->
     <g transform="translate(580.298695 53.4) scale(0.11 -0.11)">
@@ -1788,7 +1793,7 @@ L 212.663672 365.707969
      <use xlink:href="#DejaVuSans-65" transform="translate(970.601562 0)"/>
     </g>
    </g>
-   <g id="PathCollection_12">
+   <g id="PathCollection_13">
     <g>
      <use xlink:href="#m7e8c466309" x="203.663672" y="379.705781" style="fill: #404040; stroke: #ffffff; stroke-width: 0.7"/>
     </g>
@@ -1808,7 +1813,7 @@ L 212.663672 365.707969
      <use xlink:href="#DejaVuSans-74" transform="translate(473.974609 0)"/>
     </g>
    </g>
-   <g id="PathCollection_13">
+   <g id="PathCollection_14">
     <g>
      <use xlink:href="#m524fd59741" x="339.756328" y="366.495469" style="fill: #d55e00; stroke: #ffffff; stroke-width: 0.7"/>
     </g>
@@ -1838,7 +1843,7 @@ z
      <use xlink:href="#DejaVuSans-74" transform="translate(181.835938 0)"/>
     </g>
    </g>
-   <g id="PathCollection_14">
+   <g id="PathCollection_15">
     <g>
      <use xlink:href="#m1c552836c7" x="339.756328" y="379.705781" style="fill: #0072b2; stroke: #ffffff; stroke-width: 0.7"/>
     </g>
@@ -1870,7 +1875,7 @@ z
      <use xlink:href="#DejaVuSans-6e" transform="translate(648.046875 0)"/>
     </g>
    </g>
-   <g id="PathCollection_15">
+   <g id="PathCollection_16">
     <g>
      <use xlink:href="#m5a8f12e8d8" x="446.985703" y="366.495469" style="fill: #009e73; stroke: #ffffff; stroke-width: 0.7"/>
     </g>
@@ -1898,7 +1903,7 @@ z
      <use xlink:href="#DejaVuSans-6e" transform="translate(925.488281 0)"/>
     </g>
    </g>
-   <g id="PathCollection_16">
+   <g id="PathCollection_17">
     <g>
      <use xlink:href="#m4705a21d86" x="446.985703" y="379.705781" style="fill: #cc79a7; stroke: #ffffff; stroke-width: 0.7"/>
     </g>
@@ -1912,7 +1917,7 @@ z
      <use xlink:href="#DejaVuSans-44" transform="translate(206.494141 0)"/>
     </g>
    </g>
-   <g id="PathCollection_17">
+   <g id="PathCollection_18">
     <g>
      <use xlink:href="#m4fe2933cc9" x="579.187266" y="366.495469" style="fill: #e69f00; stroke: #ffffff; stroke-width: 0.7"/>
     </g>
