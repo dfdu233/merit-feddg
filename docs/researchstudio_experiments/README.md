@@ -2,7 +2,7 @@
 
 This directory records the shortest falsification path for the current MERIT paper.
 
-It contains **no new benchmark results** and should not be cited as evidence that a proposed mechanism works. The purpose is to bind the reported results to a reproducible method configuration, isolate the smallest missing mechanism experiments, and stop early when the hypothesis is unsupported.
+The plan began as a specification; it now also links the first **full-TEST descriptive** mechanism result. Do not read one completed receiver–dataset cell as proof of the mechanism across models or datasets. The purpose is to bind reported results to a reproducible configuration, run the smallest falsifiable comparisons, and keep negative findings visible.
 
 ## Read in this order
 
@@ -12,11 +12,12 @@ It contains **no new benchmark results** and should not be cited as evidence tha
 4. [DATA_REQUEST_MINIMAL_CN.md](DATA_REQUEST_MINIMAL_CN.md): minimum server-side data needed to run the paired analysis.
 5. [ROW_SCHEMA.json](ROW_SCHEMA.json): normalized per-example result schema for matched comparisons.
 6. [MAIN_TABLE_BINDING_AUDIT.md](MAIN_TABLE_BINDING_AUDIT.md): current full-result provenance/scorer caveats and rows that are not yet paper-ready.
-7. [MANUSCRIPT_ABLATION_DRAFT.md](MANUSCRIPT_ABLATION_DRAFT.md): paper-ready protocol language, table shells, figure requirements and explicit result-entry gates; all numerical cells remain pending full-coverage analysis.
+7. [MANUSCRIPT_ABLATION_DRAFT.md](MANUSCRIPT_ABLATION_DRAFT.md): paper-ready protocol language and the first full-coverage LLaVA VQA-RAD five-arm result; Huatuo and SLAKE cells remain pending.
+8. [CASE_APPENDIX_VQARAD_LLAVA.md](CASE_APPENDIX_VQARAD_LLAVA.md): deterministic CE rescue, harm, protected-harm and missed-rescue examples from that complete run.
 
-The [minimal plan](MINIMAL_EXPERIMENT.md) now includes the paper-ready five-arm contrast matrix, paired rescue/harm definitions, statistical unit, reporting tables/plot, compute accounting, and a guard against turning previously inspected TEST splits into tuning data. [DATA_REQUEST_MINIMAL_CN.md](DATA_REQUEST_MINIMAL_CN.md) identifies the exact provenance and per-example fields needed to populate those displays. These are specifications; no ablation result is asserted by this documentation commit.
+The [minimal plan](MINIMAL_EXPERIMENT.md) includes the five-arm contrast matrix, paired rescue/harm definitions, statistical unit, reporting tables/plot, compute accounting, and a guard against turning previously inspected TEST splits into tuning data. [DATA_REQUEST_MINIMAL_CN.md](DATA_REQUEST_MINIMAL_CN.md) identifies the exact provenance and per-example fields. The first completed result is documented separately and remains descriptive until the other prespecified cells and closest-prior comparator finish.
 
-The live VQA-RAD execution is tracked on the separate experimental branch in the [run ledger](https://github.com/dfdu233/merit-feddg/blob/experiments/huatuo-adaptive-bard-validation-v1/reports/researchstudio_ablation/VQARAD_RUN_LEDGER.md). Its [paired analysis code](https://github.com/dfdu233/merit-feddg/blob/experiments/huatuo-adaptive-bard-validation-v1/scripts/analyze_researchstudio_ablation.py) rejects incomplete or evidence-mismatched runs. Both are preparation artifacts, not a completed result or a change to `main`.
+Execution is tracked on the separate experimental branch in the [VQA-RAD run ledger](https://github.com/dfdu233/merit-feddg/blob/experiments/huatuo-adaptive-bard-validation-v1/reports/researchstudio_ablation/VQARAD_RUN_LEDGER.md). Its [paired analysis code](https://github.com/dfdu233/merit-feddg/blob/experiments/huatuo-adaptive-bard-validation-v1/scripts/analyze_researchstudio_ablation.py) rejects incomplete or evidence-mismatched runs. The [full LLaVA VQA-RAD summary](https://github.com/dfdu233/merit-feddg/blob/experiments/huatuo-adaptive-bard-validation-v1/reports/researchstudio_ablation/llava_vqarad_raw_full/summary.json) and per-case paired rows are now complete; other cells and the strict-consensus comparator are still running. Nothing here changes `main`.
 
 ## Current decision rule
 
